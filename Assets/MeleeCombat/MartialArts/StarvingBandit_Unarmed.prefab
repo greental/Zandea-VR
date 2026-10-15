@@ -2122,6 +2122,8 @@ GameObject:
   - component: {fileID: 3675323698981821007}
   - component: {fileID: 2947384874008026418}
   - component: {fileID: 8527637912849112486}
+  - component: {fileID: 9200000000000000001}
+  - component: {fileID: 9200000000000000002}
   m_Layer: 0
   m_Name: StarvingBandit_Unarmed
   m_TagString: Untagged
@@ -3953,6 +3955,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc7eccc04dbf68640a97eafc01d56cef, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcGeneratedWeapon
+  inventory: {fileID: 9200000000000000001}
+  weaponItem: {fileID: 11400000, guid: 8b56b27b5a0f45fba9684b56d7534df9, type: 2}
   weaponPrefab: {fileID: 221771960174766966, guid: f571c246b49492c4296686d3ba772adf, type: 3}
   gripTarget: {fileID: 5788098601357392274}
   bandit: {fileID: 7039077362436753553}
@@ -12726,3 +12730,37 @@ Transform:
   - {fileID: 2791260437041144193}
   m_Father: {fileID: 2002974033553760974}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9200000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1548987744677308204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1067fb1e17f4fd5a61707c509c1754f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcInventory
+  lootTable: {fileID: 11400000, guid: 0fe268f5a046420785cb730d5b516ff9, type: 2}
+  seed: 0
+  logChanges: 0
+  generated: 0
+  items: []
+--- !u!114 &9200000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1548987744677308204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98721669e4094b018d743d9cc00c1d4a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcClothingLoot
+  inventory: {fileID: 9200000000000000001}
+  health: {fileID: 8735801881350323601}
+  pullDistance: 0.24
+  minimumOutwardDot: -1
+  handleRadius: 0.11

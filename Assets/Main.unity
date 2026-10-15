@@ -1746,8 +1746,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aef5f2ae81b48e743b32c0597948e893, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.BanditGroup
-  banditPrefab: {fileID: 6808849497592451313, guid: 4e28aab0209432f4785c4cd0feefac77, type: 3}
-  weaponVariants: []
+  banditPrefab: {fileID: 2678758142090184725, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+  weaponVariants:
+  - {fileID: 2678758142090184725, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+  - {fileID: 7039077362436753553, guid: 7370ce354d2a35241aff18ac64e16a90, type: 3}
+  - {fileID: 4934865956227349789, guid: c25c969f0ee2b9c42ab904ad47e04996, type: 3}
+  - {fileID: 6177980551279567312, guid: 285a52ddf01e57640ad6622950519ef4, type: 3}
   groupSize: 4
   spawnRadius: 4
   navMeshSampleRadius: 3
@@ -1780,8 +1784,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1690878427}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 156, y: -3347.66, z: -770.8}
+  m_LocalRotation: {x: 0, y: 0.89493436, z: 0, w: -0.4461978}
+  m_LocalPosition: {x: 78, y: -3235, z: -255}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

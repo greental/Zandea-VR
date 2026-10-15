@@ -67,7 +67,7 @@ namespace KenshiVR.MeleeCombat
                 Vector3 proposed = home + new Vector3(offset.x, 0f, offset.y);
                 if (!NavMesh.SamplePosition(proposed, out var hit, navMeshSampleRadius, NavMesh.AllAreas))
                 { Debug.LogWarning("Bandit Group could not find NavMesh for a spawn.", this); continue; }
-                var selectedPrefab = PickBanditPrefab();
+                var selectedPrefab = PickBanditPrefab(i);
                 var bandit = Instantiate(selectedPrefab, hit.position, transform.rotation);
                 bandit.name = i == 0 ? "Bandit Leader" : "Bandit Follower " + i;
                 bandit.groupControlled = true;
@@ -98,10 +98,10 @@ namespace KenshiVR.MeleeCombat
             nextWaypoint = Time.time;
         }
 
-        StarvingBandit PickBanditPrefab()
+        StarvingBandit PickBanditPrefab(int memberIndex)
         {
             if (weaponVariants == null || weaponVariants.Length == 0) return banditPrefab;
-            int start = Random.Range(0, weaponVariants.Length);
+            int start = memberIndex % weaponVariants.Length;
             for (int i = 0; i < weaponVariants.Length; i++)
             {
                 var option = weaponVariants[(start + i) % weaponVariants.Length];
