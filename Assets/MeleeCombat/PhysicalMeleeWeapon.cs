@@ -61,6 +61,9 @@ namespace KenshiVR.MeleeCombat
         [SerializeField] float positionErrorMeters, rotationErrorDegrees;
         public float PositionError => positionErrorMeters;
         public float RotationError => rotationErrorDegrees;
+        public int WeaponContactEntries { get; private set; }
+        public float MaximumWeaponContactSpeed { get; private set; }
+        public float MaximumWeaponContactImpulse { get; private set; }
         public enum StrikeType { Blunt, Cutting, Piercing }
         public StrikeType strikeType;
         public Transform grip;
@@ -148,6 +151,8 @@ namespace KenshiVR.MeleeCombat
             hand = args.interactorObject;
             ownerRoot = hand.transform.root;
             Owner = hand.transform.GetComponentInParent<MonoBehaviour>();
+            foreach (var actor in hand.transform.GetComponentsInParent<MonoBehaviour>())
+                if (actor is IDisarmCombatant) { Owner = actor; break; }
             State = HoldState.HeldByPlayer;
             selectedGrip = hand.handedness == InteractorHandedness.Left ? (leftGrip ? leftGrip : grip) : (rightGrip ? rightGrip : grip);
             if (!selectedGrip) selectedGrip = transform;
@@ -339,6 +344,12 @@ namespace KenshiVR.MeleeCombat
         }
         void OnCollisionEnter(Collision collision) => Impact(collision, true);
         void OnCollisionStay(Collision collision) => Impact(collision, false);
+        void OnCollisionExit(Collision collision)
+        {
+            var otherWeapon = collision.collider.GetComponentInParent<PhysicalMeleeWeapon>();
+            if (otherWeapon && otherWeapon != this)
+                WeaponDisarmResolver.Active?.NotifySeparation(this, otherWeapon);
+        }
         void Impact(Collision collision, bool newContact)
         {
             if (droppedByNpc) return;
@@ -347,10 +358,17 @@ namespace KenshiVR.MeleeCombat
             if (ownerRoot && other.transform.IsChildOf(ownerRoot)) return;
             var contact = collision.GetContact(0);
             float speed = collision.relativeVelocity.magnitude;
-            if (speed < minimumImpactSpeed) return;
             float impulse = collision.impulse.magnitude;
             var otherWeapon = other.GetComponentInParent<PhysicalMeleeWeapon>();
             bool weaponContact = otherWeapon && otherWeapon != this;
+            if (weaponContact && newContact)
+            {
+                WeaponContactEntries++;
+                MaximumWeaponContactSpeed = Mathf.Max(MaximumWeaponContactSpeed, speed);
+                MaximumWeaponContactImpulse = Mathf.Max(MaximumWeaponContactImpulse, impulse);
+                WeaponDisarmResolver.Active?.Evaluate(this, otherWeapon, speed, impulse, contact.normal);
+            }
+            if (speed < minimumImpactSpeed) return;
             if (weaponContact)
             {
                 ownerRoot?.GetComponent<StarvingBandit>()?.RegisterWeaponParry(otherWeapon);

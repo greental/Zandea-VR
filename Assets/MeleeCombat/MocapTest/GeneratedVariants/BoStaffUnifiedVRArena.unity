@@ -119,6 +119,202 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &239498386
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1531111257749188261, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: startEquipped
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2678758142090184725, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: target
+      value:
+      objectReference: {fileID: 2171048917944080738}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -28.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3638151384212234887, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_Name
+      value: StarvingBandit_BoStaff_Unified
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3638151384212234887, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 239498389}
+  m_SourcePrefab: {fileID: 100100000, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+--- !u!1 &239498387 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3638151384212234887, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+  m_PrefabInstance: {fileID: 239498386}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &239498388 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2678758142090184725, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+  m_PrefabInstance: {fileID: 239498386}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 239498387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
+--- !u!114 &239498389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 239498387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6badcf226b498b47b1d40c677183564, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.BanditDuelStrikeDamage
+  brain: {fileID: 239498388}
+  damage: 7
+  maximumRootDistance: 2
+  cleanHitChance: 0.8
+--- !u!1001 &728947045
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2678758142090184725, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: target
+      value:
+      objectReference: {fileID: 2171048917944080738}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -28.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3638151384212234887, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      propertyPath: m_Name
+      value: StarvingBandit_BoStaff_Unified
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3638151384212234887, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 728947048}
+  m_SourcePrefab: {fileID: 100100000, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+--- !u!1 &728947046 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3638151384212234887, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+  m_PrefabInstance: {fileID: 728947045}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &728947047 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2678758142090184725, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
+  m_PrefabInstance: {fileID: 728947045}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 728947046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
+--- !u!114 &728947048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 728947046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6badcf226b498b47b1d40c677183564, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.BanditDuelStrikeDamage
+  brain: {fileID: 728947047}
+  damage: 7
+  maximumRootDistance: 2
+  cleanHitChance: 0.8
 --- !u!1 &739324762
 GameObject:
   m_ObjectHideFlags: 0
@@ -406,102 +602,6 @@ Transform:
   - {fileID: 1830289137}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &2035013135
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2678758142090184725, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: target
-      value:
-      objectReference: {fileID: 2171048917944080738}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -28.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3638151384212234887, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_Name
-      value: StarvingBandit_BoStaff_Unified
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3638151384212234887, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2035013138}
-  m_SourcePrefab: {fileID: 100100000, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
---- !u!1 &2035013136 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3638151384212234887, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-  m_PrefabInstance: {fileID: 2035013135}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2035013137 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2678758142090184725, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-  m_PrefabInstance: {fileID: 2035013135}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2035013136}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
---- !u!114 &2035013138
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2035013136}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6badcf226b498b47b1d40c677183564, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.BanditDuelStrikeDamage
-  brain: {fileID: 2035013137}
-  damage: 7
-  maximumRootDistance: 2
-  cleanHitChance: 0.8
 --- !u!1 &2099054922
 GameObject:
   m_ObjectHideFlags: 0
@@ -629,106 +729,6 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
---- !u!1001 &2121010173
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1531111257749188261, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: startEquipped
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2678758142090184725, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: target
-      value:
-      objectReference: {fileID: 2171048917944080738}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -28.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3336592664156435543, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3638151384212234887, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      propertyPath: m_Name
-      value: StarvingBandit_BoStaff_Unified
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3638151384212234887, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2121010176}
-  m_SourcePrefab: {fileID: 100100000, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
---- !u!1 &2121010174 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3638151384212234887, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-  m_PrefabInstance: {fileID: 2121010173}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2121010175 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2678758142090184725, guid: 9be5966b7623c4f46b19fc140f9f7e68, type: 3}
-  m_PrefabInstance: {fileID: 2121010173}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2121010174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
---- !u!114 &2121010176
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2121010174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6badcf226b498b47b1d40c677183564, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.BanditDuelStrikeDamage
-  brain: {fileID: 2121010175}
-  damage: 7
-  maximumRootDistance: 2
-  cleanHitChance: 0.8
 --- !u!1001 &689099472879324223
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -860,5 +860,5 @@ SceneRoots:
   - {fileID: 5807664634782720987}
   - {fileID: 739324766}
   - {fileID: 689099472879324223}
-  - {fileID: 2035013135}
-  - {fileID: 2121010173}
+  - {fileID: 728947045}
+  - {fileID: 239498386}

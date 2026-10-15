@@ -26,6 +26,11 @@ namespace KenshiVR.MeleeCombat.Editor
                 throw new InvalidOperationException("Shared Bo Staff components are incomplete");
             if (body.isKinematic || !body.useGravity || grab.useDynamicAttach)
                 throw new InvalidOperationException("World physics or static grip configuration is wrong");
+            var shaft = weaponObject.GetComponent<CapsuleCollider>();
+            if (shaft.direction != 1 || shaft.radius < .03f ||
+                !weaponObject.transform.Find("PositiveStrikingTip") ||
+                !weaponObject.transform.Find("NegativeStrikingTip"))
+                throw new InvalidOperationException("Physical shaft collider or striking tips are misconfigured");
             bool hasMesh = false;
             foreach (var filter in weaponObject.GetComponentsInChildren<MeshFilter>(true))
                 if (filter.sharedMesh) { hasMesh = true; break; }

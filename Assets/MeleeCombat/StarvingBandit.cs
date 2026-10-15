@@ -358,8 +358,10 @@ namespace KenshiVR.MeleeCombat
             if (staff)
             {
                 staff.Blocked += OnBlocked;
-                positiveStrikingTip = staff.transform.Find("Positive striking tip");
-                negativeStrikingTip = staff.transform.Find("Negative striking tip");
+                positiveStrikingTip = staff.transform.Find("PositiveStrikingTip") ??
+                    staff.transform.Find("Positive striking tip");
+                negativeStrikingTip = staff.transform.Find("NegativeStrikingTip") ??
+                    staff.transform.Find("Negative striking tip");
                 var shape = staff.GetComponent<CapsuleCollider>();
                 if (shape) staffHalfLength = shape.height * .5f;
             }

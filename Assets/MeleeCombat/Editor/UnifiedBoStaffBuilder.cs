@@ -48,6 +48,16 @@ namespace KenshiVR.MeleeCombat.Editor
                 body.useGravity = true;
                 body.interpolation = RigidbodyInterpolation.Interpolate;
                 body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+                var shaft = weaponObject.GetComponent<CapsuleCollider>();
+                var positive = weaponObject.transform.Find("PositiveStrikingTip");
+                var negative = weaponObject.transform.Find("NegativeStrikingTip");
+                if (shaft && positive && negative)
+                {
+                    shaft.direction = 1; // The imported staff shaft runs mainly along local Y.
+                    shaft.center = (positive.localPosition + negative.localPosition) * .5f;
+                    shaft.height = Vector3.Distance(positive.localPosition, negative.localPosition);
+                    shaft.radius = .045f;
+                }
                 var grab = weaponObject.GetComponent<XRGrabInteractable>();
                 if (!grab) grab = weaponObject.AddComponent<XRGrabInteractable>();
                 grab.attachTransform = right;

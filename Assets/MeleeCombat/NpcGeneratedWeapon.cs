@@ -5,7 +5,7 @@ using UnityEngine.AI;
 namespace KenshiVR.MeleeCombat
 {
     [DefaultExecutionOrder(-500)]
-    public sealed class NpcGeneratedWeapon : MonoBehaviour
+    public sealed class NpcGeneratedWeapon : MonoBehaviour, IDisarmCombatant
     {
         public PhysicalMeleeWeapon weaponPrefab;
         public Transform gripTarget;
@@ -25,6 +25,29 @@ namespace KenshiVR.MeleeCombat
         NavMeshAgent agent;
         float nextSearch, deadline;
         public PhysicalMeleeWeapon Instance => instance;
+        public Transform CombatantRoot => transform;
+        public bool CanClash => enabled && instance && instance.State == PhysicalMeleeWeapon.HoldState.HeldByNpc &&
+            instance.Owner == this && bandit && bandit.enabled && bandit.state != StarvingBandit.State.Dead &&
+            (!health || !health.IsDead) && !(GetComponent<ScavengerRagdoll>()?.Active ?? false);
+        public bool IsStriking => bandit && bandit.state == StarvingBandit.State.Strike;
+        public bool Opposes(IDisarmCombatant other) => bandit && other != null &&
+            other.CombatantRoot && bandit.target &&
+            (bandit.target == other.CombatantRoot || bandit.target.IsChildOf(other.CombatantRoot));
+        public bool ReleaseForDisarm(PhysicalMeleeWeapon weapon)
+        {
+            if (!CanClash || instance != weapon) return false;
+            Drop();
+            return weapon.State == PhysicalMeleeWeapon.HoldState.World;
+        }
+        public bool TryEquipWorldWeapon(PhysicalMeleeWeapon weapon)
+        {
+            if (!weapon || instance || !gripTarget || (health && health.IsDead) ||
+                !weapon.TryEquipNpc(this, gripTarget)) return false;
+            Abandon();
+            instance = weapon;
+            BindWeapon();
+            return true;
+        }
 
         void Awake()
         {
@@ -50,8 +73,10 @@ namespace KenshiVR.MeleeCombat
             if (grip)
             {
                 grip.staff = instance;
-                grip.positiveTip = instance ? instance.transform.Find("Positive striking tip") : null;
-                grip.negativeTip = instance ? instance.transform.Find("Negative striking tip") : null;
+                grip.positiveTip = instance ? instance.transform.Find("PositiveStrikingTip") ??
+                    instance.transform.Find("Positive striking tip") : null;
+                grip.negativeTip = instance ? instance.transform.Find("NegativeStrikingTip") ??
+                    instance.transform.Find("Negative striking tip") : null;
                 grip.driveVisualStaff = false;
             }
             var motion = GetComponent<BanditRigMotion>();
@@ -83,7 +108,7 @@ namespace KenshiVR.MeleeCombat
                 {
                     var picked = candidate;
                     Abandon();
-                    if (picked.TryEquipNpc(this, gripTarget)) { instance = picked; BindWeapon(); }
+                    TryEquipWorldWeapon(picked);
                     return;
                 }
                 if (!agent.pathPending && (!agent.hasPath || Vector3.Distance(agent.destination, candidate.transform.position) > .6f))
