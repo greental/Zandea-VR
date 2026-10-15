@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using VRKoombar.WeaponsStaging.Contracts;
+using KenshiVR.MeleeCombat;
 
 namespace ScavengerNPC
 {
@@ -15,20 +16,22 @@ namespace ScavengerNPC
         public void ApplyDamage(in DamagePacket packet)
         {
             if (IsDead || packet.BaseDamage <= 0 || float.IsNaN(packet.BaseDamage)) return;
-            Current = Mathf.Max(0, Current - packet.BaseDamage);
+            float taken = packet.BaseDamage * CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>());
+            Current = Mathf.Max(0, Current - taken);
             var brain = GetComponent<ScavengerEnemy>();
             if (Current <= 0)
             {
                 IsDead = true;
                 if (brain) brain.Die();
                 var ragdoll = GetComponent<ScavengerRagdoll>();
-                if (ragdoll) ragdoll.Activate(packet.HitPointWorld, -packet.HitNormalWorld * 4);
+                if (ragdoll) ragdoll.Activate(packet.HitPointWorld, -packet.HitNormalWorld *
+                    (4f * CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>())));
                 onDeath.Invoke();
             }
             else
             {
                 var pose = GetComponent<ScavengerPose>();
-                if (pose) pose.PlayHitReaction(packet.HitNormalWorld, packet.BaseDamage);
+                if (pose) pose.PlayHitReaction(packet.HitNormalWorld, taken);
                 if (brain) brain.Alert(packet.Source ? packet.Source.transform : null);
                 onDamaged.Invoke();
             }

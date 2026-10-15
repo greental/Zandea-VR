@@ -504,6 +504,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.PhysicalMeleeWeapon
   weaponId: bo-staff
+  proficiencyClass: 1
   currentState: 0
   rightGrip: {fileID: 3186999788452130967}
   leftGrip: {fileID: 7762566675722523435}
@@ -527,6 +528,9 @@ MonoBehaviour:
   rotationSpring: 850
   rotationDamper: 65
   maximumDriveForce: 1200
+  useAttributesForNpcHandling: 1
+  useAttributesForPlayerHandling: 0
+  activeControlMultiplier: 1
   minimumImpactSpeed: 1.8
   damagePerJoule: 0.15
   damageCooldown: 0.2

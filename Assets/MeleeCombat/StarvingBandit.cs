@@ -108,6 +108,9 @@ namespace KenshiVR.MeleeCombat
         float lastWeaponParry;
         PhysicalMeleeWeapon parriedWeapon;
         BanditCombatAudio combatAudio;
+        CharacterAttributes attributes;
+        public float AttackAnimationSpeed => CharacterCombatMath.AttackSpeed(attributes,
+            staff ? staff.proficiencyClass : PhysicalMeleeWeapon.WeaponProficiencyClass.None);
         public void RegisterWeaponParry(PhysicalMeleeWeapon incoming)
         {
             if (state != State.Parry || !incoming || incoming == staff) return;
@@ -325,6 +328,7 @@ namespace KenshiVR.MeleeCombat
         }
         void Awake()
         {
+            attributes = GetComponent<CharacterAttributes>();
             nextShowcaseDirection = Mathf.Clamp(firstAttackDirection, 0, 7);
             if (staff) EnsureTipMarkers();
             if (attackDefaultsVersion < 12) attacks = null;
@@ -349,6 +353,7 @@ namespace KenshiVR.MeleeCombat
             CaptureGuard();
             nextAttack = Time.time + initialAttackDelay;
         }
+        public void ResetAttackSchedule() => nextAttack = Time.time + initialAttackDelay;
         void OnDestroy() { if (staff) staff.Blocked -= OnBlocked; if (previewDummy) Destroy(previewDummy); if (previewDummyMaterial) Destroy(previewDummyMaterial); }
         public void SetEquippedStaff(PhysicalMeleeWeapon value, Transform goal)
         {
@@ -466,17 +471,19 @@ namespace KenshiVR.MeleeCombat
             bool newThreat = threatAttacking && !threatWasAttacking;
             threatWasAttacking = threatAttacking;
             if (parryIncomingNpcAttacks && newStrike && rangeToTarget < 2.5f &&
-                Time.time >= nextParry && UnityEngine.Random.value < parryChance)
+                Time.time >= nextParry && UnityEngine.Random.value < Mathf.Clamp01(parryChance *
+                    CharacterCombatMath.DefensiveDecision(attributes)))
             {
-                parryUntil = Time.time + .45f;
-                nextParry = Time.time + 1.5f;
+                parryUntil = Time.time + .45f * CharacterCombatMath.DefensiveDecision(attributes);
+                nextParry = Time.time + 1.5f / CharacterCombatMath.DefensiveDecision(attributes);
                 state = State.Parry;
                 Move(false);
                 ReturnToGuard();
                 return;
             }
             if (blockIncomingNpcAttacks && newThreat && rangeToTarget < 2.5f &&
-                UnityEngine.Random.value < blockChance)
+                UnityEngine.Random.value < Mathf.Clamp01(blockChance *
+                    CharacterCombatMath.DefensiveDecision(attributes)))
             {
                 blockUntil = Time.time + .65f;
                 state = State.Block;
@@ -485,7 +492,8 @@ namespace KenshiVR.MeleeCombat
                 return;
             }
             if (dodgeIncomingNpcAttacks && newThreat && rangeToTarget < 2.5f &&
-                Time.time >= nextDodge && UnityEngine.Random.value < dodgeChance)
+                Time.time >= nextDodge && UnityEngine.Random.value < Mathf.Clamp01(dodgeChance *
+                    CharacterCombatMath.DefensiveDecision(attributes)))
             {
                 float side = UnityEngine.Random.value < .5f ? -1f : 1f;
                 var destination = transform.position + transform.right * (side * dodgeDistance) - transform.forward * .3f;
@@ -532,7 +540,7 @@ namespace KenshiVR.MeleeCombat
             Move(false); state = State.Circle; ReturnToGuard();
             if (Time.time >= nextAttack)
             {
-                int chosen = cycleAttackDirections ? nextShowcaseDirection : UnityEngine.Random.Range(0, 8);
+                int chosen = cycleAttackDirections ? nextShowcaseDirection : ChooseAttackIndex();
                 var candidate = attacks[chosen];
                 if (rangeToTarget > candidate.comfortableRange + candidate.maximumApproachStep)
                 { state = State.Approach; Move(true, target.position); return; }
@@ -541,6 +549,23 @@ namespace KenshiVR.MeleeCombat
             }
         }
         bool IsAttacking() => state == State.Anticipate || state == State.Strike || state == State.FollowThrough || state == State.Recover;
+        int ChooseAttackIndex()
+        {
+            int samples = attributes ? Mathf.Clamp(1 + Mathf.FloorToInt(
+                attributes.Get(CharacterAttribute.MeleeAttack) / 30f), 1, 4) : 1;
+            int chosen = UnityEngine.Random.Range(0, 8);
+            float best = ImpactReachError(chosen);
+            for (int i = 1; i < samples; i++)
+            {
+                int candidate = UnityEngine.Random.Range(0, 8);
+                float error = ImpactReachError(candidate);
+                if (error < best) { best = error; chosen = candidate; }
+            }
+            return chosen;
+        }
+        float ImpactReachError(int index) => target && attacks[index] != null ?
+            Vector3.Distance(transform.TransformPoint(attacks[index].impactTipLocal),
+                target.position + Vector3.up * 1.1f) : 0f;
         void StartAttack(int index)
         {
             attackIndex = Mathf.Clamp(index, 0, 7);
@@ -549,7 +574,7 @@ namespace KenshiVR.MeleeCombat
             plannedStep = Mathf.Clamp(rangeToTarget - attacks[attackIndex].comfortableRange, 0, attacks[attackIndex].maximumApproachStep);
             appliedStep = 0;
             CurrentPhase = AttackPhase.Windup; AttackProgress = 0; state = State.Anticipate;
-            until = Time.time + Mathf.Max(.05f, attacks[attackIndex].windupSeconds);
+            until = Time.time + PhaseDuration(attacks[attackIndex], AttackPhase.Windup);
         }
         void TickAttack()
         {
@@ -572,7 +597,9 @@ namespace KenshiVR.MeleeCombat
                 state = State.Retreat;
                 spacingRetreat = true;
                 until = Time.time + postAttackRetreatSeconds;
-                nextAttack = until + UnityEngine.Random.Range(.2f, .5f);
+                nextAttack = until + UnityEngine.Random.Range(.2f, .5f) *
+                    CharacterCombatMath.AttackInterval(attributes,
+                        staff ? staff.proficiencyClass : PhysicalMeleeWeapon.WeaponProficiencyClass.None);
                 ReturnToGuard(); return;
             }
             CurrentPhase++;
@@ -580,9 +607,10 @@ namespace KenshiVR.MeleeCombat
             if (CurrentPhase == AttackPhase.Strike) combatAudio?.PlayAttack();
             until = Time.time + PhaseDuration(a, CurrentPhase);
         }
-        static float PhaseDuration(StaffAttackDefinition a, AttackPhase p) => Mathf.Max(.05f, p switch {
+        float PhaseDuration(StaffAttackDefinition a, AttackPhase p) => Mathf.Max(.05f, (p switch {
             AttackPhase.Windup => a.windupSeconds, AttackPhase.Strike => a.strikeSeconds,
-            AttackPhase.FollowThrough => a.followSeconds, _ => a.recoverySeconds });
+            AttackPhase.FollowThrough => a.followSeconds, _ => a.recoverySeconds }) /
+            AttackAnimationSpeed);
         void ReturnToGuard()
         {
             hasDesiredPose = false;

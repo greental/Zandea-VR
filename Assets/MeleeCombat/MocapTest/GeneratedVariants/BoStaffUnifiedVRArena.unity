@@ -847,10 +847,46 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7677164931767008894, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5807664634782720989}
     - targetCorrespondingSourceObject: {fileID: 8709424492180261004, guid: f50208f8d28865a41bebab9caef72374, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+--- !u!1 &5807664634782720988 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7677164931767008894, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+  m_PrefabInstance: {fileID: 5807664634782720987}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5807664634782720989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5807664634782720988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1878900648faf664289baeaafac25a7d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.CharacterAttributes
+  profile: {fileID: 11400000, guid: 4986891bfdef0464385b64bb5da15771, type: 2}
+  startingValues:
+    strength: 50
+    dexterity: 50
+    meleeAttack: 50
+    meleeDefense: 50
+    toughness: 50
+    staffProficiency: 50
+  runtimeMaximum: 200
+  runtimeValues:
+    strength: 0
+    dexterity: 0
+    meleeAttack: 0
+    meleeDefense: 0
+    toughness: 0
+    staffProficiency: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

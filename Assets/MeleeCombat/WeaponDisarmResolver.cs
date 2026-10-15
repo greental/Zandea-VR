@@ -44,6 +44,8 @@ namespace KenshiVR.MeleeCombat
         [Min(0)] public float pairCooldown = 1.25f;
         [Header("Disarm chance")]
         [Range(0, 1)] public float baselineChance = .05f;
+        [Range(0, 1)] public float minimumStatChance = .005f;
+        [Range(0, 1)] public float maximumStatChance = .15f;
         public ProbabilityMode mode = ProbabilityMode.Normal;
         public bool useSeededRandom;
         public int randomSeed = 7319;
@@ -57,6 +59,7 @@ namespace KenshiVR.MeleeCombat
         public int QualifyingClashes { get; private set; }
         public int ProbabilityRolls { get; private set; }
         public int SuccessfulDisarms { get; private set; }
+        public float LastCalculatedChance { get; private set; }
         readonly Dictionary<ulong, PairState> pairs = new();
         System.Random seededRandom;
 
@@ -72,6 +75,11 @@ namespace KenshiVR.MeleeCombat
         {
             if (Active == this) Active = null;
             pairs.Clear();
+        }
+        public void ResetSeed(int seed)
+        {
+            randomSeed = seed;
+            seededRandom = new System.Random(seed);
         }
 
         static ulong Key(PhysicalMeleeWeapon a, PhysicalMeleeWeapon b)
@@ -130,10 +138,14 @@ namespace KenshiVR.MeleeCombat
             var clash = new DisarmClash(attacker, defender, relativeSpeed, impulse, contactNormal);
             if (effectiveMode == ProbabilityMode.Normal)
             {
+                chance = CharacterCombatMath.DisarmChance(chance,
+                    CharacterAttributes.Find(attacker.ownerRoot), CharacterAttributes.Find(defender.ownerRoot),
+                    attacker, defender, relativeSpeed, impulse, minimumStatChance, maximumStatChance);
                 chance = Modify(attacker.ownerRoot, clash, chance);
                 chance = Modify(defender.ownerRoot, clash, chance);
             }
             chance = Mathf.Clamp01(chance);
+            LastCalculatedChance = chance;
             float roll = useSeededRandom ? (float)seededRandom.NextDouble() : UnityEngine.Random.value;
             ProbabilityRolls++;
             pair.lastRoll = Time.time > 0 ? Time.time : float.Epsilon;

@@ -68,17 +68,21 @@ namespace KenshiVR.MeleeCombat
         void OnDisable()
         {
             if (health) health.onDamaged.RemoveListener(OnDamaged);
+            if (animator) animator.speed = 1f;
         }
         void OnDamaged()
         {
             if (!animator || (health && health.IsDead)) return;
             reacting = true;
-            reactionUntil = Time.time + .45f;
+            var toughness = brain ? CharacterCombatMath.Offset(
+                brain.GetComponent<CharacterAttributes>(), CharacterAttribute.Toughness) : 0f;
+            reactionUntil = Time.time + Mathf.Clamp(.45f * (1f - .2f * toughness), .32f, .55f);
             int state = !useImportedCombatReactions ? Hit : (++hitVariant % 3) switch
             {
                 0 => HitLeft, 1 => HitRight, _ => HitGut
             };
             animator.CrossFadeInFixedTime(state, .06f);
+            animator.speed = 1f;
         }
         void Update()
         {
@@ -91,16 +95,17 @@ namespace KenshiVR.MeleeCombat
             { local.x = 0f; local.z = -1f; }
             animator.SetFloat(MoveX, Mathf.Clamp(local.x, -1, 1), .1f, Time.deltaTime);
             animator.SetFloat(MoveY, Mathf.Clamp(local.z, -1, 1), .1f, Time.deltaTime);
+            bool attacking = brain.state == StarvingBandit.State.Anticipate ||
+                brain.state == StarvingBandit.State.Strike ||
+                brain.state == StarvingBandit.State.FollowThrough ||
+                brain.state == StarvingBandit.State.Recover;
+            animator.speed = attacking && !reacting ? brain.AttackAnimationSpeed : 1f;
             if (reacting)
             {
                 if (Time.time < reactionUntil) { previousState = brain.state; return; }
                 reacting = false;
                 animator.CrossFadeInFixedTime(Locomotion, blendSeconds);
             }
-            bool attacking = brain.state == StarvingBandit.State.Anticipate ||
-                brain.state == StarvingBandit.State.Strike ||
-                brain.state == StarvingBandit.State.FollowThrough ||
-                brain.state == StarvingBandit.State.Recover;
             bool wasAttacking = previousState == StarvingBandit.State.Anticipate ||
                 previousState == StarvingBandit.State.Strike ||
                 previousState == StarvingBandit.State.FollowThrough ||

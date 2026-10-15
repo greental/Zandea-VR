@@ -43,7 +43,9 @@ namespace KenshiVR.MeleeCombat
             var normal = (hitPoint - brain.ActualTipPosition).normalized;
             if (normal.sqrMagnitude < .01f) normal = transform.forward;
             var packet = new DamagePacket {
-                BaseDamage = damage, DamageType = DamageType.Kinetic,
+                BaseDamage = damage * CharacterCombatMath.DamageDealt(GetComponent<CharacterAttributes>(),
+                    brain.staff ? brain.staff.proficiencyClass : PhysicalMeleeWeapon.WeaponProficiencyClass.None),
+                DamageType = DamageType.Kinetic,
                 HitPointWorld = hitPoint, HitNormalWorld = normal,
                 Source = gameObject, WeaponId = brain.staff ? brain.staff.name : "Bandit staff",
                 Timestamp = Time.time

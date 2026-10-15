@@ -4670,6 +4670,7 @@ GameObject:
   - component: {fileID: 8582789479432779734}
   - component: {fileID: 3109089641949124667}
   - component: {fileID: 1531111257749188261}
+  - component: {fileID: 1741365060118405730}
   m_Layer: 0
   m_Name: StarvingBandit_BoStaff_Unified
   m_TagString: Untagged
@@ -6493,6 +6494,34 @@ MonoBehaviour:
   pickupDistance: 1.25
   safeEnemyDistance: 3
   pickupTimeout: 8
+--- !u!114 &1741365060118405730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3638151384212234887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1878900648faf664289baeaafac25a7d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.CharacterAttributes
+  profile: {fileID: 11400000, guid: 4986891bfdef0464385b64bb5da15771, type: 2}
+  startingValues:
+    strength: 50
+    dexterity: 50
+    meleeAttack: 50
+    meleeDefense: 50
+    toughness: 50
+    staffProficiency: 50
+  runtimeMaximum: 200
+  runtimeValues:
+    strength: 0
+    dexterity: 0
+    meleeAttack: 0
+    meleeDefense: 0
+    toughness: 0
+    staffProficiency: 0
 --- !u!1 &3648264276581143905
 GameObject:
   m_ObjectHideFlags: 0

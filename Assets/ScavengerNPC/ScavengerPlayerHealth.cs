@@ -3,6 +3,7 @@ using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Jump;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
 using VRKoombar.WeaponsStaging.Contracts;
+using KenshiVR.MeleeCombat;
 
 namespace ScavengerNPC
 {
@@ -50,7 +51,8 @@ namespace ScavengerNPC
         public void ApplyDamage(in DamagePacket packet)
         {
             if (Current <= 0 || packet.BaseDamage <= 0 || float.IsNaN(packet.BaseDamage)) return;
-            Current = Mathf.Max(0, Current - packet.BaseDamage);
+            Current = Mathf.Max(0, Current - packet.BaseDamage *
+                CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>()));
             hitFlash = 1;
             onDamaged.Invoke();
             if (Current <= 0)

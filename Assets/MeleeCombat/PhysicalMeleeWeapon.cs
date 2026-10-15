@@ -15,8 +15,10 @@ namespace KenshiVR.MeleeCombat
     {
         public enum HoldState { World, HeldByPlayer, HeldByNpc }
         public enum PhysicsPreset { Custom, LightSword, HeavySword, BoStaff, HeavyPolearm }
+        public enum WeaponProficiencyClass { None, Staff }
         [Header("Shared ownership")]
         public string weaponId = "bo-staff";
+        public WeaponProficiencyClass proficiencyClass;
         [SerializeField] HoldState currentState;
         public HoldState State { get => currentState; private set => currentState = value; }
         public Component Owner { get; private set; }
@@ -73,6 +75,11 @@ namespace KenshiVR.MeleeCombat
         [Min(0)] public float positionSpring = 1800f, positionDamper = 105f;
         [Min(0)] public float rotationSpring = 850f, rotationDamper = 65f;
         [Min(0)] public float maximumDriveForce = 1200f;
+        [Header("Attribute handling")]
+        public bool useAttributesForNpcHandling = true;
+        public bool useAttributesForPlayerHandling;
+        [SerializeField] float activeControlMultiplier = 1f;
+        public float ActiveControlMultiplier => activeControlMultiplier;
         [Min(0)] public float minimumImpactSpeed = 1.3f;
         [Min(0)] public float damagePerJoule = .15f;
         [Min(0)] public float damageCooldown = .2f;
@@ -84,6 +91,7 @@ namespace KenshiVR.MeleeCombat
         Rigidbody body, targetBody;
         ConfigurableJoint joint;
         XRGrabInteractable grab;
+        CharacterAttributes attributeSource;
         IXRSelectInteractor hand;
         VRBodyController playerBody;
         Transform selectedGrip;
@@ -235,6 +243,8 @@ namespace KenshiVR.MeleeCombat
             joint.anchor = transform.InverseTransformPoint(selectedGrip ? selectedGrip.position : transform.position);
             joint.connectedAnchor = Vector3.zero;
             bool npcHeld = pose == npcGripTarget;
+            attributeSource = CharacterAttributes.Find(ownerRoot);
+            if (attributeSource) attributeSource.Changed += OnAttributeChanged;
             joint.xMotion = joint.yMotion = joint.zMotion = npcHeld ? ConfigurableJointMotion.Limited : ConfigurableJointMotion.Free;
             joint.angularXMotion = joint.angularYMotion = joint.angularZMotion = npcHeld ? ConfigurableJointMotion.Limited : ConfigurableJointMotion.Free;
             if (npcHeld)
@@ -245,11 +255,26 @@ namespace KenshiVR.MeleeCombat
                 joint.angularYLimit = joint.angularZLimit = new SoftJointLimit { limit = npcAngularSlack };
             }
             joint.rotationDriveMode = RotationDriveMode.Slerp;
-            joint.xDrive = joint.yDrive = joint.zDrive = new JointDrive { positionSpring = positionSpring, positionDamper = positionDamper, maximumForce = maximumDriveForce };
-            joint.slerpDrive = new JointDrive { positionSpring = rotationSpring, positionDamper = rotationDamper, maximumForce = maximumDriveForce };
+            ConfigureJointDrive();
             FollowPose = pose;
             targetInitialized = false;
             IgnoreOwner(true);
+        }
+        void OnAttributeChanged(CharacterAttribute attribute, int value) => ConfigureJointDrive();
+        void ConfigureJointDrive()
+        {
+            if (!joint) return;
+            bool useAttributes = State == HoldState.HeldByNpc ? useAttributesForNpcHandling : useAttributesForPlayerHandling;
+            activeControlMultiplier = useAttributes ?
+                CharacterCombatMath.WeaponControl(attributeSource, body.mass, proficiencyClass) : 1f;
+            joint.xDrive = joint.yDrive = joint.zDrive = new JointDrive {
+                positionSpring = positionSpring * activeControlMultiplier,
+                positionDamper = positionDamper * Mathf.Sqrt(activeControlMultiplier),
+                maximumForce = maximumDriveForce * activeControlMultiplier };
+            joint.slerpDrive = new JointDrive {
+                positionSpring = rotationSpring * activeControlMultiplier,
+                positionDamper = rotationDamper * Mathf.Sqrt(activeControlMultiplier),
+                maximumForce = maximumDriveForce * activeControlMultiplier };
         }
         Transform FollowPose { get; set; }
         void FixedUpdate()
@@ -301,6 +326,9 @@ namespace KenshiVR.MeleeCombat
         }
         void Detach()
         {
+            if (attributeSource) attributeSource.Changed -= OnAttributeChanged;
+            attributeSource = null;
+            activeControlMultiplier = 1f;
             if (deferCollisionRestore)
             {
                 var formerShapes = ignored.ToArray();
@@ -383,7 +411,8 @@ namespace KenshiVR.MeleeCombat
             // Both speed and solver impulse must indicate a strike. Sustained contact cannot
             // repeatedly score damage just because the controller keeps pushing.
             float energy = .5f * body.mass * speed * speed;
-            float damage = Mathf.Min(60f, energy * damagePerJoule * Mathf.Clamp01(impulse / .5f));
+            float damage = Mathf.Min(60f, energy * damagePerJoule * Mathf.Clamp01(impulse / .5f) *
+                CharacterCombatMath.DamageDealt(CharacterAttributes.Find(ownerRoot), proficiencyClass));
             if (damage < .5f) return;
             var receiver = other.GetComponentInParent<IDamageable>();
             if (receiver == null) return;
