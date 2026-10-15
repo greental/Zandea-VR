@@ -125,13 +125,12 @@ namespace KenshiVR.MeleeCombat.Editor
         static void BuildScene()
         {
             var scene = EditorSceneManager.OpenScene(SourceScene, OpenSceneMode.Additive);
-            var playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                "Assets/MyAssets/prefabs/Player/VR player - JunkerWeapon.prefab");
-            var player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab, scene);
-            player.transform.position = Vector3.zero;
-            var body = player.GetComponentInChildren<JunkerBody.VRBodyController>(true);
-            foreach (var camera in scene.GetRootGameObjects())
-                if (camera.name == "Duel camera") camera.SetActive(false);
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                if (root.GetComponent<StarvingBandit>()) { Object.DestroyImmediate(root); continue; }
+                var monitor = root.GetComponent<BanditDuelMonitor>();
+                if (monitor) { Object.DestroyImmediate(root); continue; }
+            }
             var navData = AssetDatabase.LoadAssetAtPath<UnityEngine.AI.NavMeshData>(
                 "Assets/MeleeCombat/BanditDuelNavMesh.asset");
             foreach (var root in scene.GetRootGameObjects())
@@ -142,17 +141,19 @@ namespace KenshiVR.MeleeCombat.Editor
                     serialized.FindProperty("m_NavMeshData").objectReferenceValue = navData;
                     serialized.ApplyModifiedPropertiesWithoutUndo();
                 }
-            for (int i = 0; i < 3; i++)
+            var fighters = new StarvingBandit[2];
+            for (int i = 0; i < fighters.Length; i++)
             {
-                string name = i == 0 ? "StarvingBandit_Unarmed" : i == 1 ? "RegularBandit_Unarmed" : "MartialArtist_Unarmed";
+                string name = i == 0 ? "StarvingBandit_Unarmed" : "RegularBandit_Unarmed";
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Root + "/" + name + ".prefab");
                 var npc = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
                 npc.name = name;
-                npc.transform.position = new Vector3(-3f + i * 3f, 0f, 4f);
-                var brain = npc.GetComponent<StarvingBandit>();
-                if (brain && body) brain.target = body.hmd;
-                npc.SetActive(i == 0); // Enable additional profiles in Inspector for group testing.
+                npc.transform.position = new Vector3(i == 0 ? -1.4f : 1.4f, 0f, 0f);
+                npc.transform.rotation = Quaternion.Euler(0f, i == 0 ? 90f : -90f, 0f);
+                fighters[i] = npc.GetComponent<StarvingBandit>();
             }
+            fighters[0].target = fighters[1].transform;
+            fighters[1].target = fighters[0].transform;
             EditorSceneManager.SaveScene(scene, Root + "/MartialArtsVRArena.unity");
             EditorSceneManager.CloseScene(scene, true);
         }
