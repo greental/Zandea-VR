@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using KenshiVR.CharacterCreator;
 using UnityEngine;
 
@@ -23,6 +24,7 @@ namespace KenshiVR.MeleeCombat
             Generate();
         }
         void Start() => SyncClothing();
+        void OnEnable() { if (generated) SyncClothing(); }
         void SyncClothing()
         {
             if (!lootTable && items.Count == 0) return;
@@ -154,10 +156,34 @@ namespace KenshiVR.MeleeCombat
         public bool TakeWorld(NpcWorldItem marker)
         {
             if (!marker || marker.Item == null || marker.Item.WorldObject != marker.gameObject) return false;
-            var item = marker.Item;
-            item.SetLocation(null, NpcEquipmentSlot.None, null, null);
-            if (Add(item)) { marker.Bind(null); return true; }
-            item.SetLocation(null, NpcEquipmentSlot.None, null, marker.gameObject); return false;
+            var group = new List<NpcItemInstance>(marker.Items);
+            foreach (var item in group)
+                if (item.Owner != null || item.WorldObject != marker.gameObject || !item.Definition || items.Contains(item)) return false;
+            foreach (var item in group)
+            {
+                item.SetLocation(null, NpcEquipmentSlot.None, null, null);
+                items.Add(item);
+                item.SetLocation(this, NpcEquipmentSlot.None, null, null);
+            }
+            marker.Bind(null);
+            foreach (var item in group) Notify(item);
+            return true;
+        }
+        public bool SpillWorldContents(NpcItemInstance container, IReadOnlyList<NpcItemInstance> group, GameObject physical)
+        {
+            if (container == null || container.Owner != null || !container.WorldObject || !physical || group == null || group.Count == 0) return false;
+            foreach (var item in group)
+                if (item == null || item.Owner != null || item.ContainerId != container.InstanceId || !container.Contents.Contains(item)) return false;
+            foreach (var item in group)
+            {
+                container.RemoveContained(item);
+                item.SetLocation(null, NpcEquipmentSlot.None, null, physical);
+            }
+            var marker = physical.GetComponent<NpcWorldItem>();
+            if (!marker) marker = physical.AddComponent<NpcWorldItem>();
+            marker.BindMany(group);
+            foreach (var item in group) Notify(item);
+            return true;
         }
         NpcItemInstance Find(string id)
         {

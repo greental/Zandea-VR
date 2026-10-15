@@ -4673,6 +4673,7 @@ GameObject:
   - component: {fileID: 1741365060118405730}
   - component: {fileID: 7590053521626566764}
   - component: {fileID: 9184756300080214101}
+  - component: {fileID: 9184756300080214102}
   m_Layer: 0
   m_Name: StarvingBandit_BoStaff_Unified
   m_TagString: Untagged
@@ -12747,3 +12748,20 @@ MonoBehaviour:
   logChanges: 0
   generated: 0
   items: []
+--- !u!114 &9184756300080214102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3638151384212234887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98721669e4094b018d743d9cc00c1d4a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcClothingLoot
+  inventory: {fileID: 9184756300080214101}
+  health: {fileID: 5950924122389326169}
+  pullDistance: 0.24
+  minimumOutwardDot: -1
+  handleRadius: 0.11

@@ -17,7 +17,14 @@ MonoBehaviour:
   category: 1
   valueCats: 9
   weight: 0.5
-  worldPrefab: {fileID: 0}
+  worldPrefab: {fileID: 8959740930802771638, guid: baeab86b0aefcd34b8e59faa5425fddd, type: 3}
   equippedAppearance: {fileID: 11400000, guid: c840eda6dc52d5a48938009caa7f75b8, type: 2}
   icon: {fileID: 0}
   defaultSlot: 3
+  flattenAxis: 3
+  flattenFactor: 0.15
+  minimumThickness: 0.015
+  lootEuler: {x: 0, y: 0, z: 0}
+  gripOffset: {x: 0, y: 0.08, z: 0.1}
+  preferCachedLoot: 1
+  lootBakeVersion: 2

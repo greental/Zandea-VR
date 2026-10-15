@@ -54,7 +54,7 @@ namespace KenshiVR.MeleeCombat
                 var marker = weapon.GetComponent<NpcWorldItem>();
                 var worldItem = marker ? marker.Item : null;
                 if (worldItem != null && inventory.TakeWorld(marker)) inventory.Equip(worldItem, NpcEquipmentSlot.MainWeapon);
-                else if (weaponItem && (!marker || !marker.Item)) RegisterWeapon(weapon);
+                else if (weaponItem && (!marker || marker.Item == null)) RegisterWeapon(weapon);
             }
             BindWeapon();
             return true;
