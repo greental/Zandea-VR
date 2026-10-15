@@ -1,0 +1,203 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using VRKoombar.WeaponsStaging.Contracts;
+
+namespace KenshiVR.MeleeCombat
+{
+    // The visible weapon is always dynamic. A kinematic, collider-free target is driven by
+    // the hand or animation; a finite-strength joint lets world contacts arrest the blade.
+    [RequireComponent(typeof(Rigidbody))]
+    public sealed class PhysicalMeleeWeapon : MonoBehaviour
+    {
+        public enum StrikeType { Blunt, Cutting, Piercing }
+        public StrikeType strikeType;
+        public Transform grip;
+        public Transform npcGripTarget;
+        public Transform ownerRoot;
+        [Min(.01f)] public float mass = 1.4f;
+        [Min(0)] public float positionSpring = 1800f, positionDamper = 105f;
+        [Min(0)] public float rotationSpring = 850f, rotationDamper = 65f;
+        [Min(0)] public float maximumDriveForce = 1200f;
+        [Min(0)] public float minimumImpactSpeed = 1.3f;
+        [Min(0)] public float damagePerJoule = .15f;
+        [Min(0)] public float damageCooldown = .2f;
+        [Min(0)] public float blockedImpulseThreshold = 2.5f;
+        [Min(0)] public float npcGripSlack = .055f;
+        [Range(1, 45)] public float npcAngularSlack = 12f;
+        public System.Action<float> Blocked;
+
+        Rigidbody body, targetBody;
+        ConfigurableJoint joint;
+        XRGrabInteractable grab;
+        IXRSelectInteractor hand;
+        bool oldTrackPosition, oldTrackRotation;
+        bool droppedByNpc;
+        readonly Dictionary<Collider, float> lastHit = new();
+        readonly List<Collider> ignored = new();
+
+        void Awake()
+        {
+            body = GetComponent<Rigidbody>();
+            grab = GetComponent<XRGrabInteractable>();
+            body.mass = mass;
+            body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            body.interpolation = RigidbodyInterpolation.Interpolate;
+            body.maxAngularVelocity = 35f;
+            if (grab)
+            {
+                grab.movementType = XRBaseInteractable.MovementType.VelocityTracking;
+                grab.selectEntered.AddListener(Selected);
+                grab.selectExited.AddListener(Released);
+            }
+        }
+
+        void Start()
+        {
+            if (!npcGripTarget) return;
+            if (ownerRoot) transform.SetParent(ownerRoot, true);
+            Attach(npcGripTarget);
+        }
+        void OnDestroy()
+        {
+            if (grab) { grab.selectEntered.RemoveListener(Selected); grab.selectExited.RemoveListener(Released); }
+            Detach();
+        }
+        void Selected(UnityEngine.XR.Interaction.Toolkit.SelectEnterEventArgs args)
+        {
+            droppedByNpc = false;
+            hand = args.interactorObject;
+            ownerRoot = hand.transform.root;
+            oldTrackPosition = grab.trackPosition;
+            oldTrackRotation = grab.trackRotation;
+            grab.trackPosition = grab.trackRotation = false;
+            // XRI may have cached a kinematic state from storage.
+            body.isKinematic = false;
+            Attach(hand.GetAttachTransform(grab));
+        }
+        void Released(UnityEngine.XR.Interaction.Toolkit.SelectExitEventArgs args)
+        {
+            Detach();
+            grab.trackPosition = oldTrackPosition;
+            grab.trackRotation = oldTrackRotation;
+            hand = null;
+            ownerRoot = null;
+        }
+        void Attach(Transform pose)
+        {
+            Detach();
+            if (!pose) return;
+            var target = new GameObject(name + " physical grip target");
+            target.hideFlags = HideFlags.HideAndDontSave;
+            target.transform.SetPositionAndRotation(pose.position, pose.rotation);
+            targetBody = target.AddComponent<Rigidbody>();
+            targetBody.isKinematic = true;
+            targetBody.interpolation = RigidbodyInterpolation.Interpolate;
+            joint = gameObject.AddComponent<ConfigurableJoint>();
+            joint.connectedBody = targetBody;
+            joint.autoConfigureConnectedAnchor = false;
+            joint.anchor = transform.InverseTransformPoint(grip ? grip.position : transform.position);
+            joint.connectedAnchor = Vector3.zero;
+            bool npcHeld = pose == npcGripTarget;
+            joint.xMotion = joint.yMotion = joint.zMotion = npcHeld ? ConfigurableJointMotion.Limited : ConfigurableJointMotion.Free;
+            joint.angularXMotion = joint.angularYMotion = joint.angularZMotion = npcHeld ? ConfigurableJointMotion.Limited : ConfigurableJointMotion.Free;
+            if (npcHeld)
+            {
+                joint.linearLimit = new SoftJointLimit { limit = npcGripSlack };
+                joint.lowAngularXLimit = new SoftJointLimit { limit = -npcAngularSlack };
+                joint.highAngularXLimit = new SoftJointLimit { limit = npcAngularSlack };
+                joint.angularYLimit = joint.angularZLimit = new SoftJointLimit { limit = npcAngularSlack };
+            }
+            joint.rotationDriveMode = RotationDriveMode.Slerp;
+            joint.xDrive = joint.yDrive = joint.zDrive = new JointDrive { positionSpring = positionSpring, positionDamper = positionDamper, maximumForce = maximumDriveForce };
+            joint.slerpDrive = new JointDrive { positionSpring = rotationSpring, positionDamper = rotationDamper, maximumForce = maximumDriveForce };
+            FollowPose = pose;
+            IgnoreOwner(true);
+        }
+        Transform FollowPose { get; set; }
+        void FixedUpdate()
+        {
+            if (!FollowPose || !targetBody) return;
+            targetBody.MovePosition(FollowPose.position);
+            targetBody.MoveRotation(FollowPose.rotation);
+        }
+        void Detach()
+        {
+            IgnoreOwner(false);
+            FollowPose = null;
+            if (joint) Destroy(joint);
+            if (targetBody) Destroy(targetBody.gameObject);
+            joint = null; targetBody = null;
+        }
+        public void DropFromNpc()
+        {
+            droppedByNpc = true;
+            npcGripTarget = null;
+            Detach();
+            transform.SetParent(null, true);
+            ownerRoot = null;
+            // Generated NPC weapons are gravity-free while held by their joint.
+            // Restore ordinary rigidbody motion once the character lets go.
+            if (!body) body = GetComponent<Rigidbody>();
+            body.isKinematic = false;
+            body.useGravity = true;
+            body.WakeUp();
+        }
+        void IgnoreOwner(bool ignore)
+        {
+            if (!ignore)
+            {
+                foreach (var shape in ignored)
+                    if (shape) foreach (var own in GetComponentsInChildren<Collider>()) if (own) Physics.IgnoreCollision(own, shape, false);
+                ignored.Clear(); return;
+            }
+            if (!ownerRoot) return;
+            foreach (var shape in ownerRoot.GetComponentsInChildren<Collider>())
+            {
+                if (shape.transform.IsChildOf(transform)) continue;
+                foreach (var own in GetComponentsInChildren<Collider>()) Physics.IgnoreCollision(own, shape, true);
+                ignored.Add(shape);
+            }
+        }
+        void OnCollisionEnter(Collision collision) => Impact(collision, true);
+        void OnCollisionStay(Collision collision) => Impact(collision, false);
+        void Impact(Collision collision, bool newContact)
+        {
+            if (droppedByNpc) return;
+            if (collision.contactCount == 0) return;
+            var other = collision.collider;
+            if (ownerRoot && other.transform.IsChildOf(ownerRoot)) return;
+            var contact = collision.GetContact(0);
+            float speed = collision.relativeVelocity.magnitude;
+            if (speed < minimumImpactSpeed) return;
+            float impulse = collision.impulse.magnitude;
+            var otherWeapon = other.GetComponentInParent<PhysicalMeleeWeapon>();
+            bool weaponContact = otherWeapon && otherWeapon != this;
+            if (weaponContact)
+            {
+                ownerRoot?.GetComponent<StarvingBandit>()?.RegisterWeaponParry(otherWeapon);
+                otherWeapon.ownerRoot?.GetComponent<StarvingBandit>()?.RegisterWeaponParry(this);
+            }
+            if (weaponContact && impulse >= blockedImpulseThreshold)
+                Blocked?.Invoke(impulse);
+            if (hand is XRBaseInputInteractor inputHand)
+                inputHand.SendHapticImpulse(Mathf.Clamp01(impulse / 12f), .045f);
+            if (weaponContact || !newContact) return;
+            if (lastHit.TryGetValue(other, out var previous) && Time.time - previous < damageCooldown) return;
+            // Both speed and solver impulse must indicate a strike. Sustained contact cannot
+            // repeatedly score damage just because the controller keeps pushing.
+            float energy = .5f * body.mass * speed * speed;
+            float damage = Mathf.Min(60f, energy * damagePerJoule * Mathf.Clamp01(impulse / .5f));
+            if (damage < .5f) return;
+            var receiver = other.GetComponentInParent<IDamageable>();
+            if (receiver == null) return;
+            var defendingBandit = other.GetComponentInParent<StarvingBandit>();
+            if (defendingBandit && defendingBandit.DeflectsDamageFrom(this)) return;
+            lastHit[other] = Time.time;
+            receiver.ApplyDamage(new DamagePacket { BaseDamage = damage, DamageType = DamageType.Kinetic,
+                HitPointWorld = contact.point, HitNormalWorld = contact.normal,
+                Source = ownerRoot ? ownerRoot.gameObject : gameObject, WeaponId = name, Timestamp = Time.time });
+        }
+    }
+}
