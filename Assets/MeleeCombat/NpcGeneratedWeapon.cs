@@ -28,7 +28,7 @@ namespace KenshiVR.MeleeCombat
         public Transform CombatantRoot => transform;
         public bool CanClash => enabled && instance && instance.State == PhysicalMeleeWeapon.HoldState.HeldByNpc &&
             instance.Owner == this && bandit && bandit.enabled && bandit.state != StarvingBandit.State.Dead &&
-            (!health || !health.IsDead) && !(GetComponent<ScavengerRagdoll>()?.Active ?? false);
+            (!health || health.State == NpcConsciousness.Conscious) && !(GetComponent<ScavengerRagdoll>()?.Active ?? false);
         public bool IsStriking => bandit && bandit.state == StarvingBandit.State.Strike;
         public bool Opposes(IDisarmCombatant other) => bandit && other != null &&
             other.CombatantRoot && bandit.target &&
@@ -41,7 +41,7 @@ namespace KenshiVR.MeleeCombat
         }
         public bool TryEquipWorldWeapon(PhysicalMeleeWeapon weapon)
         {
-            if (!weapon || instance || !gripTarget || (health && health.IsDead) ||
+            if (!weapon || instance || !gripTarget || (health && health.State != NpcConsciousness.Conscious) ||
                 !weapon.TryEquipNpc(this, gripTarget)) return false;
             Abandon();
             instance = weapon;
@@ -93,9 +93,16 @@ namespace KenshiVR.MeleeCombat
             held.Drop();
         }
 
+        public void DropForKnockout()
+        {
+            acquireNearbyWeapons = false;
+            Drop();
+        }
+
         void Update()
         {
-            if (!acquireNearbyWeapons || instance || !gripTarget || !weaponPrefab || (health && health.IsDead)) return;
+            if (!acquireNearbyWeapons || instance || !gripTarget || !weaponPrefab ||
+                (health && health.State != NpcConsciousness.Conscious)) return;
             if (bandit && bandit.target && Vector3.Distance(transform.position, bandit.target.position) < safeEnemyDistance)
             { Abandon(); return; }
             if (!agent || !agent.enabled || !agent.isOnNavMesh) { Abandon(); return; }

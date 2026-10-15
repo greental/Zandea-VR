@@ -2204,6 +2204,25 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ScavengerNPC.ScavengerHealth
   maxHealth: 55
+  knockoutTrauma: 30
+  minimumKnockoutHit: 3
+  severeHealthFraction: 0.22
+  unarmedTraumaMultiplier: 2
+  bluntTraumaMultiplier: 1.3
+  sharpTraumaMultiplier: 0.35
+  knockoutDuration: 12
+  recoveryHealthFraction: 0.12
+  additionalDamageDelay: 0.4
+  minimumHeadHitDamage: 7
+  headHitRadius: 0.3
+  baseHeadKnockoutChance: 0.08
+  maximumHeadKnockoutChance: 0.45
+  headProtection: 0
+  shortKnockoutDuration: 2.5
+  fleeWhenUnarmed: 1
+  fleeBelowHealthFraction: 0.35
+  fleeSeconds: 7
+  logStateChanges: 0
   onDamaged:
     m_PersistentCalls:
       m_Calls: []

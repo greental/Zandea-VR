@@ -72,8 +72,8 @@ namespace KenshiVR.MeleeCombat
         }
         void OnDamaged()
         {
-            if (brain && brain.martialArts && brain.martialArts.IsUnarmed) return;
-            if (!animator || (health && health.IsDead)) return;
+            if (brain && brain.martialArts && !brain.staff) return;
+            if (!animator || health && health.State != NpcConsciousness.Conscious || ragdoll && ragdoll.Active) return;
             reacting = true;
             var toughness = brain ? CharacterCombatMath.Offset(
                 brain.GetComponent<CharacterAttributes>(), CharacterAttribute.Toughness) : 0f;

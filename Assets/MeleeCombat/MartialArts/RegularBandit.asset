@@ -25,19 +25,6 @@ MonoBehaviour:
     staggerStrength: 1
     weight: 7
     contactRadius: 0.13
-  - stateName: back fist
-    limb: 17
-    damage: 6
-    range: 1.7
-    staminaCost: 0
-    minimumRange: 1
-    committedForwardTravel: 1.27
-    activeFrom: 0.3
-    activeUntil: 0.68
-    cooldown: 0.4
-    staggerStrength: 1
-    weight: 7
-    contactRadius: 0.13
   - stateName: combo
     limb: 18
     damage: 6

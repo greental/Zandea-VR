@@ -46,7 +46,7 @@ namespace KenshiVR.MeleeCombat
             var packet = new DamagePacket {
                 BaseDamage = damage * CharacterCombatMath.DamageDealt(GetComponent<CharacterAttributes>(),
                     brain.staff ? brain.staff.proficiencyClass : PhysicalMeleeWeapon.WeaponProficiencyClass.None),
-                DamageType = DamageType.Kinetic,
+                DamageType = DamageType.Kinetic, PhysicalImpact = PhysicalImpactKind.Blunt,
                 HitPointWorld = hitPoint, HitNormalWorld = normal,
                 Source = gameObject, WeaponId = brain.staff ? brain.staff.name : "Bandit staff",
                 Timestamp = Time.time

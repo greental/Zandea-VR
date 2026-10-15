@@ -25,12 +25,14 @@ namespace ScavengerNPC
         public ScavengerWeapon weapon;
         public Action CurrentAction { get; private set; }
         public bool IsCombat => CurrentAction >= Action.SeekingCover && CurrentAction <= Action.Searching;
-        public bool CanShoot => (CurrentAction == Action.Peeking || CurrentAction == Action.Attacking) &&
+        public bool CanShoot => (!health || health.State == NpcConsciousness.Conscious) && weapon &&
+            (CurrentAction == Action.Peeking || CurrentAction == Action.Attacking) &&
             (CurrentAction != Action.Peeking || !cover || !cover.IsOver(peekIndex) || !pose || pose.CrouchAmount < .15f);
         public Vector3 AimPoint => target ? target.position : lastSeen;
         NavMeshAgent agent;
         ScavengerCover cover;
         ScavengerPose pose;
+        ScavengerHealth health;
         int peekIndex = -1;
         Vector3 home, lastSeen;
         float lastSeenTime = -1000, stateUntil, nextSense, nextCover, nextDestination, rushAttackUntil;
@@ -44,7 +46,7 @@ namespace ScavengerNPC
         public int CurrentPeekIndex => peekIndex;
         bool Navigable => agent && agent.enabled && agent.isOnNavMesh;
 
-        void Awake() { path = new NavMeshPath(); agent = GetComponent<NavMeshAgent>(); pose = GetComponent<ScavengerPose>(); home = transform.position; CurrentAction = idleAction; }
+        void Awake() { path = new NavMeshPath(); agent = GetComponent<NavMeshAgent>(); pose = GetComponent<ScavengerPose>(); health = GetComponent<ScavengerHealth>(); home = transform.position; CurrentAction = idleAction; }
         void Start()
         {
             ResolveTarget();
@@ -81,7 +83,7 @@ namespace ScavengerNPC
         float PeekDuration() => Mathf.Max(.65f, peekSeconds + Random.Range(-peekTimeVariation, peekTimeVariation));
         void Update()
         {
-            if (CurrentAction == Action.Dead) return;
+            if (CurrentAction == Action.Dead || health && health.IsUnconscious) return;
             if (Time.time >= nextSense)
             {
                 nextSense = Time.time + .15f;
@@ -284,6 +286,12 @@ namespace ScavengerNPC
             ReleaseCover(); nextCover = 0;
         }
         void ReleaseCover() { if (cover) cover.Release(this); cover = null; peekIndex = -1; }
+        public void OnKnockout()
+        {
+            Stop(); ReleaseCover(); CurrentAction = idleAction;
+            if (weapon) { weapon.DropAsLoot(); weapon = null; }
+            if (pose) pose.gun = null;
+        }
         public void Die()
         {
             Stop(); ReleaseCover(); CurrentAction = Action.Dead;

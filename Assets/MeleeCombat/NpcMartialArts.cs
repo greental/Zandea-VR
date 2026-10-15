@@ -13,7 +13,7 @@ namespace KenshiVR.MeleeCombat
         public string stateName;
         public HumanBodyBones limb = HumanBodyBones.RightHand;
         [Min(0)] public float damage = 7f, range = 1.35f, staminaCost;
-        [Min(0)] public float minimumRange, committedForwardTravel;
+        [Min(0)] public float minimumRange;
         [Range(0, 1)] public float activeFrom = .25f, activeUntil = .65f;
         [Min(.01f)] public float cooldown = .8f, staggerStrength = 1f, weight = 1f;
         [Range(.02f, .3f)] public float contactRadius = .13f;
@@ -38,7 +38,7 @@ namespace KenshiVR.MeleeCombat
         public MartialArtsProfile profile;
         public StarvingBandit brain;
         public Animator animator;
-        public bool IsUnarmed => brain && !brain.staff && (!brain.health || !brain.health.IsDead);
+        public bool IsUnarmed => brain && !brain.staff && (!brain.health || brain.health.State == NpcConsciousness.Conscious);
         public bool IsGuarding => IsUnarmed && Time.time < guardUntil;
         public bool IsStriking => IsUnarmed && activeStrike != null && Time.time < attackUntil;
         readonly Collider[] contacts = new Collider[24];
@@ -50,8 +50,6 @@ namespace KenshiVR.MeleeCombat
         MartialStrike activeStrike;
         Vector3 previousLimb;
         float attackStart, attackUntil, nextAttack, guardUntil, nextDefense, nextRetreat;
-        Vector3 strikeOrigin, strikeForward, landingFrom, landingTo;
-        float landingStart, landingUntil;
         float staggerUntil, staggerStart;
         int lastStrike = -1;
         bool wasUnarmed;
@@ -86,7 +84,6 @@ namespace KenshiVR.MeleeCombat
             if (!IsUnarmed) return;
             activeStrike = null;
             scored.Clear();
-            landingUntil = 0f;
             staggerUntil = Time.time + .35f;
             staggerStart = Time.time;
             staggerDirection = brain.target ?
@@ -109,11 +106,11 @@ namespace KenshiVR.MeleeCombat
 
         void Update()
         {
+            if (brain && brain.health && brain.health.IsUnconscious) return;
             if (IsUnarmed == wasUnarmed) return;
             wasUnarmed = IsUnarmed;
             activeStrike = null;
             scored.Clear();
-            landingUntil = 0f;
             if (!animator) return;
             animator.speed = 1f;
             animator.applyRootMotion = wasUnarmed ? false : armedRootMotion;
@@ -134,12 +131,6 @@ namespace KenshiVR.MeleeCombat
         {
             if (!profile || !animator || !brain.target || ragdoll && ragdoll.Active) return;
             var agent = brain.agent;
-            if (landingUntil > 0f)
-            {
-                Stop(agent);
-                brain.state = StarvingBandit.State.Recover;
-                return;
-            }
             Vector3 toward = Vector3.ProjectOnPlane(brain.target.position - transform.position, Vector3.up);
             float distance = toward.magnitude;
             Vector3 localVelocity = agent && agent.enabled && agent.isOnNavMesh ?
@@ -167,7 +158,6 @@ namespace KenshiVR.MeleeCombat
                 brain.state = Time.time < attackUntil ? StarvingBandit.State.Strike : StarvingBandit.State.Recover;
                 if (Time.time >= attackUntil)
                 {
-                    if (activeStrike.committedForwardTravel > 0f) BeginLanding(agent);
                     activeStrike = null;
                     scored.Clear();
                 }
@@ -217,8 +207,6 @@ namespace KenshiVR.MeleeCombat
             previousLimb = limb.position;
             scored.Clear();
             attackStart = Time.time;
-            strikeOrigin = transform.position;
-            strikeForward = transform.forward;
             float duration = Mathf.Max(.1f, animator.runtimeAnimatorController ? FindDuration(activeStrike.stateName) : .8f);
             attackUntil = attackStart + duration;
             nextAttack = attackUntil + activeStrike.cooldown * profile.recoveryMultiplier;
@@ -229,14 +217,7 @@ namespace KenshiVR.MeleeCombat
         void LateUpdate()
         {
             if (ragdoll && ragdoll.Active) return;
-            if (landingUntil > 0f)
-            {
-                float landingProgress = Mathf.InverseLerp(landingStart, landingUntil, Time.time);
-                if (brain.agent && brain.agent.enabled && brain.agent.isOnNavMesh)
-                    brain.agent.Warp(Vector3.Lerp(landingFrom, landingTo, landingProgress));
-                if (landingProgress >= 1f) landingUntil = 0f;
-            }
-            if (IsStriking && activeStrike.committedForwardTravel <= 0f && animator &&
+            if (IsStriking && animator &&
                 brain.agent && brain.agent.enabled && brain.agent.isOnNavMesh)
                 brain.agent.Move(Vector3.ProjectOnPlane(animator.deltaPosition, Vector3.up));
             if (IsUnarmed && hitSpine && Time.time < staggerUntil)
@@ -253,6 +234,14 @@ namespace KenshiVR.MeleeCombat
             if (progress >= activeStrike.activeFrom && progress <= activeStrike.activeUntil)
                 ResolveContact(previousLimb, current);
             previousLimb = current;
+        }
+
+        public void InterruptCombat()
+        {
+            activeStrike = null;
+            scored.Clear();
+            guardUntil = staggerUntil = 0f;
+            visualState = 0;
         }
 
         int ChooseStrike(float distance)
@@ -277,19 +266,6 @@ namespace KenshiVR.MeleeCombat
             strike != null && strike.range >= distance && distance >= strike.minimumRange &&
             (strike.stateName != "knee strike" || distance <= .85f);
 
-        void BeginLanding(NavMeshAgent agent)
-        {
-            Vector3 desired = strikeOrigin + strikeForward * activeStrike.committedForwardTravel;
-            if (agent && agent.enabled && agent.isOnNavMesh &&
-                NavMesh.SamplePosition(desired, out var hit, .6f, agent.areaMask))
-                desired = hit.position;
-            landingFrom = transform.position;
-            landingTo = desired;
-            landingStart = Time.time;
-            landingUntil = Time.time + .12f;
-            Play("FightIdle", 1);
-        }
-
         void ResolveContact(Vector3 from, Vector3 to)
         {
             int count = Physics.OverlapCapsuleNonAlloc(from, to, activeStrike.contactRadius, contacts, ~0, QueryTriggerInteraction.Ignore);
@@ -306,7 +282,7 @@ namespace KenshiVR.MeleeCombat
                     {
                         scored.Add(defendingPlayer);
                         defendingPlayer.ApplyDamage(new DamagePacket {
-                            BaseDamage = activeStrike.damage, DamageType = DamageType.Kinetic,
+                            BaseDamage = activeStrike.damage, DamageType = DamageType.Kinetic, PhysicalImpact = PhysicalImpactKind.Unarmed,
                             HitPointWorld = impact, HitNormalWorld = (impact - from).normalized,
                             Source = gameObject, WeaponId = activeStrike.stateName, Timestamp = Time.time
                         });
@@ -329,7 +305,7 @@ namespace KenshiVR.MeleeCombat
                 scored.Add(receiver);
                 receiver.ApplyDamage(new DamagePacket {
                     BaseDamage = activeStrike.damage * CharacterCombatMath.DamageDealt(GetComponent<CharacterAttributes>(), PhysicalMeleeWeapon.WeaponProficiencyClass.None),
-                    DamageType = DamageType.Kinetic, HitPointWorld = point,
+                    DamageType = DamageType.Kinetic, PhysicalImpact = PhysicalImpactKind.Unarmed, HitPointWorld = point,
                     HitNormalWorld = (point - to).normalized, Source = gameObject,
                     WeaponId = activeStrike.stateName, Timestamp = Time.time
                 });

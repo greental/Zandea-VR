@@ -137,7 +137,7 @@ namespace KenshiVR.MeleeCombat
                 damage *= CharacterCombatMath.DamageDealt(body.GetComponent<CharacterAttributes>(),
                     PhysicalMeleeWeapon.WeaponProficiencyClass.None);
                 target.ApplyDamage(new DamagePacket {
-                    BaseDamage = damage, DamageType = DamageType.Kinetic, HitPointWorld = contact,
+                    BaseDamage = damage, DamageType = DamageType.Kinetic, PhysicalImpact = PhysicalImpactKind.Unarmed, HitPointWorld = contact,
                     HitNormalWorld = (contact - from).normalized, Source = body.gameObject,
                     WeaponId = left ? "left fist" : "right fist", Timestamp = Time.time
                 });

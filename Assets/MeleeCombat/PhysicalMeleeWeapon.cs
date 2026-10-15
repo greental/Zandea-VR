@@ -420,6 +420,7 @@ namespace KenshiVR.MeleeCombat
             if (defendingBandit && defendingBandit.DeflectsDamageFrom(this)) return;
             lastHit[other] = Time.time;
             receiver.ApplyDamage(new DamagePacket { BaseDamage = damage, DamageType = DamageType.Kinetic,
+                PhysicalImpact = strikeType == StrikeType.Blunt ? PhysicalImpactKind.Blunt : PhysicalImpactKind.Sharp,
                 HitPointWorld = contact.point, HitNormalWorld = contact.normal,
                 Source = ownerRoot ? ownerRoot.gameObject : gameObject, WeaponId = name, Timestamp = Time.time });
         }

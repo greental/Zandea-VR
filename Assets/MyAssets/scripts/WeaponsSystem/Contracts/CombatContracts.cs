@@ -9,6 +9,7 @@ namespace VRKoombar.WeaponsStaging.Contracts
         Kinetic,
         Missile
     }
+    public enum PhysicalImpactKind { Unspecified, Unarmed, Blunt, Sharp }
 
     public enum ShieldArc
     {
@@ -52,6 +53,7 @@ namespace VRKoombar.WeaponsStaging.Contracts
     public struct DamagePacket
     {
         public DamageType DamageType;
+        public PhysicalImpactKind PhysicalImpact;
         public float BaseDamage;
         public float HeatAmount;
         public Vector3 HitPointWorld;

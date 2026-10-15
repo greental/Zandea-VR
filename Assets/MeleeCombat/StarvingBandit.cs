@@ -358,6 +358,18 @@ namespace KenshiVR.MeleeCombat
             nextAttack = Time.time + initialAttackDelay;
         }
         public void ResetAttackSchedule() => nextAttack = Time.time + initialAttackDelay;
+        public void InterruptCombatForKnockout()
+        {
+            StopPreview();
+            state = State.Stagger;
+            if (agent && agent.enabled && agent.isOnNavMesh)
+            { agent.ResetPath(); agent.isStopped = true; }
+        }
+        public void OnRecoveredFromKnockout()
+        {
+            state = State.Idle;
+            ResetAttackSchedule();
+        }
         void OnDestroy() { if (staff) staff.Blocked -= OnBlocked; if (previewDummy) Destroy(previewDummy); if (previewDummyMaterial) Destroy(previewDummyMaterial); }
         public void SetEquippedStaff(PhysicalMeleeWeapon value, Transform goal)
         {
@@ -394,6 +406,7 @@ namespace KenshiVR.MeleeCombat
         }
         void Update()
         {
+            if (health && health.IsUnconscious || ragdoll && ragdoll.Active && (!health || !health.IsDead)) return;
             if (ragdoll && ragdoll.Active && (!health || !health.IsDead)) return;
             if (health && health.IsDead)
             {
@@ -418,11 +431,18 @@ namespace KenshiVR.MeleeCombat
             if (target)
             {
                 var targetHealth = target.GetComponentInParent<ScavengerHealth>();
-                if (targetHealth && targetHealth.IsDead)
+                if (targetHealth && (targetHealth.IsDead || targetHealth.IsUnconscious))
                 { state = State.Idle; Move(false); ReturnToGuard(); return; }
                 var playerHealth = target.GetComponentInParent<ScavengerPlayerHealth>();
                 if (playerHealth && playerHealth.IsDead)
                 { state = State.Idle; Move(false); ReturnToGuard(); return; }
+            }
+            if (health && health.ShouldFlee && target)
+            {
+                state = State.Retreat;
+                Vector3 away = Vector3.ProjectOnPlane(transform.position - target.position, Vector3.up).normalized;
+                Move(true, transform.position + away * 4f);
+                return;
             }
             if (!staff || !weaponGoal)
             {

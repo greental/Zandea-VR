@@ -14,6 +14,7 @@ namespace KenshiVR.MeleeCombat
         public PhysicalMeleeWeapon staff;
         public StarvingBandit brain;
         public NavMeshAgent agent;
+        ScavengerRagdoll ragdoll;
         [Header("Locomotion")]
         [Min(0)] public float runCadence = 2.5f, chasseCadence = 1.4f;
         [Min(0)] public float runStepLength = .4f, chasseStepLength = .25f;
@@ -40,6 +41,7 @@ namespace KenshiVR.MeleeCombat
         void Awake()
         {
             if (!brain) brain = GetComponent<StarvingBandit>();
+            ragdoll = GetComponent<ScavengerRagdoll>();
             if (!agent) agent = GetComponent<NavMeshAgent>();
             if (!visualRoot) return;
             var animator = visualRoot.GetComponentInChildren<Animator>();
@@ -103,7 +105,7 @@ namespace KenshiVR.MeleeCombat
         }
         void LateUpdate()
         {
-            if (!hips || (brain && brain.state == StarvingBandit.State.Dead)) return;
+            if (!hips || ragdoll && ragdoll.Active || (brain && brain.state == StarvingBandit.State.Dead)) return;
             if (brain && brain.guardAuthoringMode && !brain.previewEnabled) return;
             float speed = agent && agent.enabled && agent.isOnNavMesh ? agent.velocity.magnitude : 0f;
             runWeight = Mathf.MoveTowards(runWeight, brain && brain.IsRunning ? Mathf.Clamp01(speed / 2f) : 0f, Time.deltaTime * 5f);

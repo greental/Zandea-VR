@@ -39,18 +39,18 @@ namespace KenshiVR.MeleeCombat.Editor
             var guard = machine.AddState("FightGuard");
             guard.motion = LoadClip("5 inch punch");
             guard.speed = 0f;
-            string[] names = { "5 inch punch", "back fist", "combo", "low kick", "axe kick", "knee strike" };
+            string[] names = { "5 inch punch", "combo", "low kick", "axe kick", "knee strike" };
             foreach (string name in names)
             {
                 var state = machine.AddState(name);
                 state.motion = LoadClip(name);
             }
             var starving = MakeProfile("StarvingBandit", controller, .95f, 1.7f, .08f, .05f, 1.5f,
-                new[] { 5f, 4f, 0f, 2f, 0f, 0f });
+                new[] { 5f, 0f, 2f, 0f, 0f });
             var regular = MakeProfile("RegularBandit", controller, 1.1f, 2.1f, .28f, .2f, 1.1f,
-                new[] { 7f, 7f, 5f, 4f, 1f, 2f });
+                new[] { 7f, 5f, 4f, 1f, 2f });
             var artist = MakeProfile("MartialArtist", controller, 1.25f, 2.5f, .55f, .45f, .85f,
-                new[] { 8f, 8f, 10f, 6f, 5f, 4f });
+                new[] { 8f, 10f, 6f, 5f, 4f });
             AttachProfile(SourcePrefab, starving);
             CreateVariant("RegularBandit_Unarmed", regular);
             CreateVariant("MartialArtist_Unarmed", artist);
@@ -83,18 +83,16 @@ namespace KenshiVR.MeleeCombat.Editor
             profile.blockChance = block;
             profile.counterChance = counter;
             profile.recoveryMultiplier = recovery;
-            string[] names = { "5 inch punch", "back fist", "combo", "low kick", "axe kick", "knee strike" };
-            HumanBodyBones[] limbs = { HumanBodyBones.RightHand, HumanBodyBones.LeftHand, HumanBodyBones.RightHand,
+            string[] names = { "5 inch punch", "combo", "low kick", "axe kick", "knee strike" };
+            HumanBodyBones[] limbs = { HumanBodyBones.RightHand, HumanBodyBones.RightHand,
                 HumanBodyBones.RightFoot, HumanBodyBones.RightFoot, HumanBodyBones.RightLowerLeg };
             profile.strikes = new MartialStrike[names.Length];
             for (int i = 0; i < names.Length; i++)
                 profile.strikes[i] = new MartialStrike {
-                    stateName = names[i], limb = limbs[i], damage = i >= 3 ? 8f : 6f,
-                    range = i == 1 ? 1.7f : i == 5 ? .85f : i >= 3 ? 1.5f : 1.25f,
-                    minimumRange = i == 1 ? 1f : 0f,
-                    committedForwardTravel = i == 1 ? 1.27f : 0f,
-                    activeUntil = i == 2 ? .78f : .68f, cooldown = i == 2 ? .65f : .4f,
-                    staggerStrength = i >= 3 ? 1.4f : 1f, weight = weights[i]
+                    stateName = names[i], limb = limbs[i], damage = i >= 2 ? 8f : 6f,
+                    range = i == 4 ? .85f : i >= 2 ? 1.5f : 1.25f,
+                    activeUntil = i == 1 ? .78f : .68f, cooldown = i == 1 ? .65f : .4f,
+                    staggerStrength = i >= 2 ? 1.4f : 1f, weight = weights[i]
                 };
             AssetDatabase.CreateAsset(profile, Root + "/" + name + ".asset");
             return profile;
