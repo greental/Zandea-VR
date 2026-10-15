@@ -63,6 +63,7 @@ namespace KenshiVR.MeleeCombat
         public Transform positiveStrikingTip, negativeStrikingTip;
         public ScavengerHealth health;
         public NavMeshAgent agent;
+        ScavengerRagdoll ragdoll;
         [NonSerialized] public bool groupControlled;
         [NonSerialized] public bool groupEngaged;
         [NonSerialized] public Vector3 groupDestination;
@@ -337,6 +338,7 @@ namespace KenshiVR.MeleeCombat
             EnsureAttacks();
             attackDefaultsVersion = 12;
             if (!health) health = GetComponent<ScavengerHealth>();
+            ragdoll = GetComponent<ScavengerRagdoll>();
             combatAudio = GetComponent<BanditCombatAudio>();
             if (!combatAudio) combatAudio = gameObject.AddComponent<BanditCombatAudio>();
             combatAudio.Initialize(this);
@@ -392,6 +394,7 @@ namespace KenshiVR.MeleeCombat
         }
         void Update()
         {
+            if (ragdoll && ragdoll.Active && (!health || !health.IsDead)) return;
             if (health && health.IsDead)
             {
                 StopPreview(); state = State.Dead;

@@ -10,6 +10,8 @@ namespace ScavengerNPC
         [Min(1)] public float maxHealth = 100;
         public UnityEvent onDamaged = new UnityEvent();
         public UnityEvent onDeath = new UnityEvent();
+        [Min(0f)] public float headKnockdownDamage = 7.5f;
+        [Min(.05f)] public float headHitRadius = .3f;
         public float Current { get; private set; }
         public bool IsDead { get; private set; }
         void Awake() { Current = maxHealth; }
@@ -18,8 +20,9 @@ namespace ScavengerNPC
             if (IsDead || packet.BaseDamage <= 0 || float.IsNaN(packet.BaseDamage)) return;
             float taken = packet.BaseDamage * CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>());
             var martial = GetComponent<NpcMartialArts>();
-            if (martial && packet.DamageType == DamageType.Kinetic && packet.Source &&
-                martial.Blocks(packet.HitPointWorld, packet.Source.transform.position))
+            bool blocked = martial && packet.DamageType == DamageType.Kinetic && packet.Source &&
+                martial.Blocks(packet.HitPointWorld, packet.Source.transform.position);
+            if (blocked)
             {
                 taken *= martial.profile.guardedDamageMultiplier;
                 martial.SuccessfulBlock();
@@ -37,8 +40,20 @@ namespace ScavengerNPC
             }
             else
             {
+                var ragdoll = GetComponent<ScavengerRagdoll>();
+                Transform head = ragdoll && ragdoll.animator && ragdoll.animator.isHuman ?
+                    ragdoll.animator.GetBoneTransform(HumanBodyBones.Head) : null;
+                bool strongHeadHit = martial && martial.IsUnarmed && !blocked &&
+                    packet.DamageType == DamageType.Kinetic && taken >= headKnockdownDamage &&
+                    head && Vector3.Distance(packet.HitPointWorld, head.position) <= headHitRadius;
+                if (strongHeadHit && !ragdoll.Active)
+                {
+                    Vector3 direction = packet.Source ? transform.position - packet.Source.transform.position :
+                        packet.HitNormalWorld;
+                    ragdoll.KnockDown(packet.HitPointWorld, direction);
+                }
                 var pose = GetComponent<ScavengerPose>();
-                if (pose) pose.PlayHitReaction(packet.HitNormalWorld, taken);
+                if (pose && !strongHeadHit) pose.PlayHitReaction(packet.HitNormalWorld, taken);
                 if (brain) brain.Alert(packet.Source ? packet.Source.transform : null);
                 onDamaged.Invoke();
             }

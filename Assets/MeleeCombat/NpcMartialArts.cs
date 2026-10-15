@@ -86,6 +86,7 @@ namespace KenshiVR.MeleeCombat
             if (!IsUnarmed) return;
             activeStrike = null;
             scored.Clear();
+            landingUntil = 0f;
             staggerUntil = Time.time + .35f;
             staggerStart = Time.time;
             staggerDirection = brain.target ?
@@ -227,12 +228,13 @@ namespace KenshiVR.MeleeCombat
 
         void LateUpdate()
         {
+            if (ragdoll && ragdoll.Active) return;
             if (landingUntil > 0f)
             {
-                float progress = Mathf.InverseLerp(landingStart, landingUntil, Time.time);
+                float landingProgress = Mathf.InverseLerp(landingStart, landingUntil, Time.time);
                 if (brain.agent && brain.agent.enabled && brain.agent.isOnNavMesh)
-                    brain.agent.Warp(Vector3.Lerp(landingFrom, landingTo, progress));
-                if (progress >= 1f) landingUntil = 0f;
+                    brain.agent.Warp(Vector3.Lerp(landingFrom, landingTo, landingProgress));
+                if (landingProgress >= 1f) landingUntil = 0f;
             }
             if (IsStriking && activeStrike.committedForwardTravel <= 0f && animator &&
                 brain.agent && brain.agent.enabled && brain.agent.isOnNavMesh)
