@@ -387,6 +387,10 @@ namespace KenshiVR.MeleeCombat
             {
                 StopPreview(); state = State.Dead;
                 if (agent && agent.enabled) { agent.isStopped = true; agent.enabled = false; }
+                // Legacy embedded-staff prefabs keep their existing death behavior.
+                // Shared-prefab NPCs release through NpcGeneratedWeapon's death event.
+                if (!dropped && staff && !GetComponent<NpcGeneratedWeapon>())
+                { staff.DropFromNpc(); dropped = true; }
                 return;
             }
             CaptureGuard();

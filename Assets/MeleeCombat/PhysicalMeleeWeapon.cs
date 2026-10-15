@@ -125,7 +125,8 @@ namespace KenshiVR.MeleeCombat
             oldTrackRotation = grab.trackRotation;
             grab.trackPosition = grab.trackRotation = false;
             playerBody = hand.transform.GetComponentInParent<VRBodyController>();
-            if (playerBody) playerBody.SetMeleeGrip(hand.transform, selectedGrip);
+            if (!playerBody) playerBody = FindFirstObjectByType<VRBodyController>();
+            if (playerBody) playerBody.SetMeleeGrip(hand.handedness == InteractorHandedness.Left, selectedGrip);
             ownerPoseInitialized = false;
             previousRootVelocity = previousRootAngularVelocity = Vector3.zero;
             if (transform.parent) transform.SetParent(null, true);
@@ -344,6 +345,25 @@ namespace KenshiVR.MeleeCombat
             receiver.ApplyDamage(new DamagePacket { BaseDamage = damage, DamageType = DamageType.Kinetic,
                 HitPointWorld = contact.point, HitNormalWorld = contact.normal,
                 Source = ownerRoot ? ownerRoot.gameObject : gameObject, WeaponId = name, Timestamp = Time.time });
+        }
+
+        void OnDrawGizmosSelected()
+        {
+            DrawGrip(rightGrip, Color.cyan);
+            DrawGrip(leftGrip, Color.magenta);
+            if (FollowPose)
+            {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawLine(selectedGrip ? selectedGrip.position : transform.position, FollowPose.position);
+                Gizmos.DrawWireSphere(FollowPose.position, .025f);
+            }
+        }
+        static void DrawGrip(Transform marker, Color color)
+        {
+            if (!marker) return;
+            Gizmos.color = color;
+            Gizmos.DrawWireSphere(marker.position, .025f);
+            Gizmos.DrawRay(marker.position, marker.forward * .12f);
         }
     }
 }

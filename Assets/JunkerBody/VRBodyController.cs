@@ -30,6 +30,11 @@ namespace JunkerBody
         public Limb leftArm = new Limb(), rightArm = new Limb(), leftLeg = new Limb(), rightLeg = new Limb();
         [NonSerialized] public Transform leftGripTarget, rightGripTarget;
         [NonSerialized] public Transform leftMeleeGripTarget, rightMeleeGripTarget;
+        public void SetMeleeGrip(bool left, Transform grip)
+        {
+            if (left) leftMeleeGripTarget = grip;
+            else rightMeleeGripTarget = grip;
+        }
         public void SetMeleeGrip(Transform interactor, Transform grip)
         {
             if (leftController && (interactor == leftController || interactor.IsChildOf(leftController))) leftMeleeGripTarget = grip;

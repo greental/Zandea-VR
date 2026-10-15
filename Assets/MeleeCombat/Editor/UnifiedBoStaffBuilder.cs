@@ -10,24 +10,11 @@ namespace KenshiVR.MeleeCombat.Editor
     public static class UnifiedBoStaffBuilder
     {
         const string SourceNpc = "Assets/MeleeCombat/MocapTest/GeneratedVariants/StarvingBandit_BoStaff.prefab";
-        const string SourceArena = "Assets/MeleeCombat/MocapTest/GeneratedVariants/BoStaffFullCombatArena.unity";
+        const string SourceArena = "Assets/MeleeCombat/MocapTest/GeneratedVariants/ImportedCombatVRArena.unity";
         const string SharedWeapon = "Assets/MyAssets/prefabs/weapons/Bo Staff.prefab";
         const string SharedNpc = "Assets/MeleeCombat/MocapTest/GeneratedVariants/StarvingBandit_BoStaff_Unified.prefab";
-        const string SharedArena = "Assets/MeleeCombat/MocapTest/GeneratedVariants/BoStaffUnifiedCombatArena.unity";
+        const string SharedArena = "Assets/MeleeCombat/MocapTest/GeneratedVariants/BoStaffUnifiedVRArena.unity";
 
-        static UnifiedBoStaffBuilder()
-        {
-            if (!AssetDatabase.LoadAssetAtPath<GameObject>(SharedWeapon))
-                EditorApplication.delayCall += BuildOnce;
-        }
-
-        static void BuildOnce()
-        {
-            if (EditorApplication.isPlayingOrWillChangePlaymode || AssetDatabase.IsAssetImportWorkerProcess() ||
-                AssetDatabase.LoadAssetAtPath<GameObject>(SharedWeapon)) return;
-            try { Build(); }
-            catch (Exception error) { Debug.LogError("Unified Bo Staff build failed: " + error); }
-        }
 
         [MenuItem("Tools/Melee Combat/Build unified Bo Staff prototype")]
         public static void Build()
@@ -108,7 +95,14 @@ namespace KenshiVR.MeleeCombat.Editor
                 replacement.transform.SetPositionAndRotation(root.transform.position, root.transform.rotation);
                 replacement.transform.localScale = root.transform.localScale;
                 replacement.GetComponent<StarvingBandit>().target = old.target;
-                replacement.GetComponent<NpcGeneratedWeapon>().startEquipped = replaced == 0;
+                replacement.GetComponent<NpcGeneratedWeapon>().startEquipped = true;
+                CopyDuelDamage(root, replacement);
+                var unarmed = (GameObject)PrefabUtility.InstantiatePrefab(npcPrefab, arena);
+                unarmed.transform.SetPositionAndRotation(root.transform.position + root.transform.right * 3f,
+                    root.transform.rotation);
+                unarmed.GetComponent<StarvingBandit>().target = old.target;
+                unarmed.GetComponent<NpcGeneratedWeapon>().startEquipped = false;
+                CopyDuelDamage(root, unarmed);
                 UnityEngine.Object.DestroyImmediate(root);
                 replaced++;
             }
@@ -116,6 +110,17 @@ namespace KenshiVR.MeleeCombat.Editor
             EditorSceneManager.SaveScene(arena, SharedArena);
             AssetDatabase.SaveAssets();
             Debug.Log($"Unified Bo Staff: {SharedWeapon}, {SharedNpc}, {SharedArena}; NPCs: {replaced}");
+        }
+
+        static void CopyDuelDamage(GameObject source, GameObject destination)
+        {
+            var oldDamage = source.GetComponent<BanditDuelStrikeDamage>();
+            if (!oldDamage) return;
+            var damage = destination.AddComponent<BanditDuelStrikeDamage>();
+            damage.brain = destination.GetComponent<StarvingBandit>();
+            damage.damage = oldDamage.damage;
+            damage.maximumRootDistance = oldDamage.maximumRootDistance;
+            damage.cleanHitChance = oldDamage.cleanHitChance;
         }
 
         static Transform Marker(Transform parent, string name, Vector3 position, Quaternion rotation)
