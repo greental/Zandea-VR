@@ -19,6 +19,7 @@ namespace KenshiVR.MeleeCombat
         void Update()
         {
             if (!brain) return;
+            if (!brain.staff) { scoredThisStrike = false; return; }
             if (brain.state != StarvingBandit.State.Strike)
             {
                 scoredThisStrike = false;

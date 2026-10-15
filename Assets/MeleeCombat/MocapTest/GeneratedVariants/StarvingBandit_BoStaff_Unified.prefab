@@ -4671,6 +4671,7 @@ GameObject:
   - component: {fileID: 3109089641949124667}
   - component: {fileID: 1531111257749188261}
   - component: {fileID: 1741365060118405730}
+  - component: {fileID: 7590053521626566764}
   m_Layer: 0
   m_Name: StarvingBandit_BoStaff_Unified
   m_TagString: Untagged
@@ -4775,6 +4776,7 @@ MonoBehaviour:
   target: {fileID: 0}
   weaponGoal: {fileID: 1123687080465878315}
   staff: {fileID: 0}
+  martialArts: {fileID: 7590053521626566764}
   positiveStrikingTip: {fileID: 0}
   negativeStrikingTip: {fileID: 0}
   health: {fileID: 5950924122389326169}
@@ -6522,6 +6524,21 @@ MonoBehaviour:
     meleeDefense: 0
     toughness: 0
     staffProficiency: 0
+--- !u!114 &7590053521626566764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3638151384212234887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16bd66a0f88326b4eb3a5823692b1f3f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcMartialArts
+  profile: {fileID: 11400000, guid: 38b4b75b28e5f0b4bb2e51150708c797, type: 2}
+  brain: {fileID: 2678758142090184725}
+  animator: {fileID: 4550047753241524032}
 --- !u!1 &3648264276581143905
 GameObject:
   m_ObjectHideFlags: 0

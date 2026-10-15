@@ -58,6 +58,7 @@ namespace KenshiVR.MeleeCombat
         public State state;
         public Transform target, weaponGoal;
         public PhysicalMeleeWeapon staff;
+        public NpcMartialArts martialArts;
         [Header("Optional tip markers on the staff")]
         public Transform positiveStrikingTip, negativeStrikingTip;
         public ScavengerHealth health;
@@ -328,6 +329,7 @@ namespace KenshiVR.MeleeCombat
         }
         void Awake()
         {
+            if (!martialArts) martialArts = GetComponent<NpcMartialArts>();
             attributes = GetComponent<CharacterAttributes>();
             nextShowcaseDirection = Mathf.Clamp(firstAttackDirection, 0, 7);
             if (staff) EnsureTipMarkers();
@@ -419,7 +421,12 @@ namespace KenshiVR.MeleeCombat
                 if (playerHealth && playerHealth.IsDead)
                 { state = State.Idle; Move(false); ReturnToGuard(); return; }
             }
-            if (!staff || !weaponGoal) { state = State.Idle; return; }
+            if (!staff || !weaponGoal)
+            {
+                if (martialArts && martialArts.enabled) martialArts.TickCombat();
+                else { state = State.Idle; Move(false); }
+                return;
+            }
             if (groupControlled && !groupEngaged)
             {
                 state = State.Idle;

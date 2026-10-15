@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: MartialArtist
+  m_EditorClassIdentifier: Assembly-CSharp:KenshiVR.MeleeCombat:MartialArtsProfile
+  controller: {fileID: 9100000, guid: 16d67dcd20a0fb748b06697544a6f5b2, type: 2}
+  strikes:
+  - stateName: 5 inch punch
+    limb: 18
+    damage: 6
+    range: 1.25
+    staminaCost: 0
+    activeFrom: 0.3
+    activeUntil: 0.68
+    cooldown: 0.4
+    staggerStrength: 1
+    weight: 8
+    contactRadius: 0.13
+  - stateName: back fist
+    limb: 17
+    damage: 6
+    range: 1.25
+    staminaCost: 0
+    activeFrom: 0.3
+    activeUntil: 0.68
+    cooldown: 0.4
+    staggerStrength: 1
+    weight: 8
+    contactRadius: 0.13
+  - stateName: combo
+    limb: 18
+    damage: 6
+    range: 1.25
+    staminaCost: 0
+    activeFrom: 0.25
+    activeUntil: 0.78
+    cooldown: 0.65
+    staggerStrength: 1
+    weight: 10
+    contactRadius: 0.13
+  - stateName: low kick
+    limb: 6
+    damage: 8
+    range: 1.5
+    staminaCost: 0
+    activeFrom: 0.3
+    activeUntil: 0.68
+    cooldown: 0.4
+    staggerStrength: 1.4
+    weight: 6
+    contactRadius: 0.13
+  - stateName: axe kick
+    limb: 6
+    damage: 8
+    range: 1.5
+    staminaCost: 0
+    activeFrom: 0.3
+    activeUntil: 0.68
+    cooldown: 0.4
+    staggerStrength: 1.4
+    weight: 5
+    contactRadius: 0.13
+  - stateName: knee strike
+    limb: 4
+    damage: 8
+    range: 1.5
+    staminaCost: 0
+    activeFrom: 0.3
+    activeUntil: 0.68
+    cooldown: 0.4
+    staggerStrength: 1.4
+    weight: 4
+    contactRadius: 0.13
+  preferredRange: 1.25
+  approachSpeed: 2.5
+  retreatSpeed: 1.3
+  blockChance: 0.55
+  counterChance: 0.45
+  guardedDamageMultiplier: 0.25
+  blockSeconds: 0.45
+  recoveryMultiplier: 0.85

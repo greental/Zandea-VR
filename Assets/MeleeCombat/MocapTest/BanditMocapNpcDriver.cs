@@ -72,6 +72,7 @@ namespace KenshiVR.MeleeCombat
         }
         void OnDamaged()
         {
+            if (brain && brain.martialArts && brain.martialArts.IsUnarmed) return;
             if (!animator || (health && health.IsDead)) return;
             reacting = true;
             var toughness = brain ? CharacterCombatMath.Offset(
@@ -87,6 +88,7 @@ namespace KenshiVR.MeleeCombat
         void Update()
         {
             if (!animator || !brain || (health && health.IsDead) || (ragdoll && ragdoll.Active)) return;
+            if (brain.martialArts && brain.martialArts.IsUnarmed) return;
             Vector3 velocity = agent && agent.enabled && agent.isOnNavMesh ? agent.velocity : Vector3.zero;
             Vector3 local = brain.transform.InverseTransformDirection(velocity) / locomotionReferenceSpeed;
             // Spacing retreats use NavMeshAgent.Move rather than a destination,
@@ -138,6 +140,7 @@ namespace KenshiVR.MeleeCombat
         }
         void OnAnimatorMove()
         {
+            if (brain && brain.martialArts && brain.martialArts.IsUnarmed) return;
             if (!useImportedCombatAttacks || !brain || !animator ||
                 (health && health.IsDead) || (ragdoll && ragdoll.Active)) return;
             bool attacking = brain.state == StarvingBandit.State.Anticipate ||
@@ -166,6 +169,7 @@ namespace KenshiVR.MeleeCombat
         }
         void LateUpdate()
         {
+            if (brain && brain.martialArts && brain.martialArts.IsUnarmed) return;
             if (!animator || !animator.enabled || (health && health.IsDead) || (ragdoll && ragdoll.Active)) return;
             if (!grip) return;
             if (useDirectionalStaffAttacks && brain && (brain.state == StarvingBandit.State.Anticipate ||

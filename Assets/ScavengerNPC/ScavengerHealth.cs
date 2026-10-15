@@ -17,6 +17,13 @@ namespace ScavengerNPC
         {
             if (IsDead || packet.BaseDamage <= 0 || float.IsNaN(packet.BaseDamage)) return;
             float taken = packet.BaseDamage * CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>());
+            var martial = GetComponent<NpcMartialArts>();
+            if (martial && packet.DamageType == DamageType.Kinetic && packet.Source &&
+                martial.Blocks(packet.HitPointWorld, packet.Source.transform.position))
+            {
+                taken *= martial.profile.guardedDamageMultiplier;
+                martial.SuccessfulBlock();
+            }
             Current = Mathf.Max(0, Current - taken);
             var brain = GetComponent<ScavengerEnemy>();
             if (Current <= 0)
