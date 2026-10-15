@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4b419b6ed4e5674583fb8911dd8d8c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: TerrainGeneratorPro.Runtime::TerrainGeneratorPro.BiomePreset
+  displayName: Rocky Desert
+  description: Broken pavement, hogbacks, and rubble-friendly slopes with sparse
+    flats.
+  heightFloor: 0.12
+  heightCeiling: 0.88
+  macroNoiseScale: 0.0052
+  microNoiseScale: 0.16
+  cliffSharpness: 0.62
+  mesaFrequency: 0.85
+  erosionStrength: 0.4
+  basinFrequency: 0.65
+  duneIntensity: 0.45
+  terrainSmoothing: 0.1
+  landformBalance:
+    openPlains: 0.75
+    hillsAndDunes: 0.95
+    mesasPlateaus: 1.05
+    cliffsScarps: 1.15
+    basins: 0.55
+    ridges: 1.45
+    dryRiverbeds: 0.65

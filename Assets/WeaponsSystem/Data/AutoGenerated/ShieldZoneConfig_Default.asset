@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: ShieldZoneConfig_Default
+  m_EditorClassIdentifier: MyAssets:VRKoombar.WeaponsStaging.Data:ShieldZoneConfig
+  arcs:
+  - arc: 0
+    capacity: 100
+    rechargeDelay: 2
+    rechargeRate: 3
+    instabilityGainPerLaserHit: 3
+    instabilityDecayPerSecond: 2
+    breachThreshold: 24
+    breachDuration: 7
+    breachRecoverySeconds: 7
+  - arc: 1
+    capacity: 85
+    rechargeDelay: 2
+    rechargeRate: 3
+    instabilityGainPerLaserHit: 3
+    instabilityDecayPerSecond: 2
+    breachThreshold: 22
+    breachDuration: 7
+    breachRecoverySeconds: 7
+  - arc: 2
+    capacity: 85
+    rechargeDelay: 2
+    rechargeRate: 3
+    instabilityGainPerLaserHit: 3
+    instabilityDecayPerSecond: 2
+    breachThreshold: 22
+    breachDuration: 7
+    breachRecoverySeconds: 7
+  - arc: 3
+    capacity: 75
+    rechargeDelay: 2
+    rechargeRate: 3
+    instabilityGainPerLaserHit: 3
+    instabilityDecayPerSecond: 2
+    breachThreshold: 20
+    breachDuration: 7
+    breachRecoverySeconds: 7
+  consecutiveHitWindowSeconds: 1
+  sameArcConsecutiveMultiplier: 1.4

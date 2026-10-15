@@ -1,0 +1,67 @@
+{
+    "culturalibre_faun_beard": {
+        "author": "culturalibre",
+        "category": "Facialhair",
+        "changed": "2020-03-19",
+        "created": "2020-03-19",
+        "description": "I've created this beard for the faun character.",
+        "license": "CC0",
+        "original_author": "",
+        "original_source": "",
+        "source": "http://www.makehumancommunity.org/node/2356",
+        "thumbnail": "culturalibre_faun_beard.png",
+        "type": "clothes"
+    },
+    "grinsegold_beard_sigmund_wip": {
+        "author": "grinsegold",
+        "category": "Facialhair",
+        "changed": "2017-07-19",
+        "created": "2017-07-19",
+        "description": "alpha- or beta-version of a beard that follows even the craziest expressions. For now the texture lacks some love. First goal was functionality. This asset was inspired by a very intersting project http://www.makehumancommunity.org/blogentry/announcing_maketherapist.html . My thought was that a therapist depends on credibility. Using a face that reminds at the famous analysist Sigmund Freud could help.",
+        "license": "CC0",
+        "original_author": "",
+        "original_source": "",
+        "source": "http://www.makehumancommunity.org/node/877",
+        "thumbnail": "grinsegold_beard_sigmund_wip.png",
+        "type": "clothes"
+    },
+    "rehmanpolanski_beard_viking": {
+        "author": "RehmanPolanski",
+        "category": "Facialhair",
+        "changed": "2020-07-12",
+        "created": "2020-07-12",
+        "description": "A rough beard.",
+        "license": "CC0",
+        "original_author": "",
+        "original_source": "",
+        "source": "http://www.makehumancommunity.org/node/2614",
+        "thumbnail": "rehmanpolanski_beard_viking.png",
+        "type": "clothes"
+    },
+    "rehmanpolanski_moustache_viking": {
+        "author": "RehmanPolanski",
+        "category": "Facialhair",
+        "changed": "2020-07-12",
+        "created": "2020-07-12",
+        "description": "A rough moustache",
+        "license": "CC0",
+        "original_author": "",
+        "original_source": "",
+        "source": "http://www.makehumancommunity.org/node/2615",
+        "thumbnail": "rehmanpolanski_moustache_viking.png",
+        "type": "clothes"
+    },
+    "wdg_scruffy_beard": {
+        "author": "WDG",
+        "category": "Facialhair",
+        "changed": "2019-02-03",
+        "created": "2019-02-03",
+        "description": "A beard that is slightly messy.",
+        "license": "CC0",
+        "original_author": "",
+        "original_source": "",
+        "source": "http://www.makehumancommunity.org/node/1769",
+        "thumbnail": "wdg_scruffy_beard.png",
+        "type": "clothes"
+    }
+}

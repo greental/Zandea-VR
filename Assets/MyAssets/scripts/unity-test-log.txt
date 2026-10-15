@@ -1,0 +1,27 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.2/respin/6000.2.8f1-e4064264ae96' branch; Version is '6000.2.8f1 (c9992ac36c34) revision 13211946'; Using compiler version '194234433'; Build Type 'Release'
+[Licensing::IpcConnector] Channel LicenseClient-green doesn't exist
+OS: 'Windows 10  (10.0.19045) 64bit Professional' Language: 'en' Physical Memory: 32717 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+Date: 2026-03-01T01:20:30Z
+[Licensing::Module] Successfully launched the LicensingClient (PId: 65044)
+
+COMMAND LINE ARGUMENTS:
+D:\applications\Unity\6000.2.8f1\Editor\Unity.exe
+-runTests
+-batchmode
+-projectPath
+D:\applications\Unity\Projects\VR_Koombar
+-testPlatform
+PlayMode
+-testResults
+D:\applications\Unity\Projects\VR_Koombar\Assets\MyAssets\scripts\test-results.xml
+-testFilter
+Maneuver_RollLeft100
+-logFile
+D:\applications\Unity\Projects\VR_Koombar\Assets\MyAssets\scripts\unity-test-log.txt
+Successfully changed project path to: D:\applications\Unity\Projects\VR_Koombar
+D:/applications/Unity/Projects/VR_Koombar
+Exiting without the bug reporter. Application will terminate with return code 1Starting IPC server.
+Waiting for clients to connect on \\.\pipe\Unity-LicenseClient-green, press Ctrl-C to exit.
+Shut down.

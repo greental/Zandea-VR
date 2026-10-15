@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b13f061db2c44648a6cd4077f2ae2750, type: 3}
+  m_Name: Grasslands
+  m_EditorClassIdentifier: Assembly-CSharp::MyAssets.PlanetTerrain.PlanetBiomeProfile
+  identifier: Grasslands
+  terrainLayers:
+  - {fileID: 8574412962073106934, guid: 130d104513b29bd44ae9c5b3915f4134, type: 2}
+  - {fileID: 8574412962073106934, guid: bd1fcb10d2c5b5d4ba6e01a34e4735be, type: 2}
+  - {fileID: 8574412962073106934, guid: d25c8def728088547ae6a1024dd9b481, type: 2}
+  - {fileID: 8574412962073106934, guid: 0cbb01b61ed524a48a119d81aa262fed, type: 2}
+  - {fileID: 8574412962073106934, guid: b5fcb6edb24b4544dbcf0dad9462ee5b, type: 2}
+  terrainShape: 3
+  sourceTerrain:
+    terrainProfile: 0
+    seed: 42
+    baseHeight01: 0.28
+    mountainAmplitude01: 0.62
+    macroScaleMeters: 1400
+    mountainScaleMeters: 4300
+    ridgeScaleMeters: 520
+    canyonScaleMeters: 7600
+    valleyScaleMeters: 6800
+    detailScaleMeters: 260
+    keepPrimaryCanyonNearOrigin: 1
+    primaryCanyonOriginOffsetMeters: 0
+    moonSeed: 1337
+    moonBaseHeight01: 0.42
+    moonCraterDensity: 1
+    moonSmallCraterRadiusRangeMeters: {x: 40, y: 90}
+    moonMediumCraterRadiusRangeMeters: {x: 90, y: 220}
+    moonLargeCraterRadiusRangeMeters: {x: 220, y: 500}
+    moonCraterDepth01: 0.16
+    moonRimHeight01: 0.055
+    moonRimWidth: 0.18
+    moonBackgroundRoughness01: 0.045
+    moonMacroElevationVariation01: 0.16
+    moonRockyAreaStrength01: 0.05
+  sourceReliefMeters: 1100
+  broadScale: 1800
+  detailScale: 160
+  reliefMeters: 105
+  detailMeters: 5
+  ridgeStrength: 0
+  terraceStrength: 0
+  duneStrength: 0
+  canyonStrength: 0

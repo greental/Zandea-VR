@@ -1,0 +1,90 @@
+{
+  "url": "http://localhost:8080",
+  "images": {
+    "Gemini_Generated_Image_cmp4cscmp4cscmp4.jfif": {
+      "status": "success",
+      "output_path": "D:\\applications\\Unity\\Projects\\Kenshi_VR\\Assets\\MyAssets\\mesh\\weapons\\Generated\\Gemini_Generated_Image_cmp4cscmp4cscmp4.glb",
+      "duration_seconds": 75.7,
+      "errors": [],
+      "completed_at": "2026-10-12T22:27:56.461307+00:00"
+    },
+    "Gemini_Generated_Image_icncchicncchicnc.jfif": {
+      "status": "success",
+      "output_path": "D:\\applications\\Unity\\Projects\\Kenshi_VR\\Assets\\MyAssets\\mesh\\weapons\\Generated\\Gemini_Generated_Image_icncchicncchicnc.glb",
+      "duration_seconds": 58.8,
+      "errors": [],
+      "completed_at": "2026-10-12T22:28:55.281973+00:00"
+    },
+    "Gemini_Generated_Image_j8jvw8j8jvw8j8jv.jfif": {
+      "status": "success",
+      "output_path": "D:\\applications\\Unity\\Projects\\Kenshi_VR\\Assets\\MyAssets\\mesh\\weapons\\Generated\\Gemini_Generated_Image_j8jvw8j8jvw8j8jv.glb",
+      "duration_seconds": 62.3,
+      "errors": [],
+      "completed_at": "2026-10-12T22:29:57.567336+00:00"
+    },
+    "Gemini_Generated_Image_rm5g6jrm5g6jrm5g.jfif": {
+      "status": "success",
+      "output_path": "D:\\applications\\Unity\\Projects\\Kenshi_VR\\Assets\\MyAssets\\mesh\\weapons\\Generated\\Gemini_Generated_Image_rm5g6jrm5g6jrm5g.glb",
+      "duration_seconds": 57.8,
+      "errors": [],
+      "completed_at": "2026-10-12T22:30:55.372945+00:00"
+    },
+    "Gemini_Generated_Image_scu0f9scu0f9scu0.jfif": {
+      "status": "success",
+      "output_path": "D:\\applications\\Unity\\Projects\\Kenshi_VR\\Assets\\MyAssets\\mesh\\weapons\\Generated\\Gemini_Generated_Image_scu0f9scu0f9scu0.glb",
+      "duration_seconds": 55.1,
+      "errors": [],
+      "completed_at": "2026-10-12T22:31:50.480487+00:00"
+    },
+    "Gemini_Generated_Image_v24ohsv24ohsv24o.jfif": {
+      "status": "success",
+      "output_path": "D:\\applications\\Unity\\Projects\\Kenshi_VR\\Assets\\MyAssets\\mesh\\weapons\\Generated\\Gemini_Generated_Image_v24ohsv24ohsv24o.glb",
+      "duration_seconds": 81.4,
+      "errors": [],
+      "completed_at": "2026-10-12T22:33:11.901652+00:00"
+    },
+    "Gemini_Generated_Image_xl1dq9xl1dq9xl1d.jfif": {
+      "status": "success",
+      "output_path": "D:\\applications\\Unity\\Projects\\Kenshi_VR\\Assets\\MyAssets\\mesh\\weapons\\Generated\\Gemini_Generated_Image_xl1dq9xl1dq9xl1d.glb",
+      "duration_seconds": 59.3,
+      "errors": [],
+      "completed_at": "2026-10-12T22:34:11.176934+00:00"
+    },
+    "Gemini_Generated_Image_xopexxxopexxxope.jfif": {
+      "status": "success",
+      "output_path": "D:\\applications\\Unity\\Projects\\Kenshi_VR\\Assets\\MyAssets\\mesh\\weapons\\Generated\\Gemini_Generated_Image_xopexxxopexxxope.glb",
+      "duration_seconds": 52.3,
+      "errors": [],
+      "completed_at": "2026-10-12T22:35:03.441298+00:00"
+    },
+    "Gemini_Generated_Image_5yoj435yoj435yoj.jfif": {
+      "status": "success",
+      "output_path": "D:\\applications\\Unity\\Projects\\Kenshi_VR\\Assets\\MyAssets\\mesh\\weapons\\Generated\\Gemini_Generated_Image_5yoj435yoj435yoj.glb",
+      "duration_seconds": 54.5,
+      "errors": [],
+      "completed_at": "2026-10-12T22:39:39.581845+00:00"
+    },
+    "Gemini_Generated_Image_7a0nqg7a0nqg7a0n.jfif": {
+      "status": "success",
+      "output_path": "D:\\applications\\Unity\\Projects\\Kenshi_VR\\Assets\\MyAssets\\mesh\\weapons\\Generated\\Gemini_Generated_Image_7a0nqg7a0nqg7a0n.glb",
+      "duration_seconds": 54.1,
+      "errors": [],
+      "completed_at": "2026-10-12T22:40:33.717004+00:00"
+    },
+    "Gemini_Generated_Image_ctvo3tctvo3tctvo.jfif": {
+      "status": "success",
+      "output_path": "D:\\applications\\Unity\\Projects\\Kenshi_VR\\Assets\\MyAssets\\mesh\\weapons\\Generated\\Gemini_Generated_Image_ctvo3tctvo3tctvo.glb",
+      "duration_seconds": 57.5,
+      "errors": [],
+      "completed_at": "2026-10-12T22:41:31.212197+00:00"
+    },
+    "Gemini_Generated_Image_qh6xjiqh6xjiqh6x.jfif": {
+      "status": "success",
+      "output_path": "D:\\applications\\Unity\\Projects\\Kenshi_VR\\Assets\\MyAssets\\mesh\\weapons\\Generated\\Gemini_Generated_Image_qh6xjiqh6xjiqh6x.glb",
+      "duration_seconds": 126.4,
+      "errors": [],
+      "completed_at": "2026-10-12T22:43:37.613658+00:00"
+    }
+  },
+  "texture": true
+}

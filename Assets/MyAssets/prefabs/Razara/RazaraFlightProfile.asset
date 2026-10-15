@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b6cfb4fe6826eb4aaa20739485e0f8f, type: 3}
+  m_Name: RazaraFlightProfile
+  m_EditorClassIdentifier: MyAssets::ShipFlightProfile
+  reachPitchMeters: 0.08
+  reachRollMeters: 0.08
+  deadzone: 0.07
+  responseCurve: 1
+  maxPitchAngle: 20
+  maxRollAngle: 20
+  recenterSpeed: 8
+  maxYawAngle: 45
+  gripTwistAxis: {x: 1, y: 0, z: 0}
+  invertPitch: 1
+  invertRoll: 0
+  invertYaw: 0
+  pitchStrength: 2
+  rollStrength: 1
+  yawStrength: 3
+  speedStrength: 2
+  rightStickDeadzone: 0.2
+  throttleSnapDeadzone: 0.12
+  dominantAxisThreshold: 0.7
+  crossAxisThreshold: 0.25
+  showInputMetrics: 0
+  maxSpeedOverride: 0
+  maxForwardThrustOverride: 0

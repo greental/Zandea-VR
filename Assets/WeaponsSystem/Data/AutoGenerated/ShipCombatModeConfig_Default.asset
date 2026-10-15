@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: ShipCombatModeConfig_Default
+  m_EditorClassIdentifier: MyAssets:VRKoombar.WeaponsStaging.Data:ShipCombatModeConfig
+  profiles:
+  - mode: 0
+    enginesMultiplier: 1.2
+    shieldsMultiplier: 0.85
+    weaponsMultiplier: 1.15
+  - mode: 1
+    enginesMultiplier: 0.85
+    shieldsMultiplier: 1.2
+    weaponsMultiplier: 1.15
+  - mode: 2
+    enginesMultiplier: 1.2
+    shieldsMultiplier: 1.15
+    weaponsMultiplier: 0.85

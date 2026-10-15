@@ -1,0 +1,16 @@
+{
+  "reference_body": "../Models/male_creator.glb",
+  "input": "../../../ClothingInput",
+  "output": "../../../ClothingBaked",
+  "category": "torso",
+  "body_mesh": "",
+  "clearance": 0.008,
+  "fit_strength": 0.35,
+  "loose_fabric": 0.35,
+  "max_correspondence_distance": 0.35,
+  "morphs": ["WeightThin", "WeightHeavy", "MuscularitySlim", "MuscularityMuscular"],
+  "generate_morphs": true,
+  "validate": true,
+  "recursive": true,
+  "overwrite": false
+}

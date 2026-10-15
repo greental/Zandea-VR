@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4b419b6ed4e5674583fb8911dd8d8c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: TerrainGeneratorPro.Runtime::TerrainGeneratorPro.BiomePreset
+  displayName: Desert
+  description: Open erg fields, soft basins, and readable dune trains with gentle
+    playas.
+  heightFloor: 0.06
+  heightCeiling: 0.78
+  macroNoiseScale: 0.0032
+  microNoiseScale: 0.14
+  cliffSharpness: 0.32
+  mesaFrequency: 0.45
+  erosionStrength: 0.22
+  basinFrequency: 1.1
+  duneIntensity: 1.65
+  terrainSmoothing: 0.28
+  landformBalance:
+    openPlains: 1.35
+    hillsAndDunes: 1.55
+    mesasPlateaus: 0.55
+    cliffsScarps: 0.35
+    basins: 1.1
+    ridges: 0.45
+    dryRiverbeds: 0.85

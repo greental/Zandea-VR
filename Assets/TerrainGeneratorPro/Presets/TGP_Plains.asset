@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4b419b6ed4e5674583fb8911dd8d8c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: TerrainGeneratorPro.Runtime::TerrainGeneratorPro.BiomePreset
+  displayName: Plains
+  description: Wide navigable shelves, subtle swales, and gentle relief for vehicles.
+  heightFloor: 0.18
+  heightCeiling: 0.62
+  macroNoiseScale: 0.0024
+  microNoiseScale: 0.08
+  cliffSharpness: 0.22
+  mesaFrequency: 0.25
+  erosionStrength: 0.18
+  basinFrequency: 0.85
+  duneIntensity: 0.2
+  terrainSmoothing: 0.38
+  landformBalance:
+    openPlains: 1.85
+    hillsAndDunes: 0.55
+    mesasPlateaus: 0.25
+    cliffsScarps: 0.2
+    basins: 0.75
+    ridges: 0.35
+    dryRiverbeds: 0.45

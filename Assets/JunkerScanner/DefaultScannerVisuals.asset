@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8081e9612e31b72459ffe9d59a50f942, type: 3}
+  m_Name: DefaultScannerVisuals
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerScanner.ScanVisualProfile
+  normal: {r: 0.82, g: 0.84, b: 0.86, a: 1}
+  interaction: {r: 0.88, g: 0.9, b: 0.92, a: 1}
+  salvage: {r: 0.82, g: 0.84, b: 0.86, a: 1}
+  cut: {r: 1, g: 0.4, b: 0.05, a: 1}
+  installation: {r: 0, g: 1, b: 0, a: 1}
+  fault: {r: 1, g: 0, b: 0, a: 1}

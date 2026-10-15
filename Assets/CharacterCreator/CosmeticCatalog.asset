@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5425d6aad28b59d41aa6474301205169, type: 3}
+  m_Name: CosmeticCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.CosmeticCatalog
+  shortHair: {fileID: 11400000, guid: 622527f68b89f574c95d4affb659c4a9, type: 2}
+  mediumHair: {fileID: 11400000, guid: 86fa56ac50b31a749a50413a6d1a7358, type: 2}
+  longTiedBackHair: {fileID: 11400000, guid: 7d2a6135f1a4f3f439c8d5d282b313e5, type: 2}
+  stubble: {fileID: 11400000, guid: 489cbc3c12350ab438e6719acfd2ab82, type: 2}
+  shortBeard: {fileID: 11400000, guid: f6919a34a21647a4a9cc56fe26dd6c25, type: 2}
+  fullBeard: {fileID: 11400000, guid: 517d4082838267848b9c9263b4f23692, type: 2}
+  shortHairVariants:
+  - {fileID: 11400000, guid: 622527f68b89f574c95d4affb659c4a9, type: 2}
+  - {fileID: 11400000, guid: af770856deb681d4a91c880b80f3e9b5, type: 2}
+  mediumHairVariants:
+  - {fileID: 11400000, guid: 86fa56ac50b31a749a50413a6d1a7358, type: 2}
+  longHairVariants:
+  - {fileID: 11400000, guid: 7d2a6135f1a4f3f439c8d5d282b313e5, type: 2}
+  - {fileID: 11400000, guid: 61d6ffc38ed906942b7a6dc49093fdee, type: 2}
+  - {fileID: 11400000, guid: 5890e08dc5951a64392b8b19a6199125, type: 2}
+  stubbleVariants:
+  - {fileID: 11400000, guid: 489cbc3c12350ab438e6719acfd2ab82, type: 2}
+  - {fileID: 11400000, guid: 26f5631cb99c306469f106240108aaac, type: 2}
+  shortBeardVariants:
+  - {fileID: 11400000, guid: f6919a34a21647a4a9cc56fe26dd6c25, type: 2}
+  - {fileID: 11400000, guid: c7f5740f77308b146996f6aa71ef0bee, type: 2}
+  fullBeardVariants:
+  - {fileID: 11400000, guid: 517d4082838267848b9c9263b4f23692, type: 2}
+  - {fileID: 11400000, guid: 8b9bcb24112efe04c9062fec5ed97f31, type: 2}
+  wardrobeItems:
+  - {fileID: 11400000, guid: 4404a10f48638bb4eaa218734a07fa38, type: 2}
+  - {fileID: 11400000, guid: e90d870192c3632439126838c1b3d13d, type: 2}
+  - {fileID: 11400000, guid: 01c38939a0160ae4a9591009c5fa0fd9, type: 2}
+  - {fileID: 11400000, guid: 9d2bc98d96d77cf40a711e19e2c361cd, type: 2}
+  - {fileID: 11400000, guid: ad102bf5479e4304cab5c8e9ac3e867f, type: 2}
+  - {fileID: 11400000, guid: abef7c63d69ea0345b4c8b2eaf9bfadc, type: 2}
+  - {fileID: 11400000, guid: 06db7cffdbc91f14b8a8695045a25e02, type: 2}
+  - {fileID: 11400000, guid: c840eda6dc52d5a48938009caa7f75b8, type: 2}
+  - {fileID: 11400000, guid: 83f1d2dc4887e904ebbe589f22fa1640, type: 2}
+  - {fileID: 11400000, guid: bdc1acf780db37b4d9c1305e4e747d1e, type: 2}
+  - {fileID: 11400000, guid: 4c104a26d78a7f24e87678b8c8bc6a40, type: 2}
+  - {fileID: 11400000, guid: 6d2112dede106d04ba35952db36e6989, type: 2}
+  - {fileID: 11400000, guid: b31fbfbcf7697bf41a7b483dc05e28d6, type: 2}
+  - {fileID: 11400000, guid: 8a1bdddda8ad5c647b30ee44e48d3950, type: 2}
+  - {fileID: 11400000, guid: 3d167b69c2b3f234a9057d443dbcdd9d, type: 2}
+  - {fileID: 11400000, guid: 41314ef1af686a446bbbb805abf75a76, type: 2}
+  - {fileID: 11400000, guid: 1c46ce83cc9c3e549b0eb29ce8de1115, type: 2}
+  - {fileID: 11400000, guid: 96fb6e5a03ebc0a42ab99406b689a1c5, type: 2}
+  - {fileID: 11400000, guid: 83a9b67fa947fbd4eb9edf2c243e1e17, type: 2}

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d0c4c93315d0c941aa154c363126c29, type: 3}
+  m_Name: moustacheviking
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.AppearanceItemDefinition
+  slot: 1
+  prefab: {fileID: 8212186794090191835, guid: 777c8e6f9c43f6e42847adfeebbd938a, type: 3}
+  attachBoneName: CC_Base_Head_038
+  skinned: 0
+  requiredMorphs: []
+  hideRendererNames: []
+  styleFamily: wild
+  fitNote: Rigid head attachment fitted to the neutral CC_Base head. Review clipping
+    at face morph extremes.
+  hideHair: 0
+  coversOutfit: 0
+  randomWeight: 1

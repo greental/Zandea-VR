@@ -1,0 +1,10 @@
+{
+    "name": "TerrainGeneratorPro.Runtime",
+    "rootNamespace": "TerrainGeneratorPro",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "autoReferenced": true
+}

@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c173e354dff1423995191482973258a2, type: 3}
+  m_Name: DesertOutpostTheme
+  m_EditorClassIdentifier: Assembly-CSharp::MyAssets.PlanetTerrain.OutpostFactionTheme
+  smallBuildings:
+  - {fileID: 3074391669003351261, guid: 1312e97b41bc3864abe0383dcb522f5d, type: 3}
+  - {fileID: 3601137619785369024, guid: 11645416e5a650c46a070446499cb369, type: 3}
+  - {fileID: 745522359039417279, guid: 3f4d84f5d4ddab7439775dcface4e776, type: 3}
+  mediumBuildings:
+  - {fileID: 1570540408999375077, guid: 603602947433c174594acaea86c5d0da, type: 3}
+  - {fileID: 4542980313812016178, guid: 3c5dffe185ae2154f8207d43fbcb010b, type: 3}
+  largeBuildings:
+  - {fileID: 1108616973777757640, guid: 9e8ae5eb380d3d940880979a1e5b485b, type: 3}
+  - {fileID: 4542980313812016178, guid: 3c5dffe185ae2154f8207d43fbcb010b, type: 3}
+  landingPads: []
+  aaTurrets: []
+  props:
+  - {fileID: 9212045571685912049, guid: d1dd1f069d6401847825aa11cc4a6e0e, type: 3}
+  - {fileID: 7946238238840808613, guid: bd1b1608f45258e479d669c09ed1d197, type: 3}
+  - {fileID: 1335907131323160146, guid: d1c320300fc0bfe40bbe3974198c63c9, type: 3}
+  - {fileID: 5794865025153641829, guid: 0446ecee7fce3964eba9b21841d60a95, type: 3}
+  - {fileID: 3259500521897517589, guid: d69d9b0c04c0dc14691c538a0225ad57, type: 3}
+  loot: []
+  npcPrefab: {fileID: 0}
+  pyxol2LeanPrefab: {fileID: 0}
+  junkHoverBikePrefab: {fileID: 0}
+  canopyPrefab: {fileID: 7034866191033022436, guid: b6ca86c0241a67c4385e7c857dab8318, type: 3}
+  antennaPrefab: {fileID: 5538981877595408856, guid: 2b6a2638f8dc9d7409d0145f6ddb3b50, type: 3}
+  wallPrefab: {fileID: 7730453778900314250, guid: 6e5cd47dc837e834ba6235fc8a054dee, type: 3}
+  gatePrefab: {fileID: 2928346546755526627, guid: d3cf328129c4b5c4386813ba3b31c7b0, type: 3}
+  pipePrefab: {fileID: 9002431022233759659, guid: ffe35d82e5ad3ea438b206c68096f1d7, type: 3}

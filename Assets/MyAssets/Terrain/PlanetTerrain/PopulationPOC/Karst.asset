@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b13f061db2c44648a6cd4077f2ae2750, type: 3}
+  m_Name: Karst
+  m_EditorClassIdentifier: Assembly-CSharp::MyAssets.PlanetTerrain.PlanetBiomeProfile
+  identifier: Karst
+  terrainLayers:
+  - {fileID: 8574412962073106934, guid: d25c8def728088547ae6a1024dd9b481, type: 2}
+  - {fileID: 8574412962073106934, guid: 62f82665abc6fbf4e8f7fa058cbd8d6c, type: 2}
+  - {fileID: 8574412962073106934, guid: 10dbfe9623104282b24d11458d048c54, type: 2}
+  - {fileID: 8574412962073106934, guid: eda0a9a0fd234dfda7be2c15a2dcb45c, type: 2}
+  terrainShape: 10
+  sourceTerrain:
+    terrainProfile: 0
+    seed: 42
+    baseHeight01: 0.28
+    mountainAmplitude01: 0.62
+    macroScaleMeters: 1400
+    mountainScaleMeters: 4300
+    ridgeScaleMeters: 520
+    canyonScaleMeters: 7600
+    valleyScaleMeters: 6800
+    detailScaleMeters: 260
+    keepPrimaryCanyonNearOrigin: 1
+    primaryCanyonOriginOffsetMeters: 0
+    moonSeed: 1337
+    moonBaseHeight01: 0.42
+    moonCraterDensity: 1
+    moonSmallCraterRadiusRangeMeters: {x: 40, y: 90}
+    moonMediumCraterRadiusRangeMeters: {x: 90, y: 220}
+    moonLargeCraterRadiusRangeMeters: {x: 220, y: 500}
+    moonCraterDepth01: 0.16
+    moonRimHeight01: 0.055
+    moonRimWidth: 0.18
+    moonBackgroundRoughness01: 0.045
+    moonMacroElevationVariation01: 0.16
+    moonRockyAreaStrength01: 0.05
+  sourceReliefMeters: 1100
+  broadScale: 2500
+  detailScale: 400
+  reliefMeters: 300
+  detailMeters: 16
+  ridgeStrength: 0
+  terraceStrength: 0
+  duneStrength: 0
+  canyonStrength: 0

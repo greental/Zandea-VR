@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 983b1ed987da40e45a69d2172ab3e573, type: 3}
+  m_Name: terrain_28798d35_TileSet
+  m_EditorClassIdentifier: MyAssets::MyAssets.PlanetTerrain.PlanetTerrainTileSet
+  wrapWidth: 8
+  wrapHeight: 8
+  wrapCoordinates: 1
+  generationSettings:
+    tileSizeMeters: 1024
+    maxHeightMeters: 520
+    heightmapResolution: 129
+    alphamapResolution: 258
+    terrainLayers:
+    - {fileID: 8574412962073106934, guid: ce833e94f7f7eea468b012546444cf0c, type: 2}
+    - {fileID: 8574412962073106934, guid: a579e897aa6ba004ab0e04fa3053263a, type: 2}
+    - {fileID: 8574412962073106934, guid: 130d104513b29bd44ae9c5b3915f4134, type: 2}
+    - {fileID: 8574412962073106934, guid: bd1fcb10d2c5b5d4ba6e01a34e4735be, type: 2}
+    - {fileID: 8574412962073106934, guid: d25c8def728088547ae6a1024dd9b481, type: 2}
+    - {fileID: 8574412962073106934, guid: 0cbb01b61ed524a48a119d81aa262fed, type: 2}
+    - {fileID: 8574412962073106934, guid: d25c8def728088547ae6a1024dd9b481, type: 2}
+    - {fileID: 8574412962073106934, guid: 62f82665abc6fbf4e8f7fa058cbd8d6c, type: 2}
+    - {fileID: 8574412962073106934, guid: 091511b8c4f042c4082a4d5af73e92c7, type: 2}
+    - {fileID: 8574412962073106934, guid: b5fcb6edb24b4544dbcf0dad9462ee5b, type: 2}
+  authoredTiles:
+  - coord:
+      x: 7
+      z: 7
+    terrainData: {fileID: 15600000, guid: 6042c6f0a6e1064448b0e37446b2e1f5, type: 2}
+  - coord:
+      x: 0
+      z: 7
+    terrainData: {fileID: 15600000, guid: 6db35565e098cef4eac837493994b46b, type: 2}
+  - coord:
+      x: 1
+      z: 7
+    terrainData: {fileID: 15600000, guid: a90c08f8a2872f141b1dcadc12c6b74d, type: 2}
+  - coord:
+      x: 7
+      z: 0
+    terrainData: {fileID: 15600000, guid: 8e15bf94a6bdf844ab91ad80e7dc414d, type: 2}
+  - coord:
+      x: 0
+      z: 0
+    terrainData: {fileID: 15600000, guid: dd8f8a53d48099c4d937e96fd91f2497, type: 2}
+  - coord:
+      x: 1
+      z: 0
+    terrainData: {fileID: 15600000, guid: 27872a5572a6f034aacb08dc32c383ca, type: 2}
+  - coord:
+      x: 7
+      z: 1
+    terrainData: {fileID: 15600000, guid: 446c77d5b16190c4bb79a476f0db1564, type: 2}
+  - coord:
+      x: 0
+      z: 1
+    terrainData: {fileID: 15600000, guid: 60197212e82023148b06f577c1572dba, type: 2}
+  - coord:
+      x: 1
+      z: 1
+    terrainData: {fileID: 15600000, guid: de0bc154d7af64d4a87aaab022408b1f, type: 2}

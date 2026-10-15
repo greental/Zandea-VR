@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b13f061db2c44648a6cd4077f2ae2750, type: 3}
+  m_Name: SandDunes
+  m_EditorClassIdentifier: Assembly-CSharp::MyAssets.PlanetTerrain.PlanetBiomeProfile
+  identifier: Sand Dunes
+  terrainLayers:
+  - {fileID: 8574412962073106934, guid: 82aea1bf4675be54487e9d7583efd53c, type: 2}
+  - {fileID: 8574412962073106934, guid: 1ded3ba1c5a90054e8f23ddfa62fb2b7, type: 2}
+  - {fileID: 8574412962073106934, guid: 091511b8c4f042c4082a4d5af73e92c7, type: 2}
+  terrainShape: 4
+  sourceTerrain:
+    terrainProfile: 0
+    seed: 42
+    baseHeight01: 0.28
+    mountainAmplitude01: 0.62
+    macroScaleMeters: 1400
+    mountainScaleMeters: 4300
+    ridgeScaleMeters: 520
+    canyonScaleMeters: 7600
+    valleyScaleMeters: 6800
+    detailScaleMeters: 260
+    keepPrimaryCanyonNearOrigin: 1
+    primaryCanyonOriginOffsetMeters: 0
+    moonSeed: 1337
+    moonBaseHeight01: 0.42
+    moonCraterDensity: 1
+    moonSmallCraterRadiusRangeMeters: {x: 40, y: 90}
+    moonMediumCraterRadiusRangeMeters: {x: 90, y: 220}
+    moonLargeCraterRadiusRangeMeters: {x: 220, y: 500}
+    moonCraterDepth01: 0.16
+    moonRimHeight01: 0.055
+    moonRimWidth: 0.18
+    moonBackgroundRoughness01: 0.045
+    moonMacroElevationVariation01: 0.16
+    moonRockyAreaStrength01: 0.05
+  sourceReliefMeters: 1100
+  broadScale: 2100
+  detailScale: 130
+  reliefMeters: 65
+  detailMeters: 5
+  ridgeStrength: 0
+  terraceStrength: 0
+  duneStrength: 0
+  canyonStrength: 0

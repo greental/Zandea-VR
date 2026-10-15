@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100001
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1002936503962342245, guid: e340fe3e0846ef847b0770f46c5da914, type: 3}
+      propertyPath: m_Name
+      value: Pyxol2 Lean
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1002936503962342245, guid: e340fe3e0846ef847b0770f46c5da914, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 114100001}
+    - targetCorrespondingSourceObject: {fileID: 1002936503962342245, guid: e340fe3e0846ef847b0770f46c5da914, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7632103801818214702}
+  m_SourcePrefab: {fileID: 100100000, guid: e340fe3e0846ef847b0770f46c5da914, type: 3}
+--- !u!1 &1002936504030721220 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1002936503962342245, guid: e340fe3e0846ef847b0770f46c5da914, type: 3}
+  m_PrefabInstance: {fileID: 100100001}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &114100001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1002936504030721220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa585a6e465446ccab902d853ddaf94f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maximumLean: 10
+  response: 5
+--- !u!114 &7632103801818214702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1002936504030721220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6feca2d7a36c0464192a6a1ca3c38ff8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerScanner.ScannableObject
+  displayName: Pyxol-2
+  category: Hover Bike
+  description: Top Grade
+  interactionHint: 
+  status: 1
+  scannerPriority: 0
+  highlightKind: 0
+  highlights: []
+  accessCompartment: {fileID: 0}
+  providers: []

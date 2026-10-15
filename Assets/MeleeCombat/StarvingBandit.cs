@@ -350,6 +350,22 @@ namespace KenshiVR.MeleeCombat
             nextAttack = Time.time + initialAttackDelay;
         }
         void OnDestroy() { if (staff) staff.Blocked -= OnBlocked; if (previewDummy) Destroy(previewDummy); if (previewDummyMaterial) Destroy(previewDummyMaterial); }
+        public void SetEquippedStaff(PhysicalMeleeWeapon value, Transform goal)
+        {
+            if (staff) staff.Blocked -= OnBlocked;
+            staff = value; weaponGoal = goal; guardCaptured = false;
+            staffBody = staff ? staff.GetComponent<Rigidbody>() : null;
+            if (staff)
+            {
+                staff.Blocked += OnBlocked;
+                positiveStrikingTip = staff.transform.Find("Positive striking tip");
+                negativeStrikingTip = staff.transform.Find("Negative striking tip");
+                var shape = staff.GetComponent<CapsuleCollider>();
+                if (shape) staffHalfLength = shape.height * .5f;
+            }
+            if (rigMotion) rigMotion.staff = staff;
+            CaptureGuard();
+        }
         void CaptureGuard()
         {
             if (guardCaptured || !staff || !weaponGoal) return;
@@ -371,7 +387,6 @@ namespace KenshiVR.MeleeCombat
             {
                 StopPreview(); state = State.Dead;
                 if (agent && agent.enabled) { agent.isStopped = true; agent.enabled = false; }
-                if (!dropped && staff) { staff.DropFromNpc(); dropped = true; }
                 return;
             }
             CaptureGuard();
@@ -393,7 +408,7 @@ namespace KenshiVR.MeleeCombat
                 if (playerHealth && playerHealth.IsDead)
                 { state = State.Idle; Move(false); ReturnToGuard(); return; }
             }
-            if (!weaponGoal) return;
+            if (!staff || !weaponGoal) { state = State.Idle; return; }
             if (groupControlled && !groupEngaged)
             {
                 state = State.Idle;

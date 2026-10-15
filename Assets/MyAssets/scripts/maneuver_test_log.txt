@@ -1,0 +1,4 @@
+[Maneuver] After roll left ~100° | forward=(0.000,0.000,1.000) up.y=-0.234 bank=103.5° euler=(0.0,0.0,103.5)
+[Maneuver] After roll right 10° (on left side) | forward=(0.000,0.000,1.000) up.y=-0.731 bank=137.0° euler=(0.0,0.0,223.0)
+[Maneuver] After pitch up (face backwards) | forward=(0.493,0.480,-0.726) up.y=-0.795 bank=142.6° euler=(331.3,145.8,205.1)
+[Maneuver] Final (should be level, facing backwards) | forward=(0.748,-0.111,-0.654) up.y=0.951 bank=18.1° euler=(6.4,131.1,17.0)

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4b419b6ed4e5674583fb8911dd8d8c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: TerrainGeneratorPro.Runtime::TerrainGeneratorPro.BiomePreset
+  displayName: Red Canyon
+  description: Strong vertical relief, terraces, and dry channels suited to flight
+    corridors and vistas.
+  heightFloor: 0.1
+  heightCeiling: 0.95
+  macroNoiseScale: 0.0048
+  microNoiseScale: 0.1
+  cliffSharpness: 0.78
+  mesaFrequency: 1.35
+  erosionStrength: 0.48
+  basinFrequency: 0.95
+  duneIntensity: 0.35
+  terrainSmoothing: 0.12
+  landformBalance:
+    openPlains: 0.65
+    hillsAndDunes: 0.55
+    mesasPlateaus: 1.45
+    cliffsScarps: 1.55
+    basins: 0.9
+    ridges: 1.25
+    dryRiverbeds: 1.35

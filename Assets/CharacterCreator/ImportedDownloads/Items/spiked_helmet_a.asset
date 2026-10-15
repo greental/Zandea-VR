@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d0c4c93315d0c941aa154c363126c29, type: 3}
+  m_Name: spiked_helmet_a
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.AppearanceItemDefinition
+  slot: 2
+  prefab: {fileID: 6737197148677873877, guid: 4f2bdaed9d9656047a8bd31292d016a8, type: 3}
+  attachBoneName: CC_Base_Head_038
+  skinned: 0
+  requiredMorphs: []
+  hideRendererNames: []
+  styleFamily: raider
+  fitNote: Neutral fit authored in Assets/Scenes/Fittings.unity; capture from CombinedStarvingBandit
+    (7).
+  hideHair: 1
+  coversOutfit: 0
+  randomWeight: 1

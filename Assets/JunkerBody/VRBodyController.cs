@@ -29,6 +29,17 @@ namespace JunkerBody
         public Transform avatarRoot, hips, chest, head, headTarget;
         public Limb leftArm = new Limb(), rightArm = new Limb(), leftLeg = new Limb(), rightLeg = new Limb();
         [NonSerialized] public Transform leftGripTarget, rightGripTarget;
+        [NonSerialized] public Transform leftMeleeGripTarget, rightMeleeGripTarget;
+        public void SetMeleeGrip(Transform interactor, Transform grip)
+        {
+            if (leftController && (interactor == leftController || interactor.IsChildOf(leftController))) leftMeleeGripTarget = grip;
+            if (rightController && (interactor == rightController || interactor.IsChildOf(rightController))) rightMeleeGripTarget = grip;
+        }
+        public void ClearMeleeGrip(Transform grip)
+        {
+            if (leftMeleeGripTarget == grip) leftMeleeGripTarget = null;
+            if (rightMeleeGripTarget == grip) rightMeleeGripTarget = null;
+        }
         public void SetHoverBikeGrip(Transform interactor, Transform grip)
         {
             if (leftController && (interactor == leftController || interactor.IsChildOf(leftController))) leftGripTarget = grip;
@@ -142,8 +153,10 @@ namespace JunkerBody
             hips.position += headTarget.position - head.position;
             head.rotation = headTarget.rotation;
             SolveLeg(leftLeg); SolveLeg(rightLeg);
-            TrackArm(leftArm, leftController, leftOpticalTracking, leftOpticalWrist, leftGripTarget);
-            TrackArm(rightArm, rightController, rightOpticalTracking, rightOpticalWrist, rightGripTarget);
+            TrackArm(leftArm, leftController, leftOpticalTracking, leftOpticalWrist,
+                leftMeleeGripTarget ? leftMeleeGripTarget : leftGripTarget, leftMeleeGripTarget);
+            TrackArm(rightArm, rightController, rightOpticalTracking, rightOpticalWrist,
+                rightMeleeGripTarget ? rightMeleeGripTarget : rightGripTarget, rightMeleeGripTarget);
         }
         void SaveFoot(Limb leg) { leg.target.SetPositionAndRotation(leg.tip.position, leg.tip.rotation); }
         void SolveLeg(Limb leg)
@@ -152,14 +165,15 @@ namespace JunkerBody
             SolveTwoBone(leg.upper, leg.lower, leg.tip, leg.target.position, leg.hint.position);
             leg.tip.rotation = leg.target.rotation;
         }
-        void TrackArm(Limb arm, Transform source, XRHandTrackingEvents optical, Transform wrist, Transform gripTarget)
+        void TrackArm(Limb arm, Transform source, XRHandTrackingEvents optical, Transform wrist, Transform gripTarget, bool meleeGrip)
         {
             // Applied to this frame's unmodified animation pose. RestorePose removes the
             // adjustment before the next Animator evaluation, so lengths never accumulate.
             arm.lower.localPosition *= armLengthMultiplier;
             arm.tip.localPosition *= armLengthMultiplier;
             bool useOptical = optical && optical.isActiveAndEnabled && optical.handIsTracked && wrist;
-            if (gripTarget) arm.target.SetPositionAndRotation(gripTarget.position, source.rotation * Quaternion.Euler(arm.wristRotationOffset));
+            if (gripTarget) arm.target.SetPositionAndRotation(gripTarget.position,
+                (meleeGrip ? gripTarget.rotation : source.rotation) * Quaternion.Euler(arm.wristRotationOffset));
             else if (useOptical) arm.target.SetPositionAndRotation(wrist.position, wrist.rotation * Quaternion.Euler(opticalWristRotationOffset));
             else arm.target.SetPositionAndRotation(source.TransformPoint(arm.wristPositionOffset), source.rotation * Quaternion.Euler(arm.wristRotationOffset));
             arm.hint.position = chest.position + avatarRoot.rotation * arm.hintOffset;

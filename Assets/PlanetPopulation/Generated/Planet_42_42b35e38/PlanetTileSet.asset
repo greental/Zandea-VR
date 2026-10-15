@@ -1,0 +1,356 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 983b1ed987da40e45a69d2172ab3e573, type: 3}
+  m_Name: PlanetTileSet
+  m_EditorClassIdentifier: MyAssets::MyAssets.PlanetTerrain.PlanetTerrainTileSet
+  wrapWidth: 9
+  wrapHeight: 9
+  wrapCoordinates: 0
+  generationSettings:
+    tileSizeMeters: 1024
+    maxHeightMeters: 520
+    heightmapResolution: 129
+    alphamapResolution: 258
+    terrainLayers:
+    - {fileID: 8574412962073106934, guid: ce833e94f7f7eea468b012546444cf0c, type: 2}
+    - {fileID: 8574412962073106934, guid: 3a7602c13269cd0469abab016f258aa3, type: 2}
+    - {fileID: 8574412962073106934, guid: 9c9760d32c387c4428c12ad1e697b54c, type: 2}
+    - {fileID: 8574412962073106934, guid: c997c17aa360cb749a27932fe3bdfcce, type: 2}
+    - {fileID: 8574412962073106934, guid: 73f0b5ac607c28d4696a6dd09a1de66a, type: 2}
+    - {fileID: 8574412962073106934, guid: 82aea1bf4675be54487e9d7583efd53c, type: 2}
+    - {fileID: 8574412962073106934, guid: 1ded3ba1c5a90054e8f23ddfa62fb2b7, type: 2}
+    - {fileID: 8574412962073106934, guid: 091511b8c4f042c4082a4d5af73e92c7, type: 2}
+  authoredTiles:
+  - coord:
+      x: -4
+      z: -4
+    terrainData: {fileID: 15600000, guid: 98461f25d6d31e44a897bd5b9ba01beb, type: 2}
+  - coord:
+      x: -3
+      z: -4
+    terrainData: {fileID: 15600000, guid: cdd1459cf1915e74c9cae8d738946bc9, type: 2}
+  - coord:
+      x: -2
+      z: -4
+    terrainData: {fileID: 15600000, guid: d8f98daacf11e7048817eaaee193dfe2, type: 2}
+  - coord:
+      x: -1
+      z: -4
+    terrainData: {fileID: 15600000, guid: 90ce5e46bbdab904182076e56a2133b8, type: 2}
+  - coord:
+      x: 0
+      z: -4
+    terrainData: {fileID: 15600000, guid: 645d1fed658680d45be5f7ce38c90793, type: 2}
+  - coord:
+      x: 1
+      z: -4
+    terrainData: {fileID: 15600000, guid: 32d9574dc1aaa3240928723d9eb8c23c, type: 2}
+  - coord:
+      x: 2
+      z: -4
+    terrainData: {fileID: 15600000, guid: 3acec804c9db5c94a8eedb14e4f0cd52, type: 2}
+  - coord:
+      x: 3
+      z: -4
+    terrainData: {fileID: 15600000, guid: 9a2954cdf82fa7b4aa8d6cbd6e96083c, type: 2}
+  - coord:
+      x: 4
+      z: -4
+    terrainData: {fileID: 15600000, guid: 0ac48ef9762c80849b703c84ef070a94, type: 2}
+  - coord:
+      x: -4
+      z: -3
+    terrainData: {fileID: 15600000, guid: 6eac66c779fa7d44d8995b27f1fab955, type: 2}
+  - coord:
+      x: -3
+      z: -3
+    terrainData: {fileID: 15600000, guid: 6d15f6927a8f3db4c9daad9563caeb71, type: 2}
+  - coord:
+      x: -2
+      z: -3
+    terrainData: {fileID: 15600000, guid: 2feaf93a6e32bf6418944cc6c52f2c80, type: 2}
+  - coord:
+      x: -1
+      z: -3
+    terrainData: {fileID: 15600000, guid: f815463ec8f90854f8c3636540354204, type: 2}
+  - coord:
+      x: 0
+      z: -3
+    terrainData: {fileID: 15600000, guid: df1a70f00f3f23a4884fbb9b237b4b2d, type: 2}
+  - coord:
+      x: 1
+      z: -3
+    terrainData: {fileID: 15600000, guid: bf7a4f2d45a19fd46a883a91b0c41eb4, type: 2}
+  - coord:
+      x: 2
+      z: -3
+    terrainData: {fileID: 15600000, guid: 97036f299eb31f44ca432f8e09a7d147, type: 2}
+  - coord:
+      x: 3
+      z: -3
+    terrainData: {fileID: 15600000, guid: 194538a360bbd634193dbfab4bcfaadc, type: 2}
+  - coord:
+      x: 4
+      z: -3
+    terrainData: {fileID: 15600000, guid: 3bc99b1be0f847743bef4261341aea1a, type: 2}
+  - coord:
+      x: -4
+      z: -2
+    terrainData: {fileID: 15600000, guid: a8030d5e1b28ad14bbab198ca4191ea4, type: 2}
+  - coord:
+      x: -3
+      z: -2
+    terrainData: {fileID: 15600000, guid: 47a43eaf805c05848a9f2a11bf606aa9, type: 2}
+  - coord:
+      x: -2
+      z: -2
+    terrainData: {fileID: 15600000, guid: 2dd03fc769d786941b55a8fcab7b2b65, type: 2}
+  - coord:
+      x: -1
+      z: -2
+    terrainData: {fileID: 15600000, guid: 72d994d88834ba247a8ab678061efbd1, type: 2}
+  - coord:
+      x: 0
+      z: -2
+    terrainData: {fileID: 15600000, guid: 6bab6ea3195e79c4fa28ace81e421444, type: 2}
+  - coord:
+      x: 1
+      z: -2
+    terrainData: {fileID: 15600000, guid: 709d79b3f41148e449664c59be6c137d, type: 2}
+  - coord:
+      x: 2
+      z: -2
+    terrainData: {fileID: 15600000, guid: 0ceee103f4963c7438f0400023a80a49, type: 2}
+  - coord:
+      x: 3
+      z: -2
+    terrainData: {fileID: 15600000, guid: c599ebb8eb9e81a49a4b8a9c3eca6552, type: 2}
+  - coord:
+      x: 4
+      z: -2
+    terrainData: {fileID: 15600000, guid: cae701ce5aac1b14cbc490fc827c5621, type: 2}
+  - coord:
+      x: -4
+      z: -1
+    terrainData: {fileID: 15600000, guid: 51d6338b3b2bdbd4e8fac3a4e1e2ea8f, type: 2}
+  - coord:
+      x: -3
+      z: -1
+    terrainData: {fileID: 15600000, guid: 4b9ad249a869eb04d8a23e283eb5970d, type: 2}
+  - coord:
+      x: -2
+      z: -1
+    terrainData: {fileID: 15600000, guid: a2d3b8fdcb96fc14e9fba2e70b8b3a19, type: 2}
+  - coord:
+      x: -1
+      z: -1
+    terrainData: {fileID: 15600000, guid: 10cfbe99f82aab04e9d79f0ab6a5decd, type: 2}
+  - coord:
+      x: 0
+      z: -1
+    terrainData: {fileID: 15600000, guid: fd080dc0f1779a2429a7bd2240aa2dd7, type: 2}
+  - coord:
+      x: 1
+      z: -1
+    terrainData: {fileID: 15600000, guid: eb78a85ecad694a4f985b9c7cd9aaeb4, type: 2}
+  - coord:
+      x: 2
+      z: -1
+    terrainData: {fileID: 15600000, guid: 353f3b383fabdbe4daba562f8580f890, type: 2}
+  - coord:
+      x: 3
+      z: -1
+    terrainData: {fileID: 15600000, guid: e00930b470ec5b5469b7989cf149da8d, type: 2}
+  - coord:
+      x: 4
+      z: -1
+    terrainData: {fileID: 15600000, guid: 6aaaba9f2b96ed645a8dfb96fdb4589a, type: 2}
+  - coord:
+      x: -4
+      z: 0
+    terrainData: {fileID: 15600000, guid: 5a51d4005fab978438d4ab6229b83a42, type: 2}
+  - coord:
+      x: -3
+      z: 0
+    terrainData: {fileID: 15600000, guid: 0a070a2c9b3238c43b069ac735a018bc, type: 2}
+  - coord:
+      x: -2
+      z: 0
+    terrainData: {fileID: 15600000, guid: edc258de38437a845b06aa648d1112c8, type: 2}
+  - coord:
+      x: -1
+      z: 0
+    terrainData: {fileID: 15600000, guid: 0f2b0b70f99d3804fac68e7b8930ab6e, type: 2}
+  - coord:
+      x: 0
+      z: 0
+    terrainData: {fileID: 15600000, guid: 305e5223521ef3e4dac552fc766126c4, type: 2}
+  - coord:
+      x: 1
+      z: 0
+    terrainData: {fileID: 15600000, guid: 4184664f7360a684197eb48133520e58, type: 2}
+  - coord:
+      x: 2
+      z: 0
+    terrainData: {fileID: 15600000, guid: fa71165f20518a447b259670f66b8976, type: 2}
+  - coord:
+      x: 3
+      z: 0
+    terrainData: {fileID: 15600000, guid: 3dc180fca04b3c048a39f8dadb01410d, type: 2}
+  - coord:
+      x: 4
+      z: 0
+    terrainData: {fileID: 15600000, guid: 413edf944f766c44d9069bbf55895282, type: 2}
+  - coord:
+      x: -4
+      z: 1
+    terrainData: {fileID: 15600000, guid: 387fbbd24fc47de4686aafb96750657d, type: 2}
+  - coord:
+      x: -3
+      z: 1
+    terrainData: {fileID: 15600000, guid: 332c865c0d951ba46addbd63a7345962, type: 2}
+  - coord:
+      x: -2
+      z: 1
+    terrainData: {fileID: 15600000, guid: c9eaee40c31a0f04daf90c31586d5f7c, type: 2}
+  - coord:
+      x: -1
+      z: 1
+    terrainData: {fileID: 15600000, guid: a2c26d15c18e0c141820bd54053104e9, type: 2}
+  - coord:
+      x: 0
+      z: 1
+    terrainData: {fileID: 15600000, guid: 7428e879d929c7c418e7e3665e3466eb, type: 2}
+  - coord:
+      x: 1
+      z: 1
+    terrainData: {fileID: 15600000, guid: 310c47d324e30e5419b1dfebe358a7a8, type: 2}
+  - coord:
+      x: 2
+      z: 1
+    terrainData: {fileID: 15600000, guid: f251d97dc1eaac94bb20626dc6e1c855, type: 2}
+  - coord:
+      x: 3
+      z: 1
+    terrainData: {fileID: 15600000, guid: 2d2f8cdf468cd6646a956e2b35a01d58, type: 2}
+  - coord:
+      x: 4
+      z: 1
+    terrainData: {fileID: 15600000, guid: 425a94cc74213cd48b8df0b737147cff, type: 2}
+  - coord:
+      x: -4
+      z: 2
+    terrainData: {fileID: 15600000, guid: 9ed222aeba75a4344813f8087af9cff2, type: 2}
+  - coord:
+      x: -3
+      z: 2
+    terrainData: {fileID: 15600000, guid: 3720c5baa8b73ab49a97e6bf7a68bbbe, type: 2}
+  - coord:
+      x: -2
+      z: 2
+    terrainData: {fileID: 15600000, guid: 64667480713469b45b60aec2dc20813e, type: 2}
+  - coord:
+      x: -1
+      z: 2
+    terrainData: {fileID: 15600000, guid: e92cda7a596a20f4c9a8f8f99a5a685e, type: 2}
+  - coord:
+      x: 0
+      z: 2
+    terrainData: {fileID: 15600000, guid: 1835e3421d1bca6498d417f6f08104ba, type: 2}
+  - coord:
+      x: 1
+      z: 2
+    terrainData: {fileID: 15600000, guid: ee4627938f4f8894dbe92b6c43bc8292, type: 2}
+  - coord:
+      x: 2
+      z: 2
+    terrainData: {fileID: 15600000, guid: b7091c1429fb7c94e97fe8182a133bec, type: 2}
+  - coord:
+      x: 3
+      z: 2
+    terrainData: {fileID: 15600000, guid: ebc35044298d36b45b88e84756bec0df, type: 2}
+  - coord:
+      x: 4
+      z: 2
+    terrainData: {fileID: 15600000, guid: f14afabd1c0149f4c808934af9ee0467, type: 2}
+  - coord:
+      x: -4
+      z: 3
+    terrainData: {fileID: 15600000, guid: 4d77a2ca647930340bc322d08c472f78, type: 2}
+  - coord:
+      x: -3
+      z: 3
+    terrainData: {fileID: 15600000, guid: 4bb375ba3ed17fb4db22a5ab2ae8e47c, type: 2}
+  - coord:
+      x: -2
+      z: 3
+    terrainData: {fileID: 15600000, guid: 63c9eec78e0c14443bab0c9a588e3024, type: 2}
+  - coord:
+      x: -1
+      z: 3
+    terrainData: {fileID: 15600000, guid: d57dad952ade0854a9dc140c556c417c, type: 2}
+  - coord:
+      x: 0
+      z: 3
+    terrainData: {fileID: 15600000, guid: 32821e6b222a8ab46ae81bdd8ba31657, type: 2}
+  - coord:
+      x: 1
+      z: 3
+    terrainData: {fileID: 15600000, guid: 4a45360625e780f40a6aef2448e4393e, type: 2}
+  - coord:
+      x: 2
+      z: 3
+    terrainData: {fileID: 15600000, guid: 35c9635893d356045a88efa98da2b92f, type: 2}
+  - coord:
+      x: 3
+      z: 3
+    terrainData: {fileID: 15600000, guid: 9901fe041d4e13f48aa5acff54c5d49f, type: 2}
+  - coord:
+      x: 4
+      z: 3
+    terrainData: {fileID: 15600000, guid: bbe3ce5201c92464a9c400cddd2116f0, type: 2}
+  - coord:
+      x: -4
+      z: 4
+    terrainData: {fileID: 15600000, guid: abb48622ff4546e41ae8263303f55cde, type: 2}
+  - coord:
+      x: -3
+      z: 4
+    terrainData: {fileID: 15600000, guid: b243f3c32390f2a43a5fb38e5b598d95, type: 2}
+  - coord:
+      x: -2
+      z: 4
+    terrainData: {fileID: 15600000, guid: fdf35886be6e0f44782c6d312f48c6a4, type: 2}
+  - coord:
+      x: -1
+      z: 4
+    terrainData: {fileID: 15600000, guid: 713e9e0345d70f54680ca74d2c2a7315, type: 2}
+  - coord:
+      x: 0
+      z: 4
+    terrainData: {fileID: 15600000, guid: 853993a58e7905e4aa29e428b7732670, type: 2}
+  - coord:
+      x: 1
+      z: 4
+    terrainData: {fileID: 15600000, guid: 5d505271b1c960241a0e4d75a79db5bf, type: 2}
+  - coord:
+      x: 2
+      z: 4
+    terrainData: {fileID: 15600000, guid: 1a6184330f41be843b4371750d779c15, type: 2}
+  - coord:
+      x: 3
+      z: 4
+    terrainData: {fileID: 15600000, guid: d93f0dc1aa4e196449f45557c24b0646, type: 2}
+  - coord:
+      x: 4
+      z: 4
+    terrainData: {fileID: 15600000, guid: fd935144538439a47a6662f4a89da5ba, type: 2}
