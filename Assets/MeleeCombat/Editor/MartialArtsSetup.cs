@@ -26,6 +26,8 @@ namespace KenshiVR.MeleeCombat.Editor
             var sourceController = AssetDatabase.LoadAssetAtPath<AnimatorController>(
                 "Assets/MeleeCombat/MocapTest/GeneratedVariants/StarvingBandit_BoStaff.controller");
             var controller = AnimatorController.CreateAnimatorControllerAtPath(Root + "/MartialArts.controller");
+            controller.AddParameter("MoveX", AnimatorControllerParameterType.Float);
+            controller.AddParameter("MoveY", AnimatorControllerParameterType.Float);
             var machine = controller.layers[0].stateMachine;
             var locomotion = sourceController ? FindMotion(sourceController, "Locomotion") : null;
             var idle = machine.AddState("FightIdle");
@@ -123,6 +125,13 @@ namespace KenshiVR.MeleeCombat.Editor
         static void BuildScene()
         {
             var scene = EditorSceneManager.OpenScene(SourceScene, OpenSceneMode.Additive);
+            var playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/MyAssets/prefabs/Player/VR player - JunkerWeapon.prefab");
+            var player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab, scene);
+            player.transform.position = Vector3.zero;
+            var body = player.GetComponentInChildren<JunkerBody.VRBodyController>(true);
+            foreach (var camera in scene.GetRootGameObjects())
+                if (camera.name == "Duel camera") camera.SetActive(false);
             var navData = AssetDatabase.LoadAssetAtPath<UnityEngine.AI.NavMeshData>(
                 "Assets/MeleeCombat/BanditDuelNavMesh.asset");
             foreach (var root in scene.GetRootGameObjects())
@@ -140,6 +149,8 @@ namespace KenshiVR.MeleeCombat.Editor
                 var npc = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
                 npc.name = name;
                 npc.transform.position = new Vector3(-3f + i * 3f, 0f, 4f);
+                var brain = npc.GetComponent<StarvingBandit>();
+                if (brain && body) brain.target = body.hmd;
                 npc.SetActive(i == 0); // Enable additional profiles in Inspector for group testing.
             }
             EditorSceneManager.SaveScene(scene, Root + "/MartialArtsVRArena.unity");

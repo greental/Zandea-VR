@@ -646,6 +646,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 7039077362436753553, guid: 7370ce354d2a35241aff18ac64e16a90, type: 3}
+      propertyPath: target
+      value:
+      objectReference: {fileID: 2171048917944080738}
     - target: {fileID: 1548987744677308204, guid: 7370ce354d2a35241aff18ac64e16a90, type: 3}
       propertyPath: m_Name
       value: StarvingBandit_Unarmed
@@ -1182,6 +1186,107 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!4 &2171048917944080738 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+  m_PrefabInstance: {fileID: 5807664634782720987}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &5807664634782720987
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.00000004371139
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7677164931767008894, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_Name
+      value: VR player - JunkerWeapon
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7677164931767008894, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5807664634782720989}
+    - targetCorrespondingSourceObject: {fileID: 8709424492180261004, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+  m_SourcePrefab: {fileID: 100100000, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+--- !u!1 &5807664634782720988 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7677164931767008894, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+  m_PrefabInstance: {fileID: 5807664634782720987}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5807664634782720989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5807664634782720988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1878900648faf664289baeaafac25a7d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.CharacterAttributes
+  profile: {fileID: 11400000, guid: 4986891bfdef0464385b64bb5da15771, type: 2}
+  startingValues:
+    strength: 50
+    dexterity: 50
+    meleeAttack: 50
+    meleeDefense: 50
+    toughness: 50
+    staffProficiency: 50
+  runtimeMaximum: 200
+  runtimeValues:
+    strength: 0
+    dexterity: 0
+    meleeAttack: 0
+    meleeDefense: 0
+    toughness: 0
+    staffProficiency: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1196,3 +1301,4 @@ SceneRoots:
   - {fileID: 1088833791}
   - {fileID: 1920370762}
   - {fileID: 1843246969}
+  - {fileID: 5807664634782720987}

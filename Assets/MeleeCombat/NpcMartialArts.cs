@@ -51,6 +51,7 @@ namespace KenshiVR.MeleeCombat
         float staggerUntil;
         int lastStrike = -1;
         bool wasUnarmed;
+        bool hasMoveX, hasMoveY;
         int visualState;
         ScavengerRagdoll ragdoll;
 
@@ -100,6 +101,12 @@ namespace KenshiVR.MeleeCombat
             animator.speed = 1f;
             animator.applyRootMotion = wasUnarmed ? false : armedRootMotion;
             animator.runtimeAnimatorController = wasUnarmed && profile && profile.controller ? profile.controller : armedController;
+            hasMoveX = hasMoveY = false;
+            foreach (var parameter in animator.parameters)
+            {
+                if (parameter.name == "MoveX") hasMoveX = true;
+                if (parameter.name == "MoveY") hasMoveY = true;
+            }
             visualState = 0;
             if (wasUnarmed) Play("FightIdle", 1);
             else if (armedController) animator.CrossFadeInFixedTime("Locomotion", .15f);
@@ -114,8 +121,8 @@ namespace KenshiVR.MeleeCombat
             float distance = toward.magnitude;
             Vector3 localVelocity = agent && agent.enabled && agent.isOnNavMesh ?
                 transform.InverseTransformDirection(agent.velocity) / Mathf.Max(.1f, profile.approachSpeed) : Vector3.zero;
-            animator.SetFloat("MoveX", Mathf.Clamp(localVelocity.x, -1f, 1f), .1f, Time.deltaTime);
-            animator.SetFloat("MoveY", Mathf.Clamp(localVelocity.z, -1f, 1f), .1f, Time.deltaTime);
+            if (hasMoveX) animator.SetFloat("MoveX", Mathf.Clamp(localVelocity.x, -1f, 1f), .1f, Time.deltaTime);
+            if (hasMoveY) animator.SetFloat("MoveY", Mathf.Clamp(localVelocity.z, -1f, 1f), .1f, Time.deltaTime);
             if (toward.sqrMagnitude > .001f)
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(toward), 260f * Time.deltaTime);
             if (distance > brain.detectRange && !brain.groupControlled) { brain.state = StarvingBandit.State.Idle; Stop(agent); return; }
