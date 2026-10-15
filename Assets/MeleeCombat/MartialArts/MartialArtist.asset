@@ -30,6 +30,8 @@ MonoBehaviour:
     damage: 6
     range: 1.7
     staminaCost: 0
+    minimumRange: 1
+    committedForwardTravel: 1.27
     activeFrom: 0.3
     activeUntil: 0.68
     cooldown: 0.4
