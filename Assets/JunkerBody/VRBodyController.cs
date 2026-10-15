@@ -30,10 +30,14 @@ namespace JunkerBody
         public Limb leftArm = new Limb(), rightArm = new Limb(), leftLeg = new Limb(), rightLeg = new Limb();
         [NonSerialized] public Transform leftGripTarget, rightGripTarget;
         [NonSerialized] public Transform leftMeleeGripTarget, rightMeleeGripTarget;
+        [Min(.01f)] public float meleeHandReleaseSeconds = .18f;
+        Vector3 leftReleasedGripPosition, rightReleasedGripPosition;
+        Quaternion leftReleasedGripRotation = Quaternion.identity, rightReleasedGripRotation = Quaternion.identity;
+        float leftReleaseBlend, rightReleaseBlend;
         public void SetMeleeGrip(bool left, Transform grip)
         {
-            if (left) leftMeleeGripTarget = grip;
-            else rightMeleeGripTarget = grip;
+            if (left) { leftMeleeGripTarget = grip; leftReleaseBlend = 0; }
+            else { rightMeleeGripTarget = grip; rightReleaseBlend = 0; }
         }
         public void SetMeleeGrip(Transform interactor, Transform grip)
         {
@@ -42,8 +46,10 @@ namespace JunkerBody
         }
         public void ClearMeleeGrip(Transform grip)
         {
-            if (leftMeleeGripTarget == grip) leftMeleeGripTarget = null;
-            if (rightMeleeGripTarget == grip) rightMeleeGripTarget = null;
+            if (leftMeleeGripTarget == grip)
+            { leftReleasedGripPosition = grip.position; leftReleasedGripRotation = grip.rotation; leftReleaseBlend = 1; leftMeleeGripTarget = null; }
+            if (rightMeleeGripTarget == grip)
+            { rightReleasedGripPosition = grip.position; rightReleasedGripRotation = grip.rotation; rightReleaseBlend = 1; rightMeleeGripTarget = null; }
         }
         public void SetHoverBikeGrip(Transform interactor, Transform grip)
         {
@@ -158,10 +164,14 @@ namespace JunkerBody
             hips.position += headTarget.position - head.position;
             head.rotation = headTarget.rotation;
             SolveLeg(leftLeg); SolveLeg(rightLeg);
+            leftReleaseBlend = Mathf.MoveTowards(leftReleaseBlend, 0, Time.deltaTime / meleeHandReleaseSeconds);
+            rightReleaseBlend = Mathf.MoveTowards(rightReleaseBlend, 0, Time.deltaTime / meleeHandReleaseSeconds);
             TrackArm(leftArm, leftController, leftOpticalTracking, leftOpticalWrist,
-                leftMeleeGripTarget ? leftMeleeGripTarget : leftGripTarget, leftMeleeGripTarget);
+                leftMeleeGripTarget ? leftMeleeGripTarget : leftGripTarget, leftMeleeGripTarget,
+                leftReleasedGripPosition, leftReleasedGripRotation, leftReleaseBlend);
             TrackArm(rightArm, rightController, rightOpticalTracking, rightOpticalWrist,
-                rightMeleeGripTarget ? rightMeleeGripTarget : rightGripTarget, rightMeleeGripTarget);
+                rightMeleeGripTarget ? rightMeleeGripTarget : rightGripTarget, rightMeleeGripTarget,
+                rightReleasedGripPosition, rightReleasedGripRotation, rightReleaseBlend);
         }
         void SaveFoot(Limb leg) { leg.target.SetPositionAndRotation(leg.tip.position, leg.tip.rotation); }
         void SolveLeg(Limb leg)
@@ -170,7 +180,8 @@ namespace JunkerBody
             SolveTwoBone(leg.upper, leg.lower, leg.tip, leg.target.position, leg.hint.position);
             leg.tip.rotation = leg.target.rotation;
         }
-        void TrackArm(Limb arm, Transform source, XRHandTrackingEvents optical, Transform wrist, Transform gripTarget, bool meleeGrip)
+        void TrackArm(Limb arm, Transform source, XRHandTrackingEvents optical, Transform wrist,
+            Transform gripTarget, bool meleeGrip, Vector3 releasePosition, Quaternion releaseRotation, float releaseBlend)
         {
             // Applied to this frame's unmodified animation pose. RestorePose removes the
             // adjustment before the next Animator evaluation, so lengths never accumulate.
@@ -181,6 +192,9 @@ namespace JunkerBody
                 (meleeGrip ? gripTarget.rotation : source.rotation) * Quaternion.Euler(arm.wristRotationOffset));
             else if (useOptical) arm.target.SetPositionAndRotation(wrist.position, wrist.rotation * Quaternion.Euler(opticalWristRotationOffset));
             else arm.target.SetPositionAndRotation(source.TransformPoint(arm.wristPositionOffset), source.rotation * Quaternion.Euler(arm.wristRotationOffset));
+            if (!meleeGrip && releaseBlend > 0)
+                arm.target.SetPositionAndRotation(Vector3.Lerp(arm.target.position, releasePosition, releaseBlend),
+                    Quaternion.Slerp(arm.target.rotation, releaseRotation * Quaternion.Euler(arm.wristRotationOffset), releaseBlend));
             arm.hint.position = chest.position + avatarRoot.rotation * arm.hintOffset;
             SolveTwoBone(arm.upper, arm.lower, arm.tip, arm.target.position, arm.hint.position);
             arm.tip.rotation = arm.target.rotation;

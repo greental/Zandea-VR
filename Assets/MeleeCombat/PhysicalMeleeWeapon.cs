@@ -14,9 +14,11 @@ namespace KenshiVR.MeleeCombat
     public sealed class PhysicalMeleeWeapon : MonoBehaviour
     {
         public enum HoldState { World, HeldByPlayer, HeldByNpc }
+        public enum PhysicsPreset { Custom, LightSword, HeavySword, BoStaff, HeavyPolearm }
         [Header("Shared ownership")]
         public string weaponId = "bo-staff";
-        public HoldState State { get; private set; } = HoldState.World;
+        [SerializeField] HoldState currentState;
+        public HoldState State { get => currentState; private set => currentState = value; }
         public Component Owner { get; private set; }
         public Component Reservation { get; private set; }
         float reservationUntil;
@@ -29,8 +31,36 @@ namespace KenshiVR.MeleeCombat
         [Min(0)] public float maximumLinearVelocity = 12f;
         [Min(0)] public float maximumAngularVelocity = 35f;
         [Min(0)] public float formerOwnerCollisionDelay = .4f;
-        public float PositionError { get; private set; }
-        public float RotationError { get; private set; }
+        [Header("Starting physics preset")]
+        public PhysicsPreset preset = PhysicsPreset.Custom;
+        [ContextMenu("Apply selected physics preset")]
+        public void ApplySelectedPreset()
+        {
+            switch (preset)
+            {
+                case PhysicsPreset.LightSword:
+                    mass = 1.1f; positionSpring = 1900f; positionDamper = 100f;
+                    rotationSpring = 950f; rotationDamper = 60f; maximumDriveForce = 1100f;
+                    maximumLinearVelocity = 14f; maximumAngularVelocity = 38f; break;
+                case PhysicsPreset.HeavySword:
+                    mass = 3.2f; positionSpring = 1800f; positionDamper = 140f;
+                    rotationSpring = 850f; rotationDamper = 85f; maximumDriveForce = 1300f;
+                    maximumLinearVelocity = 10f; maximumAngularVelocity = 25f; break;
+                case PhysicsPreset.BoStaff:
+                    mass = 2.1f; positionSpring = 1800f; positionDamper = 105f;
+                    rotationSpring = 850f; rotationDamper = 65f; maximumDriveForce = 1200f;
+                    maximumLinearVelocity = 12f; maximumAngularVelocity = 35f; break;
+                case PhysicsPreset.HeavyPolearm:
+                    mass = 5f; positionSpring = 2100f; positionDamper = 190f;
+                    rotationSpring = 1050f; rotationDamper = 110f; maximumDriveForce = 1800f;
+                    maximumLinearVelocity = 9f; maximumAngularVelocity = 20f; break;
+            }
+            var rigidbody = GetComponent<Rigidbody>();
+            if (rigidbody) rigidbody.mass = mass;
+        }
+        [SerializeField] float positionErrorMeters, rotationErrorDegrees;
+        public float PositionError => positionErrorMeters;
+        public float RotationError => rotationErrorDegrees;
         public enum StrikeType { Blunt, Cutting, Piercing }
         public StrikeType strikeType;
         public Transform grip;
@@ -261,8 +291,8 @@ namespace KenshiVR.MeleeCombat
             previousTargetPosition = desiredPosition; previousTargetRotation = desiredRotation; targetInitialized = true;
             targetBody.MovePosition(desiredPosition);
             targetBody.MoveRotation(desiredRotation);
-            PositionError = Vector3.Distance(transform.TransformPoint(gripLocal), FollowPose.position);
-            RotationError = Quaternion.Angle(transform.rotation, desiredRotation);
+            positionErrorMeters = Vector3.Distance(transform.TransformPoint(gripLocal), FollowPose.position);
+            rotationErrorDegrees = Quaternion.Angle(transform.rotation, desiredRotation);
         }
         void Detach()
         {

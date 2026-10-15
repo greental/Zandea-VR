@@ -35,6 +35,8 @@ namespace KenshiVR.MeleeCombat.Editor
                 weapon.npcGripTarget = null;
                 weapon.ownerRoot = null;
                 weapon.weaponId = "bo-staff";
+                weapon.preset = PhysicalMeleeWeapon.PhysicsPreset.BoStaff;
+                weapon.ApplySelectedPreset();
                 var right = Marker(weaponObject.transform, "Primary Grip Right", preview.rightGripLocal, preview.rightHandFromStaff);
                 var left = Marker(weaponObject.transform, "Primary Grip Left", preview.leftGripLocal, preview.leftHandFromStaff);
                 weapon.rightGrip = right;
