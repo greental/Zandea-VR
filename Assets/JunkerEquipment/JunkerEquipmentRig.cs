@@ -2,6 +2,7 @@ using JunkerBody;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using KenshiVR.MeleeCombat;
 namespace JunkerEquipment
 {
     [DefaultExecutionOrder(10500)]
@@ -19,6 +20,7 @@ namespace JunkerEquipment
         [Min(.1f), Tooltip("Extra reach when gripping near an item resting on the ground.")]
         public float floorPickupReach=.55f;
         XRDirectInteractor[] hands;
+        PlayerMartialHand[] martialHands;
         bool[] gripWasPressed;
         bool[] assistedGrab;
         readonly Collider[] pickupHits=new Collider[64];
@@ -27,6 +29,9 @@ namespace JunkerEquipment
         {
             if(!body || !body.xrOrigin)return;
             hands=body.xrOrigin.GetComponentsInChildren<XRDirectInteractor>(true);
+            martialHands=new PlayerMartialHand[hands.Length];
+            foreach(var martial in body.GetComponentsInChildren<PlayerMartialHand>(true))
+                for(int i=0;i<hands.Length;i++)if(martial.interactor==hands[i])martialHands[i]=martial;
             gripWasPressed=new bool[hands.Length];
             assistedGrab=new bool[hands.Length];
         }
@@ -37,6 +42,8 @@ namespace JunkerEquipment
             {
                 var hand=hands[i];
                 if(!hand || !hand.isActiveAndEnabled)continue;
+                var martial=martialHands[i];
+                if(martial && martial.InStance){gripWasPressed[i]=false;continue;}
                 bool pressed=hand.selectInput.ReadIsPerformed();
                 if(assistedGrab[i] && (!pressed || !hand.hasSelection))
                 {
@@ -72,6 +79,12 @@ namespace JunkerEquipment
                 if(distance<bestDistance){bestDistance=distance;closest=item;}
             }
             return closest;
+        }
+        public bool HasAvailableFloorPickup(XRDirectInteractor hand)
+        {
+            if (!hand) return false;
+            var item=FindFloorPickup(hand.transform.position);
+            return item && hand.CanSelect((IXRSelectInteractable)item.Grab);
         }
         bool IsRestingOnSurface(JunkerEquipmentItem item,Collider shape)
         {

@@ -686,6 +686,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1501935639151350215}
   - component: {fileID: 8584420699043101956}
+  - component: {fileID: 6000000101}
   m_Layer: 0
   m_Name: Left Junker glove
   m_TagString: Untagged
@@ -2760,6 +2761,7 @@ GameObject:
   m_Component:
   - component: {fileID: 232208829383386910}
   - component: {fileID: 7449146851995369846}
+  - component: {fileID: 6000000102}
   m_Layer: 0
   m_Name: Right Junker glove
   m_TagString: Untagged
@@ -3922,6 +3924,8 @@ GameObject:
   - component: {fileID: 7273186908109309417}
   - component: {fileID: 8130626384632165763}
   - component: {fileID: 7636864166313760868}
+  - component: {fileID: 6000000103}
+  - component: {fileID: 6000000104}
   m_Layer: 0
   m_Name: JunkerBody
   m_TagString: Untagged
@@ -6520,3 +6524,73 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6147826009795423660, guid: 19722f2f21e196c408140919b8df1311, type: 3}
   m_PrefabInstance: {fileID: 8254604073127931257}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6000000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706275838733244853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce8176c5e6ce491b8e08aa6c3151d833, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.PlayerMartialHand
+  body: {fileID: 6419064390545678534}
+  glove: {fileID: 8584420699043101956}
+  interactor: {fileID: 0}
+  left: 1
+  fistRadius: 0.09
+  minimumTravel: 0.19
+  minimumSpeed: 1.55
+  punchCooldown: 0.42
+--- !u!114 &6000000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6562086616738687656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce8176c5e6ce491b8e08aa6c3151d833, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.PlayerMartialHand
+  body: {fileID: 6419064390545678534}
+  glove: {fileID: 7449146851995369846}
+  interactor: {fileID: 0}
+  left: 0
+  fistRadius: 0.09
+  minimumTravel: 0.19
+  minimumSpeed: 1.55
+  punchCooldown: 0.42
+--- !u!114 &6000000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8007657948720803702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 468143a771504a3290bcc1bdf31a9aae, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.PlayerMartialHandsLate
+
+--- !u!114 &6000000104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8007657948720803702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e87bda5f44b40df86acff41ae962320, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.PlayerMartialKick
+  body: {fileID: 6419064390545678534}
+  frontClip: {fileID: 7400000, guid: 026b2e9b45206004ebf8b32338975214, type: 2}
+  roundhouseClip: {fileID: 7400000, guid: a2d1d589fa698734693c660ef9f322d7, type: 2}
+  cooldown: 0.85
+  footRadius: 0.12

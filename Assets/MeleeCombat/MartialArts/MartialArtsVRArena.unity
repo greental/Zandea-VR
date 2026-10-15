@@ -709,6 +709,51 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3240803802625058602, guid: c25c969f0ee2b9c42ab904ad47e04996, type: 3}
   m_PrefabInstance: {fileID: 1920370762}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &5807664634782720987
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1711639474423939664, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7677164931767008894, guid: f50208f8d28865a41bebab9caef72374, type: 3}
+      propertyPath: m_Name
+      value: VR player - JunkerWeapon
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f50208f8d28865a41bebab9caef72374, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -719,3 +764,4 @@ SceneRoots:
   - {fileID: 954812879}
   - {fileID: 1088833791}
   - {fileID: 1920370762}
+  - {fileID: 5807664634782720987}

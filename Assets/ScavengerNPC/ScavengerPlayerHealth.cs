@@ -51,7 +51,20 @@ namespace ScavengerNPC
         public void ApplyDamage(in DamagePacket packet)
         {
             if (Current <= 0 || packet.BaseDamage <= 0 || float.IsNaN(packet.BaseDamage)) return;
-            Current = Mathf.Max(0, Current - packet.BaseDamage *
+            float multiplier = 1f;
+            if (packet.Source)
+                foreach (var hand in GetComponentsInChildren<PlayerMartialHand>(true))
+                {
+                    if (!hand.TryDefend(packet.HitPointWorld, packet.Source.transform.position, out bool parry)) continue;
+                    multiplier = parry ? .1f : .35f;
+                    if (parry)
+                    {
+                        var martial = packet.Source.GetComponent<NpcMartialArts>();
+                        if (martial) martial.ReceiveStrikeStagger(1f);
+                    }
+                    break;
+                }
+            Current = Mathf.Max(0, Current - packet.BaseDamage * multiplier *
                 CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>()));
             hitFlash = 1;
             onDamaged.Invoke();

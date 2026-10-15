@@ -259,6 +259,19 @@ namespace KenshiVR.MeleeCombat
                 var weapon = contacts[i] ? contacts[i].GetComponentInParent<PhysicalMeleeWeapon>() : null;
                 if (weapon && weapon.State == PhysicalMeleeWeapon.HoldState.HeldByPlayer) return;
             }
+            var defendingPlayer = brain.target ? brain.target.GetComponentInParent<ScavengerPlayerHealth>() : null;
+            if (defendingPlayer && !scored.Contains(defendingPlayer))
+                foreach (var hand in defendingPlayer.GetComponentsInChildren<PlayerMartialHand>(true))
+                    if (hand.TryIntercept(from, to, activeStrike.contactRadius, transform.position, out Vector3 impact))
+                    {
+                        scored.Add(defendingPlayer);
+                        defendingPlayer.ApplyDamage(new DamagePacket {
+                            BaseDamage = activeStrike.damage, DamageType = DamageType.Kinetic,
+                            HitPointWorld = impact, HitNormalWorld = (impact - from).normalized,
+                            Source = gameObject, WeaponId = activeStrike.stateName, Timestamp = Time.time
+                        });
+                        return;
+                    }
             for (int i = 0; i < count; i++)
             {
                 var shape = contacts[i];
