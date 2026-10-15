@@ -28,7 +28,7 @@ MonoBehaviour:
   - stateName: back fist
     limb: 17
     damage: 6
-    range: 1.25
+    range: 1.7
     staminaCost: 0
     activeFrom: 0.3
     activeUntil: 0.68
@@ -72,7 +72,7 @@ MonoBehaviour:
   - stateName: knee strike
     limb: 4
     damage: 8
-    range: 1.5
+    range: 0.85
     staminaCost: 0
     activeFrom: 0.3
     activeUntil: 0.68

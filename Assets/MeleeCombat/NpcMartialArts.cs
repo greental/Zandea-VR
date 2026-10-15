@@ -45,21 +45,26 @@ namespace KenshiVR.MeleeCombat
         RuntimeAnimatorController armedController;
         bool armedRootMotion;
         Transform limb;
+        Transform hitSpine;
         MartialStrike activeStrike;
         Vector3 previousLimb;
         float attackStart, attackUntil, nextAttack, guardUntil, nextDefense, nextRetreat;
-        float staggerUntil;
+        float staggerUntil, staggerStart;
         int lastStrike = -1;
         bool wasUnarmed;
         bool hasMoveX, hasMoveY;
         int visualState;
         ScavengerRagdoll ragdoll;
+        MocapStaffPreview fingerPose;
+        Vector3 staggerDirection;
+        float staggerDistanceLeft;
 
         void Awake()
         {
             if (!brain) brain = GetComponent<StarvingBandit>();
             if (!animator) animator = GetComponentInChildren<Animator>();
             ragdoll = GetComponent<ScavengerRagdoll>();
+            fingerPose = GetComponentInChildren<MocapStaffPreview>(true);
             if (animator)
             {
                 armedController = animator.runtimeAnimatorController;
@@ -79,6 +84,12 @@ namespace KenshiVR.MeleeCombat
             activeStrike = null;
             scored.Clear();
             staggerUntil = Time.time + .35f;
+            staggerStart = Time.time;
+            staggerDirection = brain.target ?
+                Vector3.ProjectOnPlane(transform.position - brain.target.position, Vector3.up).normalized : -transform.forward;
+            staggerDistanceLeft = .45f;
+            if (!hitSpine && animator && animator.isHuman)
+                hitSpine = animator.GetBoneTransform(HumanBodyBones.Spine);
             nextAttack = Mathf.Max(nextAttack, staggerUntil);
             brain.state = StarvingBandit.State.Stagger;
             Play("FightGuard", 3);
@@ -89,6 +100,7 @@ namespace KenshiVR.MeleeCombat
             if (!IsUnarmed) return;
             OnDamaged();
             staggerUntil = Mathf.Max(staggerUntil, Time.time + .2f * strength);
+            staggerDistanceLeft = Mathf.Max(staggerDistanceLeft, .45f * strength);
         }
 
         void Update()
@@ -126,7 +138,18 @@ namespace KenshiVR.MeleeCombat
             if (toward.sqrMagnitude > .001f)
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(toward), 260f * Time.deltaTime);
             if (distance > brain.detectRange && !brain.groupControlled) { brain.state = StarvingBandit.State.Idle; Stop(agent); return; }
-            if (Time.time < staggerUntil) { brain.state = StarvingBandit.State.Stagger; Stop(agent); return; }
+            if (Time.time < staggerUntil)
+            {
+                brain.state = StarvingBandit.State.Stagger;
+                Stop(agent);
+                if (agent && agent.enabled && agent.isOnNavMesh && staggerDistanceLeft > 0f)
+                {
+                    float step = Mathf.Min(staggerDistanceLeft, 1.7f * Time.deltaTime);
+                    agent.Move(staggerDirection * step);
+                    staggerDistanceLeft -= step;
+                }
+                return;
+            }
             if (activeStrike != null)
             {
                 Stop(agent);
@@ -147,7 +170,11 @@ namespace KenshiVR.MeleeCombat
                     return;
                 }
             }
-            if (distance > profile.preferredRange + .12f)
+            bool canAttackAtRange = false;
+            if (Time.time >= nextAttack && profile.strikes != null)
+                foreach (var strike in profile.strikes)
+                    if (CanReach(strike, distance) && strike.weight > 0f) { canAttackAtRange = true; break; }
+            if (distance > profile.preferredRange + .12f && !canAttackAtRange)
             {
                 brain.state = StarvingBandit.State.Approach;
                 Move(agent, brain.target.position, profile.approachSpeed);
@@ -183,6 +210,16 @@ namespace KenshiVR.MeleeCombat
 
         void LateUpdate()
         {
+            if (IsStriking && animator && brain.agent && brain.agent.enabled && brain.agent.isOnNavMesh)
+                brain.agent.Move(Vector3.ProjectOnPlane(animator.deltaPosition, Vector3.up));
+            if (IsUnarmed && hitSpine && Time.time < staggerUntil)
+            {
+                float phase = Mathf.InverseLerp(staggerStart, staggerUntil, Time.time);
+                hitSpine.localRotation *= Quaternion.Euler(-20f * Mathf.Sin(phase * Mathf.PI), 0f, 0f);
+            }
+            if (IsUnarmed && fingerPose && fingerPose.fingers != null)
+                foreach (var finger in fingerPose.fingers)
+                    if (finger.bone) finger.bone.localRotation = finger.rotation;
             if (!IsStriking || !limb || !profile) return;
             Vector3 current = limb.position;
             float progress = Mathf.InverseLerp(attackStart, attackUntil, Time.time);
@@ -195,19 +232,23 @@ namespace KenshiVR.MeleeCombat
         {
             float total = 0;
             for (int i = 0; i < profile.strikes.Length; i++)
-                if (profile.strikes[i] != null && profile.strikes[i].range >= distance)
+                if (CanReach(profile.strikes[i], distance))
                     total += profile.strikes[i].weight * (i == lastStrike ? .35f : 1f);
             if (total <= 0) return -1;
             float roll = UnityEngine.Random.value * total;
             for (int i = 0; i < profile.strikes.Length; i++)
             {
                 var strike = profile.strikes[i];
-                if (strike == null || strike.range < distance) continue;
+                if (!CanReach(strike, distance)) continue;
                 roll -= strike.weight * (i == lastStrike ? .35f : 1f);
                 if (roll <= 0) return i;
             }
             return -1;
         }
+
+        static bool CanReach(MartialStrike strike, float distance) =>
+            strike != null && strike.range >= distance &&
+            (strike.stateName != "knee strike" || distance <= .85f);
 
         void ResolveContact(Vector3 from, Vector3 to)
         {

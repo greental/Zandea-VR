@@ -90,7 +90,7 @@ namespace KenshiVR.MeleeCombat.Editor
             for (int i = 0; i < names.Length; i++)
                 profile.strikes[i] = new MartialStrike {
                     stateName = names[i], limb = limbs[i], damage = i >= 3 ? 8f : 6f,
-                    range = i >= 3 ? 1.5f : 1.25f, activeFrom = i == 2 ? .25f : .3f,
+                    range = i == 1 ? 1.7f : i == 5 ? .85f : i >= 3 ? 1.5f : 1.25f,
                     activeUntil = i == 2 ? .78f : .68f, cooldown = i == 2 ? .65f : .4f,
                     staggerStrength = i >= 3 ? 1.4f : 1f, weight = weights[i]
                 };
