@@ -13,6 +13,9 @@ namespace KenshiVR.MeleeCombat
         public ScavengerHealth health;
         public bool dropOnDestroy = true;
         public bool startEquipped = true;
+        [Header("Inventory ownership")]
+        public NpcInventory inventory;
+        public NpcItemDefinition weaponItem;
         [Header("Unarmed acquisition")]
         public bool acquireNearbyWeapons = true;
         [Min(.25f)] public float searchRadius = 12f;
@@ -41,18 +44,34 @@ namespace KenshiVR.MeleeCombat
         }
         public bool TryEquipWorldWeapon(PhysicalMeleeWeapon weapon)
         {
-            if (!weapon || instance || !gripTarget || (health && health.State != NpcConsciousness.Conscious) ||
+            if (!weapon || instance || !gripTarget || (inventory && inventory.Equipped(NpcEquipmentSlot.MainWeapon) != null) ||
+                (health && health.State != NpcConsciousness.Conscious) ||
                 !weapon.TryEquipNpc(this, gripTarget)) return false;
             Abandon();
             instance = weapon;
+            if (inventory)
+            {
+                var marker = weapon.GetComponent<NpcWorldItem>();
+                var worldItem = marker ? marker.Item : null;
+                if (worldItem != null && inventory.TakeWorld(marker)) inventory.Equip(worldItem, NpcEquipmentSlot.MainWeapon);
+                else if (weaponItem && (!marker || !marker.Item)) RegisterWeapon(weapon);
+            }
             BindWeapon();
             return true;
+        }
+
+        void RegisterWeapon(PhysicalMeleeWeapon weapon)
+        {
+            if (!inventory || !weaponItem || !weapon) return;
+            var item = new NpcItemInstance(weaponItem);
+            if (inventory.Add(item)) inventory.Equip(item, NpcEquipmentSlot.MainWeapon);
         }
 
         void Awake()
         {
             if (!bandit) bandit = GetComponent<StarvingBandit>();
             if (!health) health = GetComponent<ScavengerHealth>();
+            if (!inventory) inventory = GetComponent<NpcInventory>();
             agent = GetComponent<NavMeshAgent>();
             if (health) health.onDeath.AddListener(Drop);
             if (startEquipped && weaponPrefab && gripTarget)
@@ -61,6 +80,7 @@ namespace KenshiVR.MeleeCombat
                 instance.name = weaponPrefab.name;
                 if (!instance.TryEquipNpc(this, gripTarget))
                 { Destroy(instance.gameObject); instance = null; }
+                else RegisterWeapon(instance);
             }
         }
 
@@ -88,9 +108,11 @@ namespace KenshiVR.MeleeCombat
             Abandon();
             if (!instance) return;
             var held = instance;
+            var owned = inventory ? inventory.Equipped(NpcEquipmentSlot.MainWeapon) : null;
             instance = null;
             BindWeapon();
             held.Drop();
+            if (owned != null) inventory.Drop(owned, held.transform.position, held.transform.rotation, held.gameObject);
         }
 
         public void DropForKnockout()

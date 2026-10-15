@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d4614c329204332b39b40fc49bc9123, type: 3}
+  m_Name: Starving Bandit Loot
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcLootTable
+  guaranteed:
+  - item: {fileID: 11400000, guid: 9fc3131e00cc454eb67f176b9ce90eb8, type: 2}
+    probability: 1
+    minimum: 1
+    maximum: 1
+    weight: 1
+    slot: 2
+    pocketOf: 0
+  - item: {fileID: 11400000, guid: 0b8ccd4d3b5a43858f591162c8ac85a8, type: 2}
+    probability: 1
+    minimum: 1
+    maximum: 1
+    weight: 1
+    slot: 3
+    pocketOf: 0
+  rolls:
+  - item: {fileID: 11400000, guid: ff72cb5707e14fafbe387638c9c37855, type: 2}
+    probability: 1
+    minimum: 0
+    maximum: 15
+    weight: 1
+    slot: 0
+    pocketOf: 2
+  - item: {fileID: 11400000, guid: 4a337c8555cd474988590189659b70c3, type: 2}
+    probability: 0.25
+    minimum: 1
+    maximum: 2
+    weight: 1
+    slot: 0
+    pocketOf: 3
+  - item: {fileID: 11400000, guid: d1612ac383994e53964b8d297807f8c7, type: 2}
+    probability: 0.12
+    minimum: 1
+    maximum: 1
+    weight: 1
+    slot: 0
+    pocketOf: 2
+  - item: {fileID: 11400000, guid: d6183e0819a1401f85cfd022d445307e, type: 2}
+    probability: 0.2
+    minimum: 1
+    maximum: 1
+    weight: 1
+    slot: 0
+    pocketOf: 3
+  weightedPicks: 0
+  weighted: []

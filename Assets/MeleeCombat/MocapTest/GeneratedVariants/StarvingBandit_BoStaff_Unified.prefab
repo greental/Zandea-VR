@@ -4672,6 +4672,7 @@ GameObject:
   - component: {fileID: 1531111257749188261}
   - component: {fileID: 1741365060118405730}
   - component: {fileID: 7590053521626566764}
+  - component: {fileID: 9184756300080214101}
   m_Layer: 0
   m_Name: StarvingBandit_BoStaff_Unified
   m_TagString: Untagged
@@ -6503,6 +6504,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc7eccc04dbf68640a97eafc01d56cef, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcGeneratedWeapon
+  inventory: {fileID: 9184756300080214101}
+  weaponItem: {fileID: 11400000, guid: 8b56b27b5a0f45fba9684b56d7534df9, type: 2}
   weaponPrefab: {fileID: 221771960174766966, guid: f571c246b49492c4296686d3ba772adf, type: 3}
   gripTarget: {fileID: 1123687080465878315}
   bandit: {fileID: 2678758142090184725}
@@ -12726,3 +12729,21 @@ Transform:
   - {fileID: 7036042061830894845}
   m_Father: {fileID: 468610008845098605}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+
+--- !u!114 &9184756300080214101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3638151384212234887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1067fb1e17f4fd5a61707c509c1754f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcInventory
+  lootTable: {fileID: 11400000, guid: 0fe268f5a046420785cb730d5b516ff9, type: 2}
+  seed: 0
+  logChanges: 0
+  generated: 0
+  items: []
