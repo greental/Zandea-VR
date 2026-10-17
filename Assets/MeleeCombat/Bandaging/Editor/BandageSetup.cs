@@ -14,7 +14,7 @@ namespace KenshiVR.Bandaging.Editor
     {
         const string Source = "Assets/MyAssets/mesh/tools/bandage_roll.glb";
         const string Folder = "Assets/MeleeCombat/Bandaging";
-        const string Prefab = Folder + "/BandageRoll.prefab";
+        const string Prefab = "Assets/MyAssets/prefabs/medical/BandageRoll.prefab";
         const string Cloth = Folder + "/BandageCloth.mat";
         const string Player = "Assets/MyAssets/prefabs/Player/VR player - JunkerWeapon.prefab";
         const string TestScene = "Assets/MeleeCombat/MeleePOC.unity";

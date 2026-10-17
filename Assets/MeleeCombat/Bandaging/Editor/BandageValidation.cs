@@ -11,7 +11,7 @@ namespace KenshiVR.Bandaging.Editor
     public static class BandageValidation
     {
         const string Player = "Assets/MyAssets/prefabs/Player/VR player - JunkerWeapon.prefab";
-        const string Roll = "Assets/MeleeCombat/Bandaging/BandageRoll.prefab";
+        const string Roll = "Assets/MyAssets/prefabs/medical/BandageRoll.prefab";
         static BandageValidation()
         {
             EditorApplication.delayCall += () =>
