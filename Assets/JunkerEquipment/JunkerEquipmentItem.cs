@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using KenshiVR.MeleeCombat;
 
 namespace JunkerEquipment
 {
@@ -40,6 +41,7 @@ namespace JunkerEquipment
         bool[] triggers;
         bool pendingRelease;
         XRBaseInputInteractor lastHand;
+        PhysicalMeleeWeapon meleeWeapon;
         [SerializeField, HideInInspector] Vector3 gripBasePosition;
         [SerializeField, HideInInspector] Quaternion gripBaseRotation = Quaternion.identity;
         [SerializeField, HideInInspector] bool gripBaseCaptured;
@@ -54,6 +56,17 @@ namespace JunkerEquipment
                 if (shape.GetComponentInParent<Rigidbody>() == Body) ownShapes.Add(shape);
             shapes = ownShapes.ToArray(); triggers = new bool[shapes.Length];
             for (int i=0;i<shapes.Length;i++) triggers[i]=shapes[i].isTrigger;
+            meleeWeapon = GetComponent<PhysicalMeleeWeapon>();
+            if (meleeWeapon)
+            {
+                // The melee component owns the physical hand joint. This component
+                // supplies the existing equipment slot and backpack lifecycle only.
+                itemId = meleeWeapon.weaponId;
+                gripPose = meleeWeapon.grip;
+                useGripTransformDirectly = true;
+                holsterRadius = Mathf.Max(holsterRadius, .4f);
+                return;
+            }
             Grab.selectMode = InteractableSelectMode.Single;
             Grab.retainTransformParent = false;
             // Kinematic MovePosition can visibly fight the headset/controller update loop.
@@ -175,7 +188,7 @@ namespace JunkerEquipment
         }
         void LateUpdate()
         {
-            if (!useGripTransformDirectly) ApplyGripOffset();
+            if (!useGripTransformDirectly && !meleeWeapon) ApplyGripOffset();
             // After XRI's deferred throw, so a snap cannot be overwritten by detach.
             if(pendingRelease)
             {

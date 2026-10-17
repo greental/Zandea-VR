@@ -74,14 +74,24 @@ namespace KenshiVR.MeleeCombat
             if (!inventory) inventory = GetComponent<NpcInventory>();
             agent = GetComponent<NavMeshAgent>();
             if (health) health.onDeath.AddListener(Drop);
-            if (startEquipped && weaponPrefab && gripTarget)
+            if (startEquipped) EnsureStartingWeapon(false);
+        }
+
+        public bool EnsureStartingWeapon(bool bind = true)
+        {
+            if (instance) { if (bind) BindWeapon(); return true; }
+            if (!weaponPrefab || !gripTarget) return false;
+            instance = Instantiate(weaponPrefab, gripTarget.position, gripTarget.rotation);
+            instance.name = weaponPrefab.name;
+            if (!instance.TryEquipNpc(this, gripTarget))
             {
-                instance = Instantiate(weaponPrefab, gripTarget.position, gripTarget.rotation);
-                instance.name = weaponPrefab.name;
-                if (!instance.TryEquipNpc(this, gripTarget))
-                { Destroy(instance.gameObject); instance = null; }
-                else RegisterWeapon(instance);
+                Destroy(instance.gameObject);
+                instance = null;
+                return false;
             }
+            RegisterWeapon(instance);
+            if (bind) BindWeapon();
+            return true;
         }
 
         void Start() => BindWeapon();

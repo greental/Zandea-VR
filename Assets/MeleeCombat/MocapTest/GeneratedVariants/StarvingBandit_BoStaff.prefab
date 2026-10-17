@@ -3652,6 +3652,8 @@ GameObject:
   - component: {fileID: 2109901326281279037}
   - component: {fileID: 7764640233951025878}
   - component: {fileID: 5457914795828228402}
+  - component: {fileID: 175668160849937477}
+  - component: {fileID: 576930622944894984}
   m_Layer: 0
   m_Name: StarvingBandit_BoStaff
   m_TagString: Untagged
@@ -13171,3 +13173,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 687066491379263547}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &175668160849937477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3090418566522109919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1067fb1e17f4fd5a61707c509c1754f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcInventory
+  lootTable: {fileID: 11400000, guid: 0fe268f5a046420785cb730d5b516ff9, type: 2}
+  seed: 0
+  logChanges: 0
+  generated: 0
+  items: []
+--- !u!114 &576930622944894984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3090418566522109919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98721669e4094b018d743d9cc00c1d4a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcClothingLoot
+  inventory: {fileID: 175668160849937477}
+  health: {fileID: 0}
+  pullDistance: 0.24
+  minimumOutwardDot: -1
+  handleRadius: 0.18

@@ -17,7 +17,7 @@ namespace KenshiVR.MeleeCombat
         public ScavengerHealth health;
         [Min(.1f)] public float pullDistance = .24f;
         [Range(-1f, 1f)] public float minimumOutwardDot = -1f;
-        [Min(.04f)] public float handleRadius = .11f;
+        [Min(.04f)] public float handleRadius = .18f;
         readonly Dictionary<NpcEquipmentSlot, Handle> handles = new();
 
         sealed class Handle
@@ -151,7 +151,9 @@ namespace KenshiVR.MeleeCombat
             var physical = definition.preferCachedLoot && definition.worldPrefab
                 ? Instantiate(definition.worldPrefab, position, rotation * Quaternion.Euler(definition.lootEuler))
                 : ClothingLootFactory.Create(definition, handle.snapshot, position, rotation, scale);
-            if (physical && definition.preferCachedLoot && definition.worldPrefab) physical.transform.localScale = scale;
+            // Cached world prefabs already include the garment's fitting scale in their
+            // child transforms. Applying the worn renderer scale again magnifies items
+            // such as scarf_wrap_b by several dozen times.
             if (!physical) return;
             if (!inventory.Drop(handle.item, position, rotation, physical))
             { Destroy(physical); return; }

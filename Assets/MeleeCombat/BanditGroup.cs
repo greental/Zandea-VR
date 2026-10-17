@@ -15,6 +15,8 @@ namespace KenshiVR.MeleeCombat
         [Tooltip("Optional complete bandit prefabs with different weapons. Each must have StarvingBandit, NavMeshAgent and the same character rig.")]
         public StarvingBandit[] weaponVariants;
         [Min(1)] public int groupSize = 4;
+        [Tooltip("Scene bandits spawned from the Inspector. When set, these are used instead of runtime clones.")]
+        public StarvingBandit[] authoredMembers;
         [Min(0.5f)] public float spawnRadius = 4f;
         [Min(0.1f)] public float navMeshSampleRadius = 3f;
         [Tooltip("Build navigation around this group from the active terrain tiles at runtime. Useful for the planet treadmill.")]
@@ -27,6 +29,8 @@ namespace KenshiVR.MeleeCombat
         public AppearanceItemDefinition[] torsoOptions;
         public AppearanceItemDefinition[] legsOptions;
         public AppearanceItemDefinition[] outerArmorOptions;
+        [Tooltip("Armed bandit prefabs to use for this group's weapon choices. The first option is the leader. Each prefab keeps its matching grip and attacks.")]
+        public StarvingBandit[] weaponOptions;
 
         [Header("Patrol")]
         [Min(1f)] public float patrolRadius = 80f;
@@ -52,45 +56,66 @@ namespace KenshiVR.MeleeCombat
 
         void Start()
         {
-            if (!banditPrefab) { Debug.LogError("Bandit Group needs a bandit prefab.", this); enabled = false; return; }
+            bool useAuthored = authoredMembers != null && authoredMembers.Length > 0;
+            if (!banditPrefab && !useAuthored) { Debug.LogError("Bandit Group needs a bandit prefab.", this); enabled = false; return; }
             if (!SnapToTerrain())
                 Debug.LogWarning("Bandit Group is not above an active terrain tile. Move it over the terrain.", this);
             home = transform.position;
             if (buildLocalNavMesh) BuildLocalNavMesh();
-            if (!NavMesh.SamplePosition(home, out _, navMeshSampleRadius, NavMesh.AllAreas))
+            if (!useAuthored && !NavMesh.SamplePosition(home, out _, navMeshSampleRadius, NavMesh.AllAreas))
             { Debug.LogError("Bandit Group has no NavMesh near its position. Check terrain placement and navigation settings.", this); enabled = false; return; }
-            int headwearOffset = headwearOptions != null && headwearOptions.Length > 0
-                ? Random.Range(0, headwearOptions.Length) : 0;
-            for (int i = 0; i < Mathf.Max(1, groupSize); i++)
-            {
-                Vector2 offset = i == 0 ? Vector2.zero : Random.insideUnitCircle * spawnRadius;
-                Vector3 proposed = home + new Vector3(offset.x, 0f, offset.y);
-                if (!NavMesh.SamplePosition(proposed, out var hit, navMeshSampleRadius, NavMesh.AllAreas))
-                { Debug.LogWarning("Bandit Group could not find NavMesh for a spawn.", this); continue; }
-                var selectedPrefab = PickBanditPrefab(i);
-                var bandit = Instantiate(selectedPrefab, hit.position, transform.rotation);
-                bandit.name = i == 0 ? "Bandit Leader" : "Bandit Follower " + i;
-                bandit.groupControlled = true;
-                bandit.groupWalkSpeed = patrolWalkSpeed;
-                bandit.groupDestination = hit.position;
-                var appearance = bandit.GetComponent<NPCCharacterAppearance>();
-                if (appearance)
+            if (useAuthored)
+                foreach (var bandit in authoredMembers)
                 {
-                    var option = PickAppearance();
-                    if (option) appearance.archetype = option;
-                    appearance.Generate(Random.Range(1, int.MaxValue));
-                    var cosmetics = appearance.cosmetics;
-                    if (cosmetics)
+                    if (!bandit) continue;
+                    bandit.groupControlled = true;
+                    bandit.combatGroup = this;
+                    bandit.groupWalkSpeed = patrolWalkSpeed;
+                    bandit.groupDestination = bandit.transform.position;
+                    if (!bandit.staff)
                     {
-                        cosmetics.headwear = headwearOptions != null && headwearOptions.Length > 0
-                            ? headwearOptions[(headwearOffset + i) % headwearOptions.Length] : cosmetics.headwear;
-                        cosmetics.torso = PickItem(torsoOptions, cosmetics.torso);
-                        cosmetics.legs = PickItem(legsOptions, cosmetics.legs);
-                        cosmetics.outerArmor = PickItem(outerArmorOptions, cosmetics.outerArmor);
-                        cosmetics.Refresh();
+                        var generated = bandit.GetComponent<NpcGeneratedWeapon>();
+                        if (generated && !generated.EnsureStartingWeapon())
+                            Debug.LogWarning("Bandit Group could not equip authored member " + bandit.name, bandit);
                     }
+                    members.Add(bandit);
                 }
-                members.Add(bandit);
+            else
+            {
+                int headwearOffset = headwearOptions != null && headwearOptions.Length > 0
+                    ? Random.Range(0, headwearOptions.Length) : 0;
+                for (int i = 0; i < Mathf.Max(1, groupSize); i++)
+                {
+                    Vector2 offset = i == 0 ? Vector2.zero : Random.insideUnitCircle * spawnRadius;
+                    Vector3 proposed = home + new Vector3(offset.x, 0f, offset.y);
+                    if (!NavMesh.SamplePosition(proposed, out var hit, navMeshSampleRadius, NavMesh.AllAreas))
+                    { Debug.LogWarning("Bandit Group could not find NavMesh for a spawn.", this); continue; }
+                    var selectedPrefab = PickBanditPrefab(i);
+                    var bandit = Instantiate(selectedPrefab, hit.position, transform.rotation);
+                    bandit.name = i == 0 ? "Bandit Leader" : "Bandit Follower " + i;
+                    bandit.groupControlled = true;
+                    bandit.combatGroup = this;
+                    bandit.groupWalkSpeed = patrolWalkSpeed;
+                    bandit.groupDestination = hit.position;
+                    var appearance = bandit.GetComponent<NPCCharacterAppearance>();
+                    if (appearance)
+                    {
+                        var option = PickAppearance();
+                        if (option) appearance.archetype = option;
+                        appearance.Generate(Random.Range(1, int.MaxValue));
+                        var cosmetics = appearance.cosmetics;
+                        if (cosmetics)
+                        {
+                            cosmetics.headwear = headwearOptions != null && headwearOptions.Length > 0
+                                ? headwearOptions[(headwearOffset + i) % headwearOptions.Length] : cosmetics.headwear;
+                            cosmetics.torso = PickItem(torsoOptions, cosmetics.torso);
+                            cosmetics.legs = PickItem(legsOptions, cosmetics.legs);
+                            cosmetics.outerArmor = PickItem(outerArmorOptions, cosmetics.outerArmor);
+                            cosmetics.Refresh();
+                        }
+                    }
+                    members.Add(bandit);
+                }
             }
             if (members.Count == 0) { enabled = false; return; }
             leader = members[0];
@@ -100,12 +125,16 @@ namespace KenshiVR.MeleeCombat
 
         StarvingBandit PickBanditPrefab(int memberIndex)
         {
-            if (weaponVariants == null || weaponVariants.Length == 0) return banditPrefab;
-            int start = memberIndex % weaponVariants.Length;
-            for (int i = 0; i < weaponVariants.Length; i++)
+            var options = weaponOptions != null && weaponOptions.Length > 0 ? weaponOptions : weaponVariants;
+            if (options == null || options.Length == 0) return banditPrefab;
+            int start = memberIndex % options.Length;
+            for (int i = 0; i < options.Length; i++)
             {
-                var option = weaponVariants[(start + i) % weaponVariants.Length];
-                if (option && option.GetComponent<NavMeshAgent>()) return option;
+                var option = options[(start + i) % options.Length];
+                var generated = option ? option.GetComponent<NpcGeneratedWeapon>() : null;
+                if (option && option.GetComponent<NavMeshAgent>() &&
+                    (option.staff || generated && generated.startEquipped && generated.weaponPrefab && generated.gripTarget))
+                    return option;
             }
             return banditPrefab;
         }
@@ -148,7 +177,8 @@ namespace KenshiVR.MeleeCombat
                     sourceObject = terrain.terrainData, transform = terrain.transform.localToWorldMatrix, area = 0 });
             }
             if (sources.Count == 0) return;
-            var prefabAgent = banditPrefab.GetComponent<NavMeshAgent>();
+            var sourceBandit = banditPrefab ? banditPrefab : authoredMembers != null && authoredMembers.Length > 0 ? authoredMembers[0] : null;
+            var prefabAgent = sourceBandit ? sourceBandit.GetComponent<NavMeshAgent>() : null;
             int agentType = prefabAgent ? prefabAgent.agentTypeID : NavMesh.GetSettingsByIndex(0).agentTypeID;
             var bounds = new Bounds(home, new Vector3(radius * 2f, 80f, radius * 2f));
             localNavMesh = NavMeshBuilder.BuildNavMeshData(NavMesh.GetSettingsByID(agentType), sources,
@@ -251,6 +281,9 @@ namespace KenshiVR.MeleeCombat
                 {
                     if (hit.transform.IsChildOf(player.root)) break;
                     if (members.Exists(other => other && hit.transform.IsChildOf(other.transform))) continue;
+                    var heldWeapon = hit.collider.GetComponentInParent<PhysicalMeleeWeapon>();
+                    if (heldWeapon && heldWeapon.State == PhysicalMeleeWeapon.HoldState.HeldByNpc &&
+                        members.Exists(other => other && heldWeapon.ownerRoot == other.transform)) continue;
                     blocked = true;
                     break;
                 }

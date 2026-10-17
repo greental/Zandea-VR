@@ -65,6 +65,7 @@ namespace KenshiVR.MeleeCombat
         public NavMeshAgent agent;
         ScavengerRagdoll ragdoll;
         [NonSerialized] public bool groupControlled;
+        [NonSerialized] public BanditGroup combatGroup;
         [NonSerialized] public bool groupEngaged;
         [NonSerialized] public Vector3 groupDestination;
         [NonSerialized] public float groupWalkSpeed = 1.5f;

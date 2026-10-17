@@ -42,7 +42,11 @@ namespace KenshiVR.MeleeCombat.Editor
             var snapshot = ClothingLootFactory.Capture(source.transform, item);
             if (!snapshot.Valid)
             { snapshot.Dispose(); Object.DestroyImmediate(source); Debug.LogError("No clothing meshes to bake", item); return; }
-            var loot = ClothingLootFactory.Create(item, snapshot, Vector3.zero, Quaternion.identity);
+            // Some imported garments (notably scarf_wrap_b) retain centimeter
+            // coordinates in their authored prefab. Normalize only those large
+            // cached meshes; the pants mesh is already in Unity meters.
+            var lootScale = snapshot.Bounds.size.magnitude > 10f ? Vector3.one * .01f : Vector3.one;
+            var loot = ClothingLootFactory.Create(item, snapshot, Vector3.zero, Quaternion.identity, lootScale);
             Object.DestroyImmediate(source);
             for (int i = 0; i < loot.transform.childCount; i++)
             {

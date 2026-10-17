@@ -2738,6 +2738,8 @@ GameObject:
   - component: {fileID: 6733843231779959944}
   - component: {fileID: 1458411435326949505}
   - component: {fileID: 8495876725174717726}
+  - component: {fileID: 604096678891141537}
+  - component: {fileID: 948274876076237063}
   m_Layer: 0
   m_Name: StarvingBandit_SpikedMace
   m_TagString: Untagged
@@ -2885,10 +2887,10 @@ MonoBehaviour:
     impactApproachLocal: {x: 0, y: -0.7327935, z: 0.6804511}
     followTipLocal: {x: 0, y: 1.230162, z: 1.5241352}
     approachDistance: 0.3
-    windupSeconds: 0.544
-    strikeSeconds: 0.8160001
-    followSeconds: 0.40800005
-    recoverySeconds: 0.4986667
+    windupSeconds: 0.408
+    strikeSeconds: 0.612
+    followSeconds: 0.306
+    recoverySeconds: 0.374
     windupEase:
       serializedVersion: 2
       m_Curve:
@@ -3067,10 +3069,10 @@ MonoBehaviour:
     impactApproachLocal: {x: 0.51816326, y: -0.51816326, z: 0.6804511}
     followTipLocal: {x: 0.15544899, y: 1.294551, z: 1.5241352}
     approachDistance: 0.3
-    windupSeconds: 0.76
-    strikeSeconds: 1.1400001
-    followSeconds: 0.57000005
-    recoverySeconds: 0.69666666
+    windupSeconds: 0.408
+    strikeSeconds: 0.612
+    followSeconds: 0.306
+    recoverySeconds: 0.374
     windupEase:
       serializedVersion: 2
       m_Curve:
@@ -3249,10 +3251,10 @@ MonoBehaviour:
     impactApproachLocal: {x: 0.7327935, y: 0.00000003203142, z: 0.6804511}
     followTipLocal: {x: 0.21983807, y: 1.45, z: 1.5241352}
     approachDistance: 0.3
-    windupSeconds: 0.536
-    strikeSeconds: 0.804
-    followSeconds: 0.402
-    recoverySeconds: 0.49133334
+    windupSeconds: 0.408
+    strikeSeconds: 0.612
+    followSeconds: 0.306
+    recoverySeconds: 0.374
     windupEase:
       serializedVersion: 2
       m_Curve:
@@ -3431,10 +3433,10 @@ MonoBehaviour:
     impactApproachLocal: {x: 0.51816326, y: 0.51816326, z: 0.6804511}
     followTipLocal: {x: 0.15544899, y: 1.6054491, z: 1.5241352}
     approachDistance: 0.3
-    windupSeconds: 0.55200005
-    strikeSeconds: 0.8280001
-    followSeconds: 0.41400006
-    recoverySeconds: 0.50600004
+    windupSeconds: 0.408
+    strikeSeconds: 0.612
+    followSeconds: 0.306
+    recoverySeconds: 0.374
     windupEase:
       serializedVersion: 2
       m_Curve:
@@ -3613,10 +3615,10 @@ MonoBehaviour:
     impactApproachLocal: {x: -0.00000006406284, y: 0.7327935, z: 0.6804511}
     followTipLocal: {x: -0.000000019218852, y: 1.6698381, z: 1.5241352}
     approachDistance: 0.3
-    windupSeconds: 0.76
-    strikeSeconds: 1.1400001
-    followSeconds: 0.57000005
-    recoverySeconds: 0.69666666
+    windupSeconds: 0.408
+    strikeSeconds: 0.612
+    followSeconds: 0.306
+    recoverySeconds: 0.374
     windupEase:
       serializedVersion: 2
       m_Curve:
@@ -3795,10 +3797,10 @@ MonoBehaviour:
     impactApproachLocal: {x: -0.5181632, y: 0.51816326, z: 0.6804511}
     followTipLocal: {x: -0.15544897, y: 1.6054491, z: 1.5241352}
     approachDistance: 0.3
-    windupSeconds: 1.12
-    strikeSeconds: 1.6800002
-    followSeconds: 0.8400001
-    recoverySeconds: 1.0266668
+    windupSeconds: 0.408
+    strikeSeconds: 0.612
+    followSeconds: 0.306
+    recoverySeconds: 0.374
     windupEase:
       serializedVersion: 2
       m_Curve:
@@ -3977,10 +3979,10 @@ MonoBehaviour:
     impactApproachLocal: {x: -0.7327935, y: -0.000000008738475, z: 0.6804511}
     followTipLocal: {x: -0.21983807, y: 1.45, z: 1.5241352}
     approachDistance: 0.3
-    windupSeconds: 1.008
-    strikeSeconds: 1.5120002
-    followSeconds: 0.7560001
-    recoverySeconds: 0.9240001
+    windupSeconds: 0.408
+    strikeSeconds: 0.612
+    followSeconds: 0.306
+    recoverySeconds: 0.374
     windupEase:
       serializedVersion: 2
       m_Curve:
@@ -4159,10 +4161,10 @@ MonoBehaviour:
     impactApproachLocal: {x: -0.5181633, y: -0.51816314, z: 0.6804511}
     followTipLocal: {x: -0.155449, y: 1.2945511, z: 1.5241352}
     approachDistance: 0.3
-    windupSeconds: 0.656
-    strikeSeconds: 0.98400015
-    followSeconds: 0.49200007
-    recoverySeconds: 0.6013334
+    windupSeconds: 0.408
+    strikeSeconds: 0.612
+    followSeconds: 0.306
+    recoverySeconds: 0.374
     windupEase:
       serializedVersion: 2
       m_Curve:
@@ -13151,3 +13153,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6147826009795423660, guid: 35960011aa876f840818bed5d921e302, type: 3}
   m_PrefabInstance: {fileID: 4215410665945601905}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &604096678891141537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2774673140988086187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1067fb1e17f4fd5a61707c509c1754f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcInventory
+  lootTable: {fileID: 11400000, guid: 0fe268f5a046420785cb730d5b516ff9, type: 2}
+  seed: 0
+  logChanges: 0
+  generated: 0
+  items: []
+--- !u!114 &948274876076237063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2774673140988086187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98721669e4094b018d743d9cc00c1d4a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcClothingLoot
+  inventory: {fileID: 604096678891141537}
+  health: {fileID: 0}
+  pullDistance: 0.24
+  minimumOutwardDot: -1
+  handleRadius: 0.18

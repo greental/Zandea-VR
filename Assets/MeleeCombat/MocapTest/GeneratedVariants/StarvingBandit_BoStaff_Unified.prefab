@@ -12764,4 +12764,4 @@ MonoBehaviour:
   health: {fileID: 5950924122389326169}
   pullDistance: 0.24
   minimumOutwardDot: -1
-  handleRadius: 0.11
+  handleRadius: 0.18

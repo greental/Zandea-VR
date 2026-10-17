@@ -14,8 +14,8 @@ public static class ImportedCombatAnimationInstaller
     static readonly string[] OneHandAttacks = {
         "standing melee attack downward", "standing melee attack 360 high",
         "standing melee attack horizontal", "standing melee attack 360 low",
-        "standing melee attack backhand", "standing melee combo attack ver. 1",
-        "standing melee combo attack ver. 2", "standing melee combo attack ver. 3"
+        "standing melee attack backhand", "standing melee attack downward",
+        "standing melee attack horizontal", "standing melee attack backhand"
     };
 
     static AnimationClip Clip(string folder, string name)
@@ -34,7 +34,8 @@ public static class ImportedCombatAnimationInstaller
         {
             string path = file.Replace('\\', '/');
             string name = Path.GetFileNameWithoutExtension(path);
-            if (name.EndsWith("_BoStaff") || name.EndsWith("_PoleBlade")) continue;
+            if (name.EndsWith("_BoStaff") || name.EndsWith("_BoStaff_Unified") ||
+                name.EndsWith("_PoleBlade")) continue;
             var root = PrefabUtility.LoadPrefabContents(path);
             try
             {
@@ -88,10 +89,11 @@ public static class ImportedCombatAnimationInstaller
                         ?? machine.AddState("AttackDirection" + i);
                     state.motion = attackClips[i];
                     state.mirror = leftHand || (twoHands && i >= 4);
-                    state.speed = 1f;
-                    // Keep the NPC's phase clock aligned with the source clip.
-                    // Combos remain one attack event until multi-hit scoring exists.
-                    float duration = Mathf.Max(.6f, attackClips[i].length);
+                    // One combat event scores one strike. Long imported combos made
+                    // the NPC swing several times while registering only one hit.
+                    float duration = Mathf.Clamp(attackClips[i].length, .8f, 1.7f);
+                    state.speed = attackClips[i].length / duration;
+                    // Brain phase time and Animator state length stay synchronized.
                     brain.attacks[i].windupSeconds = duration * .24f;
                     brain.attacks[i].strikeSeconds = duration * .36f;
                     brain.attacks[i].followSeconds = duration * .18f;

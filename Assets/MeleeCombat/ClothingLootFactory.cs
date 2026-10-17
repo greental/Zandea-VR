@@ -60,7 +60,9 @@ namespace KenshiVR.MeleeCombat
                 if (renderer is SkinnedMeshRenderer skin && skin.sharedMesh)
                 {
                     source = new Mesh();
-                    skin.BakeMesh(source);
+                    // The transform into loot-root space below applies the
+                    // renderer scale, so keep baked vertices unscaled here.
+                    skin.BakeMesh(source, true);
                     baked = true;
                 }
                 else if (renderer.TryGetComponent<MeshFilter>(out var filter)) source = filter.sharedMesh;

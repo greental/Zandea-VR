@@ -46,11 +46,16 @@ namespace ScavengerNPC
         public float Trauma { get; private set; }
         public NpcConsciousness State { get; private set; } = NpcConsciousness.Conscious;
         public bool IsDead => State == NpcConsciousness.Dead;
+        public bool LastDamageBlocked { get; private set; }
+        public float LastDamageTaken { get; private set; }
         public bool IsUnconscious => State == NpcConsciousness.Unconscious;
-        public bool ShouldFlee => State == NpcConsciousness.Conscious && Time.time < fleeUntil &&
-            (Current / maxHealth < fleeBelowHealthFraction || fleeWhenUnarmed && weaponLostAtKnockout);
+        public bool ShouldFlee => State == NpcConsciousness.Conscious && (permanentFlee ||
+            Time.time < fleeUntil && (Current / maxHealth < fleeBelowHealthFraction ||
+            fleeWhenUnarmed && weaponLostAtKnockout));
 
         float wakeTime, fleeUntil;
+        bool permanentCollapse;
+        bool permanentFlee;
         bool weaponLostAtKnockout;
         ScavengerRagdoll ragdoll;
         StarvingBandit bandit;
@@ -66,6 +71,11 @@ namespace ScavengerNPC
             Current = maxHealth;
             ragdoll = GetComponent<ScavengerRagdoll>();
             bandit = GetComponent<StarvingBandit>();
+            if (bandit)
+            {
+                if (!GetComponent<GoreImpactSystem>()) gameObject.AddComponent<GoreImpactSystem>();
+                if (!GetComponent<DismemberableCharacter>()) gameObject.AddComponent<DismemberableCharacter>();
+            }
             enemy = GetComponent<ScavengerEnemy>();
             generatedWeapon = GetComponent<NpcGeneratedWeapon>();
             attributes = GetComponent<CharacterAttributes>();
@@ -77,12 +87,34 @@ namespace ScavengerNPC
 
         void Update()
         {
-            if (State == NpcConsciousness.Unconscious && Time.time >= wakeTime &&
+            if (!permanentCollapse && State == NpcConsciousness.Unconscious && Time.time >= wakeTime &&
                 Current >= maxHealth * recoveryHealthFraction) WakeUp();
+        }
+
+        public void ReactToAmputation(Vector3 hitPoint, Vector3 direction)
+        {
+            if (IsDead) return;
+            fleeUntil = Mathf.Max(fleeUntil, Time.time + fleeSeconds * 2f);
+            weaponLostAtKnockout = true;
+            permanentFlee = true;
+            if (martial) martial.InterruptCombat();
+            if (bandit) bandit.InterruptCombatForKnockout();
+            if (pose) pose.PlayHitReaction(-direction, severeHitReactionDamage);
+        }
+
+        const float severeHitReactionDamage = 30f;
+
+        public void KnockOutForAmputation(Vector3 hitPoint, Vector3 direction)
+        {
+            if (IsDead) return;
+            permanentCollapse = true;
+            KnockOut(hitPoint, direction);
         }
 
         public void ApplyDamage(in DamagePacket packet)
         {
+            LastDamageBlocked = false;
+            LastDamageTaken = 0f;
             if (IsDead || packet.BaseDamage <= 0f || float.IsNaN(packet.BaseDamage) || float.IsInfinity(packet.BaseDamage)) return;
             float taken = packet.BaseDamage * CharacterCombatMath.DamageTaken(attributes);
             bool blocked = State == NpcConsciousness.Conscious && martial && martial.profile &&
@@ -93,6 +125,8 @@ namespace ScavengerNPC
                 taken *= martial.profile.guardedDamageMultiplier;
                 martial.SuccessfulBlock();
             }
+            LastDamageBlocked = blocked;
+            LastDamageTaken = taken;
             Current = Mathf.Max(0f, Current - taken);
             if (Current <= 0f) { Die(packet.HitPointWorld, ImpactDirection(packet) * 4f); return; }
             if (enemy) enemy.Alert(packet.Source ? packet.Source.transform : null);
@@ -166,7 +200,7 @@ namespace ScavengerNPC
 
         public void WakeUp()
         {
-            if (!IsUnconscious || !ragdoll || !ragdoll.Recover()) return;
+            if (permanentCollapse || !IsUnconscious || !ragdoll || !ragdoll.Recover()) return;
             Trauma = knockoutTrauma * .25f;
             fleeUntil = Time.time + fleeSeconds;
             Transition(NpcConsciousness.Conscious);
@@ -180,9 +214,22 @@ namespace ScavengerNPC
             Transition(NpcConsciousness.Dead);
             if (martial) martial.InterruptCombat();
             if (bandit) bandit.InterruptCombatForKnockout();
+            if (generatedWeapon) generatedWeapon.DropForKnockout();
+            else if (bandit && bandit.staff)
+            {
+                bandit.staff.DropFromNpc();
+                bandit.SetEquippedStaff(null, bandit.weaponGoal);
+            }
             if (enemy) enemy.Die();
             if (ragdoll) ragdoll.Activate(hitPoint, impulse);
             onDeath.Invoke();
+        }
+
+        public void ApplyBleeding(float damage)
+        {
+            if (IsDead || damage <= 0f) return;
+            Current = Mathf.Max(0f, Current - damage);
+            if (Current <= 0f) Die(transform.position + Vector3.up, Vector3.zero);
         }
 
         void Transition(NpcConsciousness next)

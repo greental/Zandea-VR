@@ -46,6 +46,17 @@ public static class GeneratedMocapVariantBuilder
     [MenuItem("Tools/Melee Combat/Build generated weapon bandits")]
     public static void Build()
     {
+        // These prefabs may already contain the newer imported combat controllers.
+        // A fresh build from the old mocap template would silently replace that work.
+        foreach (var variant in Variants)
+        {
+            var existing = AssetDatabase.LoadAssetAtPath<GameObject>(Output + "/StarvingBandit_" + variant.name + ".prefab");
+            if (!existing) continue;
+            var driver = existing.GetComponentInChildren<BanditMocapNpcDriver>(true);
+            if (driver && driver.useImportedCombatAttacks)
+                throw new InvalidOperationException("Generated variant build would overwrite imported combat attacks on " +
+                    existing.name + ". Preserve or migrate its controller before rebuilding.");
+        }
         if (!AssetDatabase.IsValidFolder(Output)) AssetDatabase.CreateFolder("Assets/MeleeCombat/MocapTest", "GeneratedVariants");
         var source = AssetDatabase.LoadAssetAtPath<GameObject>(Source);
         if (!source) throw new InvalidOperationException("Build the original isolated Bo Staff test first.");
@@ -100,6 +111,16 @@ public static class GeneratedMocapVariantBuilder
                 if (oldAnimation) UnityEngine.Object.DestroyImmediate(oldAnimation);
                 var brain = instance.GetComponent<StarvingBandit>();
                 if (brain) brain.enabled = true;
+                var inventory = instance.GetComponent<NpcInventory>();
+                if (!inventory) inventory = instance.AddComponent<NpcInventory>();
+                inventory.lootTable = AssetDatabase.LoadAssetAtPath<NpcLootTable>(
+                    "Assets/MeleeCombat/Inventory/Starving Bandit Loot.asset");
+                if (!inventory.lootTable) throw new InvalidOperationException("Starving Bandit loot table missing");
+                var clothingLoot = instance.GetComponent<NpcClothingLoot>();
+                if (!clothingLoot) clothingLoot = instance.AddComponent<NpcClothingLoot>();
+                clothingLoot.inventory = inventory;
+                clothingLoot.health = instance.GetComponent<ScavengerNPC.ScavengerHealth>();
+                clothingLoot.handleRadius = .18f;
                 var agent = instance.GetComponent<UnityEngine.AI.NavMeshAgent>();
                 if (agent) agent.enabled = true;
                 var path = Output + "/StarvingBandit_" + variant.name + ".prefab";

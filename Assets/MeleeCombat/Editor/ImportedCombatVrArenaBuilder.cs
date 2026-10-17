@@ -105,6 +105,8 @@ public static class ImportedCombatVrArenaBuilder
             grab.attachTransform = grip;
             var weapon = root.AddComponent<PhysicalMeleeWeapon>();
             weapon.grip = grip;
+            weapon.rightGrip = grip;
+            weapon.leftGrip = grip;
             weapon.mass = rigidbody.mass;
             weapon.strikeType = PhysicalMeleeWeapon.StrikeType.Cutting;
             root.AddComponent<PracticeSwordGuard>();

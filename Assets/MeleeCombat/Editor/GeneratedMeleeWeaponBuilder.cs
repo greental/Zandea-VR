@@ -80,12 +80,18 @@ namespace KenshiVR.MeleeCombat.Editor
                 shape.height = Mathf.Max(length, radius * 2.01f);
                 shape.radius = radius;
                 var grip = Marker(root.transform, "Grip", new Vector3(0, 0, -length * .32f));
+                var rightGrip = Marker(root.transform, "Right grip", grip.localPosition);
+                var leftGrip = Marker(root.transform, "Left grip", grip.localPosition);
+                rightGrip.localRotation = grip.localRotation;
+                leftGrip.localRotation = grip.localRotation;
                 Marker(root.transform, "Positive striking tip", new Vector3(0, 0, length * .5f));
                 Marker(root.transform, "Negative striking tip", new Vector3(0, 0, -length * .5f));
                 var grab = root.AddComponent<XRGrabInteractable>();
                 grab.attachTransform = grip;
                 var weapon = root.AddComponent<PhysicalMeleeWeapon>();
                 weapon.grip = grip;
+                weapon.rightGrip = rightGrip;
+                weapon.leftGrip = leftGrip;
                 weapon.mass = body.mass;
                 weapon.strikeType = PhysicalMeleeWeapon.StrikeType.Cutting;
                 PrefabUtility.SaveAsPrefabAsset(root, destination);

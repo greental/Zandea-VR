@@ -8224,6 +8224,8 @@ GameObject:
   - component: {fileID: 7384885280326561187}
   - component: {fileID: 362318082910553849}
   - component: {fileID: 8537926218158205169}
+  - component: {fileID: 714013242504187874}
+  - component: {fileID: 939933074916716838}
   m_Layer: 0
   m_Name: StarvingBandit_PoleBlade
   m_TagString: Untagged
@@ -13090,3 +13092,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6147826009795423660, guid: 3a71c49d7697b804e9ab0c15a9c004c5, type: 3}
   m_PrefabInstance: {fileID: 5548601346964967949}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &714013242504187874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6974508056230109624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1067fb1e17f4fd5a61707c509c1754f, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcInventory
+  lootTable: {fileID: 11400000, guid: 0fe268f5a046420785cb730d5b516ff9, type: 2}
+  seed: 0
+  logChanges: 0
+  generated: 0
+  items: []
+--- !u!114 &939933074916716838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6974508056230109624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98721669e4094b018d743d9cc00c1d4a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcClothingLoot
+  inventory: {fileID: 714013242504187874}
+  health: {fileID: 0}
+  pullDistance: 0.24
+  minimumOutwardDot: -1
+  handleRadius: 0.18
