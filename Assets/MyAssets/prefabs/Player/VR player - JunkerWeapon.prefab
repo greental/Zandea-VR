@@ -3394,6 +3394,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1711639474423939664}
   - component: {fileID: 3784039578886303250}
+  - component: {fileID: 6463849446782439191}
   m_Layer: 0
   m_Name: VR player - JunkerWeapon
   m_TagString: Untagged
@@ -3401,6 +3402,24 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &6463849446782439191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7677164931767008894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17ec1b4767c0e11438006070141a67da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.Bandaging.PlayerWounds
+  body: {fileID: 6419064390545678534}
+  bleedMultiplier: 0.007
+  postTreatmentBleedFraction: 0.02
+  createTestWoundOnStart: 0
+  testRegion: 0
+  zones: []
 --- !u!4 &1711639474423939664
 Transform:
   m_ObjectHideFlags: 0

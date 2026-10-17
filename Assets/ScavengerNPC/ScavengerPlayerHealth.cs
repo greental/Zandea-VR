@@ -27,6 +27,7 @@ namespace ScavengerNPC
         [Range(.01f, .2f)] public float dripWidth = .065f;
         public Color bloodColor = new Color(.48f, .025f, .02f);
         public UnityEvent onDamaged = new UnityEvent(), onDeath = new UnityEvent();
+        public event System.Action onDirectHit;
         public float Current { get; private set; }
         public bool IsDead => Current <= 0;
         ContinuousMoveProvider moveProvider;
@@ -66,9 +67,31 @@ namespace ScavengerNPC
                 }
             Current = Mathf.Max(0, Current - packet.BaseDamage * multiplier *
                 CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>()));
+            if (packet.PhysicalImpact == PhysicalImpactKind.Sharp && Current > 0)
+            {
+                var wounds = GetComponent<KenshiVR.Bandaging.PlayerWounds>();
+                if (wounds) wounds.RegisterCut(packet.HitPointWorld, packet.BaseDamage * multiplier);
+            }
             hitFlash = 1;
+            onDirectHit?.Invoke();
             onDamaged.Invoke();
             if (Current <= 0)
+            {
+                moveProvider = GetComponentInChildren<ContinuousMoveProvider>(true);
+                jumpProvider = GetComponentInChildren<JumpProvider>(true);
+                restoreMove = moveProvider && moveProvider.enabled;
+                restoreJump = jumpProvider && jumpProvider.enabled;
+                if (moveProvider) moveProvider.enabled = false;
+                if (jumpProvider) jumpProvider.enabled = false;
+                onDeath.Invoke();
+            }
+        }
+        public void ApplyBleeding(float damage)
+        {
+            if (Current <= 0 || damage <= 0f) return;
+            Current = Mathf.Max(0f, Current - damage);
+            onDamaged.Invoke();
+            if (Current <= 0f)
             {
                 moveProvider = GetComponentInChildren<ContinuousMoveProvider>(true);
                 jumpProvider = GetComponentInChildren<JumpProvider>(true);
