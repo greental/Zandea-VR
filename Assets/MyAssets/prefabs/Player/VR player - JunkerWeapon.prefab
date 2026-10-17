@@ -3418,6 +3418,10 @@ MonoBehaviour:
   bleedMultiplier: 0.007
   postTreatmentBleedFraction: 0.02
   createTestWoundOnStart: 0
+  spawnEditorTestWound: 1
+  startingRollPrefab: {fileID: 2063921087885659426, guid: 343dc6e191b7585408aaf13f5ed32881, type: 3}
+  recoveryPerSecond: 0.75
+  recoveryDelayAfterHit: 5
   testRegion: 0
   zones: []
 --- !u!4 &1711639474423939664

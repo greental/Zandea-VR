@@ -40,10 +40,18 @@ namespace ScavengerNPC
         float hitFlash;
         int shapeHash = int.MinValue;
         void Awake() { Restore(); }
-        void Start() { CreateVignette(); }
+        void Start()
+        {
+            CreateVignette();
+            // Legacy player prefab variants also need the same wound receiver.
+            if (!GetComponent<KenshiVR.Bandaging.PlayerWounds>() && GetComponentInChildren<JunkerBody.VRBodyController>(true))
+                gameObject.AddComponent<KenshiVR.Bandaging.PlayerWounds>();
+        }
         public void Restore()
         {
             Current = Mathf.Max(1, maxHealth);
+            var wounds = GetComponent<KenshiVR.Bandaging.PlayerWounds>();
+            if (wounds) wounds.ClearWounds();
             hitFlash = 0;
             if (moveProvider && restoreMove) moveProvider.enabled = true;
             if (jumpProvider && restoreJump) jumpProvider.enabled = true;
@@ -65,12 +73,14 @@ namespace ScavengerNPC
                     }
                     break;
                 }
+            float before = Current;
             Current = Mathf.Max(0, Current - packet.BaseDamage * multiplier *
                 CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>()));
-            if (packet.PhysicalImpact == PhysicalImpactKind.Sharp && Current > 0)
+            if (packet.DamageType == DamageType.Kinetic && Current > 0)
             {
                 var wounds = GetComponent<KenshiVR.Bandaging.PlayerWounds>();
-                if (wounds) wounds.RegisterCut(packet.HitPointWorld, packet.BaseDamage * multiplier);
+                if (wounds) wounds.RegisterInjury(packet.HitPointWorld, before - Current,
+                    packet.PhysicalImpact == PhysicalImpactKind.Sharp || packet.PhysicalImpact == PhysicalImpactKind.Unspecified);
             }
             hitFlash = 1;
             onDirectHit?.Invoke();
@@ -85,6 +95,13 @@ namespace ScavengerNPC
                 if (jumpProvider) jumpProvider.enabled = false;
                 onDeath.Invoke();
             }
+        }
+        public float ApplyBandageRecovery(float amount)
+        {
+            if (IsDead || amount <= 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return 0f;
+            float recovered = Mathf.Min(amount, Mathf.Max(0f, maxHealth - Current));
+            Current += recovered;
+            return recovered;
         }
         public void ApplyBleeding(float damage)
         {

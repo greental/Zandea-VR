@@ -49,7 +49,7 @@ namespace KenshiVR.Bandaging
                 if (free)
                 {
                     var local = zone.bone.InverseTransformPoint(freeTip);
-                    Vector3 widthAxis = zone.bone.InverseTransformDirection(zone.bone.rotation * zone.localFrame * Vector3.up);
+                    Vector3 widthAxis = zone.bone.InverseTransformVector(zone.bone.rotation * zone.localFrame * Vector3.up);
                     first = local - widthAxis * width * .5f;
                     second = local + widthAxis * width * .5f;
                 }

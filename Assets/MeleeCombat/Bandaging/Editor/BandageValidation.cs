@@ -30,7 +30,9 @@ namespace KenshiVR.Bandaging.Editor
                     roll.GetComponent<JunkerEquipmentItem>(), "roll lifecycle");
                 Require(roll.GetComponentInChildren<MeshRenderer>(true), "supplied roll mesh");
                 var player = AssetDatabase.LoadAssetAtPath<GameObject>(Player);
-                Require(player && player.GetComponentInChildren<PlayerWounds>(true), "player wound receiver");
+                var playerWounds = player ? player.GetComponentInChildren<PlayerWounds>(true) : null;
+                Require(playerWounds && playerWounds.startingRollPrefab == roll.GetComponent<BandageRoll>(),
+                    "player wound receiver and starting medical roll");
                 var bone = new GameObject("Bandage validation bone");
                 try
                 {

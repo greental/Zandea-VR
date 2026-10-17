@@ -8,6 +8,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace KenshiVR.Bandaging
 {
+    [DefaultExecutionOrder(12000)]
     [RequireComponent(typeof(XRGrabInteractable), typeof(Rigidbody))]
     public sealed class BandageRoll : MonoBehaviour
     {
@@ -40,6 +41,8 @@ namespace KenshiVR.Bandaging
         float previousAngle, signedAngle, startAngle, axialCenter;
         int direction;
         bool haveSample;
+        JunkerGloveHand holderGlove;
+        bool attachRequested, triggerWasPressed;
 
         void Awake()
         {
@@ -59,28 +62,54 @@ namespace KenshiVR.Bandaging
                 grab.activated.RemoveListener(OnTrigger);
             }
             if (health) health.onDirectHit -= Cancel;
+            if (health) health.onDeath.RemoveListener(Cancel);
             if (State == WrapState.Wrapping && ribbon) Destroy(ribbon.gameObject);
         }
         void OnGrab(SelectEnterEventArgs args)
         {
             hand = args.interactorObject as XRBaseInputInteractor;
             trackingPoint = hand ? hand.transform : args.interactorObject.transform;
-            wounds = trackingPoint ? trackingPoint.GetComponentInParent<Unity.XR.CoreUtils.XROrigin>()?.GetComponentInChildren<PlayerWounds>(true) : null;
-            if (!wounds) wounds = FindFirstObjectByType<PlayerWounds>();
+            wounds = trackingPoint ? trackingPoint.GetComponentInParent<PlayerWounds>() : null;
+            if (!wounds && trackingPoint)
+                wounds = trackingPoint.GetComponentInParent<Unity.XR.CoreUtils.XROrigin>()?.GetComponentInChildren<PlayerWounds>(true);
             health = wounds ? wounds.GetComponent<ScavengerPlayerHealth>() : null;
             if (health) health.onDirectHit += Cancel;
+            if (health) health.onDeath.AddListener(Cancel);
+            if (wounds && wounds.body)
+                foreach (var glove in wounds.body.GetComponentsInChildren<JunkerGloveHand>(true))
+                {
+                    var controller = glove.HandController;
+                    if (controller && (trackingPoint == controller || trackingPoint.IsChildOf(controller)))
+                    { holderGlove = glove; break; }
+                }
+            attachRequested = triggerWasPressed = false;
             State = WrapState.Ready;
         }
         void OnDrop(SelectExitEventArgs args)
         {
             Cancel();
             if (health) health.onDirectHit -= Cancel;
+            if (health) health.onDeath.RemoveListener(Cancel);
+            if (wounds) wounds.ShowCue(null);
+            holderGlove = null; attachRequested = triggerWasPressed = false;
             health = null; hand = null; trackingPoint = null; wounds = null;
             State = WrapState.Idle;
         }
         void OnTrigger(ActivateEventArgs args)
         {
-            if (State != WrapState.Ready || !grab.isSelected || candidate == null || zone == null) return;
+            if (State != WrapState.Ready || !grab.isSelected) return;
+            // Query on the activation edge as well as after the late IK pose. A trigger
+            // can arrive before this roll has had its first LateUpdate after selection.
+            if (wounds && looseTip)
+            {
+                candidate = wounds.ClosestUntreated(looseTip.position, out zone);
+                TryAttach();
+            }
+            if (State == WrapState.Ready) attachRequested = true;
+        }
+        void TryAttach()
+        {
+            if (State != WrapState.Ready || !grab.isSelected || candidate == null || zone == null || !health || health.IsDead) return;
             target = candidate;
             axialCenter = Mathf.Clamp(target.localPosition.y, -zone.length * .5f + clothWidth, zone.length * .5f - clothWidth);
             startAngle = Angle(trackingPoint.position);
@@ -100,10 +129,17 @@ namespace KenshiVR.Bandaging
         void LateUpdate()
         {
             if (!grab || !grab.isSelected || !wounds || !trackingPoint) return;
+            if (!health || health.IsDead) { Cancel(); wounds.ShowCue(null); return; }
+            bool triggerPressed = holderGlove && holderGlove.input &&
+                (holderGlove.input.triggerValue.action?.ReadValue<float>() ?? 0f) > .7f;
+            if (triggerPressed && !triggerWasPressed) attachRequested = true;
+            triggerWasPressed = triggerPressed;
             if (State == WrapState.Ready)
             {
                 candidate = wounds.ClosestUntreated(looseTip.position, out zone);
                 wounds.ShowCue(candidate);
+                if (attachRequested) TryAttach();
+                attachRequested = false;
                 return;
             }
             if (State != WrapState.Wrapping || !zone || !ribbon) return;
