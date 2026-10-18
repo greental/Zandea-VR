@@ -93,13 +93,16 @@ def solve(names,pts,offset):
  hip=rig.pose.bones[upper].head.copy();target=P(pts[2])+offset
  a=(P(pts[1])-P(pts[0])).length;b=(P(pts[2])-P(pts[1])).length
  delta=target-hip;d=max(.001,min(delta.length,a+b-.005));axis=delta.normalized()
- bend=P(pts[1])-P(pts[0]);bend=(bend-axis*bend.dot(axis)).normalized()
+ # A fixed anatomical pole prevents a knee from changing sides as the foot
+ # passes under the hip. Deriving this from the nearly straight rest leg flips.
+ pole=Vector((0,-1,0))
+ bend=(pole-axis*pole.dot(axis)).normalized()
  along=(a*a-b*b+d*d)/(2*d);knee=hip+axis*along+bend*math.sqrt(max(0,a*a-along*along))
  orient(upper,hip,knee);bpy.context.view_layer.update()
  orient(lower,knee,target);bpy.context.view_layer.update()
  orient(ankle,target,target+P(pts[3])-P(pts[2]));bpy.context.view_layer.update()
  orient(foot,rig.pose.bones[foot].head,rig.pose.bones[foot].head+P(pts[4])-P(pts[3]))
-clips=[('Idle',4,0),('Walk',1.6,1.35),('Trot',.95,2.8),('Turn',2,0),('Graze',6,0),('Alert',2,0),('Hit',.6,0),('Death',2.5,0)]
+clips=[('Idle',4,0),('Walk',.72,1.35),('Trot',.46,2.8),('Turn',2,0),('Graze',6,0),('Alert',2,0),('Hit',.6,0),('Death',2.5,0)]
 for name,duration,speed in clips:
  action=bpy.data.actions.new(name);rig.animation_data.action=action
  frames=round(duration*30)

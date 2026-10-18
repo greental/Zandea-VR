@@ -76,7 +76,7 @@ namespace Zandea.Wildlife
             if (body) body.rotation = rotation; else transform.rotation = rotation;
             Velocity = ((body ? body.position : transform.position) - previous) / Mathf.Max(dt, .0001f);
             float nominal = Trotting ? profile.trotSpeed : profile.walkSpeed;
-            float period = Trotting ? .95f : 1.6f;
+            float period = Trotting ? .46f : .72f;
             Cycle = Mathf.Repeat(Cycle + Speed / nominal / period * dt, 1);
             animator.SetFloat(SpeedId, Speed);
             animator.SetFloat(RateId, Speed > .03f ? Mathf.Max(.05f, Speed / nominal) : 1);

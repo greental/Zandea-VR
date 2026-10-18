@@ -46,12 +46,12 @@ namespace Zandea.Wildlife
                 { desired = animated + Vector3.ClampMagnitude(desired - animated, motor.profile.footCorrection); leg.plant = desired; }
                 leg.correction = Vector3.Lerp(leg.correction, desired - animated, blend);
                 Quaternion ankleRotation = leg.ankle.rotation;
-                Solve(leg.upper, leg.lower, leg.ankle, leg.ankle.position + leg.correction);
+                Solve(leg.upper, leg.lower, leg.ankle, leg.ankle.position + leg.correction, motor.transform.forward);
                 leg.ankle.rotation = Quaternion.Slerp(ankleRotation, Quaternion.FromToRotation(Vector3.up, hit.normal) * ankleRotation, .65f);
                 leg.planted = stance;
             }
         }
-        public static void Solve(Transform upper, Transform lower, Transform end, Vector3 target)
+        public static void Solve(Transform upper, Transform lower, Transform end, Vector3 target, Vector3 pole)
         {
             Vector3 a = upper.position, b = lower.position, c = end.position;
             float l1 = Vector3.Distance(a, b), l2 = Vector3.Distance(b, c);
@@ -59,8 +59,8 @@ namespace Zandea.Wildlife
             if (length < .0001f || l1 < .0001f || l2 < .0001f) return;
             Vector3 axis = delta / length;
             float d = Mathf.Clamp(length, Mathf.Abs(l1 - l2) + .001f, l1 + l2 - .001f);
-            Vector3 bend = Vector3.ProjectOnPlane(b - a, axis).normalized;
-            if (bend.sqrMagnitude < .01f) bend = Vector3.ProjectOnPlane(upper.forward, axis).normalized;
+            Vector3 bend = Vector3.ProjectOnPlane(pole, axis).normalized;
+            if (bend.sqrMagnitude < .01f) bend = Vector3.ProjectOnPlane(upper.right, axis).normalized;
             float x = (l1 * l1 - l2 * l2 + d * d) / (2 * d);
             Vector3 knee = a + axis * x + bend * Mathf.Sqrt(Mathf.Max(0, l1 * l1 - x * x));
             upper.rotation = Quaternion.FromToRotation(b - a, knee - a) * upper.rotation;
