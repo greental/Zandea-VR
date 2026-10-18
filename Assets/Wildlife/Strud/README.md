@@ -1,0 +1,9 @@
+# Strud wildlife slice
+
+`Strud.prefab` is the working quadruped. `StrudTest.unity` provides a terrain review scene. The scene-independent copy at `Assets/Resources/Wildlife/Strud.prefab` is used by `StrudWorldSpawn` in Main. Both prefabs are rebuilt by **Tools > Zandea > Wildlife > Rebuild Strud**.
+
+The original `Assets/MyAssets/mesh/Wildlife/Strud/Strud.glb` is unchanged. `Tools/Wildlife/build_strud.py` imports it in Blender, applies a four-influence skin to a 27-bone Generic quadruped rig, and exports the editable `Tools/Wildlife/Strud_Authored.blend` and `Art/Strud_Rigged.fbx`. The authored in-place clips are Idle, Walk, Trot, Turn, Graze, Alert, Hit, and Death. The haunch and shoulder have blended upper-leg influence; Graze reaches the neck forward and Alert arches it backward. The source mesh contains overlapping shell-like surfaces at the flank, so a fine edge remains visible in some extreme poses.
+
+`QuadrupedMotor` owns root movement, slope and obstacle rejection. `QuadrupedGrounding` plants each foot with terrain probes and two-bone correction. `WildlifeBrain` wanders, grazes, watches threats, and flees. `CreatureHealth` implements the existing damage interface and death handling. Mount, reins, dismount, and cargo anchors are present as transforms; riding logic is outside this slice.
+
+Validation: Unity asset check passed with a valid Generic avatar, all 27 bones, all nine anchors, and 29,142 of 63,360 vertices moving over 5 cm across the Walk clip. A prior Play check showed 6.98 m walk displacement and a 2.80 m/s trot, with observed planted-foot drift under 0.2 m per editor tick. That Play check did not complete the floating-origin, AI, and death stages; rerun **Tools > Zandea > Wildlife > Validate Strud Assets** and the StrudTest Play validation before relying on those behaviors. Blender renders are in `Temp/StrudReview` for local review.

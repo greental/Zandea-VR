@@ -22,7 +22,7 @@ namespace KenshiVR.MeleeCombat
         [Min(.03f)] public float footRadius = .12f;
         public bool IsKicking => activeClip && Time.time < endTime;
         readonly Collider[] contacts = new Collider[24];
-        readonly HashSet<ScavengerHealth> scored = new HashSet<ScavengerHealth>();
+        readonly HashSet<IDamageable> scored = new HashSet<IDamageable>();
         AnimationClip activeClip;
         Transform foot;
         Vector3 previousFoot;
@@ -105,8 +105,8 @@ namespace KenshiVR.MeleeCombat
             {
                 var shape = contacts[i];
                 if (!shape || shape.transform.IsChildOf(body.xrOrigin)) continue;
-                var target = shape.GetComponentInParent<ScavengerHealth>();
-                if (!target || target.IsDead || scored.Contains(target)) continue;
+                var target = shape.GetComponentInParent<IDamageable>();
+                if (target == null || target.GetCombatState() == ShipCombatState.Destroyed || scored.Contains(target)) continue;
                 Vector3 travel = to - from;
                 Vector3 center = from + travel * Mathf.Clamp01(Vector3.Dot(shape.bounds.center - from, travel) /
                     Mathf.Max(travel.sqrMagnitude, .000001f));
@@ -121,7 +121,7 @@ namespace KenshiVR.MeleeCombat
                     HitNormalWorld = (point - from).normalized, Source = body.gameObject,
                     WeaponId = activeClip.name, Timestamp = Time.time
                 });
-                var martial = target.GetComponent<NpcMartialArts>();
+                var martial = shape.GetComponentInParent<NpcMartialArts>();
                 if (martial) martial.ReceiveStrikeStagger(1.4f);
             }
         }

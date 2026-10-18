@@ -126,8 +126,8 @@ namespace KenshiVR.MeleeCombat
             {
                 var shape = hits[i];
                 if (!shape || body && shape.transform.IsChildOf(body.xrOrigin)) continue;
-                var target = shape.GetComponentInParent<ScavengerHealth>();
-                if (!target || target.IsDead) continue;
+                var target = shape.GetComponentInParent<IDamageable>();
+                if (target == null || target.GetCombatState() == ShipCombatState.Destroyed) continue;
                 Vector3 travel = to - from;
                 Vector3 center = from + travel * Mathf.Clamp01(Vector3.Dot(shape.bounds.center - from, travel) /
                     Mathf.Max(travel.sqrMagnitude, .000001f));
@@ -141,7 +141,7 @@ namespace KenshiVR.MeleeCombat
                     HitNormalWorld = (contact - from).normalized, Source = body.gameObject,
                     WeaponId = left ? "left fist" : "right fist", Timestamp = Time.time
                 });
-                var martial = target.GetComponent<NpcMartialArts>();
+                var martial = shape.GetComponentInParent<NpcMartialArts>();
                 if (martial) martial.ReceiveStrikeStagger(Mathf.Clamp(speed / 3f, .8f, 1.5f));
                 ready = false;
                 recoveryUntil = Time.time + punchCooldown;

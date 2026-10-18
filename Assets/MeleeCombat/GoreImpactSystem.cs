@@ -126,6 +126,8 @@ namespace KenshiVR.MeleeCombat
         }
 
 
+        public void RegisterCreatureDeath() => StartBloodPool();
+
         void StartBloodPool()
         {
             if (!enableGore || bloodPoolRadius <= 0f || bloodPool || globalPools >= GlobalPoolLimit) return;

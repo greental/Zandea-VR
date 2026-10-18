@@ -294,7 +294,7 @@ namespace KenshiVR.MeleeCombat
                 if (!shape || shape.transform.IsChildOf(transform)) continue;
                 var enemy = shape.GetComponentInParent<ScavengerHealth>();
                 var player = shape.GetComponentInParent<ScavengerPlayerHealth>();
-                IDamageable receiver = enemy ? enemy : player;
+                IDamageable receiver = enemy ? enemy : player ? player : shape.GetComponentInParent<IDamageable>();
                 if (receiver == null || enemy == brain.health || scored.Contains(receiver)) continue;
                 if (enemy && enemy.IsDead || player && player.IsDead) continue;
                 Vector3 travel = to - from;
