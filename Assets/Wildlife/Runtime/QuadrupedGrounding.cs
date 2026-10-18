@@ -15,10 +15,23 @@ namespace Zandea.Wildlife
         }
         public QuadrupedMotor motor;
         public Leg[] legs;
-        void OnEnable() { if (legs != null) foreach (var l in legs) { l.planted = false; l.correction = Vector3.zero; } }
+        Transform neck, head;
+        float lookYaw;
+        void OnEnable() { lookYaw = 0; if (legs != null) foreach (var l in legs) { l.planted = false; l.correction = Vector3.zero; } }
         void LateUpdate()
         {
             if (!motor || motor.Dead || legs == null) return;
+            // Animator supplies the pitch and subtle chin movement. Add a signed
+            // world-up glance after animation so the head leads a change of heading.
+            if (!head && motor.animator)
+                foreach (Transform bone in motor.animator.GetComponentsInChildren<Transform>(true))
+                { if (bone.name == "Neck02") neck = bone; else if (bone.name == "Head") head = bone; }
+            lookYaw = Mathf.MoveTowards(lookYaw, motor.Turn * 25f, 115f * Time.deltaTime);
+            if (neck && head)
+            {
+                neck.rotation = Quaternion.AngleAxis(lookYaw * .35f, motor.transform.up) * neck.rotation;
+                head.rotation = Quaternion.AngleAxis(lookYaw * .65f, motor.transform.up) * head.rotation;
+            }
             float blend = 1 - Mathf.Exp(-motor.profile.groundingSharpness * Time.deltaTime);
             // Read the actual blended Animator cycle, avoiding a free-running IK clock drifting from clips.
             var state = motor.animator.GetCurrentAnimatorStateInfo(0);

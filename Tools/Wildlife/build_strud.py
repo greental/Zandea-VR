@@ -6,6 +6,13 @@ from mathutils import Vector, Matrix
 ROOT=os.getcwd()
 OUT=os.path.join(ROOT,'Assets/Wildlife/Strud/Art')
 os.makedirs(OUT,exist_ok=True)
+STAGE=os.environ.get('STRUD_STAGE')
+BLEND_DEST=os.path.join(STAGE,'Strud_Authored.blend') if STAGE else os.path.join(ROOT,'Tools/Wildlife/Strud_Authored.blend')
+FBX_DEST=os.path.join(STAGE,'Strud_Rigged.fbx') if STAGE else os.path.join(OUT,'Strud_Rigged.fbx')
+REVIEW_DEST=os.path.join(STAGE,'StrudReview') if STAGE else os.path.join(ROOT,'Temp/StrudReview')
+STAGE=STAGE or ROOT
+os.makedirs(STAGE,exist_ok=True)
+os.makedirs(REVIEW_DEST,exist_ok=True)
 bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
 bpy.ops.import_scene.gltf(filepath=os.path.join(ROOT,'Assets/MyAssets/mesh/Wildlife/Strud/Strud.glb'))
 mesh=next(o for o in bpy.context.scene.objects if o.type=='MESH')
@@ -80,7 +87,9 @@ mod.show_viewport=False
 mesh.parent=rig
 for im in bpy.data.images:
  if im.size[0]>0 and im.type=='IMAGE':
-  im.filepath_raw=os.path.join(OUT,'Strud_BaseColor.png');im.file_format='PNG';im.save()
+  texture=os.path.join(OUT,'Strud_BaseColor.png')
+  if not os.path.exists(texture):
+   im.filepath_raw=texture;im.file_format='PNG';im.save()
 rig.animation_data_create()
 scene=bpy.context.scene;scene.render.fps=30
 rest={n:b.matrix_local.copy() for n,b in rig.data.bones.items()}
@@ -114,16 +123,18 @@ for name,duration,speed in clips:
   pelvis.matrix=Matrix.Translation(Vector((0,0,-.16+.016*math.sin(tau*2 if speed else tau))))@rest['Pelvis']
   if name=='Graze':
    amount=math.sin(math.pi*min(1,phase/.25)/2) if phase<.25 else (math.sin(math.pi*min(1,(1-phase)/.25)/2) if phase>.75 else 1)
-   for bn,angle in [('Chest',.18),('Neck01',.7),('Neck02',.30),('Head',-.16)]:
+   for bn,angle in [('Chest',.18),('Neck01',.7),('Neck02',.30),('Head',-.42+.06*math.sin(tau*2))]:
     rig.pose.bones[bn].rotation_quaternion=__import__('mathutils').Quaternion((1,0,0),angle*amount)
+   rig.pose.bones['Head'].rotation_quaternion=__import__('mathutils').Quaternion((0,0,1),.08*math.sin(tau)*amount)@rig.pose.bones['Head'].rotation_quaternion
   elif name=='Alert':
-   for bn,angle in [('Chest',-.08),('Neck01',-.38),('Neck02',-.46),('Head',.14)]:
+   for bn,angle in [('Chest',-.08),('Neck01',-.38),('Neck02',-.46),('Head',.34)]:
     rig.pose.bones[bn].rotation_quaternion=__import__('mathutils').Quaternion((1,0,0),angle*math.sin(math.pi*phase))
    rig.pose.bones['Head'].rotation_quaternion=__import__('mathutils').Quaternion((0,0,1),.14*math.sin(tau))@rig.pose.bones['Head'].rotation_quaternion
   elif name=='Idle':
    reach=max(0,math.sin(tau))
    for bn,angle in [('Neck01',.16),('Neck02',-.24),('Head',.08)]:
     rig.pose.bones[bn].rotation_quaternion=__import__('mathutils').Quaternion((1,0,0),angle*reach)
+   rig.pose.bones['Head'].rotation_quaternion=__import__('mathutils').Quaternion((0,0,1),.055*math.sin(tau*2))@rig.pose.bones['Head'].rotation_quaternion
   elif name=='Hit':pelvis.location.x=.12*math.sin(math.pi*phase)*(1-phase)
   elif name=='Death':
    ease=smooth(0,.85,phase)
@@ -153,12 +164,13 @@ for name,duration,speed in clips:
 rig.animation_data.action=bpy.data.actions['Idle'];scene.frame_set(0)
 mod.show_viewport=True
 bpy.ops.object.select_all(action='DESELECT');rig.select_set(True);mesh.select_set(True);bpy.context.view_layer.objects.active=rig
-bpy.ops.wm.save_as_mainfile(filepath=os.path.join(ROOT,'Tools/Wildlife/Strud_Authored.blend'))
-bpy.ops.export_scene.fbx(filepath=os.path.join(OUT,'Strud_Rigged.fbx'),use_selection=True,object_types={'ARMATURE','MESH'},add_leaf_bones=False,axis_forward='-Z',axis_up='Y',bake_anim=True,bake_anim_use_all_actions=True,bake_anim_use_nla_strips=False,bake_anim_simplify_factor=0,path_mode='RELATIVE')
+bpy.context.preferences.filepaths.save_version=0
+bpy.ops.wm.save_as_mainfile(filepath=BLEND_DEST)
+bpy.ops.export_scene.fbx(filepath=FBX_DEST,use_selection=True,object_types={'ARMATURE','MESH'},add_leaf_bones=False,axis_forward='-Z',axis_up='Y',bake_anim=True,bake_anim_use_all_actions=True,bake_anim_use_nla_strips=False,bake_anim_simplify_factor=0,path_mode='RELATIVE')
 # Visual evidence of actual skinned deformation at four walk phases.
 scene.render.engine='BLENDER_WORKBENCH';scene.render.resolution_x=1000;scene.render.resolution_y=750;scene.render.resolution_percentage=100
 bpy.ops.object.camera_add(location=(8,-10,5));cam=bpy.context.object;cam.rotation_euler=(Vector((0,0,1.9))-cam.location).to_track_quat('-Z','Y').to_euler();cam.data.type='ORTHO';cam.data.ortho_scale=7.5;scene.camera=cam
 rig.animation_data.action=bpy.data.actions['Walk']
 for f in [0,12,24,36]:
- scene.frame_set(f);scene.render.filepath=os.path.join(ROOT,'Temp/StrudReview/walk_%02d.png'%f);bpy.ops.render.render(write_still=True)
+ scene.frame_set(f);scene.render.filepath=os.path.join(REVIEW_DEST,'walk_%02d.png'%f);bpy.ops.render.render(write_still=True)
 print('STRUD_BUILD_COMPLETE',flush=True)
