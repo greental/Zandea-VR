@@ -523,12 +523,14 @@ namespace MyAssets.PlanetTerrain
                 collider.terrainData = terrain.terrainData;
         }
 
-        public void UseInstancedTerrainData(TerrainData terrainData)
+        public void UseInstancedTerrainData(TerrainData terrainData, Action<TerrainData> prepare = null)
         {
             DestroyInstancedTerrainData();
             instancedTerrainData = terrainData != null ? UnityEngine.Object.Instantiate(terrainData) : null;
             if (instancedTerrainData != null)
                 instancedTerrainData.name = terrainData.name + "_RuntimeInstance";
+
+            if (instancedTerrainData != null) prepare?.Invoke(instancedTerrainData);
 
             terrain.terrainData = instancedTerrainData != null ? instancedTerrainData : disposableTerrainData;
             if (collider != null)
@@ -600,6 +602,8 @@ namespace MyAssets.PlanetTerrain
         }
 
         public event Action<PlanetTileCoord, PlanetTileCoord, PlanetTileCoord> CenterTileChanged;
+        // Shape private runtime data before assigning it to the visible terrain/collider.
+        public event Action<PlanetTileCoord, TerrainData> PrepareTerrainTile;
 
         public PlanetTileCoord CenterTile => centerTile;
         public Transform Target => target;
@@ -907,7 +911,7 @@ namespace MyAssets.PlanetTerrain
 
             if (authoredTileSet != null && authoredTileSet.TryGetTerrainData(coord, out TerrainData authoredData, out PlanetTileCoord resolvedCoord))
             {
-                tile.UseInstancedTerrainData(authoredData);
+                tile.UseInstancedTerrainData(authoredData, data => PrepareTerrainTile?.Invoke(coord, data));
                 LogTiming($"Tile {coord}: using baked TerrainData '{authoredData.name}' from wrapped coord {resolvedCoord}");
                 return;
             }
@@ -924,6 +928,7 @@ namespace MyAssets.PlanetTerrain
             tile.UseDisposableTerrainData();
             Stopwatch sw = Stopwatch.StartNew();
             tile.ApplyHeights(build.heights);
+            PrepareTerrainTile?.Invoke(coord, tile.disposableTerrainData);
             ForgetRelaxedHeightSeams(tile.disposableTerrainData);
             sw.Stop();
             LogTiming($"Tile {coord}: generated debug fallback height-only {heightmapResolution}x{heightmapResolution} in {build.generationMilliseconds:0.00} ms, applied in {sw.Elapsed.TotalMilliseconds:0.00} ms");

@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bde0e0749245fb49b2dde3c7d3feba9, type: 3}
+  m_Name: BanditOutpost
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.POI.BanditOutpostDefinition
+  seed: 4301
+  buildingCount: 5
+  dimensions: {x: 88, y: 80}
+  mainBuilding:
+    prefab: {fileID: 1570540408999375077, guid: 603602947433c174594acaea86c5d0da, type: 3}
+    size: {x: 18, y: 7.1196494, z: 17.336037}
+    center: {x: 0, y: 3.5598247, z: 0.0022621155}
+    entranceYaw: 0
+  buildings:
+  - prefab: {fileID: 3074391669003351261, guid: 1312e97b41bc3864abe0383dcb522f5d, type: 3}
+    size: {x: 10.001366, y: 6.206012, z: 9.83127}
+    center: {x: 0.0006828308, y: 3.103006, z: 0.00076913834}
+    entranceYaw: 0
+  - prefab: {fileID: 3601137619785369024, guid: 11645416e5a650c46a070446499cb369, type: 3}
+    size: {x: 10.000172, y: 6.903076, z: 9.600819}
+    center: {x: -0.00008583069, y: 3.4513452, z: 0}
+    entranceYaw: 0
+  - prefab: {fileID: 745522359039417279, guid: 3f4d84f5d4ddab7439775dcface4e776, type: 3}
+    size: {x: 10.005173, y: 5.3595734, z: 9.463788}
+    center: {x: 0.0025863647, y: 2.6797867, z: 0.0012640953}
+    entranceYaw: 0
+  - prefab: {fileID: 8095601518117759604, guid: 05fb17d15d3f4ac4199dbb8a9fb13e97, type: 3}
+    size: {x: 6.000547, y: 5.116597, z: 5.278122}
+    center: {x: 0.000187397, y: 2.5582986, z: 0.00007271767}
+    entranceYaw: 0
+  shades:
+  - prefab: {fileID: 7034866191033022436, guid: b6ca86c0241a67c4385e7c857dab8318, type: 3}
+    size: {x: 10.000901, y: 6.9225607, z: 9.985607}
+    center: {x: -0.0004506111, y: 3.4526563, z: 0}
+    entranceYaw: 0
+  - prefab: {fileID: 5862920665941261499, guid: 85a624af36e6d524a87b79674e17ea79, type: 3}
+    size: {x: 10.001759, y: 5.6895895, z: 9.296568}
+    center: {x: -0.0008792877, y: 2.8447948, z: 0.0004553795}
+    entranceYaw: 0
+  - prefab: {fileID: 8029893201855278525, guid: 6b38caff39ad9f24dad15fc2585037a6, type: 3}
+    size: {x: 10.003747, y: 6.335182, z: 8.059108}
+    center: {x: -0.0018734932, y: 3.167591, z: 0.0025086403}
+    entranceYaw: 0
+  - prefab: {fileID: 5421734770961520862, guid: b8afcfeda7d14c84bbdc4ee736ef53dd, type: 3}
+    size: {x: 10.004269, y: 5.6602225, z: 8.117957}
+    center: {x: 0.0021343231, y: 2.8301113, z: -0.004098892}
+    entranceYaw: 0
+  wall:
+    prefab: {fileID: 968138433381925257, guid: 952b53d947899b247b9498f039e4b33d, type: 3}
+    size: {x: 6.3999996, y: 3.4292421, z: 1.7561284}
+    center: {x: 0, y: 1.7146212, z: 0.000016868114}
+    entranceYaw: 0
+  gate:
+    prefab: {fileID: 2928346546755526627, guid: d3cf328129c4b5c4386813ba3b31c7b0, type: 3}
+    size: {x: 10.000921, y: 6.814436, z: 1.6748105}
+    center: {x: -0.0004606247, y: 3.407218, z: -0.0024067163}
+    entranceYaw: 0
+  tower:
+    prefab: {fileID: 3800016416913280214, guid: 62b55fc17dfd86d42806a475a1b4b1bf, type: 3}
+    size: {x: 6.553217, y: 10.002935, z: 6.527705}
+    center: {x: -0.0013504028, y: 4.9985323, z: 0}
+    entranceYaw: 0
+  bandit: {fileID: 1761164650813247814, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+  gateQuarterTurns: 0
+  pathWidth: 5
+  approachLength: 24
+  blendDistance: 40
+  maximumHeightRange: 12
+  maximumSiteSlope: 20
+  loadDistance: 550
+  unloadDistance: 700
+  patrolWalkSpeed: 1.5

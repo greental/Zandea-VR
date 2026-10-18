@@ -3419,6 +3419,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 82b9de3ca9f4e324982d530f49b2a929, type: 3}
+--- !u!114 &1471799586 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8325304930996162505, guid: 82b9de3ca9f4e324982d530f49b2a929, type: 3}
+  m_PrefabInstance: {fileID: 1471799585}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f35119dc9f1c7df4ea97c514b65b44be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: MyAssets::MyAssets.PlanetTerrain.PlanetTerrainTreadmill
 --- !u!4 &1476764628 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5130481388736053893, guid: eb15f48c6ebfaf64cac35d35270c40ab, type: 3}
@@ -5561,6 +5572,59 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3540040177447433948, guid: eb15f48c6ebfaf64cac35d35270c40ab, type: 3}
   m_PrefabInstance: {fileID: 1674564562}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2040502127
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2040502129}
+  - component: {fileID: 2040502128}
+  m_Layer: 0
+  m_Name: Zandea Bandit Outpost
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2040502128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040502127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f3ae368e3164134c84a1944b25f6b4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.POI.BanditOutpost
+  definition: {fileID: 11400000, guid: 6565bea3f6c6f56419a4aadeed3e416f, type: 2}
+  treadmill: {fileID: 1471799586}
+  poiId: zandea.frontier.outpost.1
+  seed: 4301
+  stableSite: {x: 834, y: -360.346}
+  siteHeight: 677.47906
+  siteSelected: 1
+  drawGizmos: 1
+  stream: 1
+--- !u!4 &2040502129
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040502127}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2042667888 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2334132467080717449, guid: 9e108bba7a1d99c49a36a1b7a574d2df, type: 3}
@@ -7751,3 +7815,4 @@ SceneRoots:
   - {fileID: 2004460015}
   - {fileID: 1674564562}
   - {fileID: 564713015}
+  - {fileID: 2040502129}

@@ -1,0 +1,13 @@
+# Bandit outpost validation — 18 October 2026
+
+Unity 6.2.8f1 compiled the final scripts and imported the definition, test scene and Main scene integration without C# errors.
+
+Editor checks: 100 seeds with the configured five-building outpost, plus 200 seeds across four/five buildings and all gate orientations. Each had the required structure counts, measured prefab clearance, clear reserved paths and reproducible placements. A separate terrain stamp check used four neighboring heightmaps and verified exact foundation height, matching boundary samples and identical results on regeneration.
+
+Focused `BanditOutpostTest.unity` Play Mode: structures load; exactly six conscious bandits start on NavMesh; an entrance guard detects and engages a nearby camera; the external gate path reaches the courtyard; stable-coordinate exclusion queries work; existing knockout and death transitions work; unloading/reloading retains the same NPC instances and states; consecutive floating-origin shifts retain structure position and living agent navigation. The test explicitly ended after passing.
+
+Main scene Play Mode: a terrain observer moved to the stored outpost site. The outpost loaded with six bandits on navigation, and the stamped TerrainCollider matched the foundation height. Moving twelve tile lengths away unloaded the structures; returning after tile recycling restored the same layout, surviving agents' navigation and the death state of a bandit killed before leaving. The test explicitly ended after passing. Main's site is stored at stable treadmill coordinates `(834, -360.346)` in the starting surface frame. Its displayed Unity position changes with the treadmill frame and floating origin.
+
+Unity renders were reviewed from overhead and from outside the gate in Main. The textured AdobeMain building replaced a white-rendering imported variant. The wall line, open gate, tower, four smaller buildings, six canopy clusters and central walking space are visible. The gate view shows the two entrance guards and a clear passage. Main's current desert lighting is very dark at that camera time of day.
+
+Still requires hands-on headset verification: player locomotion through the gate, physical melee hit delivery and reactions, close-range combat among canopy supports and building entrances, and performance at the user's target VR frame rate. The automated tests verify existing engagement, navigation and damage state transitions but do not substitute for wielding a VR weapon. Session encounter state is not serialized to disk. A new surface-frame entry at a different planet location can remap the treadmill's local origin; persistent planet-wide geodetic POI coordinates are outside this slice.

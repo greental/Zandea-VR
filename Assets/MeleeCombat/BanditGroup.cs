@@ -8,7 +8,7 @@ using UnityEngine.AI;
 namespace KenshiVR.MeleeCombat
 {
     /// <summary>Spawns a patrol around this object. The first living bandit leads.</summary>
-    public sealed class BanditGroup : MonoBehaviour
+    public sealed class BanditGroup : MonoBehaviour, MyAssets.Planet.IFloatingOriginListener
     {
         [Header("Spawn")]
         public StarvingBandit banditPrefab;
@@ -38,6 +38,16 @@ namespace KenshiVR.MeleeCombat
         [Min(0.1f)] public float followDistance = 2f;
         [Min(0.1f)] public float waypointTolerance = 1.5f;
         public Vector2 pauseBetweenWaypoints = new Vector2(1f, 3f);
+        [Tooltip("Optional validated settlement route. Empty retains roaming patrol behavior.")]
+        public Transform[] patrolPoints;
+        int patrolPointIndex;
+
+        public void OnOriginShift(Vector3 shift)
+        {
+            home -= shift;
+            waypoint -= shift;
+        }
+
 
         [Header("Detection")]
         public Transform player;
@@ -252,6 +262,19 @@ namespace KenshiVR.MeleeCombat
 
         void PickWaypoint()
         {
+            if (patrolPoints != null && patrolPoints.Length > 0)
+            {
+                for (int i = 0; i < patrolPoints.Length; i++)
+                {
+                    var point = patrolPoints[patrolPointIndex++ % patrolPoints.Length];
+                    if (!point || !leader.agent || !leader.agent.isOnNavMesh) continue;
+                    var route = new NavMeshPath();
+                    if (leader.agent.CalculatePath(point.position, route) && route.status == NavMeshPathStatus.PathComplete)
+                    { waypoint = point.position; return; }
+                }
+                waypoint = leader.transform.position;
+                return;
+            }
             for (int attempt = 0; attempt < 12; attempt++)
             {
                 Vector2 offset = Random.insideUnitCircle * patrolRadius;
