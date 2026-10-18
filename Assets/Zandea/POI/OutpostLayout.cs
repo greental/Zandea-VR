@@ -88,7 +88,7 @@ namespace Zandea.POI
                 new Vector2(-7, 1), new Vector2(7, 5), new Vector2(-10, -18), new Vector2(side * (x - 9), -z + 18) });
             l.patrol.AddRange(new[] { new Vector2(0, -z + 6), new Vector2(0, -16), new Vector2(-7, 0), new Vector2(7, 7), new Vector2(0, 17) });
             l.Reserve(ReservationKind.FutureProp, "Storage", new Vector2(-side * (x - 9), -z + 11), new Vector2(7, 8));
-            l.Reserve(ReservationKind.FutureProp, "Courtyard social", new Vector2(8, -9), new Vector2(3, 2));
+            l.Reserve(ReservationKind.FutureProp, "Courtyard social", new Vector2(15, -11), new Vector2(5, 4));
             l.Reserve(ReservationKind.FutureProp, "Guard post / future ladder", new Vector2(side * (x - 9), -z + 15), new Vector2(3, 2));
             l.Reserve(ReservationKind.FutureProp, "Perimeter clutter", new Vector2(-x + 3, -5), new Vector2(2, 4));
             return l;

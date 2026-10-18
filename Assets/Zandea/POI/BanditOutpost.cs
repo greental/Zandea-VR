@@ -6,6 +6,7 @@ using MyAssets.PlanetTerrain;
 using ScavengerNPC;
 using UnityEngine;
 using UnityEngine.AI;
+using Zandea.Props;
 
 namespace Zandea.POI
 {
@@ -29,6 +30,7 @@ namespace Zandea.POI
         readonly HashSet<PhysicalMeleeWeapon> encounterWeapons = new HashSet<PhysicalMeleeWeapon>();
         readonly Dictionary<StarvingBandit, Vector3> shiftedAgents = new Dictionary<StarvingBandit, Vector3>();
         GameObject structures, encounter;
+        OutpostPropPopulation propPopulation;
         NavMeshData navigation;
         NavMeshDataInstance navigationInstance;
         bool failed, shifted;
@@ -53,13 +55,49 @@ namespace Zandea.POI
             {
                 EnsureLayout();
                 if (!treadmill || !siteSelected) throw new InvalidOperationException("Select and validate an outpost site in the editor before playing.");
+                propPopulation = GetComponent<OutpostPropPopulation>();
+                if (!propPopulation) propPopulation = gameObject.AddComponent<OutpostPropPopulation>();
                 treadmill.PrepareTerrainTile += Prepare;
+                treadmill.CenterTileChanged += OnCenterTileChanged;
                 var preview = transform.Find("Layout Preview");
-                if (preview) preview.gameObject.SetActive(false);
+                if (preview)
+                {
+                    HideSceneAuthoringProps(preview.position);
+                    preview.gameObject.SetActive(false);
+                }
             }
             catch (Exception e) { Fail(e); }
         }
         void Prepare(PlanetTileCoord tile, TerrainData data) => OutpostTerrain.Stamp(treadmill, definition, stableSite, siteHeight, tile, data);
+        void HideSceneAuthoringProps(Vector3 previewCenter)
+        {
+            if (gameObject.scene.path != "Assets/Main.unity") return;
+            // The hand-arranged Main scene samples sit at the editor preview's
+            // original frame. Runtime surface entry uses a different tile frame.
+            // Keep those samples visible for editing, but use the stable population
+            // at runtime so duplicate rigidbodies cannot fall through recycled land.
+            foreach (var sceneRoot in gameObject.scene.GetRootGameObjects())
+            {
+                if (sceneRoot == gameObject) continue;
+                string name = sceneRoot.name;
+                if (!(name.StartsWith("pot") || name.StartsWith("sack") || name.StartsWith("barrel") ||
+                      name.StartsWith("crate") || name.StartsWith("chest") || name.StartsWith("stool") ||
+                      name.StartsWith("table") || name.StartsWith("rack") || name.StartsWith("statue"))) continue;
+                var delta = sceneRoot.transform.position - previewCenter;
+                if (new Vector2(delta.x, delta.z).magnitude < 80 && Mathf.Abs(delta.y) < 20)
+                    sceneRoot.SetActive(false);
+            }
+        }
+        void OnCenterTileChanged(PlanetTileCoord previous, PlanetTileCoord current, PlanetTileCoord delta)
+        {
+            // The treadmill can recycle the ground beneath this outpost in its Update.
+            // Retire its physics objects in the same frame, before the next physics step.
+            if (!structures || !stream || !treadmill.Target) return;
+            var target = treadmill.Target.position;
+            var center = Center;
+            if (Vector2.Distance(new Vector2(target.x, target.z), new Vector2(center.x, center.z)) > definition.unloadDistance)
+                Unload();
+        }
         void Update()
         {
             if (failed || !treadmill || !treadmill.Target || Time.time < nextCheck) return;
@@ -83,6 +121,9 @@ namespace Zandea.POI
                 bool found = false;
                 foreach (var terrain in Terrain.activeTerrains)
                 {
+                    if (!terrain || !terrain.enabled) continue;
+                    var terrainCollider = terrain.GetComponent<TerrainCollider>();
+                    if (!terrainCollider || !terrainCollider.enabled || terrainCollider.terrainData != terrain.terrainData) continue;
                     var o = terrain.transform.position; var s = terrain.terrainData.size;
                     if (world.x >= o.x && world.x <= o.x + s.x && world.z >= o.z && world.z <= o.z + s.z &&
                         Mathf.Abs(terrain.SampleHeight(world) + o.y - Center.y) < .2f) { found = true; break; }
@@ -112,6 +153,7 @@ namespace Zandea.POI
         void Load()
         {
             structures = InstantiateStructures("Bandit Outpost Structures");
+            propPopulation.Load(this);
             Physics.SyncTransforms();
             BuildNavigation();
             // Validate the complete encounter before allowing any NPC Awake/Start.
@@ -212,6 +254,7 @@ namespace Zandea.POI
         }
         void Unload()
         {
+            if (propPopulation) propPopulation.Unload();
             // Cache only six inactive NPCs, preserving complete injury/equipment/ragdoll state.
             foreach (var weapon in encounterWeapons)
                 if (weapon && encounter && weapon.State == PhysicalMeleeWeapon.HoldState.World &&
@@ -227,7 +270,11 @@ namespace Zandea.POI
         void Fail(Exception e) { failed = true; Unload(); Debug.LogError("[Zandea Outpost] " + e, this); }
         void OnDestroy()
         {
-            if (treadmill) treadmill.PrepareTerrainTile -= Prepare;
+            if (treadmill)
+            {
+                treadmill.PrepareTerrainTile -= Prepare;
+                treadmill.CenterTileChanged -= OnCenterTileChanged;
+            }
             if (navigationInstance.valid) navigationInstance.Remove();
             if (navigation) Destroy(navigation);
         }

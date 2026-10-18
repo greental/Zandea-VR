@@ -30,6 +30,12 @@ namespace KenshiVR.MeleeCombat
             instanceId = Guid.NewGuid().ToString("N");
             definition = item;
         }
+        // POI-created items keep the same identity when their physical presentation streams.
+        public NpcItemInstance(NpcItemDefinition item, string stableId)
+        {
+            instanceId = string.IsNullOrEmpty(stableId) ? Guid.NewGuid().ToString("N") : stableId;
+            definition = item;
+        }
         internal void SetLocation(NpcInventory inventory, NpcEquipmentSlot slot, string container, GameObject physical)
         { owner = inventory; equippedSlot = slot; containerId = container; worldObject = physical; }
         internal bool AddContained(NpcItemInstance item)

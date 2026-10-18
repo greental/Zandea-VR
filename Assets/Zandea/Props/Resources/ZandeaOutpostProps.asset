@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b55e5c29b4421e44e9ec815c97dd80d0, type: 3}
+  m_Name: ZandeaOutpostProps
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.OutpostPropDefinition
+  ceramicPot: {fileID: 3147512537380643691, guid: 8adec3f17817cf04482df01cb52cdb48, type: 3}
+  woodenStool: {fileID: 3515196894864384016, guid: 4840c59d9264e50408fc547ff82d4350, type: 3}
+  chest: {fileID: 8978292108596846941, guid: ff3d375568468b147b356d387dde2070, type: 3}
+  barrel: {fileID: 4637810615792929325, guid: 08da4c53596c23949b3ae20656e4be57, type: 3}
+  weaponRack: {fileID: 4164144566495051058, guid: c345889eaeda3cd45a83ff1ad65d2a96, type: 3}
+  crate: {fileID: 8092746068857148878, guid: 98c47f0f93292704487bb7e64b9ef120, type: 3}
+  sack: {fileID: 3570368607654842983, guid: 8b056f3dc2ffa894fb93f669c027f5e1, type: 3}
+  table: {fileID: 5126918192941887461, guid: cf828c8bcb4b53d4fb9062b99beae71b, type: 3}
+  statue: {fileID: 2571906202327579669, guid: a5f449f10bdc4c648938fc45b11ccbc9, type: 3}
+  extraPotsPerCanopy: 1
+  potScale: 2
+  sackScale: 1.5
+  crateScale: 1.5
+  drawPlacementGizmos: 1
