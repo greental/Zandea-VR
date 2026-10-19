@@ -19,15 +19,15 @@ def guid(path: Path) -> str:
 
 
 def main() -> None:
-    tile_set = ASSETS / "MyAssets/Terrain/PlanetTerrain/TileSets/terrain_28798d35_TileSet.asset"
+    tile_set = ASSETS / "PlanetPopulation/Generated/Planet_42_0336eccd/PlanetTileSet.asset"
     treadmill = ASSETS / "MyAssets/prefabs/Terrain/Generated Planet Treadmill 42.prefab"
     config = treadmill.read_text()
     reference = re.search(r"^  authoredTileSet: \{fileID: 11400000, guid: ([0-9a-f]{32})", config, re.MULTILINE)
     assert reference and reference.group(1) == guid(tile_set.with_suffix(".asset.meta")), "Treadmill TileSet reference is broken"
-    assert "  generateMissingRuntimeTiles: 1" in config, "Missing baked tiles would be hidden"
+    assert "  generateMissingRuntimeTiles: 0" in config, "Unexpected runtime fallback"
     radius = int(re.search(r"^  visibleTileRadius: (\d+)$", config, re.MULTILINE).group(1))
     authored = len(re.findall(r"^  - coord:", tile_set.read_text(), re.MULTILINE))
-    assert authored == 9 and radius >= 1
+    assert authored == (radius * 2 + 1) ** 2, "Authored window has missing tiles"
 
     prefabs = ASSETS / "Zandea/Props/Prefabs"
     expected = {"pot", "stool", "chest", "barrel", "rack", "crate", "sack", "table", "statue"}
@@ -41,7 +41,7 @@ def main() -> None:
     assert "m_Name: Zandea Bandit Outpost" in scene
     authored_props = sum(scene.count(guid(prefabs / f"{name}.prefab.meta")) for name in expected)
     assert authored_props > 0, "Main scene's authored prop references are missing"
-    print(f"PASS: valid TileSet GUID, {authored} authored tiles, {(radius * 2 + 1) ** 2}-tile window with fallback")
+    print(f"PASS: valid TileSet GUID, {authored} authored tiles covering the {(radius * 2 + 1) ** 2}-tile window")
     print("PASS: nine interaction prefabs, three offline fracture prefabs, Main authored reference")
     print("Unity Play Mode and Quest 2 interaction/performance still require manual checks")
 

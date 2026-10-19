@@ -2692,9 +2692,9 @@ MonoBehaviour:
   - {fileID: 8574412962073106934, guid: 6bd9b0df921945e479c1ee06357b9777, type: 2}
   - {fileID: 8574412962073106934, guid: 8ee423928f0411f43b0f26d31fcc2c39, type: 2}
   - {fileID: 8574412962073106934, guid: bf182a8e38d175e4d890a9dd1866db21, type: 2}
-  visibleTileRadius: 2
-  authoredTileSet: {fileID: 11400000, guid: 76114d48c79f5114a8fbde5e35e19b8e, type: 2}
-  generateMissingRuntimeTiles: 1
+  visibleTileRadius: 5
+  authoredTileSet: {fileID: 11400000, guid: cc7b0036ceca0eb4b88878e1fe5ea9ba, type: 2}
+  generateMissingRuntimeTiles: 0
   relaxRuntimeHeightSeams: 1
   heightProvider:
     terrainProfile: 0

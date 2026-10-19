@@ -53,11 +53,17 @@ namespace Zandea.Props.Editor
                     probe.position = poi.Center + poi.ApproachDirection * 55 + Vector3.up * 1.7f;
                     poi.treadmill.ConfigureTarget(probe);
                     SessionState.SetInt("ZandeaPropMainStep", 2);
+                    SessionState.SetFloat("ZandeaPropLoadDeadline", (float)(EditorApplication.timeSinceStartup + 40));
                     next += 8;
                 }
                 else if (step == 2)
                 {
-                    Check(poi.IsLoaded && poi.Members.Count == 6, "Main outpost and six bandits load");
+                    if ((!poi.IsLoaded || poi.Members.Count != 6) &&
+                        EditorApplication.timeSinceStartup < SessionState.GetFloat("ZandeaPropLoadDeadline", 0)) return;
+                    Check(poi.IsLoaded && poi.Members.Count == 6,
+                        $"Main outpost and six bandits load (loaded={poi.IsLoaded}, members={poi.Members.Count}, " +
+                        $"target={poi.treadmill.Target.position}, center={poi.Center}, tile={poi.treadmill.CenterTile}, " +
+                        $"activeTerrains={Terrain.activeTerrains.Count(t => t && t.enabled)})");
                     var population = poi.GetComponent<OutpostPropPopulation>();
                     Check(population && population.Instances.Count >= 12, "contextual prop population appears");
                     var objects = population.Instances.Where(i => i).ToArray();
