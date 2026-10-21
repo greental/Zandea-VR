@@ -109,6 +109,44 @@ namespace Zandea.FriendlyNPC.Editor
             Debug.Log("Built Daran prefab, counter, purse, dialogue and safe test scene at " + scenePath);
         }
 
+        public static void BuildAndValidate()
+        {
+            Build();
+            var scene = SceneManager.GetActiveScene();
+            var roots = scene.GetRootGameObjects();
+            T Find<T>() where T : Component
+            {
+                foreach (var root in roots)
+                {
+                    var found = root.GetComponentInChildren<T>(true);
+                    if (found) return found;
+                }
+                return null;
+            }
+            var npc = Find<FriendlyNpcInteraction>();
+            var counter = Find<VendorCounter>();
+            var utilities = Find<BackpackUtilityAttachments>();
+            var palm = Find<PalmDialogueChoices>();
+            var starter = Find<StarterBackpackGoods>();
+            var pose = Find<MerchantHandshakePose>();
+            if (!npc || !npc.brain || npc.brain.hostileToPlayer || !npc.face ||
+                !npc.mouthAudio || !npc.conversationTarget || !npc.dialogue || npc.dialogue.nodes.Count < 10 ||
+                !counter || counter.merchant != npc || !counter.configuration ||
+                !counter.buyArea || !counter.sellArea || !counter.paymentSpot ||
+                !counter.handshake || !counter.payoutPouchPrefab || !counter.priceLabelPrefab ||
+                !utilities || !utilities.personalPursePrefab || !palm || !starter || !pose)
+                throw new System.InvalidOperationException("Daran test scene validation failed: incomplete NPC, trade, or player wiring");
+            if (!palm.leftHand || !palm.rightHand)
+                throw new System.InvalidOperationException("Palm dialogue has no two tracked controller interactors");
+            int stockCount = 0;
+            foreach (var root in roots)
+                foreach (var item in root.GetComponentsInChildren<TradeItem>(true))
+                    if (item.ownerId == counter.configuration.vendorId) stockCount++;
+            if (stockCount < 2)
+                throw new System.InvalidOperationException("Fewer than two physical merchant stock items were built");
+            Debug.Log("Daran merchant Edit Mode wiring validation passed. Actual dialogue, trading and ergonomics require Play Mode and headset testing.");
+        }
+
         static T Asset<T>(string name) where T : ScriptableObject
         {
             string path = Folder + "/" + name + ".asset";
