@@ -42,6 +42,12 @@ namespace Zandea.FriendlyNPC.Editor
             dialogue.entryNodeId = "greeting_001";
             if (dialogue.nodes.Count == 0) AuthorDialogue(dialogue);
             EnsureTradeContextResponses(dialogue);
+            foreach (var id in new[] { "greeting_001", "trade_offer_001" })
+            {
+                var node = dialogue.Find(id);
+                if (node != null && string.IsNullOrEmpty(node.gestureId))
+                { node.gestureId = "nod"; EditorUtility.SetDirty(dialogue); }
+            }
             var vendor = Asset<VendorConfiguration>("DaranVendor");
             vendor.vendorId = "merchant-daran";
             vendor.startingCats = 400;
