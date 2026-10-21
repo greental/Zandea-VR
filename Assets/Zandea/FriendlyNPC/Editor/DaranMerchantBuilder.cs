@@ -460,9 +460,17 @@ namespace Zandea.FriendlyNPC.Editor
             root.transform.SetParent(player.transform, false);
             var choices = root.AddComponent<PalmDialogueChoices>();
             var hands = player.GetComponentsInChildren<PlayerMartialHand>(true);
+            var body = player.GetComponentInChildren<VRBodyController>(true);
             foreach (var hand in hands)
             {
                 var interactor = hand.interactor ? hand.interactor : hand.GetComponentInChildren<XRDirectInteractor>(true);
+                if (!interactor && body && body.xrOrigin)
+                {
+                    var controller = hand.left ? body.leftController : body.rightController;
+                    foreach (var candidate in body.xrOrigin.GetComponentsInChildren<XRDirectInteractor>(true))
+                        if (controller && (candidate.transform == controller || candidate.transform.IsChildOf(controller)))
+                        { interactor = candidate; break; }
+                }
                 if (hand.left) { choices.leftHand = interactor; choices.leftPalm = hand.transform; }
                 else { choices.rightHand = interactor; choices.rightPalm = hand.transform; }
             }

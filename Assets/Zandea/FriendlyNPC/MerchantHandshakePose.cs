@@ -49,6 +49,8 @@ namespace Zandea.FriendlyNPC
         void LateUpdate()
         {
             if (!merchant || !head) return;
+            if (merchant.health && merchant.health.State != NpcConsciousness.Conscious)
+            { weight = 0f; return; }
             float target = handshake && handshake.IsArmed && merchant.IsTrading ? 1f : 0f;
             weight = Mathf.MoveTowards(weight, target, blendSpeed * Time.deltaTime);
             if (merchant.IsConversing && head && merchant.playerHead)
