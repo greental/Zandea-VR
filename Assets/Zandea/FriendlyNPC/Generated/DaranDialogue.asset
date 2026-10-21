@@ -1,0 +1,272 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b29b4dcb42bdd5840a7f570c1dd0e8fe, type: 3}
+  m_Name: DaranDialogue
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.FriendlyNPC.DialogueDefinition
+  npcId: merchant-daran
+  defaultVoice: {fileID: 11400000, guid: 134a3782190060145912745c02e14899, type: 2}
+  entryNodeId: greeting_001
+  nodes:
+  - id: greeting_001
+    speakerId: merchant-daran
+    text: Looking to trade, traveler? Or are you looking for work?
+    voiceOverride: {fileID: 0}
+    audio: {fileID: 0}
+    expression: 1
+    emotionalDeliveryId: 
+    gestureId: nod
+    conditionId: 
+    onEnter: 0
+    endOnComplete: 0
+    nextNodeId: 
+    responses:
+    - text: Show me your wares.
+      nextNodeId: trade_offer_001
+      action: 1
+      conditionId: 
+    - text: Any work available?
+      nextNodeId: work_001
+      action: 0
+      conditionId: 
+    - text: Tell me about this place.
+      nextNodeId: place_001
+      action: 0
+      conditionId: 
+    - text: Goodbye.
+      nextNodeId: farewell_001
+      action: 0
+      conditionId: 
+    generatedFingerprint: 
+    mouthEnvelope: []
+  - id: trade_offer_001
+    speakerId: merchant-daran
+    text: Put your goods on the counter. Let's see what they're worth.
+    voiceOverride: {fileID: 0}
+    audio: {fileID: 0}
+    expression: 0
+    emotionalDeliveryId: 
+    gestureId: nod
+    conditionId: 
+    onEnter: 0
+    endOnComplete: 0
+    nextNodeId: 
+    responses:
+    - text: I'll look around.
+      nextNodeId: trade_offer_001
+      action: 0
+      conditionId: 
+    - text: That's all for now.
+      nextNodeId: farewell_001
+      action: 0
+      conditionId: 
+    generatedFingerprint: 
+    mouthEnvelope: []
+  - id: work_001
+    speakerId: merchant-daran
+    text: A caravan vanished near the old toll station. I might pay for a useful
+      answer.
+    voiceOverride: {fileID: 0}
+    audio: {fileID: 0}
+    expression: 3
+    emotionalDeliveryId: 
+    gestureId: 
+    conditionId: 
+    onEnter: 2
+    endOnComplete: 0
+    nextNodeId: 
+    responses:
+    - text: Back to trading.
+      nextNodeId: trade_offer_001
+      action: 1
+      conditionId: 
+    - text: Goodbye.
+      nextNodeId: farewell_001
+      action: 0
+      conditionId: 
+    generatedFingerprint: 
+    mouthEnvelope: []
+  - id: place_001
+    speakerId: merchant-daran
+    text: People call this a settlement. The wind calls it a place to leave.
+    voiceOverride: {fileID: 0}
+    audio: {fileID: 0}
+    expression: 0
+    emotionalDeliveryId: 
+    gestureId: 
+    conditionId: 
+    onEnter: 0
+    endOnComplete: 0
+    nextNodeId: 
+    responses:
+    - text: Show me your wares.
+      nextNodeId: trade_offer_001
+      action: 1
+      conditionId: 
+    - text: Goodbye.
+      nextNodeId: farewell_001
+      action: 0
+      conditionId: 
+    generatedFingerprint: 
+    mouthEnvelope: []
+  - id: trade_complete
+    speakerId: merchant-daran
+    text: Fair enough. We've got ourselves a deal.
+    voiceOverride: {fileID: 0}
+    audio: {fileID: 0}
+    expression: 1
+    emotionalDeliveryId: 
+    gestureId: 
+    conditionId: 
+    onEnter: 0
+    endOnComplete: 0
+    nextNodeId: 
+    responses:
+    - text: Keep trading.
+      nextNodeId: trade_offer_001
+      action: 1
+      conditionId: 
+    - text: Goodbye.
+      nextNodeId: farewell_001
+      action: 0
+      conditionId: 
+    generatedFingerprint: 
+    mouthEnvelope: []
+  - id: farewell_001
+    speakerId: merchant-daran
+    text: Stay clear of the dust. It doesn't care who you are.
+    voiceOverride: {fileID: 0}
+    audio: {fileID: 0}
+    expression: 0
+    emotionalDeliveryId: 
+    gestureId: 
+    conditionId: 
+    onEnter: 0
+    endOnComplete: 1
+    nextNodeId: 
+    responses: []
+    generatedFingerprint: 
+    mouthEnvelope: []
+  - id: insufficient_funds_001
+    speakerId: merchant-daran
+    text: Your purse is lighter than your ambition.
+    voiceOverride: {fileID: 0}
+    audio: {fileID: 0}
+    expression: 2
+    emotionalDeliveryId: 
+    gestureId: 
+    conditionId: 
+    onEnter: 0
+    endOnComplete: 0
+    nextNodeId: 
+    responses:
+    - text: Adjust the offer.
+      nextNodeId: trade_offer_001
+      action: 1
+      conditionId: 
+    - text: Goodbye.
+      nextNodeId: farewell_001
+      action: 0
+      conditionId: 
+    generatedFingerprint: 
+    mouthEnvelope: []
+  - id: merchant_lacks_funds_001
+    speakerId: merchant-daran
+    text: I'd buy it, if I had the cats to spare.
+    voiceOverride: {fileID: 0}
+    audio: {fileID: 0}
+    expression: 3
+    emotionalDeliveryId: 
+    gestureId: 
+    conditionId: 
+    onEnter: 0
+    endOnComplete: 0
+    nextNodeId: 
+    responses:
+    - text: Adjust the offer.
+      nextNodeId: trade_offer_001
+      action: 1
+      conditionId: 
+    - text: Goodbye.
+      nextNodeId: farewell_001
+      action: 0
+      conditionId: 
+    generatedFingerprint: 
+    mouthEnvelope: []
+  - id: item_rejected_001
+    speakerId: merchant-daran
+    text: That won't fetch anything here.
+    voiceOverride: {fileID: 0}
+    audio: {fileID: 0}
+    expression: 2
+    emotionalDeliveryId: 
+    gestureId: 
+    conditionId: 
+    onEnter: 0
+    endOnComplete: 0
+    nextNodeId: 
+    responses:
+    - text: Adjust the offer.
+      nextNodeId: trade_offer_001
+      action: 1
+      conditionId: 
+    - text: Goodbye.
+      nextNodeId: farewell_001
+      action: 0
+      conditionId: 
+    generatedFingerprint: 
+    mouthEnvelope: []
+  - id: transaction_ready_001
+    speakerId: merchant-daran
+    text: Fair enough. We have a deal if you'll shake on it.
+    voiceOverride: {fileID: 0}
+    audio: {fileID: 0}
+    expression: 1
+    emotionalDeliveryId: 
+    gestureId: 
+    conditionId: 
+    onEnter: 0
+    endOnComplete: 0
+    nextNodeId: 
+    responses:
+    - text: Adjust the offer.
+      nextNodeId: trade_offer_001
+      action: 1
+      conditionId: 
+    - text: Goodbye.
+      nextNodeId: farewell_001
+      action: 0
+      conditionId: 
+    generatedFingerprint: 
+    mouthEnvelope: []
+  - id: trade_cancelled_001
+    speakerId: merchant-daran
+    text: Changed your mind? Happens more than you'd think.
+    voiceOverride: {fileID: 0}
+    audio: {fileID: 0}
+    expression: 0
+    emotionalDeliveryId: 
+    gestureId: 
+    conditionId: 
+    onEnter: 0
+    endOnComplete: 0
+    nextNodeId: 
+    responses:
+    - text: Adjust the offer.
+      nextNodeId: trade_offer_001
+      action: 1
+      conditionId: 
+    - text: Goodbye.
+      nextNodeId: farewell_001
+      action: 0
+      conditionId: 
+    generatedFingerprint: 
+    mouthEnvelope: []

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55688f01d28c87d41aa2af3a26e8166a, type: 3}
+  m_Name: DaranVendor
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.FriendlyNPC.VendorConfiguration
+  vendorId: merchant-daran
+  startingStock:
+  - {fileID: 11400000, guid: 8ab0e3f0d5436fc43b0aa790a168e6e3, type: 2}
+  - {fileID: 11400000, guid: 8b56b27b5a0f45fba9684b56d7534df9, type: 2}
+  - {fileID: 11400000, guid: d1612ac383994e53964b8d297807f8c7, type: 2}
+  acceptedCategories: 
+  startingCats: 400
+  purchaseMultiplier: 1
+  saleMultiplier: 0.5

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1566ac53a863471d953f3a735729bb27, type: 3}
+  m_Name: DaranPracticeSword
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcItemDefinition
+  itemId: practice-sword
+  displayName: Sword
+  category: 0
+  valueCats: 80
+  weight: 0
+  worldPrefab: {fileID: 2041516720199629192, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+  equippedAppearance: {fileID: 0}
+  icon: {fileID: 0}
+  defaultSlot: 1
+  flattenAxis: 3
+  flattenFactor: 0.15
+  minimumThickness: 0.012
+  lootEuler: {x: 0, y: 0, z: 0}
+  gripOffset: {x: 0, y: 0, z: 0}
+  preferCachedLoot: 0
+  lootBakeVersion: 0
