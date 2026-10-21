@@ -143,12 +143,12 @@ namespace Zandea.FriendlyNPC.Editor
             var palm = Find<PalmDialogueChoices>();
             var starter = Find<StarterBackpackGoods>();
             var pose = Find<MerchantHandshakePose>();
-            var animator = npc ? npc.GetComponentInChildren<Animator>() : null;
+            var motion = npc ? npc.GetComponent<BanditRigMotion>() : null;
             var missing = new List<string>();
             if (!npc) missing.Add("friendly NPC");
             if (!npc || !npc.brain || npc.brain.hostileToPlayer) missing.Add("friendly brain");
             if (!npc || !npc.face) missing.Add("existing face controller");
-            if (!animator || !animator.isHuman) missing.Add("humanoid Animator");
+            if (!motion || !motion.visualRoot) missing.Add("existing CC_Base rig motion");
             if (!npc || !npc.mouthAudio || !npc.conversationTarget) missing.Add("NPC speech/contact");
             if (!npc || !npc.dialogue || npc.dialogue.nodes.Count < 10) missing.Add("Daran dialogue");
             if (!counter || counter.merchant != npc || !counter.configuration) missing.Add("vendor binding");
@@ -156,7 +156,8 @@ namespace Zandea.FriendlyNPC.Editor
                 missing.Add("trade zones");
             if (!counter || !counter.handshake || !counter.payoutPouchPrefab || !counter.priceLabelPrefab)
                 missing.Add("handshake/payout/price");
-            if (!utilities || !utilities.personalPursePrefab) missing.Add("backpack utility purse");
+            if (!utilities) missing.Add("backpack utility component");
+            else if (!utilities.personalPursePrefab) missing.Add("backpack purse prefab");
             if (!palm || !starter || !pose) missing.Add("palm/starter/pose");
             if (missing.Count > 0)
                 throw new System.InvalidOperationException("Daran test scene validation failed: " +
@@ -315,7 +316,26 @@ namespace Zandea.FriendlyNPC.Editor
         {
             string path = Folder + "/DaranMerchant.prefab";
             var old = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            if (old) return old;
+            if (old)
+            {
+                var existing = PrefabUtility.LoadPrefabContents(path);
+                var headBone = FindBone(existing.transform, "CC_Base_Head_038");
+                var handBone = FindBone(existing.transform, "CC_Base_R_Hand_081");
+                var existingInteraction = existing.GetComponent<FriendlyNpcInteraction>();
+                var existingHandshake = existing.GetComponentInChildren<HandshakeTarget>(true);
+                if (!headBone || !handBone || !existingInteraction || !existingHandshake)
+                    throw new System.InvalidOperationException("Cannot update Daran: CC_Base bones or interaction missing");
+                existingInteraction.head = headBone;
+                existingInteraction.dialogue = dialogue;
+                if (existingInteraction.mouthAudio)
+                    existingInteraction.mouthAudio.transform.SetParent(headBone, false);
+                if (existingInteraction.subtitle)
+                    existingInteraction.subtitle.transform.SetParent(headBone, false);
+                existingHandshake.transform.SetParent(handBone, false);
+                PrefabUtility.SaveAsPrefabAsset(existing, path);
+                PrefabUtility.UnloadPrefabContents(existing);
+                return AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            }
             var source = AssetDatabase.LoadAssetAtPath<GameObject>(NpcSource);
             if (!source) return null;
             var npc = (GameObject)PrefabUtility.InstantiatePrefab(source);
@@ -329,8 +349,11 @@ namespace Zandea.FriendlyNPC.Editor
             if (appearance) appearance.archetype = AssetDatabase.LoadAssetAtPath<AppearanceArchetype>(
                 "Assets/CharacterCreator/Archetypes/Merchant.asset");
             var rig = npc.GetComponentInChildren<Animator>();
-            var head = rig && rig.isHuman ? rig.GetBoneTransform(HumanBodyBones.Head) : npc.transform;
-            var rightHand = rig && rig.isHuman ? rig.GetBoneTransform(HumanBodyBones.RightHand) : npc.transform;
+            var head = rig && rig.isHuman ? rig.GetBoneTransform(HumanBodyBones.Head) :
+                FindBone(npc.transform, "CC_Base_Head_038");
+            var rightHand = rig && rig.isHuman ? rig.GetBoneTransform(HumanBodyBones.RightHand) :
+                FindBone(npc.transform, "CC_Base_R_Hand_081");
+            if (!head || !rightHand) throw new System.InvalidOperationException("Daran's existing head or hand bone is missing");
             var conversation = new GameObject("Conversation contact");
             conversation.transform.SetParent(npc.transform, false);
             conversation.transform.localPosition = new Vector3(0, 1.35f, .35f);
@@ -421,6 +444,13 @@ namespace Zandea.FriendlyNPC.Editor
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, path);
             Object.DestroyImmediate(root);
             return prefab;
+        }
+
+        static Transform FindBone(Transform root, string name)
+        {
+            foreach (var bone in root.GetComponentsInChildren<Transform>(true))
+                if (bone.name == name) return bone;
+            return null;
         }
 
         static PalmDialogueChoices BuildPalmChoices(GameObject player)

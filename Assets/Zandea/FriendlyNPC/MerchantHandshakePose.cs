@@ -1,4 +1,5 @@
 using ScavengerNPC;
+using KenshiVR.MeleeCombat;
 using UnityEngine;
 
 namespace Zandea.FriendlyNPC
@@ -24,16 +25,30 @@ namespace Zandea.FriendlyNPC
         {
             if (!merchant) merchant = GetComponent<FriendlyNpcInteraction>();
             if (!animator) animator = GetComponentInChildren<Animator>();
-            if (!animator || !animator.isHuman) return;
-            upper = animator.GetBoneTransform(HumanBodyBones.RightUpperArm);
-            lower = animator.GetBoneTransform(HumanBodyBones.RightLowerArm);
-            hand = animator.GetBoneTransform(HumanBodyBones.RightHand);
-            head = animator.GetBoneTransform(HumanBodyBones.Head);
+            if (animator && animator.isHuman)
+            {
+                upper = animator.GetBoneTransform(HumanBodyBones.RightUpperArm);
+                lower = animator.GetBoneTransform(HumanBodyBones.RightLowerArm);
+                hand = animator.GetBoneTransform(HumanBodyBones.RightHand);
+                head = animator.GetBoneTransform(HumanBodyBones.Head);
+            }
+            else
+            {
+                var motion = GetComponent<BanditRigMotion>();
+                var root = motion && motion.visualRoot ? motion.visualRoot : transform;
+                foreach (var bone in root.GetComponentsInChildren<Transform>(true))
+                {
+                    if (bone.name == "CC_Base_R_Upperarm_074") upper = bone;
+                    else if (bone.name == "CC_Base_R_Forearm_077") lower = bone;
+                    else if (bone.name == "CC_Base_R_Hand_081") hand = bone;
+                    else if (bone.name == "CC_Base_Head_038") head = bone;
+                }
+            }
         }
 
         void LateUpdate()
         {
-            if (!merchant || !animator || !animator.enabled) return;
+            if (!merchant || !head) return;
             float target = handshake && handshake.IsArmed && merchant.IsTrading ? 1f : 0f;
             weight = Mathf.MoveTowards(weight, target, blendSpeed * Time.deltaTime);
             if (merchant.IsConversing && head && merchant.playerHead)
