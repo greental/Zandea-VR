@@ -29,6 +29,13 @@ namespace Zandea.FriendlyNPC
             if (string.IsNullOrEmpty(persistentInstanceId)) persistentInstanceId = Guid.NewGuid().ToString("N");
         }
 
+        void Start()
+        {
+            // A newly streamed source presentation cannot recreate an already traded item.
+            if (MerchantSessionState.WasTransferred(persistentInstanceId))
+            { gameObject.SetActive(false); Destroy(gameObject); }
+        }
+
         void OnEnable()
         {
             if (!grab) return;

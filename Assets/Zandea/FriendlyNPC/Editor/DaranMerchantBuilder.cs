@@ -248,6 +248,7 @@ namespace Zandea.FriendlyNPC.Editor
             root.AddComponent<VRInventoryItem>();
             var trade = root.AddComponent<TradeItem>();
             trade.definition = Item("Scrap Metal"); trade.ownerId = "player";
+            trade.AssignPersistentIdentity("player-starter-scrap-001");
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, path);
             Object.DestroyImmediate(root);
             return prefab;
@@ -438,6 +439,8 @@ namespace Zandea.FriendlyNPC.Editor
                 if (!trade) trade = stock.AddComponent<TradeItem>();
                 trade.definition = definition;
                 trade.ownerId = vendorId;
+                trade.AssignPersistentIdentity("merchant-daran-stock-" +
+                    (pair.Item1 == "Bo Staff" ? "bo-staff" : "bandage") + "-001");
             }
         }
     }

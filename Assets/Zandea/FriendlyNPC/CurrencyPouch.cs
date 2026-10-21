@@ -44,9 +44,11 @@ namespace Zandea.FriendlyNPC
             Grab.activated.AddListener(OnActivated);
             Grab.selectEntered.AddListener(OnSelected);
             Grab.selectExited.AddListener(OnReleased);
+            MerchantSessionState.RegisterLive(this);
         }
         void OnDisable()
         {
+            MerchantSessionState.UnregisterLive(this);
             if (!Grab) return;
             Grab.activated.RemoveListener(OnActivated);
             Grab.selectEntered.RemoveListener(OnSelected);
@@ -71,7 +73,17 @@ namespace Zandea.FriendlyNPC
             if (amount < 0 || cats > int.MaxValue - amount) throw new System.OverflowException();
             cats += amount;
         }
-        public void SetInitialBalance(int amount) => cats = Mathf.Max(0, amount);
+        public void SetInitialBalance(int amount)
+        {
+            cats = Mathf.Max(0, amount);
+            if (isActiveAndEnabled) MerchantSessionState.RegisterLive(this);
+        }
+        public void AssignStableId(string id)
+        {
+            MerchantSessionState.UnregisterLive(this);
+            stableId = id;
+            if (isActiveAndEnabled) MerchantSessionState.RegisterLive(this);
+        }
 
         void OnActivated(ActivateEventArgs args)
         {
@@ -86,6 +98,7 @@ namespace Zandea.FriendlyNPC
                 if (cats > int.MaxValue - amount) return;
                 other.cats = 0;
                 cats += amount;
+                MerchantSessionState.MarkPayoutCollected(other.stableId);
                 Destroy(other.gameObject);
                 return;
             }

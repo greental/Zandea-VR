@@ -36,7 +36,9 @@ namespace Zandea.FriendlyNPC
         public VoiceProfile voiceOverride;
         public AudioClip audio;
         public ExpressionType expression;
+        public string emotionalDeliveryId;
         public string gestureId;
+        public string conditionId;
         public DialogueAction onEnter;
         public bool endOnComplete;
         public string nextNodeId;
@@ -44,6 +46,11 @@ namespace Zandea.FriendlyNPC
         [HideInInspector] public string generatedFingerprint;
         // Editor-baked RMS envelope, sampled at 30 Hz. Empty when no clip exists.
         [HideInInspector] public float[] mouthEnvelope;
+    }
+
+    public interface IDialogueConditionSource
+    {
+        bool Evaluate(string conditionId);
     }
 
     [CreateAssetMenu(menuName = "Zandea/Friendly NPC/Dialogue")]

@@ -41,11 +41,25 @@ namespace Zandea.FriendlyNPC
 
         void Awake()
         {
-            if (configuration && committedTransactions == 0 && merchantCats == 0)
-                merchantCats = configuration.startingCats;
+            if (configuration)
+                merchantCats = MerchantSessionState.Get(configuration.vendorId, configuration.startingCats).cats;
             if (!merchant) merchant = GetComponentInParent<FriendlyNpcInteraction>();
             if (handshake) handshake.Arm(false);
             if (netLabel) netLabel.gameObject.SetActive(false);
+        }
+
+        void Start()
+        {
+            if (!configuration || !payoutPouchPrefab || !payoutPosition) return;
+            var state = MerchantSessionState.Get(configuration.vendorId, configuration.startingCats);
+            foreach (var payout in state.outstandingPayouts)
+            {
+                if (MerchantSessionState.IsLive(payout.Key)) continue;
+                var pouch = Instantiate(payoutPouchPrefab, payoutPosition.position,
+                    payoutPosition.rotation, transform);
+                pouch.AssignStableId(payout.Key);
+                pouch.SetInitialBalance(payout.Value);
+            }
         }
 
         void OnEnable()
@@ -202,7 +216,7 @@ namespace Zandea.FriendlyNPC
             {
                 if (NetCats > 0)
                 {
-                    payout = Instantiate(payoutPouchPrefab, payoutPosition.position, payoutPosition.rotation);
+                    payout = Instantiate(payoutPouchPrefab, payoutPosition.position, payoutPosition.rotation, transform);
                     payout.gameObject.SetActive(false);
                     payout.personal = false;
                     payout.SetInitialBalance(NetCats);
@@ -220,6 +234,8 @@ namespace Zandea.FriendlyNPC
                     merchantCats -= NetCats;
                 }
                 else if (NetCats > 0) merchantCats -= NetCats;
+                int payoutCats = Mathf.Max(0, NetCats);
+                string payoutId = payout ? payout.stableId : null;
                 committedTransactions++;
                 foreach (var offer in changed)
                     if (offer.zone == sellArea && offer.item.TryGetComponent<XRGrabInteractable>(out var grab))
@@ -227,6 +243,10 @@ namespace Zandea.FriendlyNPC
                 if (payout) payout.gameObject.SetActive(true);
                 if (paymentPurse) paymentPurse.ReturnHomeWhenReleased();
                 Cancel();
+                var sourceIds = new List<string>(changed.Count);
+                foreach (var offer in changed) sourceIds.Add(offer.item.InstanceId);
+                MerchantSessionState.RecordCommit(configuration.vendorId, merchantCats,
+                    sourceIds, payoutId, payoutCats);
                 trading = merchant && merchant.IsTrading;
                 merchant?.PlayContextLine("trade_complete");
                 return true;

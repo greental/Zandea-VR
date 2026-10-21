@@ -11,6 +11,8 @@ namespace Zandea.FriendlyNPC
         void Start()
         {
             if (!backpack || !startingItemPrefab) return;
+            var source = startingItemPrefab.GetComponent<TradeItem>();
+            if (source && MerchantSessionState.WasTransferred(source.InstanceId)) return;
             var item = Instantiate(startingItemPrefab);
             if (!backpack.RestoreStored(item))
             {

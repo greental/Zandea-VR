@@ -22,6 +22,7 @@ namespace Zandea.FriendlyNPC
         public Transform playerHead;
         public XRSimpleInteractable conversationTarget;
         public DialogueDefinition dialogue;
+        public MonoBehaviour conditionSource;
         public AudioSource mouthAudio;
         public TMP_Text subtitle;
         public PalmDialogueChoices choices;
@@ -32,6 +33,7 @@ namespace Zandea.FriendlyNPC
         public event Action ConversationEnded;
 
         DialogueNode current;
+        readonly System.Collections.Generic.List<DialogueResponse> availableResponses = new(4);
         float fallbackEnd;
         bool active;
         bool trading;
@@ -136,11 +138,15 @@ namespace Zandea.FriendlyNPC
 
             if (current != null && (!mouthAudio || !mouthAudio.isPlaying) && Time.time >= fallbackEnd)
             {
-                if (subtitle) subtitle.gameObject.SetActive(false);
-                if (current.endOnComplete) { EndConversation(); return; }
-                if (current.responses.Count > 0) choices?.Show(current.responses, SelectResponse);
-                else if (!string.IsNullOrEmpty(current.nextNodeId)) ShowNode(dialogue.Find(current.nextNodeId));
+                var finished = current;
                 current = null;
+                if (subtitle) subtitle.gameObject.SetActive(false);
+                if (finished.endOnComplete) { EndConversation(); return; }
+                availableResponses.Clear();
+                foreach (var response in finished.responses)
+                    if (response != null && ConditionAllows(response.conditionId)) availableResponses.Add(response);
+                if (availableResponses.Count > 0) choices?.Show(availableResponses, SelectResponse);
+                else if (!string.IsNullOrEmpty(finished.nextNodeId)) ShowNode(dialogue.Find(finished.nextNodeId));
             }
         }
 
@@ -153,7 +159,7 @@ namespace Zandea.FriendlyNPC
         void ShowNode(DialogueNode node)
         {
             choices?.Hide();
-            if (node == null) { EndConversation(); return; }
+            if (node == null || !ConditionAllows(node.conditionId)) { EndConversation(); return; }
             current = node;
             if (face) face.SetExpression(node.expression);
             if (subtitle)
@@ -171,6 +177,9 @@ namespace Zandea.FriendlyNPC
                 Mathf.Max(1.5f, node.text.Length / 14f));
             Execute(node.onEnter);
         }
+
+        bool ConditionAllows(string conditionId) => string.IsNullOrEmpty(conditionId) ||
+            conditionSource is IDialogueConditionSource source && source.Evaluate(conditionId);
 
         void SelectResponse(int index)
         {
