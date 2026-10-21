@@ -41,6 +41,7 @@ namespace Zandea.FriendlyNPC.Editor
             dialogue.defaultVoice = voice;
             dialogue.entryNodeId = "greeting_001";
             if (dialogue.nodes.Count == 0) AuthorDialogue(dialogue);
+            EnsureTradeContextResponses(dialogue);
             var vendor = Asset<VendorConfiguration>("DaranVendor");
             vendor.vendorId = "merchant-daran";
             vendor.startingCats = 400;
@@ -143,14 +144,23 @@ namespace Zandea.FriendlyNPC.Editor
             var starter = Find<StarterBackpackGoods>();
             var pose = Find<MerchantHandshakePose>();
             var animator = npc ? npc.GetComponentInChildren<Animator>() : null;
-            if (!npc || !npc.brain || npc.brain.hostileToPlayer || !npc.face ||
-                !animator || !animator.isHuman ||
-                !npc.mouthAudio || !npc.conversationTarget || !npc.dialogue || npc.dialogue.nodes.Count < 10 ||
-                !counter || counter.merchant != npc || !counter.configuration ||
-                !counter.buyArea || !counter.sellArea || !counter.paymentSpot ||
-                !counter.handshake || !counter.payoutPouchPrefab || !counter.priceLabelPrefab ||
-                !utilities || !utilities.personalPursePrefab || !palm || !starter || !pose)
-                throw new System.InvalidOperationException("Daran test scene validation failed: incomplete NPC, trade, or player wiring");
+            var missing = new List<string>();
+            if (!npc) missing.Add("friendly NPC");
+            if (!npc || !npc.brain || npc.brain.hostileToPlayer) missing.Add("friendly brain");
+            if (!npc || !npc.face) missing.Add("existing face controller");
+            if (!animator || !animator.isHuman) missing.Add("humanoid Animator");
+            if (!npc || !npc.mouthAudio || !npc.conversationTarget) missing.Add("NPC speech/contact");
+            if (!npc || !npc.dialogue || npc.dialogue.nodes.Count < 10) missing.Add("Daran dialogue");
+            if (!counter || counter.merchant != npc || !counter.configuration) missing.Add("vendor binding");
+            if (!counter || !counter.buyArea || !counter.sellArea || !counter.paymentSpot)
+                missing.Add("trade zones");
+            if (!counter || !counter.handshake || !counter.payoutPouchPrefab || !counter.priceLabelPrefab)
+                missing.Add("handshake/payout/price");
+            if (!utilities || !utilities.personalPursePrefab) missing.Add("backpack utility purse");
+            if (!palm || !starter || !pose) missing.Add("palm/starter/pose");
+            if (missing.Count > 0)
+                throw new System.InvalidOperationException("Daran test scene validation failed: " +
+                    string.Join(", ", missing));
             if (!palm.leftHand || !palm.rightHand)
                 throw new System.InvalidOperationException("Palm dialogue has no two tracked controller interactors");
             int stockCount = 0;
@@ -219,6 +229,20 @@ namespace Zandea.FriendlyNPC.Editor
                 Node("trade_cancelled_001", "Changed your mind? Happens more than you'd think.")
             };
             EditorUtility.SetDirty(definition);
+        }
+
+        static void EnsureTradeContextResponses(DialogueDefinition definition)
+        {
+            foreach (var id in new[] { "insufficient_funds_001", "merchant_lacks_funds_001",
+                         "item_rejected_001", "transaction_ready_001", "trade_cancelled_001" })
+            {
+                var node = definition.Find(id);
+                if (node == null || node.responses.Count != 0) continue;
+                node.responses.Add(new DialogueResponse { text = "Adjust the offer.",
+                    nextNodeId = "trade_offer_001", action = DialogueAction.BeginTrading });
+                node.responses.Add(new DialogueResponse { text = "Goodbye.", nextNodeId = "farewell_001" });
+                EditorUtility.SetDirty(definition);
+            }
         }
 
         static CurrencyPouch BuildPouch(string name, bool personal, int cats, Material leather)
