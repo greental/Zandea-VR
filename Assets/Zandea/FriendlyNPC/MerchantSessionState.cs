@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Zandea.FriendlyNPC
 {
@@ -14,6 +15,13 @@ namespace Zandea.FriendlyNPC
 
         static readonly Dictionary<string, VendorState> Vendors = new();
         static readonly Dictionary<string, CurrencyPouch> LivePayouts = new();
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetForNewPlaySession()
+        {
+            Vendors.Clear();
+            LivePayouts.Clear();
+        }
 
         public static VendorState Get(string vendorId, int startingCats)
         {

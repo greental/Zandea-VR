@@ -25,7 +25,8 @@ namespace Zandea.FriendlyNPC
         {
             grab = GetComponent<XRGrabInteractable>();
             var existing = GetComponent<NpcWorldItem>();
-            if (existing && existing.Item != null) persistentInstanceId = existing.Item.InstanceId;
+            if (string.IsNullOrEmpty(persistentInstanceId) && existing && existing.Item != null)
+                persistentInstanceId = existing.Item.InstanceId;
             if (string.IsNullOrEmpty(persistentInstanceId)) persistentInstanceId = Guid.NewGuid().ToString("N");
         }
 
