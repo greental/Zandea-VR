@@ -2,7 +2,7 @@
 
 `DaranMerchantBuilder` is the authoring entry point. In Unity, choose **Zandea > Friendly NPC > Build Daran test scene**. It creates a Daran prefab, a reusable counter prefab, a personal purse, a payout pouch, dialogue and vendor assets, and `DaranMerchantTest.unity` under `Generated/`. Stock includes an existing physical sword and bo staff, plus an existing bandage prefab. The build checks D: free space first and stops below 20 GiB.
 
-The merchant uses `CombinedStarvingBandit`'s humanoid, Animator, health and facial rig. `StarvingBandit.hostileToPlayer` is false for Daran and stays true for existing bandits. Damage makes Daran hostile and ends dialogue. `MerchantHandshakePose` performs a small arm reach after the Animator; it only runs while an offer is ready. `NPCFacialExpressionController` remains the sole owner of the expression blendshapes and jaw. Dialogue adds a bounded speech opening to that controller's existing jaw result.
+The merchant uses `CombinedStarvingBandit`'s CC_Base skeleton, `BanditRigMotion`, health and facial rig. Its Animator has no Avatar and is disabled by the existing rig driver. `StarvingBandit.hostileToPlayer` is false for Daran and stays true for existing bandits. Damage makes Daran hostile and ends dialogue. `MerchantHandshakePose` performs a small arm reach after `BanditRigMotion`; it only runs while an offer is ready. `NPCFacialExpressionController` remains the sole owner of the expression blendshapes and jaw. Dialogue adds a bounded speech opening to that controller's existing jaw result.
 
 ## Author dialogue and voices
 

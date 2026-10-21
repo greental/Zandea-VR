@@ -126,6 +126,7 @@ namespace Zandea.FriendlyNPC.Editor
         public static void BuildAndValidate()
         {
             Build();
+            EditorSceneManager.OpenScene(Folder + "/DaranMerchantTest.unity", OpenSceneMode.Single);
             var scene = SceneManager.GetActiveScene();
             var roots = scene.GetRootGameObjects();
             T Find<T>() where T : Component
