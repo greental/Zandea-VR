@@ -515,6 +515,8 @@ namespace Zandea.FriendlyNPC.Editor
             {
                 var definition = AssetDatabase.LoadAssetAtPath<NpcItemDefinition>(stockPaths[index]);
                 var prefab = definition && definition.worldPrefab ? definition.worldPrefab :
+                    definition && definition.itemId == "bo-staff" ? AssetDatabase.LoadAssetAtPath<GameObject>(
+                        "Assets/MyAssets/prefabs/weapons/Bo Staff.prefab") :
                     definition && definition.itemId == "bandage" ? AssetDatabase.LoadAssetAtPath<GameObject>(
                         "Assets/MyAssets/prefabs/medical/BandageRoll.prefab") : null;
                 if (!prefab)
