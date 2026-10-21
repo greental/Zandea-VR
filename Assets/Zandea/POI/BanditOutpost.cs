@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using JunkerBody;
 using KenshiVR.MeleeCombat;
 using MyAssets.Planet;
 using MyAssets.PlanetTerrain;
@@ -30,13 +31,19 @@ namespace Zandea.POI
         readonly HashSet<PhysicalMeleeWeapon> encounterWeapons = new HashSet<PhysicalMeleeWeapon>();
         readonly Dictionary<StarvingBandit, Vector3> shiftedAgents = new Dictionary<StarvingBandit, Vector3>();
         GameObject structures, encounter;
+        Transform authoredLayout;
+        Quaternion authoredRotation;
+        bool hasAuthoredProps;
+        readonly List<PhysicalProp> authoredProps = new();
         OutpostPropPopulation propPopulation;
         NavMeshData navigation;
         NavMeshDataInstance navigationInstance;
-        bool failed, shifted;
+        bool failed, shifted, surfaceAligned;
+        Transform surfaceShipTarget;
+        VRBodyController walkingPlayer;
         float nextCheck;
         public Vector3 Center => treadmill.GetTileWorldPosition(new PlanetTileCoord(0, 0)) + new Vector3(stableSite.x, siteHeight, stableSite.y);
-        public Quaternion Rotation => Quaternion.Euler(0, definition.gateQuarterTurns * 90, 0);
+        public Quaternion Rotation => authoredLayout ? authoredRotation : Quaternion.Euler(0, definition.gateQuarterTurns * 90, 0);
         public Vector3 GatePosition => ToWorld(Layout.gate);
         public Vector3 ApproachDirection => Rotation * Vector3.back;
         public Vector3 ToWorld(Vector2 local) => Center + Rotation * new Vector3(local.x, 0, local.y);
@@ -55,6 +62,9 @@ namespace Zandea.POI
             {
                 EnsureLayout();
                 if (!treadmill || !siteSelected) throw new InvalidOperationException("Select and validate an outpost site in the editor before playing.");
+                // Older Main scenes saved this component disabled, so revealing the
+                // terrain root after landing left the POI with no streaming updates.
+                if (!treadmill.enabled) treadmill.enabled = true;
                 propPopulation = GetComponent<OutpostPropPopulation>();
                 if (!propPopulation) propPopulation = gameObject.AddComponent<OutpostPropPopulation>();
                 treadmill.PrepareTerrainTile += Prepare;
@@ -62,58 +72,163 @@ namespace Zandea.POI
                 var preview = transform.Find("Layout Preview");
                 if (preview)
                 {
-                    HideSceneAuthoringProps(preview.position);
+                    authoredLayout = preview;
+                    authoredRotation = preview.rotation;
+                    AdoptAuthoredSite(preview.position);
+                    CollectSceneAuthoringProps(preview);
+                    authoredProps.AddRange(preview.GetComponentsInChildren<PhysicalProp>());
+                    foreach (var prop in authoredProps)
+                    {
+                        var grab = prop.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+                        if (grab) grab.retainTransformParent = false;
+                    }
                     preview.gameObject.SetActive(false);
                 }
             }
             catch (Exception e) { Fail(e); }
         }
-        void Prepare(PlanetTileCoord tile, TerrainData data) => OutpostTerrain.Stamp(treadmill, definition, stableSite, siteHeight, tile, data);
-        void HideSceneAuthoringProps(Vector3 previewCenter)
+        void Prepare(PlanetTileCoord tile, TerrainData data)
         {
+            // The Main layout was fitted by hand to the authored terrain's slope.
+            // A procedural plateau buries its downhill walls and leaves roof pieces floating.
+            if (!authoredLayout) OutpostTerrain.Stamp(treadmill, definition, stableSite, siteHeight, tile, data, Rotation);
+        }
+        void AdoptAuthoredSite(Vector3 position)
+        {
+            // Scene terrain can be translated far from the runtime tile frame.
+            // Resolve the authored tile by its data, then retain the local offset.
+            var tiles = treadmill.AuthoredTileSet;
+            if (!tiles || tiles.authoredTiles == null) return;
+            foreach (var terrain in treadmill.GetComponentsInChildren<Terrain>(true))
+            {
+                if (!terrain.terrainData) continue;
+                var local = position - terrain.transform.position;
+                var size = terrain.terrainData.size;
+                if (local.x < 0 || local.z < 0 || local.x > size.x || local.z > size.z) continue;
+                // Wrapped TerrainData can occur at several logical coordinates.
+                // Prefer the scene tile identity over the shared asset identity.
+                const string prefix = "PT_AuthoredTile_x";
+                var coordinates = terrain.name.StartsWith(prefix)
+                    ? terrain.name.Substring(prefix.Length).Split(new[] { "_z" }, StringSplitOptions.None) : Array.Empty<string>();
+                if (coordinates.Length == 2 && int.TryParse(coordinates[0], out int x) && int.TryParse(coordinates[1], out int z))
+                {
+                    stableSite = new Vector2(x * treadmill.TileSizeMeters + local.x, z * treadmill.TileSizeMeters + local.z);
+                    siteHeight = local.y;
+                    return;
+                }
+                foreach (var tile in tiles.authoredTiles)
+                    if (tile != null && tile.terrainData == terrain.terrainData)
+                    {
+                        stableSite = new Vector2(tile.coord.x * treadmill.TileSizeMeters + local.x,
+                            tile.coord.z * treadmill.TileSizeMeters + local.z);
+                        siteHeight = local.y;
+                        return;
+                    }
+            }
+            Debug.LogWarning("Authored outpost has no matching scene terrain tile; retaining its saved stable site.", this);
+        }
+
+        void CollectSceneAuthoringProps(Transform preview)
+        {
+            hasAuthoredProps = preview.GetComponentInChildren<PhysicalProp>(true) || preview.GetComponentInChildren<BreakableProp>(true);
             if (gameObject.scene.path != "Assets/Main.unity") return;
-            // The hand-arranged Main scene samples sit at the editor preview's
-            // original frame. Runtime surface entry uses a different tile frame.
-            // Keep those samples visible for editing, but use the stable population
-            // at runtime so duplicate rigidbodies cannot fall through recycled land.
+            // Bring the existing hand-arranged props along with the buildings.
             foreach (var sceneRoot in gameObject.scene.GetRootGameObjects())
             {
                 if (sceneRoot == gameObject) continue;
                 string name = sceneRoot.name;
-                if (!(name.StartsWith("pot") || name.StartsWith("sack") || name.StartsWith("barrel") ||
+                if (!(name.StartsWith("Adobe") || name.StartsWith("GateSide") ||
+                      sceneRoot.GetComponent<BanditGroup>() ||
+                      name.StartsWith("pot") || name.StartsWith("sack") || name.StartsWith("barrel") ||
                       name.StartsWith("crate") || name.StartsWith("chest") || name.StartsWith("stool") ||
-                      name.StartsWith("table") || name.StartsWith("rack") || name.StartsWith("statue"))) continue;
-                var delta = sceneRoot.transform.position - previewCenter;
+                      name.StartsWith("table") || name.StartsWith("rack") || name.StartsWith("statue") ||
+                      sceneRoot.GetComponent<PhysicalProp>() || sceneRoot.GetComponent<BreakableProp>())) continue;
+                var delta = sceneRoot.transform.position - preview.position;
                 if (new Vector2(delta.x, delta.z).magnitude < 80 && Mathf.Abs(delta.y) < 20)
-                    sceneRoot.SetActive(false);
+                {
+                    sceneRoot.transform.SetParent(preview, true);
+                    if (sceneRoot.GetComponent<PhysicalProp>() || sceneRoot.GetComponent<BreakableProp>())
+                        hasAuthoredProps = true;
+                }
             }
         }
         void OnCenterTileChanged(PlanetTileCoord previous, PlanetTileCoord current, PlanetTileCoord delta)
         {
             // The treadmill can recycle the ground beneath this outpost in its Update.
             // Retire its physics objects in the same frame, before the next physics step.
-            if (!structures || !stream || !treadmill.Target) return;
-            var target = treadmill.Target.position;
-            var center = Center;
-            if (Vector2.Distance(new Vector2(target.x, target.z), new Vector2(center.x, center.z)) > definition.unloadDistance)
-                Unload();
+            if (structures && stream && !SiteTileReady()) Unload();
         }
         void Update()
         {
-            if (failed || !treadmill || !treadmill.Target || Time.time < nextCheck) return;
+            AlignStandaloneSurfaceToPlayer();
+            FollowWalkingPlayer();
+            if (failed || !treadmill || Time.time < nextCheck) return;
             nextCheck = Time.time + .5f;
             try
             {
                 foreach (var npc in members) if (npc && npc.staff) encounterWeapons.Add(npc.staff);
                 if (shifted && structures) { RebindNavigation(); shifted = false; }
-                float distance = Vector2.Distance(new Vector2(treadmill.Target.position.x, treadmill.Target.position.z), new Vector2(Center.x, Center.z));
-                if (!structures && (!stream || distance < definition.loadDistance) && GroundReady()) Load();
-                else if (structures && stream && distance > definition.unloadDistance) Unload();
+                // The authored settlement belongs to its terrain tile. A visible tile
+                // must never leave the POI absent just because the observer is far away.
+                bool tileReady = SiteTileReady();
+                if (!structures && tileReady) Load();
+                else if (structures && stream && !tileReady) Unload();
             }
             catch (Exception e) { Fail(e); }
         }
+        void AlignStandaloneSurfaceToPlayer()
+        {
+            if (surfaceAligned || !treadmill || gameObject.scene.path != "Assets/Main.unity") return;
+            if (FindFirstObjectByType<PlanetTerrainTransitionController>(FindObjectsInactive.Include))
+            { surfaceAligned = true; return; } // Koombar's landing controller owns that frame.
+            if (!walkingPlayer) walkingPlayer = FindFirstObjectByType<VRBodyController>();
+            if (!walkingPlayer || !walkingPlayer.xrOrigin) return;
+            var playerPosition = walkingPlayer.xrOrigin.position;
+            foreach (var terrain in Terrain.activeTerrains)
+            {
+                if (!terrain || !terrain.enabled || !terrain.transform.IsChildOf(treadmill.transform) || !terrain.terrainData) continue;
+                var origin = terrain.transform.position;
+                var size = terrain.terrainData.size;
+                if (playerPosition.x < origin.x || playerPosition.x > origin.x + size.x ||
+                    playerPosition.z < origin.z || playerPosition.z > origin.z + size.z) continue;
+                surfaceAligned = true;
+                float ground = terrain.SampleHeight(playerPosition) + origin.y;
+                float correction = playerPosition.y - ground;
+                if (Mathf.Abs(correction) > 30f)
+                {
+                    treadmill.SetTileVerticalOffset(treadmill.TileVerticalOffsetMeters + correction);
+                    Debug.Log($"[BanditOutpost] Aligned standalone terrain and POI to player start by {correction:F1} m.", this);
+                }
+                return;
+            }
+        }
+        bool SiteTileReady() => treadmill && TerrainAt(Center);
+        void FollowWalkingPlayer()
+        {
+            if (!treadmill || !treadmill.gameObject.activeInHierarchy || !treadmill.Target) return;
+            if (!walkingPlayer) walkingPlayer = FindFirstObjectByType<VRBodyController>();
+            if (!walkingPlayer || !walkingPlayer.xrOrigin) return;
+            var playerTarget = walkingPlayer.xrOrigin;
+            if (treadmill.Target != playerTarget) surfaceShipTarget = treadmill.Target;
+            if (!surfaceShipTarget) return;
+            var separation = Vector2.Distance(
+                new Vector2(playerTarget.position.x, playerTarget.position.z),
+                new Vector2(surfaceShipTarget.position.x, surfaceShipTarget.position.z));
+            var desired = separation > 10f ? playerTarget : surfaceShipTarget;
+            if (treadmill.Target != desired) treadmill.ConfigureTarget(desired);
+        }
         bool GroundReady()
         {
+            if (authoredLayout)
+            {
+                // Authored foundations follow a slope, so require live terrain beneath
+                // the full footprint without comparing every sample to one flat height.
+                foreach (Transform child in authoredLayout)
+                {
+                    if (!TerrainAt(child.position)) return false;
+                }
+                return true;
+            }
             foreach (var p in new[] { Vector2.zero, definition.dimensions / 2, -definition.dimensions / 2,
                 new Vector2(definition.dimensions.x / 2, -definition.dimensions.y / 2), new Vector2(-definition.dimensions.x / 2, definition.dimensions.y / 2) })
             {
@@ -131,6 +246,19 @@ namespace Zandea.POI
                 if (!found) return false;
             }
             return true;
+        }
+        bool TerrainAt(Vector3 world)
+        {
+            foreach (var terrain in Terrain.activeTerrains)
+            {
+                if (!terrain || !terrain.enabled) continue;
+                var collider = terrain.GetComponent<TerrainCollider>();
+                if (!collider || !collider.enabled || collider.terrainData != terrain.terrainData) continue;
+                var o = terrain.transform.position;
+                var s = terrain.terrainData.size;
+                if (world.x >= o.x && world.x <= o.x + s.x && world.z >= o.z && world.z <= o.z + s.z) return true;
+            }
+            return false;
         }
         public GameObject InstantiateStructures(string name)
         {
@@ -152,24 +280,57 @@ namespace Zandea.POI
         }
         void Load()
         {
-            structures = InstantiateStructures("Bandit Outpost Structures");
-            propPopulation.Load(this);
+            structures = authoredLayout ? authoredLayout.gameObject : InstantiateStructures("Bandit Outpost Structures");
+            structures.transform.SetPositionAndRotation(Center, Rotation);
+            RepairLodAlignment(structures);
+            foreach (var lid in structures.GetComponentsInChildren<Zandea.Props.PropHingedLid>(true)) lid.gameObject.SetActive(true);
+            foreach (var stair in structures.GetComponentsInChildren<Transform>(true))
+                if (stair.name.StartsWith("AdobeStairs") && !stair.GetComponent<OutpostStairRamp>())
+                    stair.gameObject.AddComponent<OutpostStairRamp>();
+            // The outpost bakes terrain and stair colliders together. A group's
+            // separate terrain-only NavMesh would overlap the lower stair foot
+            // without connecting to the ramp, stranding agents on that island.
+            foreach (var group in structures.GetComponentsInChildren<BanditGroup>(true))
+                group.buildLocalNavMesh = false;
+            structures.SetActive(true);
+            foreach (var prop in authoredProps)
+                if (prop && !(prop.GetComponent<BreakableProp>()?.IsBroken ?? false))
+                {
+                    prop.SetDormant(false);
+                    foreach (var lid in prop.GetComponentsInChildren<Zandea.Props.PropHingedLid>(true)) lid.gameObject.SetActive(true);
+                }
+            if (!hasAuthoredProps) propPopulation.Load(this);
             Physics.SyncTransforms();
             BuildNavigation();
+            foreach (var stair in structures.GetComponentsInChildren<OutpostStairRamp>(true))
+                stair.ConnectNavigation();
+            if (authoredLayout && authoredLayout.GetComponentsInChildren<StarvingBandit>(true).Length > 0)
+            {
+                members.Clear();
+                members.AddRange(authoredLayout.GetComponentsInChildren<StarvingBandit>(true));
+                return;
+            }
             // Validate the complete encounter before allowing any NPC Awake/Start.
             var points = new List<Vector3>();
             var filter = new NavMeshQueryFilter { agentTypeID = definition.bandit.GetComponent<NavMeshAgent>().agentTypeID, areaMask = NavMesh.AllAreas };
             foreach (var p in Layout.spawns)
             {
-                if (!NavMesh.SamplePosition(ToWorld(p), out var hit, 1.2f, filter) || Mathf.Abs(hit.position.y - Center.y) > .4f)
+                if (!NavMesh.SamplePosition(ToWorld(p), out var hit, authoredLayout ? 8f : 1.2f, filter) || Mathf.Abs(hit.position.y - Center.y) > .4f)
                     throw new InvalidOperationException("Outpost spawn is not on walkable ground: " + p);
                 points.Add(hit.position);
             }
+            var patrol = new List<Vector3>();
             foreach (var p in Layout.patrol)
             {
+                Vector3 destination = ToWorld(p);
+                if (authoredLayout && NavMesh.SamplePosition(destination, out var walkable, 8f, filter)) destination = walkable.position;
                 var path = new NavMeshPath();
-                if (!NavMesh.CalculatePath(points[0], ToWorld(p), filter, path) || path.status != NavMeshPathStatus.PathComplete)
+                if (!NavMesh.CalculatePath(points[0], destination, filter, path) || path.status != NavMeshPathStatus.PathComplete)
+                {
+                    if (authoredLayout) continue;
                     throw new InvalidOperationException("Outpost patrol is unreachable: " + p);
+                }
+                patrol.Add(destination);
             }
             if (!encounter)
             {
@@ -195,11 +356,11 @@ namespace Zandea.POI
                     group.patrolWalkSpeed = definition.patrolWalkSpeed;
                     group.player = Camera.main ? Camera.main.transform : treadmill.Target;
                     var route = new List<Transform>();
-                    foreach (var p in (i == 2 || i == 3) ? Layout.patrol : new List<Vector2> { Layout.spawns[i] })
+                    foreach (var p in (i == 2 || i == 3) && patrol.Count > 0 ? patrol : new List<Vector3> { points[i] })
                     {
                         var marker = new GameObject("Patrol waypoint").transform;
                         marker.SetParent(encounter.transform, false);
-                        marker.position = ToWorld(p);
+                        marker.position = p;
                         route.Add(marker);
                     }
                     group.patrolPoints = route.ToArray();
@@ -210,6 +371,21 @@ namespace Zandea.POI
             foreach (var npc in members)
                 if (npc && npc.agent && npc.agent.enabled && (!npc.health || (!npc.health.IsDead && !npc.health.IsUnconscious)))
                     npc.agent.Warp(npc.transform.position);
+        }
+        static void RepairLodAlignment(GameObject root)
+        {
+            foreach(var group in root.GetComponentsInChildren<LODGroup>(true))
+            {
+                var levels=group.GetLODs();if(levels.Length<2||levels[0].renderers.Length==0)continue;
+                Bounds reference=levels[0].renderers[0].bounds;
+                for(int i=1;i<levels.Length;i++)foreach(var renderer in levels[i].renderers)
+                {
+                    if(!renderer)continue;
+                    Vector3 delta=reference.center-renderer.bounds.center;
+                    if(delta.sqrMagnitude>.0025f)renderer.transform.position+=delta;
+                }
+                group.RecalculateBounds();group.ForceLOD(-1);
+            }
         }
         void BuildNavigation()
         {
@@ -255,13 +431,23 @@ namespace Zandea.POI
         void Unload()
         {
             if (propPopulation) propPopulation.Unload();
+            foreach (var prop in authoredProps)
+            {
+                if (!prop || prop.IsHeld) continue;
+                var delta = prop.transform.position - Center;
+                if (new Vector2(delta.x, delta.z).magnitude < definition.unloadDistance) prop.SetDormant(true);
+            }
             // Cache only six inactive NPCs, preserving complete injury/equipment/ragdoll state.
             foreach (var weapon in encounterWeapons)
                 if (weapon && encounter && weapon.State == PhysicalMeleeWeapon.HoldState.World &&
                     Vector3.Distance(weapon.transform.position, Center) < definition.unloadDistance)
                     weapon.transform.SetParent(encounter.transform, true);
             if (encounter) encounter.SetActive(false);
-            if (structures) Destroy(structures);
+            if (structures)
+            {
+                if (authoredLayout && structures == authoredLayout.gameObject) structures.SetActive(false);
+                else Destroy(structures);
+            }
             structures = null;
             if (navigationInstance.valid) navigationInstance.Remove();
             if (navigation) Destroy(navigation);

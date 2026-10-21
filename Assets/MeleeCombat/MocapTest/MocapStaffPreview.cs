@@ -19,6 +19,8 @@ namespace KenshiVR.MeleeCombat
         public PhysicalMeleeWeapon staff;
         [Tooltip("Optional second visual weapon, for the shield-and-sword preview.")]
         public Transform secondaryVisualWeapon;
+        public PhysicalMeleeWeapon secondaryPhysicalWeapon;
+        public Transform secondaryWeaponTarget;
         public Quaternion secondaryWeaponFromRightHand = Quaternion.identity;
         public Transform desiredStaff, positiveTip, negativeTip, target;
         public Attachment attachment = Attachment.BothHands;
@@ -41,6 +43,10 @@ namespace KenshiVR.MeleeCombat
         public Vector3 rightGripLocal, leftGripLocal;
         public Quaternion rightHandFromStaff = Quaternion.identity, leftHandFromStaff = Quaternion.identity;
         [Serializable] public struct FingerPose { public Transform bone; public Quaternion rotation; }
+        [HideInInspector] public int armedFingerPoseVersion;
+        [NonSerialized] public float runtimePoseOverrideWeight;
+        [NonSerialized] public Vector3 runtimePoseOverridePosition;
+        [NonSerialized] public Quaternion runtimePoseOverrideRotation = Quaternion.identity;
         public FingerPose[] fingers = Array.Empty<FingerPose>();
         public bool applySavedFingerPose = true;
         public bool showTrajectory = true, tracePositiveTip = true;
@@ -193,6 +199,12 @@ namespace KenshiVR.MeleeCombat
                 var interceptRotation = Quaternion.FromToRotation(shaft, axis) * rotation;
                 rotation = Quaternion.Slerp(rotation, interceptRotation, Mathf.Clamp01(runtimeWeaponAxisWeight));
             }
+            if (runtimePoseOverrideWeight > 0f)
+            {
+                float weight = Mathf.Clamp01(runtimePoseOverrideWeight);
+                position = Vector3.Lerp(position, runtimePoseOverridePosition, weight);
+                rotation = Quaternion.Slerp(rotation, runtimePoseOverrideRotation, weight);
+            }
             var original = position;
             // Same reach projection used by BanditRigMotion. Never stretch arm bones.
             for (int i = 0; i < 12; i++)
@@ -204,7 +216,8 @@ namespace KenshiVR.MeleeCombat
             }
             ReachCorrection = Vector3.Distance(original, position);
             if (desiredStaff) desiredStaff.SetPositionAndRotation(position, rotation);
-            if (driveVisualStaff) staff.transform.SetPositionAndRotation(position, rotation);
+            if (driveVisualStaff && (!Application.isPlaying || staff.State == PhysicalMeleeWeapon.HoldState.HeldByNpc))
+                staff.transform.SetPositionAndRotation(position, rotation);
             var actual = staff.transform;
             var leftTarget = actual.TransformPoint(leftGripLocal);
             var rightTarget = actual.TransformPoint(rightGripLocal);
@@ -225,10 +238,23 @@ namespace KenshiVR.MeleeCombat
             }
             if (applySavedFingerPose)
                 foreach (var finger in fingers)
-                    if (finger.bone && (secondaryHandGrips || finger.bone.name.Contains(primaryHandIsLeft ? "_L_" : "_R_")))
+                    if (finger.bone)
                         finger.bone.localRotation = finger.rotation;
             if (secondaryVisualWeapon && rightHand)
-                secondaryVisualWeapon.SetPositionAndRotation(rightHand.position, rightHand.rotation * secondaryWeaponFromRightHand);
+            {
+                var secondaryRotation = rightHand.rotation * secondaryWeaponFromRightHand;
+                if (secondaryWeaponTarget) secondaryWeaponTarget.SetPositionAndRotation(rightHand.position, secondaryRotation);
+                if (Application.isPlaying && secondaryPhysicalWeapon && secondaryPhysicalWeapon.enabled && !driveVisualStaff)
+                {
+                    if (secondaryPhysicalWeapon.State == PhysicalMeleeWeapon.HoldState.HeldByNpc)
+                    {
+                        ScavengerPose.Solve(rightUpper, rightLower, rightHand, secondaryVisualWeapon.position, rightBend);
+                        rightHand.rotation = secondaryVisualWeapon.rotation * Quaternion.Inverse(secondaryWeaponFromRightHand);
+                        RightGripError = Vector3.Distance(rightHand.position, secondaryVisualWeapon.position);
+                    }
+                }
+                else secondaryVisualWeapon.SetPositionAndRotation(rightHand.position, secondaryRotation);
+            }
             if (normalizedTime < previousTime) trailCount = 0;
             if (Mathf.Abs(normalizedTime - previousTime) > .0001f)
             {

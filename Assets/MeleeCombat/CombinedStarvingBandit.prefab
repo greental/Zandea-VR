@@ -1303,7 +1303,7 @@ Transform:
   m_GameObject: {fileID: 1276358111353263480}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.09413371, y: -0.5296492, z: -0.016006976}
+  m_LocalPosition: {x: 0.09137073, y: -0.5305149, z: -0.030592587}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1561,30 +1561,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &884466220011337701
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1505335420497508511}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 339d87a234be39f498d946409f7f93bf, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.GoreImpactSystem
---- !u!114 &884466220011337702
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1505335420497508511}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc07d302547c18c4ab961d0933bfa736, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.DismemberableCharacter
 --- !u!4 &612531137754941300
 Transform:
   m_ObjectHideFlags: 0
@@ -1660,13 +1636,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7fe04d625824b6bb1d8a17a14449de1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScavengerNPC.ScavengerHealth
-  maxHealth: 55
+  maxHealth: 95
   onDamaged:
     m_PersistentCalls:
       m_Calls: []
   onDeath:
     m_PersistentCalls:
       m_Calls: []
+  onKnockout:
+    m_PersistentCalls:
+      m_Calls: []
+  onWakeUp:
+    m_PersistentCalls:
+      m_Calls: []
+  knockoutTrauma: 60
+  minimumKnockoutHit: 3
+  severeHealthFraction: 0.13
+  unarmedTraumaMultiplier: 2
+  bluntTraumaMultiplier: 0.85
+  sharpTraumaMultiplier: 0.16
+  knockoutDuration: 12
+  recoveryHealthFraction: 0.12
+  additionalDamageDelay: 0.4
+  minimumHeadHitDamage: 7
+  headHitRadius: 0.3
+  baseHeadKnockoutChance: 0.04
+  maximumHeadKnockoutChance: 0.25
+  headProtection: 0
+  shortKnockoutDuration: 2.5
+  fleeWhenUnarmed: 1
+  fleeBelowHealthFraction: 0.35
+  fleeSeconds: 7
+  logStateChanges: 0
 --- !u!114 &4887045213124422445
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1683,6 +1684,7 @@ MonoBehaviour:
   target: {fileID: 0}
   weaponGoal: {fileID: 2491602411571299931}
   staff: {fileID: 9215708919458771914}
+  martialArts: {fileID: 0}
   positiveStrikingTip: {fileID: 19431970307649357}
   negativeStrikingTip: {fileID: 3585270112093745689}
   health: {fileID: 8229122519162650255}
@@ -1693,6 +1695,21 @@ MonoBehaviour:
   runUntilRange: 3.1
   runSpeed: 3.2
   chasseSpeed: 0.85
+  minimumFightDistance: 1.65
+  preferredFightDistance: 2.15
+  spacingRetreatSpeed: 2.1
+  postAttackRetreatSeconds: 1.5
+  dodgeIncomingNpcAttacks: 0
+  dodgeChance: 0.55
+  dodgeDistance: 1.2
+  dodgeCooldown: 2
+  blockIncomingNpcAttacks: 0
+  blockChance: 0.8
+  parryIncomingNpcAttacks: 0
+  parryChance: 0.7
+  cycleAttackDirections: 0
+  firstAttackDirection: 0
+  initialAttackDelay: 0
   attacks:
   - clockDirection: 12
     windupOffset: {x: -0, y: 0.06, z: -0.02}
@@ -3161,6 +3178,7 @@ MonoBehaviour:
   previewProgress: 0
   previewApplyRootStep: 0
   showRangeGizmos: 1
+  useAnimatedAttackDisplacement: 0
 --- !u!114 &7380102777491968283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3226,6 +3244,11 @@ MonoBehaviour:
   maxDepenetrationSpeed: 2.5
   deathLinearDamping: 0.15
   deathAngularDamping: 0.3
+  knockdownImpulse: 5
+  maximumNavMeshRecoveryDistance: 0.8
+  getUpBlendSeconds: 0.65
+  faceUpGetUpState: 
+  faceDownGetUpState: 
 --- !u!114 &4280150817888302783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3322,8 +3345,8 @@ MonoBehaviour:
   - property: 17
     lowName: LipThin
     highName: LipFull
-  baselineVisualRoot: {fileID: 612531137754941300}
-  baseScale: {x: 1, y: 1, z: 1}
+  baselineVisualRoot: {fileID: 5836857545405221004}
+  baseScale: {x: 0.93673325, y: 0.93673325, z: 0.93673325}
   baselineCapsule: {fileID: 0}
   baseCapsuleHeight: 0
   baseCapsuleCenter: {x: 0, y: 0, z: 0}
@@ -3383,6 +3406,106 @@ MonoBehaviour:
   previewExpression: 0
   previewIntensity: 1
   defaultTransition: 0.2
+--- !u!114 &884466220011337701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505335420497508511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 339d87a234be39f498d946409f7f93bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.GoreImpactSystem
+  enableGore: 1
+  bloodIntensityMultiplier: 1
+  maximumSurfaceMarks: 80
+  markLifetime: 180
+  minorBleedDamagePerSecond: 0.025
+  severeBleedDamagePerSecond: 0.5
+  minorBleedSeconds: 8
+  severeBleedSeconds: 35
+  severeHitDamage: 18
+  trailDistance: 0.25
+  bloodPoolRadius: 0.7
+  bloodPoolGrowSeconds: 9
+  sprayPrefab: {fileID: 0}
+  bloodMarkMaterial: {fileID: 0}
+  surfaceLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  maximumActiveSprays: 6
+  maximumDropletsPerHit: 36
+--- !u!114 &884466220011337702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505335420497508511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc07d302547c18c4ab961d0933bfa736, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.DismemberableCharacter
+  enableDismemberment: 1
+  forceSeverOnValidJointStrike: 0
+  disableSevering: 0
+  minimumSlashSpeed: 5
+  minimumSeveringDamage: 6
+  livingSeverSpeedMultiplier: 1.5
+  livingSeverDamageMultiplier: 2
+  corpseSeverSpeedMultiplier: 0.6
+  corpseSeverDamageMultiplier: 0.35
+  minimumEdgeAlignment: 0.3
+  jointHitRadius: 0.18
+  physicsImpulseMultiplier: 1
+  maximumSeveredBodyParts: 11
+  collisionGraceSeconds: 0.5
+  amputationBleedPerSecond: 1.1
+  amputationBleedSeconds: 45
+  woundMaterial: {fileID: 0}
+  joints: []
+  resistances:
+  - point: 0
+    damage: 10
+    speed: 10
+  - point: 1
+    damage: 9
+    speed: 9
+  - point: 2
+    damage: 9
+    speed: 9
+  - point: 3
+    damage: 7
+    speed: 8
+  - point: 4
+    damage: 7
+    speed: 8
+  - point: 5
+    damage: 6
+    speed: 7
+  - point: 6
+    damage: 6
+    speed: 7
+  - point: 7
+    damage: 10
+    speed: 10
+  - point: 8
+    damage: 10
+    speed: 10
+  - point: 9
+    damage: 7
+    speed: 8
+  - point: 10
+    damage: 7
+    speed: 8
+  npcId: 
+  characterName: 
+  factionId: 
+  bountyId: 
+  bountyValue: 0
 --- !u!1 &1507897083838241949
 GameObject:
   m_ObjectHideFlags: 0
@@ -9127,10 +9250,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.034
-  m_Height: 1.9
-  m_Direction: 3
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 0.045
+  m_Height: 1.900213
+  m_Direction: 1
+  m_Center: {x: -0.18632306, y: 0.37801746, z: -0.018045794}
 --- !u!114 &9215708919458771914
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9143,7 +9266,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2d57298a541ce74e87ef190ec46533f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.PhysicalMeleeWeapon
+  weaponId: bo-staff
+  proficiencyClass: 0
+  currentState: 0
+  useMeshContactShape: 0
+  rightGrip: {fileID: 0}
+  leftGrip: {fileID: 0}
+  secondaryGrip: {fileID: 0}
+  rightGripEuler: {x: 0, y: 0, z: 0}
+  rightGripPosition: {x: 0, y: 0, z: 0}
+  leftGripEuler: {x: 0, y: 0, z: 0}
+  leftGripPosition: {x: 0, y: 0, z: 0}
+  maximumTargetSpeed: 20
+  maximumTargetAngularSpeed: 60
+  locomotionCarry: 0.75
+  maximumLinearVelocity: 12
+  maximumAngularVelocity: 35
+  formerOwnerCollisionDelay: 0.4
+  preset: 0
+  positionErrorMeters: 0
+  rotationErrorDegrees: 0
   strikeType: 0
+  bladeEdgeLocalAxis: {x: 1, y: 0, z: 0}
   grip: {fileID: 3541632553720405422}
   npcGripTarget: {fileID: 2491602411571299931}
   ownerRoot: {fileID: 612531137754941300}
@@ -9153,6 +9297,9 @@ MonoBehaviour:
   rotationSpring: 850
   rotationDamper: 65
   maximumDriveForce: 1200
+  useAttributesForNpcHandling: 1
+  useAttributesForPlayerHandling: 0
+  activeControlMultiplier: 1
   minimumImpactSpeed: 1.8
   damagePerJoule: 0.15
   damageCooldown: 0.2
@@ -12950,7 +13097,7 @@ Transform:
   m_GameObject: {fileID: 9090825946669338425}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.47404367, y: 1.2834077, z: -0.016006678}
+  m_LocalPosition: {x: -0.46401685, y: 1.2865498, z: -0.005499001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

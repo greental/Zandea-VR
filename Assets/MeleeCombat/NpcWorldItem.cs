@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using JunkerEquipment;
 
 namespace KenshiVR.MeleeCombat
 {
@@ -11,11 +12,21 @@ namespace KenshiVR.MeleeCombat
         public NpcItemInstance Item => items.Count > 0 ? items[0] : null;
         public IReadOnlyList<NpcItemInstance> Items => items;
         public static event Action<NpcItemInstance, Vector3> WorldObjectDestroyed;
+        void Awake()
+        {
+            // Physical chest, corpse and ground loot uses the same backpack lifecycle
+            // as tools; the world item identity remains on this object when retrieved.
+            if (GetComponent<XRGrabInteractable>() && GetComponent<Rigidbody>() &&
+                !GetComponent<VRInventoryItem>()) gameObject.AddComponent<VRInventoryItem>();
+        }
         public void Bind(NpcItemInstance item)
         {
             GroundLootCollider.Ensure(gameObject);
             items.Clear();
             if (item != null) items.Add(item);
+            if (item?.Definition && item.Definition.category == NpcItemCategory.Clothing &&
+                item.Definition.equippedAppearance && !GetComponent<WearableLoot>())
+                gameObject.AddComponent<WearableLoot>();
         }
         public void BindMany(IReadOnlyList<NpcItemInstance> group)
         {

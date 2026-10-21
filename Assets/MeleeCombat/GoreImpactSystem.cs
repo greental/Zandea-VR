@@ -61,28 +61,24 @@ namespace KenshiVR.MeleeCombat
             bleedPerSecond = Mathf.Max(bleedPerSecond, severe ? severeBleedDamagePerSecond : minorBleedDamagePerSecond);
             bleedUntil = Mathf.Max(bleedUntil, Time.time + (severe ? severeBleedSeconds : minorBleedSeconds));
             Vector3 direction = slashDirection.sqrMagnitude > .01f ? slashDirection.normalized : -packet.HitNormalWorld;
-            if (sprayPrefab)
+            var spray = AcquireSpray(packet.HitPointWorld, direction);
+            if (spray)
             {
-                var spray = AcquireSpray(packet.HitPointWorld, direction);
-                if (spray) { spray.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); spray.Play(); }
-            }
-            else
-            {
-                var spray = AcquireSpray(packet.HitPointWorld, direction);
-                if (spray) spray.Emit(Mathf.Clamp(Mathf.RoundToInt(effectiveDamage * .8f * bloodIntensityMultiplier),
-                    4, maximumDropletsPerHit));
+                spray.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                spray.Emit(Mathf.Clamp(Mathf.RoundToInt(effectiveDamage * 1.5f * bloodIntensityMultiplier),
+                    8, maximumDropletsPerHit));
             }
             if (maximumSurfaceMarks > 0)
             {
-                if (TrySurface(packet.HitPointWorld + direction * .03f, direction, 2.5f, out var hit))
-                    AddMark(hit.point, hit.normal);
-                else if (TrySurface(packet.HitPointWorld + Vector3.up * .05f, Vector3.down, 2.5f, out hit))
+                // Hit marks belong on the floor. Rays along the slash used to
+                // place quads on bodies and props, leaving apparent midair stains.
+                if (TrySurface(packet.HitPointWorld + Vector3.up * 1.5f, Vector3.down, 5f, out var hit))
                     AddMark(hit.point, hit.normal);
             }
         }
 
         public void RegisterAmputation(float damagePerSecond, float seconds, Vector3 joint, Vector3 direction,
-            bool decapitation)
+            bool decapitation, Transform woundAnchor = null)
         {
             if (!enableGore) return;
             bleedPerSecond = Mathf.Max(bleedPerSecond, Mathf.Max(0f, damagePerSecond));
@@ -93,16 +89,18 @@ namespace KenshiVR.MeleeCombat
                 spray.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                 spray.Emit(decapitation ? 55 : 36);
             }
-            StartCoroutine(SecondarySpray(joint, direction, decapitation));
+            StartCoroutine(SecondarySpray(joint, direction, decapitation, woundAnchor));
         }
 
-        System.Collections.IEnumerator SecondarySpray(Vector3 joint, Vector3 direction, bool decapitation)
+        System.Collections.IEnumerator SecondarySpray(Vector3 joint, Vector3 direction, bool decapitation, Transform woundAnchor)
         {
             int pulses = decapitation ? 5 : 3;
+            Vector3 localJoint = woundAnchor ? woundAnchor.InverseTransformPoint(joint) : Vector3.zero;
             for (int i = 0; i < pulses; i++)
             {
                 yield return new WaitForSeconds(.3f);
-                var spray = AcquireSpray(joint, direction.sqrMagnitude > .01f ? direction.normalized : Vector3.up);
+                Vector3 currentJoint = woundAnchor ? woundAnchor.TransformPoint(localJoint) : joint;
+                var spray = AcquireSpray(currentJoint, direction.sqrMagnitude > .01f ? direction.normalized : Vector3.up);
                 if (spray) spray.Emit(Mathf.Max(3, 15 - i * 3));
             }
         }
@@ -162,7 +160,8 @@ namespace KenshiVR.MeleeCombat
             {
                 var hit = surfaceHits[i];
                 if (!hit.collider || hit.collider.transform.IsChildOf(transform) || hit.distance >= closest ||
-                    hit.normal.y <= .1f) continue;
+                    hit.normal.y <= .45f || hit.collider.attachedRigidbody ||
+                    hit.collider.GetComponentInParent<ScavengerHealth>()) continue;
                 nearest = hit;
                 closest = hit.distance;
             }
@@ -200,8 +199,8 @@ namespace KenshiVR.MeleeCombat
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.startLifetime = new ParticleSystem.MinMaxCurve(.25f, .7f);
             main.startSpeed = new ParticleSystem.MinMaxCurve(2.5f, 5f);
-            main.startSize = new ParticleSystem.MinMaxCurve(.008f, .032f);
-            main.startColor = new Color(.32f, .015f, .01f, .95f);
+            main.startSize = new ParticleSystem.MinMaxCurve(.025f, .065f);
+            main.startColor = new Color(.65f, .018f, .01f, 1f);
             main.gravityModifier = 1.2f;
             main.maxParticles = 80;
             var emission = particles.emission;
@@ -223,7 +222,9 @@ namespace KenshiVR.MeleeCombat
             var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
             if (!shader) shader = Shader.Find("Universal Render Pipeline/Unlit");
             defaultBloodMaterial = new Material(shader) { name = "Runtime blood" };
-            defaultBloodMaterial.SetColor("_BaseColor", new Color(.35f, .012f, .008f, .8f));
+            // Particle vertex color supplies the blood tint; multiplying it by
+            // another dark red made the spray nearly invisible in the headset.
+            defaultBloodMaterial.SetColor("_BaseColor", Color.white);
             defaultBloodMaterial.SetFloat("_Surface", 1f);
             defaultBloodMaterial.SetFloat("_SrcBlend", 5f);
             defaultBloodMaterial.SetFloat("_DstBlend", 10f);

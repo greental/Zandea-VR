@@ -180,7 +180,7 @@ ModelImporter:
       takeName: StrudRig|Trot
       internalID: 3138678862769653818
       firstFrame: 0
-      lastFrame: 28
+      lastFrame: 14
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -238,7 +238,7 @@ ModelImporter:
       takeName: StrudRig|Walk
       internalID: -4341303213655338830
       firstFrame: 0
-      lastFrame: 48
+      lastFrame: 22
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

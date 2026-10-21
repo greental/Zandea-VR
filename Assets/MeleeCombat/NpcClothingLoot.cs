@@ -19,6 +19,14 @@ namespace KenshiVR.MeleeCombat
         [Range(-1f, 1f)] public float minimumOutwardDot = -1f;
         [Min(.04f)] public float handleRadius = .18f;
         readonly Dictionary<NpcEquipmentSlot, Handle> handles = new();
+        float nextHandleRefresh;
+
+        public bool IsPullHandle(XRGrabInteractable interactable)
+        {
+            foreach (var handle in handles.Values)
+                if (!handle.complete && handle.grab == interactable) return true;
+            return false;
+        }
 
         sealed class Handle
         {
@@ -78,6 +86,15 @@ namespace KenshiVR.MeleeCombat
         void Build(NpcEquipmentSlot slot, AppearanceSlot visualSlot)
         {
             var item = inventory ? inventory.Equipped(slot) : null;
+            if (handles.TryGetValue(slot, out var previous))
+            {
+                if (previous.complete && item == null || previous.hand || !previous.complete && previous.item == item && previous.worn &&
+                    previous.worn.definition == item?.Definition?.equippedAppearance) return;
+                Cancel(previous);
+                if (previous.proxy) Destroy(previous.proxy);
+                previous.snapshot?.Dispose();
+                handles.Remove(slot);
+            }
             if (item == null || !item.Definition || item.Definition.category != NpcItemCategory.Clothing) return;
             AppearanceSpawnedItem worn = null;
             foreach (var marker in GetComponentsInChildren<AppearanceSpawnedItem>(true))
@@ -124,6 +141,14 @@ namespace KenshiVR.MeleeCombat
         void Released(Handle handle) => handle.hand = null;
         void Update()
         {
+            if (Time.time >= nextHandleRefresh)
+            {
+                nextHandleRefresh = Time.time + .5f;
+                Build(NpcEquipmentSlot.Torso, AppearanceSlot.Torso);
+                Build(NpcEquipmentSlot.Legs, AppearanceSlot.Legs);
+                Build(NpcEquipmentSlot.Headwear, AppearanceSlot.Headwear);
+                SetAvailability();
+            }
             if (!CanStrip) return;
             foreach (var handle in handles.Values)
             {
@@ -159,10 +184,27 @@ namespace KenshiVR.MeleeCombat
             { Destroy(physical); return; }
             handle.complete = true;
             if (handle.worn) handle.worn.gameObject.SetActive(false);
+            if(handle.item.Definition.equippedAppearance&&handle.item.Definition.equippedAppearance.slot==AppearanceSlot.Headwear)
+                handle.proxy.GetComponentInParent<DetachedHeadAppearance>()?.RevealHair();
             PocketLootSpill.Spill(inventory, handle.item, transform, position);
             handle.proxy.GetComponent<Collider>().enabled = false;
             handle.grab.interactionLayers = (InteractionLayerMask)0;
             StartCoroutine(Handoff(handle, hand, physical.GetComponent<XRGrabInteractable>()));
+        }
+        public void TransferHeadwearToDetachedHead(Transform detachedHead)
+        {
+            if (!detachedHead || !handles.TryGetValue(NpcEquipmentSlot.Headwear, out var handle) || handle.complete) return;
+            AppearanceSpawnedItem copied = null;
+            foreach (var item in detachedHead.GetComponentsInChildren<AppearanceSpawnedItem>(true))
+                if (item.slot == AppearanceSlot.Headwear && item.definition == handle.item.Definition.equippedAppearance) { copied = item; break; }
+            if (!copied) return;
+            handle.worn = copied;
+            if (handle.proxy)
+            {
+                handle.proxy.transform.SetParent(detachedHead, true);
+                Bounds bounds = handle.snapshot != null ? handle.snapshot.Bounds : new Bounds(Vector3.zero, Vector3.one * .2f);
+                handle.proxy.transform.SetPositionAndRotation(copied.transform.TransformPoint(ClothingLootFactory.GripPoint(bounds, handle.item.Definition)), copied.transform.rotation);
+            }
         }
         IEnumerator Handoff(Handle handle, XRDirectInteractor hand, XRGrabInteractable physical)
         {

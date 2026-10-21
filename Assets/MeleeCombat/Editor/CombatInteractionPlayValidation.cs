@@ -7,6 +7,10 @@ using KenshiVR.MeleeCombat;
 using ScavengerNPC;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using VRKoombar.WeaponsStaging.Contracts;
 
 [InitializeOnLoad]
 public static class CombatInteractionPlayValidation
@@ -91,6 +95,12 @@ public static class CombatInteractionPlayValidation
                         $"target={(weapon && weapon.npcGripTarget ? weapon.npcGripTarget.name : "none")}");
                 var health = actor.GetComponent<ScavengerHealth>();
                 if (!health) throw new Exception(prefabName + " has no health");
+                for (int hit = 0; hit < 3; hit++)
+                    health.ApplyDamage(new DamagePacket { BaseDamage = 12f, DamageType = DamageType.Kinetic,
+                        PhysicalImpact = PhysicalImpactKind.Blunt, HitPointWorld = actor.transform.position + Vector3.up,
+                        HitNormalWorld = Vector3.forward });
+                if (health.IsDead || health.IsUnconscious)
+                    throw new Exception(prefabName + " falls to three ordinary blunt hits");
                 health.ForceDeath();
                 var grab = weapon.Grab;
                 var body = weapon.GetComponent<Rigidbody>();
@@ -103,11 +113,17 @@ public static class CombatInteractionPlayValidation
                     !groundShape || !groundShape.enabled || groundShape.isTrigger || !equipment)
                     throw new Exception(prefabName + " weapon cannot be picked up after death: " +
                         $"state={weapon.State} grab={hasPhysicalGrab} kinematic={(body && body.isKinematic)}");
+                if (prefabName.Contains("BoStaff") || prefabName.Contains("SawCleaver") ||
+                    prefabName.Contains("RustedDoubleAxe") || prefabName.Contains("PoleBlade"))
+                    if (!weapon.secondaryGrip || grab.selectMode != InteractableSelectMode.Multiple ||
+                        Vector3.Distance(weapon.secondaryGrip.position, weapon.grip ? weapon.grip.position : weapon.transform.position) < .1f)
+                        throw new Exception(prefabName + " has no usable two-hand grip");
+                if (prefabName.Contains("BoStaff") && !prefabName.Contains("Unified"))
+                    ValidateTwoHand(weapon);
                 var slotObject = new GameObject("Validation melee equipment slot");
                 try
                 {
                     var slot = slotObject.AddComponent<JunkerEquipmentSlot>();
-                    slot.meleeOnly = true;
                     if (!slot.TryMount(equipment) || equipment.currentSlot != slot)
                         throw new Exception(prefabName + " did not mount in a standard melee equipment slot");
                     slot.ReleaseItem(equipment);
@@ -124,5 +140,45 @@ public static class CombatInteractionPlayValidation
         if (checkedWeapons < 12) throw new Exception($"Only {checkedWeapons} generated weapons checked");
         report.Insert(0, $"PASS generated weapon pickup: {checkedWeapons} variants\n");
         return report.ToString();
+    }
+
+    static void ValidateTwoHand(PhysicalMeleeWeapon weapon)
+    {
+        var manager = UnityEngine.Object.FindFirstObjectByType<XRInteractionManager>();
+        if (!manager) throw new Exception("Main has no XR interaction manager for two-hand test");
+        var primaryObject = new GameObject("Two-hand primary validation");
+        var secondaryObject = new GameObject("Two-hand secondary validation");
+        try
+        {
+            var primary = primaryObject.AddComponent<XRDirectInteractor>();
+            var secondary = secondaryObject.AddComponent<XRDirectInteractor>();
+            primary.interactionManager = secondary.interactionManager = manager;
+            primary.transform.position = weapon.grip ? weapon.grip.position : weapon.transform.position;
+            secondary.transform.position = weapon.secondaryGrip.position;
+            primary.StartManualInteraction((IXRSelectInteractable)weapon.Grab);
+            if (weapon.State != PhysicalMeleeWeapon.HoldState.HeldByPlayer ||
+                weapon.Grab.interactorsSelecting.Count != 1)
+                throw new Exception("primary hand did not select the weapon");
+            secondary.StartManualInteraction((IXRSelectInteractable)weapon.Grab);
+            if (weapon.Grab.interactorsSelecting.Count != 2)
+                throw new Exception("secondary hand could not select the same weapon");
+            secondary.EndManualInteraction();
+            if (weapon.State != PhysicalMeleeWeapon.HoldState.HeldByPlayer ||
+                weapon.Grab.interactorsSelecting.Count != 1)
+                throw new Exception("secondary release broke the primary hold");
+            secondary.StartManualInteraction((IXRSelectInteractable)weapon.Grab);
+            primary.EndManualInteraction();
+            if (weapon.State != PhysicalMeleeWeapon.HoldState.HeldByPlayer ||
+                weapon.Grab.interactorsSelecting.Count != 1)
+                throw new Exception("primary release did not promote the other hand");
+            secondary.EndManualInteraction();
+            if (weapon.State != PhysicalMeleeWeapon.HoldState.World || weapon.Grab.isSelected)
+                throw new Exception("final release did not drop the weapon cleanly");
+        }
+        finally
+        {
+            UnityEngine.Object.Destroy(primaryObject);
+            UnityEngine.Object.Destroy(secondaryObject);
+        }
     }
 }

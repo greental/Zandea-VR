@@ -12,6 +12,7 @@ namespace KenshiVR.CharacterCreator
         public CosmeticCatalog catalog;
         [Header("Clothing and armor")]
         public AppearanceItemDefinition headwear, torso, legs, feet, hands, outerArmor;
+        [SerializeField, HideInInspector] bool headPresent = true;
         readonly Dictionary<AppearanceSlot, AppearanceSpawnedItem> spawned = new Dictionary<AppearanceSlot, AppearanceSpawnedItem>();
         readonly Dictionary<Renderer, bool> hiddenByAppearance = new Dictionary<Renderer, bool>();
         static readonly int BaseColor = Shader.PropertyToID("baseColorFactor");
@@ -33,11 +34,11 @@ namespace KenshiVR.CharacterCreator
             if (UnityEditor.EditorUtility.IsPersistent(gameObject)) return;
 #endif
             spawned.Clear();
-            foreach (var marker in GetComponentsInChildren<AppearanceSpawnedItem>(true)) spawned[marker.slot] = marker;
+            foreach (var marker in AppearanceItems()) spawned[marker.slot] = marker;
             var data = appearance.Data;
-            Equip(AppearanceSlot.Hair, headwear && headwear.hideHair ? null : catalog ? catalog.ForHair(data.hairStyle, data.hairVariant) : null);
-            Equip(AppearanceSlot.Beard, catalog ? catalog.ForBeard(data.beardStyle, data.beardVariant) : null);
-            Equip(AppearanceSlot.Headwear, headwear); Equip(AppearanceSlot.Torso, outerArmor && outerArmor.coversOutfit ? null : torso);
+            Equip(AppearanceSlot.Hair, headPresent && !(headwear && headwear.hideHair) ? catalog ? catalog.ForHair(data.hairStyle, data.hairVariant) : null : null);
+            Equip(AppearanceSlot.Beard, headPresent && catalog ? catalog.ForBeard(data.beardStyle, data.beardVariant) : null);
+            Equip(AppearanceSlot.Headwear, headPresent ? headwear : null); Equip(AppearanceSlot.Torso, outerArmor && outerArmor.coversOutfit ? null : torso);
             Equip(AppearanceSlot.Legs, outerArmor && outerArmor.coversOutfit ? null : legs); Equip(AppearanceSlot.Feet, feet);
             Equip(AppearanceSlot.Hands, hands); Equip(AppearanceSlot.OuterArmor, outerArmor);
             Tint(AppearanceSlot.Hair, data.hairColor);
@@ -45,10 +46,25 @@ namespace KenshiVR.CharacterCreator
             ApplyClothingMorphs(data);
             UpdateBodyVisibility();
         }
+        public void SetHeadPresent(bool present) { headPresent = present; Refresh(); }
+        public void PrepareDetachedHair(Transform detached,Transform sourceHead)
+        {
+            if(!detached||!sourceHead||!catalog||!appearance||!(headwear&&headwear.hideHair))return;
+            var data=appearance.Data;var definition=catalog.ForHair(data.hairStyle,data.hairVariant);
+            if(!definition||!definition.prefab||definition.skinned)return;
+            var hair=Instantiate(definition.prefab);
+            hair.name="Detached head hair - "+definition.name;
+            hair.transform.SetPositionAndRotation(sourceHead.TransformPoint(definition.prefab.transform.localPosition),sourceHead.rotation*definition.prefab.transform.localRotation);
+            hair.transform.localScale=Vector3.Scale(sourceHead.lossyScale,definition.prefab.transform.localScale);
+            hair.transform.SetParent(detached,true);
+            var marker=hair.AddComponent<AppearanceSpawnedItem>();marker.slot=AppearanceSlot.Hair;marker.definition=definition;
+            var detachedAppearance=detached.gameObject.AddComponent<DetachedHeadAppearance>();detachedAppearance.hiddenHair=hair;
+            hair.SetActive(false);
+        }
         void Equip(AppearanceSlot slot, AppearanceItemDefinition definition)
         {
             var currentItems = new List<AppearanceSpawnedItem>();
-            foreach (var existing in GetComponentsInChildren<AppearanceSpawnedItem>(true))
+            foreach (var existing in AppearanceItems())
                 if (existing.slot == slot) currentItems.Add(existing);
             if (definition && currentItems.Count > 0 &&
                 currentItems.TrueForAll(existing => existing && existing.definition == definition))
@@ -63,8 +79,14 @@ namespace KenshiVR.CharacterCreator
                     Transform correctBone = boneName == "$CharacterRoot" ? transform : FindBone(boneName);
                     if (correctBone)
                         foreach (var existing in currentItems)
+                        {
                             if (existing.transform.parent != correctBone)
-                                existing.transform.SetParent(correctBone, true);
+                                existing.transform.SetParent(correctBone, false);
+                            // Refresh may reuse a helmet that was spawned before its
+                            // fitting prefab was captured. Reapply the complete saved
+                            // prefab hierarchy so Inspector changes become visible now.
+                            ApplyAuthoredRigidFit(existing.transform, definition.prefab.transform);
+                        }
                 }
                 spawned[slot] = currentItems[0]; return;
             }
@@ -86,6 +108,7 @@ namespace KenshiVR.CharacterCreator
                 instance = Instantiate(definition.prefab);
             instance.name = "Appearance " + slot + " - " + definition.name;
             instance.transform.SetParent(definition.skinned ? transform : bone, false);
+            if (!definition.skinned) ApplyAuthoredRigidFit(instance.transform, definition.prefab.transform);
             // Prefab-local position, rotation, and scale are the authored fit.
             if (definition.skinned && !BindSkin(instance, definition)) { DestroyObject(instance); return; }
             if (definition.skinned && (definition.requiredMorphs == null || definition.requiredMorphs.Length == 0))
@@ -95,6 +118,15 @@ namespace KenshiVR.CharacterCreator
 #if UNITY_EDITOR
             if (!Application.isPlaying) UnityEditor.Undo.RegisterCreatedObjectUndo(instance, "Equip appearance item");
 #endif
+        }
+        IEnumerable<AppearanceSpawnedItem> AppearanceItems()
+        {
+            var found = new HashSet<AppearanceSpawnedItem>();
+            foreach (var item in GetComponentsInChildren<AppearanceSpawnedItem>(true))
+                if (item && found.Add(item)) yield return item;
+            if (!skeletonRoot) yield break;
+            foreach (var item in skeletonRoot.GetComponentsInChildren<AppearanceSpawnedItem>(true))
+                if (item && found.Add(item)) yield return item;
         }
         bool BindSkin(GameObject instance, AppearanceItemDefinition definition)
         {
@@ -133,6 +165,27 @@ namespace KenshiVR.CharacterCreator
             foreach (var bone in skeletonRoot.GetComponentsInChildren<Transform>(true))
                 if (bone.name == boneName && !bone.GetComponentInParent<AppearanceSpawnedItem>()) return bone;
             return null;
+        }
+        static void ApplyAuthoredRigidFit(Transform instance, Transform authored)
+        {
+            if (!instance || !authored) return;
+            instance.localPosition = authored.localPosition;
+            instance.localRotation = authored.localRotation;
+            instance.localScale = authored.localScale;
+            for (int i = 0; i < authored.childCount; i++)
+            {
+                var authoredChild = authored.GetChild(i);
+                Transform instanceChild = null;
+                // Prefer the same hierarchy index, but use the name when a prefab
+                // gained an extra helper child after an older instance was spawned.
+                if (i < instance.childCount && instance.GetChild(i).name == authoredChild.name)
+                    instanceChild = instance.GetChild(i);
+                else
+                    for (int j = 0; j < instance.childCount; j++)
+                        if (instance.GetChild(j).name == authoredChild.name)
+                        { instanceChild = instance.GetChild(j); break; }
+                if (instanceChild) ApplyAuthoredRigidFit(instanceChild, authoredChild);
+            }
         }
         void Tint(AppearanceSlot slot, Color color)
         {

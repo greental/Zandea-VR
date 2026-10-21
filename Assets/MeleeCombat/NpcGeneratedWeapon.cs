@@ -9,6 +9,7 @@ namespace KenshiVR.MeleeCombat
     {
         public PhysicalMeleeWeapon weaponPrefab;
         public Transform gripTarget;
+        public Transform weaponPoseTarget;
         public StarvingBandit bandit;
         public ScavengerHealth health;
         public bool dropOnDestroy = true;
@@ -94,11 +95,44 @@ namespace KenshiVR.MeleeCombat
             return true;
         }
 
+        public void SetStartingWeapon(PhysicalMeleeWeapon prefab)
+        {
+            if (!prefab || weaponPrefab == prefab) return;
+            if (instance)
+            {
+                var equipped = inventory ? inventory.Equipped(NpcEquipmentSlot.MainWeapon) : null;
+                if (equipped != null) inventory.Remove(equipped);
+                var previous = instance;
+                instance = null;
+                previous.Drop();
+                Destroy(previous.gameObject);
+            }
+            weaponPrefab = prefab;
+            EnsureStartingWeapon();
+        }
+
+        public void ClearStartingWeapon()
+        {
+            if (instance)
+            {
+                var equipped = inventory ? inventory.Equipped(NpcEquipmentSlot.MainWeapon) : null;
+                if (equipped != null) inventory.Remove(equipped);
+                var previous = instance;
+                instance = null;
+                previous.Drop();
+                Destroy(previous.gameObject);
+            }
+            weaponPrefab = null;
+            startEquipped = false;
+            acquireNearbyWeapons = false;
+            BindWeapon();
+        }
+
         void Start() => BindWeapon();
 
         void BindWeapon()
         {
-            if (bandit) bandit.SetEquippedStaff(instance, gripTarget);
+            if (bandit) bandit.SetEquippedStaff(instance, weaponPoseTarget ? weaponPoseTarget : gripTarget);
             var grip = GetComponentInChildren<MocapStaffPreview>(true);
             if (grip)
             {
@@ -107,7 +141,7 @@ namespace KenshiVR.MeleeCombat
                     instance.transform.Find("Positive striking tip") : null;
                 grip.negativeTip = instance ? instance.transform.Find("NegativeStrikingTip") ??
                     instance.transform.Find("Negative striking tip") : null;
-                grip.driveVisualStaff = false;
+                grip.driveVisualStaff = instance && instance.useMeshContactShape;
             }
             var motion = GetComponent<BanditRigMotion>();
             if (motion) motion.staff = instance;

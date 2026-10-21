@@ -19,6 +19,16 @@ namespace KenshiVR.MeleeCombat
         public bool useImportedCombatAttacks;
         public bool useImportedCombatGuards;
         public bool useImportedCombatReactions;
+        public bool usePresentedTwoHandStrikes;
+        public bool presentAxeHeadForward;
+        [HideInInspector] public bool reviewLocomotionOverride;
+        [HideInInspector] public Vector2 reviewLocomotion;
+        [Tooltip("Weapon-family combat idle arm rotations, baked by the armed bandit pass.")]
+        public Quaternion[] armedGuardRotations;
+        public static readonly HumanBodyBones[] GuardBones = {
+            HumanBodyBones.LeftShoulder, HumanBodyBones.LeftUpperArm, HumanBodyBones.LeftLowerArm, HumanBodyBones.LeftHand,
+            HumanBodyBones.RightShoulder, HumanBodyBones.RightUpperArm, HumanBodyBones.RightLowerArm, HumanBodyBones.RightHand };
+        float armedGuardWeight;
         [Min(.1f)] public float locomotionReferenceSpeed = 3.2f;
         [Min(0)] public float blendSeconds = .12f;
         [Min(0)] public float inPlaceAttackStep = .35f;
@@ -60,6 +70,74 @@ namespace KenshiVR.MeleeCombat
             if (brain) brain.useAnimatedAttackDisplacement = useImportedCombatAttacks;
             if (grip && grip.staff) shieldVisual = grip.staff.transform.Find("Temporary shield visual");
         }
+        public void ApplyWeaponProfile(BanditMocapNpcDriver source)
+        {
+            if (!source) return;
+            if (!source.grip) source.grip = source.GetComponent<MocapStaffPreview>();
+            if (!grip) grip = GetComponent<MocapStaffPreview>();
+            if (!source.grip || !grip) return;
+            if (!brain) brain = GetComponentInParent<StarvingBandit>();
+            var sourceBrain = source.brain ? source.brain : source.GetComponentInParent<StarvingBandit>();
+            if (!animator) animator = GetComponent<Animator>();
+            animator.runtimeAnimatorController = source.GetComponent<Animator>().runtimeAnimatorController;
+            useDirectionalStaffAttacks = source.useDirectionalStaffAttacks;
+            useImportedCombatAttacks = source.useImportedCombatAttacks;
+            useImportedCombatGuards = source.useImportedCombatGuards;
+            useImportedCombatReactions = source.useImportedCombatReactions;
+            usePresentedTwoHandStrikes = source.usePresentedTwoHandStrikes;
+            presentAxeHeadForward = source.presentAxeHeadForward;
+            armedGuardRotations = source.armedGuardRotations == null ? null : (Quaternion[])source.armedGuardRotations.Clone();
+            grip.primaryHandIsLeft = source.grip.primaryHandIsLeft;
+            grip.secondaryHandGrips = source.grip.secondaryHandGrips;
+            grip.attachment = source.grip.attachment;
+            grip.driveVisualStaff = source.grip.driveVisualStaff;
+            grip.rightGripLocal = source.grip.rightGripLocal;
+            grip.leftGripLocal = source.grip.leftGripLocal;
+            grip.rightHandFromStaff = source.grip.rightHandFromStaff;
+            grip.leftHandFromStaff = source.grip.leftHandFromStaff;
+            if (grip.secondaryVisualWeapon)
+            {
+                if (grip.secondaryPhysicalWeapon) grip.secondaryPhysicalWeapon.DropFromNpc();
+                Destroy(grip.secondaryVisualWeapon.gameObject);
+                grip.secondaryVisualWeapon = null;
+                grip.secondaryPhysicalWeapon = null;
+            }
+            if (source.grip.secondaryVisualWeapon)
+            {
+                grip.secondaryVisualWeapon = Instantiate(source.grip.secondaryVisualWeapon, brain.transform);
+                grip.secondaryWeaponFromRightHand = source.grip.secondaryWeaponFromRightHand;
+                if (!grip.secondaryWeaponTarget)
+                {
+                    grip.secondaryWeaponTarget = new GameObject("Saber physical target").transform;
+                    grip.secondaryWeaponTarget.SetParent(transform, false);
+                }
+                grip.secondaryPhysicalWeapon = grip.secondaryVisualWeapon.GetComponent<PhysicalMeleeWeapon>();
+                if (grip.secondaryPhysicalWeapon)
+                {
+                    grip.secondaryPhysicalWeapon.ownerRoot = brain.transform;
+                    grip.secondaryPhysicalWeapon.npcGripTarget = grip.secondaryWeaponTarget;
+                    grip.secondaryPhysicalWeapon.TryEquipNpc(brain, grip.secondaryWeaponTarget);
+                }
+            }
+            shieldVisual = grip.staff ? grip.staff.transform.Find("Temporary shield visual") : null;
+            if (brain && sourceBrain && sourceBrain.attacks != null)
+            {
+                brain.attacks = System.Array.ConvertAll(sourceBrain.attacks,
+                    a => JsonUtility.FromJson<StaffAttackDefinition>(JsonUtility.ToJson(a)));
+                brain.useAnimatedAttackDisplacement = useImportedCombatAttacks;
+                brain.blockIncomingNpcAttacks = sourceBrain.blockIncomingNpcAttacks;
+                brain.parryIncomingNpcAttacks = sourceBrain.parryIncomingNpcAttacks;
+            }
+            if (grip.staff && grip.staff.grip && grip.staff.npcGripTarget)
+            {
+                var target = grip.staff.npcGripTarget;
+                target.localPosition = grip.staff.grip.localPosition;
+                target.localRotation = grip.staff.grip.localRotation;
+            }
+            animator.applyRootMotion = useImportedCombatAttacks;
+            animator.Rebind();
+            previousState = StarvingBandit.State.Idle;
+        }
         void OnEnable()
         {
             if (!health && brain) health = brain.health;
@@ -91,6 +169,8 @@ namespace KenshiVR.MeleeCombat
             if (brain.martialArts && brain.martialArts.IsUnarmed) return;
             Vector3 velocity = agent && agent.enabled && agent.isOnNavMesh ? agent.velocity : Vector3.zero;
             Vector3 local = brain.transform.InverseTransformDirection(velocity) / locomotionReferenceSpeed;
+            if (reviewLocomotionOverride)
+            { local.x = reviewLocomotion.x; local.z = reviewLocomotion.y; }
             // Spacing retreats use NavMeshAgent.Move rather than a destination,
             // so agent.velocity can read as zero despite the backward step.
             if (useImportedCombatAttacks && brain.state == StarvingBandit.State.Retreat)
@@ -117,7 +197,9 @@ namespace KenshiVR.MeleeCombat
                 fallbackStepApplied = 0f;
                 // Mirror only two-hand animations. Mirroring a one-hand clip would
                 // transfer the grip to the wrong hand and detach its weapon.
-                if (useDirectionalStaffAttacks || useImportedCombatAttacks)
+                if (usePresentedTwoHandStrikes)
+                    animator.CrossFadeInFixedTime(Locomotion, blendSeconds);
+                else if (useDirectionalStaffAttacks || useImportedCombatAttacks)
                     animator.CrossFadeInFixedTime(StaffDirections[Mathf.Clamp(brain.CurrentAttack, 0, 7)], blendSeconds);
                 else
                 {
@@ -140,6 +222,9 @@ namespace KenshiVR.MeleeCombat
         }
         void OnAnimatorMove()
         {
+            // The comparison scene plays attacks in place so a clip's baked root
+            // translation cannot make one variant jump out of its review lane.
+            if (reviewLocomotionOverride) return;
             if (brain && brain.martialArts && brain.martialArts.IsUnarmed) return;
             if (!useImportedCombatAttacks || !brain || !animator ||
                 (health && health.IsDead) || (ragdoll && ragdoll.Active)) return;
@@ -159,19 +244,25 @@ namespace KenshiVR.MeleeCombat
                     brain.CurrentPhase == StarvingBandit.AttackPhase.Strike ?
                     Mathf.Lerp(.15f, 1f, Mathf.SmoothStep(0f, 1f, brain.AttackProgress)) : 1f;
                 float wanted = Mathf.Max(brain.PlannedApproachStep, inPlaceAttackStep) * fraction;
-                float amount = Mathf.Max(0f, wanted - fallbackStepApplied);
+                float amount = Mathf.Min(Mathf.Max(0f, wanted - fallbackStepApplied),
+                    Mathf.Max(.01f, brain.runSpeed * Time.deltaTime));
                 step = brain.transform.forward * amount;
                 fallbackStepApplied += amount;
             }
-            if (step.sqrMagnitude > .25f) step = step.normalized * .5f;
+            float maxStep = Mathf.Max(.01f, brain.runSpeed * Time.deltaTime);
+            if (step.magnitude > maxStep) step = step.normalized * maxStep;
             if (agent && agent.enabled && agent.isOnNavMesh) agent.Move(step);
             else brain.transform.position += step;
         }
         void LateUpdate()
         {
             if (brain && brain.martialArts && brain.martialArts.IsUnarmed) return;
+            if (grip && grip.secondaryPhysicalWeapon &&
+                (!brain || !brain.staff || health && health.State != NpcConsciousness.Conscious || ragdoll && ragdoll.Active))
+                grip.secondaryPhysicalWeapon.DropFromNpc();
             if (!animator || !animator.enabled || (health && health.IsDead) || (ragdoll && ragdoll.Active)) return;
             if (!grip) return;
+            ApplyArmedGuard(Time.deltaTime);
             if (useDirectionalStaffAttacks && brain && (brain.state == StarvingBandit.State.Anticipate ||
                 brain.state == StarvingBandit.State.Strike || brain.state == StarvingBandit.State.FollowThrough ||
                 brain.state == StarvingBandit.State.Recover))
@@ -182,11 +273,16 @@ namespace KenshiVR.MeleeCombat
             parryWeight = Mathf.MoveTowards(parryWeight, parryTarget, Time.deltaTime * 8f);
             grip.runtimeWeaponOffsetWeight = 1f;
             grip.runtimeWeaponOffsetWorld = brain ? brain.transform.TransformDirection(
-                new Vector3(.18f, .22f, .18f) * blockWeight + new Vector3(0, .16f, .22f) * parryWeight) : Vector3.zero;
+                new Vector3(.18f, .22f, .18f) * blockWeight + new Vector3(0, .16f, .22f) * parryWeight +
+                (grip.secondaryHandGrips ? new Vector3(0, .08f, .22f) * armedGuardWeight : Vector3.zero)) : Vector3.zero;
             grip.runtimeWeaponFaceWeight = shieldVisual ? blockWeight : 0f;
             grip.runtimeWeaponAxisWeight = parryWeight;
             if (brain)
             {
+                if (grip.secondaryHandGrips &&
+                    (brain.state == StarvingBandit.State.Anticipate || brain.state == StarvingBandit.State.Strike ||
+                     brain.state == StarvingBandit.State.FollowThrough))
+                    grip.runtimeWeaponOffsetWorld += brain.transform.forward * .12f;
                 if (grip.secondaryHandGrips)
                     grip.runtimeWeaponAxisLocal = grip.leftGripLocal - grip.rightGripLocal;
                 else if (grip.positiveTip && grip.negativeTip)
@@ -194,13 +290,109 @@ namespace KenshiVR.MeleeCombat
                         grip.staff.transform.InverseTransformPoint(grip.negativeTip.position);
                 grip.runtimeWeaponAxisWorld = grip.secondaryHandGrips ? brain.transform.right :
                     (brain.transform.right + brain.transform.up * .45f).normalized;
+                if (presentAxeHeadForward && grip.positiveTip && !grip.secondaryHandGrips &&
+                    (brain.state == StarvingBandit.State.Anticipate || brain.state == StarvingBandit.State.Strike ||
+                     brain.state == StarvingBandit.State.FollowThrough))
+                {
+                    float presentation = brain.state == StarvingBandit.State.Strike ? 1f : .55f;
+                    grip.runtimeWeaponOffsetWorld += brain.transform.forward * (.22f * presentation);
+                    grip.runtimeWeaponAxisLocal = grip.staff.transform.InverseTransformPoint(grip.positiveTip.position) -
+                        (grip.primaryHandIsLeft ? grip.leftGripLocal : grip.rightGripLocal);
+                    grip.runtimeWeaponAxisWorld = (brain.transform.forward + brain.transform.up * .35f).normalized;
+                    grip.runtimeWeaponAxisWeight = Mathf.Max(grip.runtimeWeaponAxisWeight, presentation);
+                }
             }
             if (shieldVisual && brain)
             {
                 grip.runtimeWeaponFaceLocal = grip.staff.transform.InverseTransformDirection(shieldVisual.up);
                 grip.runtimeWeaponFacingWorld = brain.transform.forward;
             }
+            ApplyPresentedTwoHandStrike();
             grip.ApplyGripFromCurrentPose();
+        }
+
+        void ApplyPresentedTwoHandStrike()
+        {
+            grip.runtimePoseOverrideWeight = 0f;
+            if (!usePresentedTwoHandStrikes || !brain || !brain.staff || !grip.secondaryHandGrips ||
+                !grip.positiveTip) return;
+            bool attacking = brain.state == StarvingBandit.State.Anticipate ||
+                brain.state == StarvingBandit.State.Strike ||
+                brain.state == StarvingBandit.State.FollowThrough ||
+                brain.state == StarvingBandit.State.Recover;
+            if (!attacking) return;
+            var chest = animator.GetBoneTransform(HumanBodyBones.Chest);
+            if (!chest) return;
+            float progress = Mathf.Clamp01(brain.AttackProgress);
+            float weight = brain.CurrentPhase switch {
+                StarvingBandit.AttackPhase.Windup => Mathf.SmoothStep(0f, 1f, progress),
+                StarvingBandit.AttackPhase.Recovery => 1f - Mathf.SmoothStep(0f, 1f, progress),
+                _ => 1f
+            };
+            float startSide = brain.CurrentAttack < 4 ? 1f : -1f;
+            float sweep = brain.CurrentPhase == StarvingBandit.AttackPhase.Windup ? startSide :
+                brain.CurrentPhase == StarvingBandit.AttackPhase.Strike ?
+                    Mathf.Lerp(startSide, -startSide, Mathf.SmoothStep(0f, 1f, progress)) : -startSide;
+            var forward = brain.transform.forward;
+            var right = brain.transform.right;
+            var up = brain.transform.up;
+            // Let a heavy weapon travel across the full front of the bandit. The
+            // previous forward-heavy axis only covered a short, flat-looking arc.
+            Vector3 axisWorld = (forward * .22f + right * sweep + up * .12f).normalized;
+            var wristLocal = grip.primaryHandIsLeft ? grip.leftGripLocal : grip.rightGripLocal;
+            var tipAxisLocal = grip.staff.transform.InverseTransformPoint(grip.positiveTip.position) - wristLocal;
+            if (tipAxisLocal.sqrMagnitude < .01f) return;
+            var currentRotation = grip.staff.transform.rotation;
+            var rotation = Quaternion.FromToRotation(currentRotation * tipAxisLocal, axisWorld) * currentRotation;
+            var wristWorld = chest.position + forward * .42f + right * (sweep * .19f) - up * .13f;
+            grip.runtimePoseOverridePosition = wristWorld - rotation * wristLocal;
+            grip.runtimePoseOverrideRotation = rotation;
+            grip.runtimePoseOverrideWeight = weight;
+        }
+
+        public void ApplyArmedGuard(float deltaTime)
+        {
+            if (!animator) animator = GetComponent<Animator>();
+            if (!animator || !animator.isHuman || !brain || !brain.staff ||
+                armedGuardRotations == null || armedGuardRotations.Length != GuardBones.Length) return;
+            bool locomotion = !reacting && (brain.state == StarvingBandit.State.Idle ||
+                brain.state == StarvingBandit.State.Approach || brain.state == StarvingBandit.State.Circle ||
+                brain.state == StarvingBandit.State.Retreat);
+            armedGuardWeight = Mathf.MoveTowards(armedGuardWeight, locomotion ? 1f : 0f,
+                deltaTime / Mathf.Max(.04f, blendSeconds));
+            for (int i = 0; i < GuardBones.Length; i++)
+            {
+                var bone = animator.GetBoneTransform(GuardBones[i]);
+                if (bone) bone.localRotation = Quaternion.Slerp(bone.localRotation, armedGuardRotations[i], armedGuardWeight);
+            }
+            if (grip && !grip.secondaryHandGrips && armedGuardWeight > 0)
+            {
+                ReadyHand(grip.primaryHandIsLeft, true);
+                ReadyHand(!grip.primaryHandIsLeft, grip.secondaryVisualWeapon);
+            }
+        }
+
+        void ReadyHand(bool left, bool holdingWeapon)
+        {
+            var chest = animator.GetBoneTransform(HumanBodyBones.Chest);
+            var upper = animator.GetBoneTransform(left ? HumanBodyBones.LeftUpperArm : HumanBodyBones.RightUpperArm);
+            var lower = animator.GetBoneTransform(left ? HumanBodyBones.LeftLowerArm : HumanBodyBones.RightLowerArm);
+            var hand = animator.GetBoneTransform(left ? HumanBodyBones.LeftHand : HumanBodyBones.RightHand);
+            if (!chest || !upper || !lower || !hand) return;
+            var forward = brain.transform.forward;
+            var side = brain.transform.right * (left ? -1 : 1);
+            var target = chest.position + side * .22f - brain.transform.up * .12f + forward * (holdingWeapon ? .36f : .22f);
+            var rotation = hand.rotation;
+            if (holdingWeapon && !(left && grip.secondaryVisualWeapon))
+            {
+                var offset = left ? grip.leftHandFromStaff : grip.rightHandFromStaff;
+                var localAxis = left ? grip.leftGripLocal - grip.rightGripLocal : grip.rightGripLocal - grip.leftGripLocal;
+                var weaponRotation = rotation * Quaternion.Inverse(offset);
+                rotation = Quaternion.FromToRotation(weaponRotation * localAxis, brain.transform.up * .8f + forward * .6f) * rotation;
+            }
+            var wantedRotation = Quaternion.Slerp(hand.rotation, rotation, armedGuardWeight);
+            ScavengerPose.Solve(upper, lower, hand, Vector3.Lerp(hand.position, target, armedGuardWeight), side - brain.transform.up);
+            hand.rotation = wantedRotation;
         }
     }
 }

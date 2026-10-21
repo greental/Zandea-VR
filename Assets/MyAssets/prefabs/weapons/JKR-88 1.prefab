@@ -33,12 +33,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1732824015611908677}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 2.2090712, y: 1.029237, z: -8.114704}
   m_LocalScale: {x: 1.2, y: 1.2000003, z: 1.2000003}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4407998370279840427}
   - {fileID: 6647132562276415158}
   - {fileID: 2813343324619151551}
   - {fileID: 381322476734163763}
@@ -64,7 +63,7 @@ MonoBehaviour:
   gripPositionOffset: {x: 0, y: 0, z: 0}
   gripRotationOffset: {x: 0, y: 0, z: 0}
   holsterRadius: 0.18
-  visualRoot: {fileID: 4407998370279840427}
+  visualRoot: {fileID: 0}
   gripPose: {fileID: 2813343324619151551}
   muzzle: {fileID: 6647132562276415158}
   movingSlide: {fileID: 0}
@@ -201,7 +200,7 @@ MonoBehaviour:
   m_ReinitializeDynamicAttachEverySingleGrab: 1
   m_AttachEaseInTime: 0.08
   m_MovementType: 2
-  m_PredictedVisualsTransform: {fileID: 4407998370279840427}
+  m_PredictedVisualsTransform: {fileID: 0}
   m_VelocityDamping: 1
   m_VelocityScale: 1
   m_AngularVelocityDamping: 1
@@ -284,9 +283,11 @@ MonoBehaviour:
   itemId: JKR-88
   gripPose: {fileID: 2813343324619151551}
   muzzle: {fileID: 6647132562276415158}
+  useGripTransformDirectly: 0
   gripPositionOffset: {x: 0, y: 0, z: 0}
   gripRotationOffset: {x: 0, y: 0, z: 0}
   useSmoothHeldPose: 1
+  heldCollidersAreTriggers: 0
   heldPositionSmoothness: 24
   heldRotationSmoothness: 24
   holsterPosition: {x: 0, y: 0, z: 0}
@@ -406,7 +407,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.JunkerPistol
   muzzle: {fileID: 6647132562276415158}
-  recoilVisual: {fileID: 4407998370279840427}
+  recoilVisual: {fileID: 0}
   muzzleCompe: {fileID: 0}
   muzzleCompeTravel: 0.014
   flash: {fileID: 3573681498861994237}
@@ -445,6 +446,7 @@ MonoBehaviour:
   mountedEuler: {x: 0, y: -90, z: 0}
   startingCell: {fileID: 6654326700349307136}
   shotsPerCell: 24
+  toolSecondsPerCell: 60
   insertionRadius: 0.18
   latchAudio: {fileID: 3920672540027946138}
   latchClick: {fileID: 8300000, guid: 1c314fe9694c98540a0a1c44e7f7bcea, type: 3}
@@ -806,80 +808,6 @@ Transform:
   - {fileID: 4488234774928619398}
   m_Father: {fileID: 2860791539902030342}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &1365870580459589817
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 2860791539902030342}
-    m_Modifications:
-    - target: {fileID: -8098169881513260187, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_Name
-      value: Visual
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.1686624
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.1686624
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.1686624
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.0003152289
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.09045923
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.12033672
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: -90
-      objectReference: {fileID: 0}
-    - target: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 3150474306388093854, guid: b671940969808b148acd397510bad0b5, type: 3}
---- !u!4 &4407998370279840427 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3447742079981357586, guid: b671940969808b148acd397510bad0b5, type: 3}
-  m_PrefabInstance: {fileID: 1365870580459589817}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1968984321367847274
 PrefabInstance:
   m_ObjectHideFlags: 0

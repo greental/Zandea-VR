@@ -36,6 +36,11 @@ namespace KenshiVR.CharacterCreator.Editor
         [MenuItem("Tools/Character Creator/Bake Fitted Wardrobe Rig")]
         public static void Bake()
         {
+            BakeItems(Names);
+        }
+
+        public static void BakeItems(IEnumerable<string> names)
+        {
             if (!AssetDatabase.IsValidFolder(Output)) AssetDatabase.CreateFolder(Root, "RiggedItems");
             var model = AssetDatabase.LoadAssetAtPath<GameObject>(Model);
             if (!model) throw new InvalidOperationException("Missing creator reference model");
@@ -45,14 +50,14 @@ namespace KenshiVR.CharacterCreator.Editor
             try
             {
                 var data = BuildReference(reference);
-                foreach (string name in Names)
+                foreach (string name in names)
                 {
                     try { BakeItem(name, reference, data); baked++; }
                     catch (Exception error) { Debug.LogError("Rig bake failed for " + name + ": " + error); }
                 }
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-                Debug.Log("Rigged wardrobe baked: " + baked + "/" + Names.Length + " items. The boot prefab contains independently bound left and right meshes.");
+                Debug.Log("Rigged wardrobe baked: " + baked + " items. The boot prefab contains independently bound left and right meshes.");
             }
             finally { UnityEngine.Object.DestroyImmediate(reference); }
         }

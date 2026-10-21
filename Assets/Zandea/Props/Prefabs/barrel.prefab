@@ -256,6 +256,7 @@ MonoBehaviour:
   minimumImpactSpeed: 5
   collisionEnergyThreshold: 80
   meleeDamageThreshold: 5
+  requireWeaponDamage: 1
   fracturedPrefab: {fileID: 536610657905773696, guid: 56ddad176111fd646aa20dac0be65065, type: 3}
 --- !u!114 &5509855726480446259
 MonoBehaviour:

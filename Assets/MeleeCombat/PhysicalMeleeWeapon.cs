@@ -21,17 +21,31 @@ namespace KenshiVR.MeleeCombat
         public string weaponId = "bo-staff";
         public WeaponProficiencyClass proficiencyClass;
         [SerializeField] HoldState currentState;
-        public HoldState State { get => currentState; private set => currentState = value; }
+        public HoldState State { get => currentState; private set {
+            currentState = value;
+            if (groundSupport && useMeshContactShape) groundSupport.enabled = value == HoldState.World;
+        } }
+        [Tooltip("Use the fitted mesh colliders while held; the broad loot support box is only for dropped weapons.")]
+        public bool useMeshContactShape;
+        BoxCollider groundSupport;
         public Component Owner { get; private set; }
         public Component Reservation { get; private set; }
         float reservationUntil;
         public static readonly HashSet<PhysicalMeleeWeapon> Active = new();
         [Header("Authored player grips")]
         public Transform rightGrip, leftGrip, secondaryGrip;
+        [Tooltip("Optional handed secondary markers. The second selector uses these regardless of which hand selected first.")]
+        public Transform secondaryRightGrip, secondaryLeftGrip;
+        [Tooltip("Player-only roll around the measured weapon length when using the NPC grip as the pickup pose.")]
+        public float npcPickupRoll = 180f;
         [Tooltip("Fixed right-hand blade angle relative to the controller. Edit this or the Right Grip marker in the Inspector.")]
         public Vector3 rightGripEuler;
+        [Tooltip("Right-hand grip position offset in controller space (metres).")]
+        public Vector3 rightGripPosition;
         [Tooltip("Fixed left-hand blade angle relative to the controller. Edit this or the Left Grip marker in the Inspector.")]
         public Vector3 leftGripEuler;
+        [Tooltip("Left-hand grip position offset in controller space (metres).")]
+        public Vector3 leftGripPosition;
         [Min(0)] public float maximumTargetSpeed = 20f;
         [Min(0)] public float maximumTargetAngularSpeed = 60f;
         [Range(0, 1)] public float locomotionCarry = .75f;
@@ -101,10 +115,16 @@ namespace KenshiVR.MeleeCombat
         public XRGrabInteractable Grab => grab;
         CharacterAttributes attributeSource;
         IXRSelectInteractor hand;
+        IXRSelectInteractor secondaryHand;
         VRBodyController playerBody;
         Transform selectedGrip;
         Transform handPoseGrip;
+        Transform secondaryPoseGrip;
+        Transform selectedSecondaryGrip;
         Quaternion selectedGripOffset = Quaternion.identity;
+        Vector3 selectedGripLocalPosition;
+        Quaternion selectedGripLocalRotation = Quaternion.identity;
+        Vector3 selectedHandOffset;
         Vector3 previousTargetPosition;
         Quaternion previousTargetRotation;
         bool targetInitialized;
@@ -115,6 +135,10 @@ namespace KenshiVR.MeleeCombat
         bool deferCollisionRestore;
         bool oldTrackPosition, oldTrackRotation;
         bool droppedByNpc;
+        Vector3 previousNpcBodyPosition;
+        Quaternion previousNpcBodyRotation;
+        bool hasPreviousNpcBodyPose;
+        bool externalContact;
         JunkerEquipmentItem equipmentItem;
         JunkerEquipmentRig pendingHolsterRig;
         readonly Dictionary<Collider, float> lastHit = new();
@@ -125,6 +149,11 @@ namespace KenshiVR.MeleeCombat
             body = GetComponent<Rigidbody>();
             grab = GetComponent<XRGrabInteractable>();
             var groundShape = GroundLootCollider.Ensure(gameObject);
+            groundSupport = groundShape;
+            if (groundSupport && useMeshContactShape) groundSupport.enabled = State == HoldState.World;
+            if (useMeshContactShape)
+                foreach (var shape in GetComponentsInChildren<Collider>())
+                    if (shape != groundSupport && !(shape is MeshCollider) && !shape.isTrigger) shape.enabled = false;
             // Older generated bandit variants serialized the physical weapon and
             // collider but omitted the grab component entirely.
             if (!grab) grab = gameObject.AddComponent<XRGrabInteractable>();
@@ -136,6 +165,7 @@ namespace KenshiVR.MeleeCombat
             body.maxAngularVelocity = 35f;
             if (grab)
             {
+                EnsureSecondaryGrip();
                 if (grip) grab.attachTransform = grip;
                 if (grab.colliders.Count == 0)
                     foreach (var shape in GetComponentsInChildren<Collider>())
@@ -143,11 +173,14 @@ namespace KenshiVR.MeleeCombat
                 if (groundShape && !grab.colliders.Contains(groundShape)) grab.colliders.Add(groundShape);
                 grab.movementType = XRBaseInteractable.MovementType.VelocityTracking;
                 grab.useDynamicAttach = false;
-                grab.selectMode = InteractableSelectMode.Single;
+                grab.selectMode = secondaryGrip ? InteractableSelectMode.Multiple : InteractableSelectMode.Single;
                 grab.throwOnDetach = false;
                 grab.trackPosition = grab.trackRotation = false;
                 grab.selectEntered.AddListener(Selected);
                 grab.selectExited.AddListener(Released);
+                var collisionGuard = GetComponent<HeldLootCollisionGuard>();
+                if (!collisionGuard) collisionGuard = gameObject.AddComponent<HeldLootCollisionGuard>();
+                collisionGuard.Bind(grab);
                 // Melee weapons participate in the same body backpack inventory as tools.
                 // Add after our release listener so Drop runs before storage snapshots physics.
                 if (!TryGetComponent<VRInventoryItem>(out _)) gameObject.AddComponent<VRInventoryItem>();
@@ -159,7 +192,7 @@ namespace KenshiVR.MeleeCombat
         {
             pendingHolsterRig = null;
             Active.Remove(this);
-            if (State != HoldState.World)
+            if (State != HoldState.World && (!ownerRoot || ownerRoot.gameObject.activeInHierarchy))
             {
                 var delay = formerOwnerCollisionDelay;
                 formerOwnerCollisionDelay = 0;
@@ -181,6 +214,18 @@ namespace KenshiVR.MeleeCombat
         void Selected(UnityEngine.XR.Interaction.Toolkit.SelectEnterEventArgs args)
         {
             if (State == HoldState.HeldByNpc) return;
+            if (State == HoldState.HeldByPlayer && secondaryGrip && args.interactorObject != hand)
+            {
+                secondaryHand = args.interactorObject;
+                bool leftSecondary = IsLeftHand(secondaryHand);
+                selectedSecondaryGrip = leftSecondary
+                    ? (secondaryLeftGrip ? secondaryLeftGrip : secondaryGrip)
+                    : (secondaryRightGrip ? secondaryRightGrip : secondaryGrip);
+                secondaryPoseGrip = new GameObject("Active secondary hand pose").transform;
+                secondaryPoseGrip.SetParent(selectedSecondaryGrip, false);
+                if (playerBody) playerBody.SetMeleeGrip(leftSecondary, secondaryPoseGrip);
+                return;
+            }
             if (equipmentItem && equipmentItem.currentSlot)
                 equipmentItem.currentSlot.ReleaseItem(equipmentItem);
             pendingHolsterRig = null;
@@ -189,8 +234,7 @@ namespace KenshiVR.MeleeCombat
             hand = args.interactorObject;
             playerBody = hand.transform.GetComponentInParent<VRBodyController>();
             if (!playerBody) playerBody = FindFirstObjectByType<VRBodyController>();
-            bool leftHand = playerBody && playerBody.leftController &&
-                (hand.transform == playerBody.leftController || hand.transform.IsChildOf(playerBody.leftController));
+            bool leftHand = IsLeftHand(hand);
             bool rightHand = playerBody && playerBody.rightController &&
                 (hand.transform == playerBody.rightController || hand.transform.IsChildOf(playerBody.rightController));
             if (!leftHand && !rightHand) leftHand = hand.handedness == InteractorHandedness.Left;
@@ -202,10 +246,14 @@ namespace KenshiVR.MeleeCombat
             selectedGrip = leftHand ? (leftGrip ? leftGrip : grip) : (rightGrip ? rightGrip : grip);
             if (!selectedGrip) selectedGrip = transform;
             selectedGripOffset = Quaternion.Euler(leftHand ? leftGripEuler : rightGripEuler);
+            selectedHandOffset = leftHand ? leftGripPosition : rightGripPosition;
+            selectedGripLocalPosition = transform.InverseTransformPoint(selectedGrip.position);
+            selectedGripLocalRotation = Quaternion.Inverse(transform.rotation) * selectedGrip.rotation;
+            CorrectNpcPickupRoll();
             if (handPoseGrip) Destroy(handPoseGrip.gameObject);
             handPoseGrip = new GameObject("Active hand pose").transform;
             handPoseGrip.SetParent(selectedGrip, false);
-            handPoseGrip.localRotation = selectedGripOffset;
+            handPoseGrip.localRotation = Quaternion.Inverse(Quaternion.Inverse(transform.rotation) * selectedGrip.rotation) * selectedGripLocalRotation * selectedGripOffset;
             oldTrackPosition = grab.trackPosition;
             oldTrackRotation = grab.trackRotation;
             grab.trackPosition = grab.trackRotation = false;
@@ -217,15 +265,39 @@ namespace KenshiVR.MeleeCombat
             if (equipmentItem) equipmentItem.rig = FindPlayerEquipmentRig();
             ownerPoseInitialized = false;
             previousRootVelocity = previousRootAngularVelocity = Vector3.zero;
+            externalContact = false;
             if (transform.parent) transform.SetParent(null, true);
             // XRI may have cached a kinematic state from storage.
             body.isKinematic = false;
-            Attach(hand.GetAttachTransform(grab));
+            body.interpolation = RigidbodyInterpolation.Extrapolate;
+            var handPose = hand.GetAttachTransform(grab);
+            if (handPose)
+            {
+                Quaternion heldRotation = handPose.rotation * Quaternion.Inverse(selectedGripLocalRotation * selectedGripOffset);
+                Vector3 heldGrip = handPose.position + handPose.rotation * selectedHandOffset;
+                transform.SetPositionAndRotation(heldGrip - heldRotation * selectedGripLocalPosition, heldRotation);
+                body.linearVelocity = body.angularVelocity = Vector3.zero;
+            }
+            Attach(handPose);
         }
         void Released(UnityEngine.XR.Interaction.Toolkit.SelectExitEventArgs args)
         {
+            if (args.interactorObject == secondaryHand)
+            {
+                ClearSecondaryGrip();
+                return;
+            }
             if (State == HoldState.HeldByPlayer)
             {
+                if (secondaryHand != null)
+                {
+                    var promoted = secondaryHand;
+                    var promotedGrip = selectedSecondaryGrip;
+                    ClearSecondaryGrip();
+                    Drop();
+                    BeginPromotedHold(promoted, promotedGrip);
+                    return;
+                }
                 var rig = FindPlayerEquipmentRig();
                 Drop();
                 if (equipmentItem) equipmentItem.rig = rig;
@@ -233,6 +305,41 @@ namespace KenshiVR.MeleeCombat
             }
             grab.trackPosition = oldTrackPosition;
             grab.trackRotation = oldTrackRotation;
+        }
+        void ClearSecondaryGrip()
+        {
+            if (playerBody && secondaryPoseGrip) playerBody.ClearMeleeGrip(secondaryPoseGrip);
+            if (secondaryPoseGrip) Destroy(secondaryPoseGrip.gameObject);
+            secondaryPoseGrip = null;
+            selectedSecondaryGrip = null;
+            secondaryHand = null;
+        }
+
+        void BeginPromotedHold(IXRSelectInteractor promoted, Transform promotedGrip)
+        {
+            hand = promoted;
+            playerBody = hand.transform.GetComponentInParent<VRBodyController>();
+            if (!playerBody) playerBody = FindFirstObjectByType<VRBodyController>();
+            bool left = IsLeftHand(hand);
+            ownerRoot = playerBody ? playerBody.transform.root : hand.transform.root;
+            Owner = hand.transform.GetComponentInParent<MonoBehaviour>();
+            State = HoldState.HeldByPlayer;
+            // Keep the remaining hand at the point it was already holding. Moving
+            // it to the primary marker causes a visible snap when the first hand releases.
+            selectedGrip = promotedGrip ? promotedGrip : left ? (leftGrip ? leftGrip : grip) : (rightGrip ? rightGrip : grip);
+            if (!selectedGrip) selectedGrip = transform;
+            bool keptSecondaryRole = promotedGrip != null;
+            selectedGripOffset = keptSecondaryRole ? Quaternion.identity : Quaternion.Euler(left ? leftGripEuler : rightGripEuler);
+            selectedHandOffset = keptSecondaryRole ? Vector3.zero : left ? leftGripPosition : rightGripPosition;
+            selectedGripLocalPosition = transform.InverseTransformPoint(selectedGrip.position);
+            selectedGripLocalRotation = Quaternion.Inverse(transform.rotation) * selectedGrip.rotation;
+            CorrectNpcPickupRoll();
+            handPoseGrip = new GameObject("Active hand pose").transform;
+            handPoseGrip.SetParent(selectedGrip, false);
+            handPoseGrip.localRotation = Quaternion.Inverse(Quaternion.Inverse(transform.rotation) * selectedGrip.rotation) * selectedGripLocalRotation * selectedGripOffset;
+            if (playerBody) playerBody.SetMeleeGrip(left, handPoseGrip);
+            body.interpolation = RigidbodyInterpolation.Extrapolate;
+            Attach(hand.GetAttachTransform(grab));
         }
         void LateUpdate()
         {
@@ -265,18 +372,33 @@ namespace KenshiVR.MeleeCombat
             if (!npc || !target || State != HoldState.World || (grab && grab.isSelected)) return false;
             if (Reservation && Reservation != npc && Time.time < reservationUntil) return false;
             Reservation = null; Owner = npc; State = HoldState.HeldByNpc;
-            ownerRoot = npc.transform; npcGripTarget = target; hand = null; selectedGrip = null;
+            ownerRoot = npc.transform; npcGripTarget = target; hand = null;
+            selectedGrip = useMeshContactShape ? grip : null;
             if (grab) grab.enabled = false;
-            body.isKinematic = false; body.useGravity = false;
+            body.isKinematic = useMeshContactShape; body.useGravity = false;
             body.linearVelocity = Vector3.zero; body.angularVelocity = Vector3.zero;
-            transform.SetPositionAndRotation(target.position, target.rotation);
-            Attach(target);
+            if (selectedGrip)
+            {
+                var localPosition = transform.InverseTransformPoint(selectedGrip.position);
+                var localRotation = Quaternion.Inverse(transform.rotation) * selectedGrip.rotation;
+                var rotation = target.rotation * Quaternion.Inverse(localRotation);
+                transform.SetPositionAndRotation(target.position - rotation * localPosition, rotation);
+            }
+            else transform.SetPositionAndRotation(target.position, target.rotation);
+            if (useMeshContactShape)
+            {
+                FollowPose = target;
+                hasPreviousNpcBodyPose = false;
+                IgnoreOwner(true);
+            }
+            else Attach(target);
             return true;
         }
         public void Drop()
         {
             if (State == HoldState.World) return;
             var former = State;
+            ClearSecondaryGrip();
             if (playerBody && handPoseGrip) playerBody.ClearMeleeGrip(handPoseGrip);
             playerBody = null; selectedGrip = null; hand = null;
             if (handPoseGrip) Destroy(handPoseGrip.gameObject);
@@ -287,6 +409,7 @@ namespace KenshiVR.MeleeCombat
             transform.SetParent(null, true);
             Owner = null; ownerRoot = null; npcGripTarget = null; State = HoldState.World;
             body.isKinematic = false; body.useGravity = true; body.WakeUp();
+            body.interpolation = RigidbodyInterpolation.Interpolate;
             if (former == HoldState.HeldByNpc)
             {
                 droppedByNpc = true;
@@ -302,14 +425,15 @@ namespace KenshiVR.MeleeCombat
             var target = new GameObject(name + " physical grip target");
             target.hideFlags = HideFlags.HideAndDontSave;
             target.transform.SetPositionAndRotation(pose.position,
-                State == HoldState.HeldByPlayer && selectedGrip ? pose.rotation * Quaternion.Inverse(selectedGrip.localRotation * selectedGripOffset) : pose.rotation);
+                State == HoldState.HeldByPlayer && selectedGrip ? pose.rotation * Quaternion.Inverse(selectedGripLocalRotation * selectedGripOffset) : pose.rotation);
             targetBody = target.AddComponent<Rigidbody>();
             targetBody.isKinematic = true;
             targetBody.interpolation = RigidbodyInterpolation.Interpolate;
             joint = gameObject.AddComponent<ConfigurableJoint>();
             joint.connectedBody = targetBody;
             joint.autoConfigureConnectedAnchor = false;
-            joint.anchor = transform.InverseTransformPoint(selectedGrip ? selectedGrip.position : transform.position);
+            joint.anchor = State == HoldState.HeldByPlayer ? selectedGripLocalPosition :
+                transform.InverseTransformPoint(selectedGrip ? selectedGrip.position : transform.position);
             joint.connectedAnchor = Vector3.zero;
             if (State == HoldState.HeldByPlayer)
             {
@@ -328,10 +452,17 @@ namespace KenshiVR.MeleeCombat
             joint.angularXMotion = joint.angularYMotion = joint.angularZMotion = npcHeld ? ConfigurableJointMotion.Limited : ConfigurableJointMotion.Free;
             if (npcHeld)
             {
-                joint.linearLimit = new SoftJointLimit { limit = npcGripSlack };
-                joint.lowAngularXLimit = new SoftJointLimit { limit = -npcAngularSlack };
-                joint.highAngularXLimit = new SoftJointLimit { limit = npcAngularSlack };
-                joint.angularYLimit = joint.angularZLimit = new SoftJointLimit { limit = npcAngularSlack };
+                body.solverIterations = Mathf.Max(body.solverIterations, 16);
+                body.solverVelocityIterations = Mathf.Max(body.solverVelocityIterations, 8);
+                joint.projectionMode = JointProjectionMode.PositionAndRotation;
+                joint.projectionDistance = useMeshContactShape ? .005f : .015f;
+                joint.projectionAngle = useMeshContactShape ? .75f : 2f;
+                float linearSlack = useMeshContactShape ? Mathf.Min(npcGripSlack, .012f) : npcGripSlack;
+                float angularSlack = useMeshContactShape ? Mathf.Min(npcAngularSlack, 3f) : npcAngularSlack;
+                joint.linearLimit = new SoftJointLimit { limit = linearSlack };
+                joint.lowAngularXLimit = new SoftJointLimit { limit = -angularSlack };
+                joint.highAngularXLimit = new SoftJointLimit { limit = angularSlack };
+                joint.angularYLimit = joint.angularZLimit = new SoftJointLimit { limit = angularSlack };
             }
             joint.rotationDriveMode = RotationDriveMode.Slerp;
             ConfigureJointDrive();
@@ -348,26 +479,49 @@ namespace KenshiVR.MeleeCombat
                 CharacterCombatMath.WeaponControl(attributeSource, body.mass, proficiencyClass) : 1f;
             float linearSpring = positionSpring * activeControlMultiplier;
             float linearDamper = positionDamper * Mathf.Sqrt(activeControlMultiplier);
+            if (State == HoldState.HeldByNpc && useMeshContactShape)
+            {
+                linearSpring *= 3f;
+                linearDamper = Mathf.Max(linearDamper, 2f * Mathf.Sqrt(linearSpring * body.mass));
+            }
             if (State == HoldState.HeldByPlayer)
             {
-                linearSpring *= 1.45f;
+                linearSpring *= 2.5f;
                 linearDamper = Mathf.Max(linearDamper, 2f * Mathf.Sqrt(linearSpring * body.mass));
             }
             joint.xDrive = joint.yDrive = joint.zDrive = new JointDrive {
                 positionSpring = linearSpring,
                 positionDamper = linearDamper,
-                maximumForce = maximumDriveForce * activeControlMultiplier };
+                maximumForce = maximumDriveForce * activeControlMultiplier *
+                    (State == HoldState.HeldByPlayer ? 3f : State == HoldState.HeldByNpc && useMeshContactShape ? 5f : 1f) };
             joint.slerpDrive = new JointDrive {
-                positionSpring = rotationSpring * activeControlMultiplier,
+                positionSpring = rotationSpring * activeControlMultiplier *
+                    (State == HoldState.HeldByPlayer ? 2f : State == HoldState.HeldByNpc && useMeshContactShape ? 3f : 1f),
                 positionDamper = rotationDamper * Mathf.Sqrt(activeControlMultiplier),
-                maximumForce = maximumDriveForce * activeControlMultiplier };
+                maximumForce = maximumDriveForce * activeControlMultiplier *
+                    (State == HoldState.HeldByPlayer ? 3f : State == HoldState.HeldByNpc && useMeshContactShape ? 5f : 1f) };
         }
         Transform FollowPose { get; set; }
         void FixedUpdate()
         {
+            if (State == HoldState.HeldByNpc && useMeshContactShape)
+            {
+                previousNpcBodyPosition = body.position;
+                previousNpcBodyRotation = body.rotation;
+                hasPreviousNpcBodyPose = true;
+                positionErrorMeters = selectedGrip && FollowPose ?
+                    Vector3.Distance(selectedGrip.position, FollowPose.position) : 0f;
+                return;
+            }
             if (!FollowPose || !targetBody) return;
             if (State == HoldState.HeldByPlayer && ownerRoot)
             {
+                Vector3 rootStep = ownerPoseInitialized ? ownerRoot.position - previousOwnerPosition : Vector3.zero;
+                bool contactedWorld = externalContact;
+                externalContact = false;
+                if (!contactedWorld && rootStep.sqrMagnitude > .000001f && rootStep.sqrMagnitude < .0225f &&
+                    !body.SweepTest(rootStep.normalized, out _, rootStep.magnitude, QueryTriggerInteraction.Ignore))
+                    body.position += rootStep;
                 if (ownerPoseInitialized)
                 {
                     // The XR origin moves in render frames. A raw fixed-step
@@ -391,18 +545,30 @@ namespace KenshiVR.MeleeCombat
                 body.linearVelocity = Vector3.ClampMagnitude(body.linearVelocity, maximumLinearVelocity);
                 body.angularVelocity = Vector3.ClampMagnitude(body.angularVelocity, maximumAngularVelocity);
             }
-            var gripLocal = selectedGrip ? selectedGrip.localPosition : Vector3.zero;
-            var gripRotation = selectedGrip ? selectedGrip.localRotation * selectedGripOffset : Quaternion.identity;
+            var gripLocal = State == HoldState.HeldByPlayer ? selectedGripLocalPosition : Vector3.zero;
+            var gripRotation = State == HoldState.HeldByPlayer ? selectedGripLocalRotation * selectedGripOffset : Quaternion.identity;
             var desiredRotation = State == HoldState.HeldByPlayer ? FollowPose.rotation * Quaternion.Inverse(gripRotation) : FollowPose.rotation;
-            var desiredPosition = FollowPose.position;
+            var desiredPosition = State == HoldState.HeldByPlayer ? FollowPose.position + FollowPose.rotation * selectedHandOffset : FollowPose.position;
+            if (State == HoldState.HeldByPlayer && secondaryHand != null && selectedSecondaryGrip)
+            {
+                var otherPose = secondaryHand.GetAttachTransform(grab);
+                Vector3 gripAxis = transform.InverseTransformPoint(selectedSecondaryGrip.position) - selectedGripLocalPosition;
+                Vector3 handAxis = otherPose ? otherPose.position - desiredPosition : Vector3.zero;
+                if (gripAxis.sqrMagnitude > .0025f && handAxis.sqrMagnitude > .0025f)
+                {
+                    Quaternion correction = Quaternion.FromToRotation(desiredRotation * gripAxis, handAxis);
+                    desiredRotation = Quaternion.RotateTowards(Quaternion.identity, correction, 65f) * desiredRotation;
+                }
+            }
             if (targetInitialized && State != HoldState.HeldByPlayer)
             {
                 // The kinematic target supplies the joint with a world-space velocity.
                 // Large tracking recenter jumps are bounded without weakening ordinary locomotion.
                 desiredPosition = Vector3.MoveTowards(previousTargetPosition, desiredPosition,
-                    maximumTargetSpeed * Time.fixedDeltaTime);
+                    Mathf.Max(maximumTargetSpeed, useMeshContactShape ? 60f : 0f) * Time.fixedDeltaTime);
                 desiredRotation = Quaternion.RotateTowards(previousTargetRotation, desiredRotation,
-                    maximumTargetAngularSpeed * Mathf.Rad2Deg * Time.fixedDeltaTime);
+                    Mathf.Max(maximumTargetAngularSpeed, useMeshContactShape ? 150f : 0f) *
+                    Mathf.Rad2Deg * Time.fixedDeltaTime);
             }
             previousTargetPosition = desiredPosition; previousTargetRotation = desiredRotation; targetInitialized = true;
             if (State == HoldState.HeldByPlayer)
@@ -415,10 +581,13 @@ namespace KenshiVR.MeleeCombat
             }
             else
             {
-                targetBody.MovePosition(desiredPosition);
-                targetBody.MoveRotation(desiredRotation);
+                // The NPC target has no collider. Give the joint this fixed step's
+                // hand pose directly; queued MovePosition/MoveRotation lagged behind
+                // fast staff strikes and let the shaft wobble through the torso.
+                targetBody.position = desiredPosition;
+                targetBody.rotation = desiredRotation;
             }
-            positionErrorMeters = Vector3.Distance(transform.TransformPoint(gripLocal), FollowPose.position);
+            positionErrorMeters = Vector3.Distance(selectedGrip ? selectedGrip.position : transform.TransformPoint(gripLocal), desiredPosition);
             rotationErrorDegrees = Quaternion.Angle(transform.rotation, desiredRotation);
         }
         void Detach()
@@ -439,6 +608,7 @@ namespace KenshiVR.MeleeCombat
             joint = null; targetBody = null;
             ownerPoseInitialized = false;
             previousRootVelocity = previousRootAngularVelocity = Vector3.zero;
+            externalContact = false;
         }
         IEnumerator RestoreFormerOwner(Collider[] formerShapes)
         {
@@ -477,6 +647,8 @@ namespace KenshiVR.MeleeCombat
         }
         void Impact(Collision collision, bool newContact)
         {
+            if (State == HoldState.HeldByPlayer && (!ownerRoot || !collision.collider.transform.IsChildOf(ownerRoot)))
+                externalContact = true;
             if (equipmentItem && equipmentItem.currentSlot) return;
             if (droppedByNpc) return;
             if (collision.contactCount == 0) return;
@@ -484,6 +656,13 @@ namespace KenshiVR.MeleeCombat
             if (ownerRoot && other.transform.IsChildOf(ownerRoot)) return;
             var contact = collision.GetContact(0);
             float speed = collision.relativeVelocity.magnitude;
+            if (State == HoldState.HeldByNpc && useMeshContactShape && hasPreviousNpcBodyPose)
+            {
+                var localPoint = transform.InverseTransformPoint(contact.point);
+                var previousPoint = previousNpcBodyPosition + previousNpcBodyRotation * localPoint;
+                speed = Mathf.Max(speed, Vector3.Distance(contact.point, previousPoint) /
+                    Mathf.Max(Time.fixedDeltaTime, .001f));
+            }
             float impulse = collision.impulse.magnitude;
             var otherWeapon = other.GetComponentInParent<PhysicalMeleeWeapon>();
             bool weaponContact = otherWeapon && otherWeapon != this;
@@ -512,6 +691,13 @@ namespace KenshiVR.MeleeCombat
             if (hand is XRBaseInputInteractor inputHand)
                 inputHand.SendHapticImpulse(Mathf.Clamp01(impulse / 12f), .045f);
             if (weaponContact || !newContact) return;
+            var npcAttacker = ownerRoot ? ownerRoot.GetComponent<StarvingBandit>() : null;
+            if (npcAttacker)
+            {
+                var scoring = npcAttacker.GetComponent<BanditDuelStrikeDamage>();
+                if (scoring) scoring.TryScoreContact(this, other, contact.point, contact.normal, speed);
+                return;
+            }
             if (lastHit.TryGetValue(other, out var previous) && Time.time - previous < damageCooldown) return;
             // Both speed and solver impulse must indicate a strike. Sustained contact cannot
             // repeatedly score damage just because the controller keeps pushing.
@@ -547,7 +733,9 @@ namespace KenshiVR.MeleeCombat
             receiver.ApplyDamage(packet);
             var victimHealth = other.GetComponentInParent<ScavengerNPC.ScavengerHealth>();
             if (victimHealth && victimHealth.LastDamageBlocked) return;
-            float effectiveDamage = victimHealth ? victimHealth.LastDamageTaken : damage;
+            // Health stops accepting damage after death, but a physical sword
+            // strike must still be able to sever a corpse.
+            float effectiveDamage = victimHealth && !victimHealth.IsDead ? victimHealth.LastDamageTaken : damage;
             var anatomy = other.GetComponentInParent<DismemberableCharacter>();
             if (anatomy) anatomy.TrySever(contact.point, slashVelocity,
                 bladeEdgeLocalAxis.sqrMagnitude > .01f ? transform.TransformDirection(bladeEdgeLocalAxis) : transform.right,
@@ -570,12 +758,59 @@ namespace KenshiVR.MeleeCombat
         {
             DrawGrip(rightGrip, Color.cyan);
             DrawGrip(leftGrip, Color.magenta);
+            DrawGrip(secondaryGrip, Color.green);
             if (FollowPose)
             {
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawLine(selectedGrip ? selectedGrip.position : transform.position, FollowPose.position);
                 Gizmos.DrawWireSphere(FollowPose.position, .025f);
             }
+        }
+        void CorrectNpcPickupRoll()
+        {
+            if (rightGrip || leftGrip || Mathf.Approximately(npcPickupRoll, 0f)) return;
+            if (StaffAxisCalibration.TryMeasure(transform, out var positive, out var negative))
+                selectedGripLocalRotation = Quaternion.AngleAxis(npcPickupRoll, (positive - negative).normalized) * selectedGripLocalRotation;
+        }
+
+        void EnsureSecondaryGrip()
+        {
+            // Older Bo Staff authoring accidentally pointed secondaryGrip at the
+            // left primary marker. Treat any primary alias as missing so the two
+            // selectors can never collapse onto the same point.
+            if (secondaryGrip && secondaryGrip != leftGrip && secondaryGrip != rightGrip) return;
+            string label = name.ToLowerInvariant();
+            if (!label.Contains("bostaff") && !label.Contains("bo-staff") && !label.Contains("bo staff") &&
+                !label.Contains("sawcleaver") && !label.Contains("rusteddoubleaxe") &&
+                !label.Contains("poleblade") && !label.Contains("longblade") &&
+                !label.Contains("long blade") && !label.Contains("greatsword") &&
+                !label.Contains("great sword") && !label.Contains("heavycleaver")) return;
+            var marker = new GameObject("Secondary Grip").transform;
+            marker.SetParent(transform, false);
+            Vector3 local = grip ? transform.InverseTransformPoint(grip.position) : Vector3.zero;
+            if (StaffAxisCalibration.TryMeasure(transform, out var positive, out var negative))
+            {
+                var farEnd = Vector3.Distance(local, positive) > Vector3.Distance(local, negative) ? positive : negative;
+                var nearEnd = farEnd == positive ? negative : positive;
+                // Sword grips belong toward the pommel; a second hand on the blade
+                // would steer from an implausible point and fight the primary grip.
+                bool sword = label.Contains("longblade") || label.Contains("long blade") ||
+                    label.Contains("greatsword") || label.Contains("great sword");
+                local = Vector3.Lerp(local, sword ? nearEnd : farEnd, sword ? .65f : .3f);
+            }
+            else local += Vector3.up * .35f;
+            marker.localPosition = local;
+            secondaryGrip = marker;
+        }
+
+        bool IsLeftHand(IXRSelectInteractor interactor)
+        {
+            if (interactor == null) return false;
+            if (playerBody && playerBody.leftController &&
+                (interactor.transform == playerBody.leftController || interactor.transform.IsChildOf(playerBody.leftController))) return true;
+            if (playerBody && playerBody.rightController &&
+                (interactor.transform == playerBody.rightController || interactor.transform.IsChildOf(playerBody.rightController))) return false;
+            return interactor.handedness == InteractorHandedness.Left;
         }
         static void DrawGrip(Transform marker, Color color)
         {

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using KenshiVR.MeleeCombat;
 
 namespace JunkerEquipment
 {
@@ -138,6 +139,8 @@ namespace JunkerEquipment
             foreach (var state in visuals) if (state.renderer) state.renderer.forceRenderingOff = state.forcedOff || (!accessible && hide);
             foreach (var state in interactions)
                 if (state.interactable) state.interactable.interactionLayers = accessible && state.interactable == grab ? state.layers : (InteractionLayerMask)0;
+            var garment = GetComponent<WearableLoot>();
+            if (garment) garment.SetStoredPresentation(true, accessible, hide);
         }
 
         internal void ReleaseFromContainer(bool held)
@@ -158,6 +161,8 @@ namespace JunkerEquipment
                 snapshotValid = false;
             }
             if (equipment) equipment.SetInventoryStored(false);
+            var garment = GetComponent<WearableLoot>();
+            if (garment) garment.SetStoredPresentation(false, true, false);
             RestoreThrow();
             if (held)
             {

@@ -4,6 +4,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using KenshiVR.MeleeCombat;
 using ScavengerNPC;
+using System.Collections.Generic;
 namespace JunkerEquipment
 {
     [DefaultExecutionOrder(10500)]
@@ -20,11 +21,15 @@ namespace JunkerEquipment
         [Header("Dropped item pickup")]
         [Min(.1f), Tooltip("Extra reach when gripping near an item resting on the ground.")]
         public float floorPickupReach=.75f;
-        [Header("Melee equipment slot")]
+        [Header("Additional body item slots")]
         public Transform meleeSheath;
         public Vector3 meleeSheathLocalPosition = new Vector3(-.28f, -.42f, .06f);
         public Vector3 meleeSheathLocalEuler = new Vector3(0f, 0f, 90f);
-        [Min(.1f)] public float meleeSheathRadius = .4f;
+        public Transform rightHipSheath, leftBackSheath, rightBackSheath;
+        public Vector3 rightHipLocalPosition = new Vector3(.28f, -.42f, .06f);
+        public Vector3 leftBackLocalPosition = new Vector3(-.29f, -.18f, -.31f);
+        public Vector3 rightBackLocalPosition = new Vector3(.29f, -.18f, -.31f);
+        [Min(.1f)] public float meleeSheathRadius = .24f;
         XRDirectInteractor[] hands;
         PlayerMartialHand[] martialHands;
         bool[] gripWasPressed;
@@ -36,32 +41,48 @@ namespace JunkerEquipment
         {
             if(!body || !body.xrOrigin)return;
             floorPickupReach = Mathf.Max(floorPickupReach, .75f);
-            if (!meleeSheath)
-            {
-                var anchor = new GameObject("Melee sheath").transform;
-                anchor.SetParent(transform, false);
-                anchor.localPosition = meleeSheathLocalPosition;
-                anchor.localRotation = Quaternion.Euler(meleeSheathLocalEuler);
-                meleeSheath = anchor;
-            }
-            var meleeSlot = meleeSheath.GetComponent<JunkerEquipmentSlot>();
-            if (!meleeSlot) meleeSlot = meleeSheath.gameObject.AddComponent<JunkerEquipmentSlot>();
-            meleeSlot.meleeOnly = true;
-            meleeSlot.radius = meleeSheathRadius;
-            if (slots == null) slots = new[] { meleeSlot };
-            else if (System.Array.IndexOf(slots, meleeSlot) < 0)
-            {
-                var expanded = new JunkerEquipmentSlot[slots.Length + 1];
-                slots.CopyTo(expanded, 0);
-                expanded[slots.Length] = meleeSlot;
-                slots = expanded;
-            }
+            ConfigureItemSlots();
             hands=body.xrOrigin.GetComponentsInChildren<XRDirectInteractor>(true);
             martialHands=new PlayerMartialHand[hands.Length];
             foreach(var martial in body.GetComponentsInChildren<PlayerMartialHand>(true))
                 for(int i=0;i<hands.Length;i++)if(martial.interactor==hands[i])martialHands[i]=martial;
             gripWasPressed=new bool[hands.Length];
             assistedGrab=new bool[hands.Length];
+        }
+        public void ConfigureItemSlots()
+        {
+            var all = new List<JunkerEquipmentSlot>();
+            if (slots != null) foreach (var slot in slots) if (slot && !all.Contains(slot)) all.Add(slot);
+            foreach (var slot in GetComponentsInChildren<JunkerEquipmentSlot>(true))
+                if (slot && !slot.GetComponentInParent<JunkerEquipmentItem>() && !all.Contains(slot)) all.Add(slot);
+            AddItemSlot(ref meleeSheath, "Left hip item", meleeSheathLocalPosition,
+                meleeSheathLocalEuler, all);
+            AddItemSlot(ref rightHipSheath, "Right hip item", rightHipLocalPosition,
+                new Vector3(0f, 0f, -90f), all);
+            AddItemSlot(ref leftBackSheath, "Left backpack item", leftBackLocalPosition,
+                new Vector3(0f, 0f, 35f), all);
+            AddItemSlot(ref rightBackSheath, "Right backpack item", rightBackLocalPosition,
+                new Vector3(0f, 0f, -35f), all);
+            slots = all.ToArray();
+        }
+        void AddItemSlot(ref Transform anchor, string label, Vector3 position, Vector3 euler,
+            List<JunkerEquipmentSlot> all)
+        {
+            if (!anchor)
+            {
+                anchor = transform.Find(label);
+                if (!anchor)
+                {
+                    anchor = new GameObject(label).transform;
+                    anchor.SetParent(transform, false);
+                    anchor.localPosition = position;
+                    anchor.localRotation = Quaternion.Euler(euler);
+                }
+            }
+            var slot = anchor.GetComponent<JunkerEquipmentSlot>();
+            if (!slot) slot = anchor.gameObject.AddComponent<JunkerEquipmentSlot>();
+            slot.radius = meleeSheathRadius;
+            if (!all.Contains(slot)) all.Add(slot);
         }
         void Update()
         {
@@ -73,7 +94,7 @@ namespace JunkerEquipment
                 var martial=martialHands[i];
                 if(martial && martial.InStance){gripWasPressed[i]=false;continue;}
                 bool pressed=hand.selectInput.ReadIsPerformed();
-                if(assistedGrab[i] && (!pressed || !hand.hasSelection))
+                if((assistedGrab[i] || hand.isPerformingManualInteraction) && (!pressed || !hand.hasSelection))
                 {
                     if(hand.isPerformingManualInteraction)hand.EndManualInteraction();
                     assistedGrab[i]=false;
@@ -105,14 +126,20 @@ namespace JunkerEquipment
                 var clothing = shape.GetComponentInParent<NpcClothingLoot>();
                 var equipment = shape.GetComponentInParent<JunkerEquipmentItem>();
                 var grab = weapon ? weapon.Grab : equipment ? equipment.Grab : shape.GetComponentInParent<XRGrabInteractable>();
-                if (weapon && weapon.State != PhysicalMeleeWeapon.HoldState.World) continue;
-                if (equipment && (equipment.state != EquipmentState.World || !equipment.Body ||
+                bool secondWeaponHand = weapon && weapon.State == PhysicalMeleeWeapon.HoldState.HeldByPlayer &&
+                    weapon.secondaryGrip && grab && grab.selectMode == UnityEngine.XR.Interaction.Toolkit.Interactables.InteractableSelectMode.Multiple;
+                if (weapon && weapon.State != PhysicalMeleeWeapon.HoldState.World && !secondWeaponHand) continue;
+                if (equipment && !secondWeaponHand && (equipment.state != EquipmentState.World || !equipment.Body ||
                     equipment.Body.linearVelocity.sqrMagnitude > 2.25f || shape.isTrigger ||
                     !IsRestingOnSurface(equipment, shape))) continue;
                 if (!weapon && !equipment && !loot && !clothing) continue;
-                if (!grab || !grab.isActiveAndEnabled || grab.isSelected) continue;
-                var contact = shape.ClosestPoint(point);
+                if (!grab || !grab.isActiveAndEnabled || grab.isSelected && !secondWeaponHand) continue;
+                var contact = secondWeaponHand ? weapon.secondaryGrip.position : shape.ClosestPoint(point);
+                if (secondWeaponHand && (contact - point).sqrMagnitude > floorPickupReach * floorPickupReach) continue;
                 float distance = (contact - point).sqrMagnitude;
+                // Within the garment handle, prefer stripping it over grabbing the
+                // overlapping ragdoll collider (both otherwise report distance zero).
+                if (clothing && clothing.IsPullHandle(grab) && distance <= .01f) distance -= .011f;
                 if (distance >= best || !hand.CanSelect((IXRSelectInteractable)grab) ||
                     !HasClearReach(point, contact, clothing ? clothing.transform : grab.transform)) continue;
                 best = distance;

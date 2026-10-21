@@ -59,6 +59,8 @@ namespace JunkerBody
         JunkerTrackingCalibration trackingCalibration;
         VRBodyController body;
         static readonly int Speed = Animator.StringToHash("Speed");
+        static readonly int Jumping = Animator.StringToHash("Jumping");
+        float jumpAnimationUntil;
         void OnEnable()
         {
             if (!moveProvider || !xrOrigin || !animator) { Debug.LogError("Junker sprint references are incomplete.", this); enabled = false; return; }
@@ -106,7 +108,7 @@ namespace JunkerBody
                 // Each deliberate up-flick starts a new permitted jump. This does
                 // not depend on the provider observing a one-frame release edge.
                 if (jumpHeld && jumpProvider && jumpProvider.isActiveAndEnabled && jumpProvider.CanJump())
-                    jumpProvider.Jump();
+                { jumpProvider.Jump(); jumpAnimationUntil=Time.time+.72f; }
             }
             else if (!rightUp) jumpHeld = false;
             rightUpHeld = rightUp;
@@ -126,6 +128,7 @@ namespace JunkerBody
             MeasuredSpeed = moveProvider.isActiveAndEnabled && input.magnitude > inputThreshold && !discontinuity ? speed : 0f;
             float blend = MeasuredSpeed < 0.03f ? 0f : IsSprinting ? Mathf.Lerp(1f, 2f, Mathf.InverseLerp(walkSpeed, sprintSpeed, MeasuredSpeed)) : Mathf.Clamp01(MeasuredSpeed / (IsCrouched ? crouchSpeed : walkSpeed));
             animator.SetFloat(Speed, blend, 0.12f, Time.deltaTime);
+            animator.SetBool(Jumping,Time.time<jumpAnimationUntil);
             // Keep the first frame of the idle pose instead of playing its breathing/sway loop.
             if (blend < .01f)
             {
@@ -169,6 +172,7 @@ namespace JunkerBody
             sprintLatched = false;
             rightUpHeld = jumpHeld = false;
             if (animator) animator.speed = 1f;
+            if(animator)animator.SetBool(Jumping,false);
         }
     }
 }

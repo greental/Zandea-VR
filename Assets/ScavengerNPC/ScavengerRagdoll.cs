@@ -1,5 +1,8 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using System.Collections.Generic;
+using KenshiVR.MeleeCombat;
 
 namespace ScavengerNPC
 {
@@ -13,12 +16,17 @@ namespace ScavengerNPC
         [Min(.1f)] public float maxDepenetrationSpeed = 2.5f;
         [Min(0f)] public float deathLinearDamping = .15f;
         [Min(0f)] public float deathAngularDamping = .3f;
+        [Min(1f)] public float carriedMassMultiplier = 1.8f;
+        [Min(0f)] public float carriedLinearDamping = .8f;
+        [Min(0f)] public float carriedAngularDamping = 1.2f;
         [Min(0f)] public float knockdownImpulse = 5f;
         [Min(.1f)] public float maximumNavMeshRecoveryDistance = .8f;
         [Min(.1f)] public float getUpBlendSeconds = .65f;
         public string faceUpGetUpState;
         public string faceDownGetUpState;
         public bool Active { get; private set; }
+        public XRGrabInteractable CorpseGrab { get; private set; }
+        readonly List<XRGrabInteractable> corpsePartGrabs = new();
 
         NavMeshAgent agent;
         Transform hips;
@@ -26,6 +34,7 @@ namespace ScavengerNPC
         Quaternion[] recoveryRotations;
         float recoveryStart;
         bool recovering, recoveryComplete, restoreAgent, restorePose, restoreCapsule;
+        bool carryPhysicsPrepared;
 
         void Awake()
         {
@@ -54,9 +63,11 @@ namespace ScavengerNPC
                         if (body) { body.isKinematic = false; body.interpolation = RigidbodyInterpolation.Interpolate; }
                 }
                 ApplyImpulse(hitPoint, impulse);
+                EnableCorpseGrab();
                 return;
             }
             Active = true;
+            PrepareCarryPhysics();
             recoveryComplete = false;
             restoreAgent = agent && agent.enabled;
             restorePose = pose && pose.enabled;
@@ -72,10 +83,55 @@ namespace ScavengerNPC
                 body.isKinematic = false;
                 body.interpolation = RigidbodyInterpolation.Interpolate;
                 body.maxDepenetrationVelocity = maxDepenetrationSpeed;
-                body.linearDamping = deathLinearDamping;
-                body.angularDamping = deathAngularDamping;
+                body.linearDamping = Mathf.Max(deathLinearDamping, carriedLinearDamping);
+                body.angularDamping = Mathf.Max(deathAngularDamping, carriedAngularDamping);
             }
             ApplyImpulse(hitPoint, impulse);
+            EnableCorpseGrab();
+        }
+        void PrepareCarryPhysics()
+        {
+            if(carryPhysicsPrepared)return;carryPhysicsPrepared=true;
+            foreach(var part in bones)if(part)
+            {part.mass*=carriedMassMultiplier;part.linearDamping=Mathf.Max(part.linearDamping,carriedLinearDamping);part.angularDamping=Mathf.Max(part.angularDamping,carriedAngularDamping);part.maxAngularVelocity=8f;}
+            foreach(var joint in GetComponentsInChildren<CharacterJoint>(true))
+            {joint.enableProjection=true;joint.projectionDistance=.03f;joint.projectionAngle=12f;}
+            foreach(var joint in GetComponentsInChildren<ConfigurableJoint>(true))
+            {joint.projectionMode=JointProjectionMode.PositionAndRotation;joint.projectionDistance=.03f;joint.projectionAngle=12f;}
+        }
+
+        void EnableCorpseGrab()
+        {
+            corpsePartGrabs.RemoveAll(value => !value);
+            RefreshCorpseGrabColliders();
+        }
+
+        public void RefreshCorpseGrabColliders()
+        {
+            if (boneColliders == null) return;
+            foreach (var grab in corpsePartGrabs) if (grab) { grab.colliders.Clear(); grab.enabled = false; }
+            foreach (var shape in boneColliders)
+            {
+                if (!shape || !shape.enabled || shape.isTrigger) continue;
+                var anchor = shape.attachedRigidbody;
+                if (!anchor) continue;
+                var grab = anchor.GetComponent<XRGrabInteractable>();
+                if (!grab) grab = anchor.gameObject.AddComponent<XRGrabInteractable>();
+                if (!corpsePartGrabs.Contains(grab)) corpsePartGrabs.Add(grab);
+                grab.movementType = XRBaseInteractable.MovementType.VelocityTracking;
+                grab.useDynamicAttach = true;
+                grab.selectMode = InteractableSelectMode.Single;
+                grab.throwOnDetach = false;
+                grab.attachEaseInTime=.12f;
+                grab.smoothPosition=true;grab.smoothRotation=true;
+                grab.smoothPositionAmount=6f;grab.smoothRotationAmount=6f;
+                if (!grab.colliders.Contains(shape)) grab.colliders.Add(shape);
+                grab.enabled = true;
+                var guard = anchor.GetComponent<HeldLootCollisionGuard>();
+                if (!guard) guard = anchor.gameObject.AddComponent<HeldLootCollisionGuard>();
+                guard.Bind(grab);
+                if (!CorpseGrab || anchor.transform == hips) CorpseGrab = grab;
+            }
         }
 
         public void ApplyImpact(Vector3 hitPoint, Vector3 impulse)
@@ -97,6 +153,7 @@ namespace ScavengerNPC
         public bool Recover()
         {
             if (!Active) return false;
+            if (corpsePartGrabs.Exists(value => value && value.isSelected)) return false;
             if (recoveryComplete)
             {
                 recovering = recoveryComplete = false;
@@ -113,6 +170,7 @@ namespace ScavengerNPC
             if (recovering) return false;
             Vector3 landing = hips ? hips.position : transform.position;
             if (!NavMesh.SamplePosition(landing, out var hit, maximumNavMeshRecoveryDistance, NavMesh.AllAreas)) return false;
+            foreach (var grab in corpsePartGrabs) if (grab) grab.enabled = false;
             bool faceUp = hips && Vector3.Dot(hips.forward, Vector3.up) > 0f;
             for (int i = 0; i < bones.Length; i++)
             {

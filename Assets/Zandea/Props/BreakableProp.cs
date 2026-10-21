@@ -11,6 +11,8 @@ namespace Zandea.Props
         [Min(.1f)] public float minimumImpactSpeed = 3f;
         [Min(.1f)] public float collisionEnergyThreshold = 9f;
         [Min(.1f)] public float meleeDamageThreshold = 5f;
+        [Tooltip("Only a scored weapon hit can break this prop; body and terrain collisions are ignored.")]
+        public bool requireWeaponDamage;
         public GameObject fracturedPrefab;
         public bool IsBroken { get; private set; }
         public event Action<BreakableProp> Broken;
@@ -18,7 +20,7 @@ namespace Zandea.Props
         void Awake() => body = GetComponent<Rigidbody>();
         void OnCollisionEnter(Collision collision)
         {
-            if (IsBroken || collision.collider.GetComponentInParent<PhysicalMeleeWeapon>()) return;
+            if (IsBroken || requireWeaponDamage || collision.collider.GetComponentInParent<PhysicalMeleeWeapon>()) return;
             float speed = collision.relativeVelocity.magnitude;
             if (speed < minimumImpactSpeed) return;
             float energy = .5f * body.mass * speed * speed;
@@ -28,7 +30,8 @@ namespace Zandea.Props
         }
         public void ApplyDamage(in DamagePacket packet)
         {
-            if (!IsBroken && packet.BaseDamage >= meleeDamageThreshold)
+            if (!IsBroken && packet.BaseDamage >= meleeDamageThreshold &&
+                (!requireWeaponDamage || !string.IsNullOrEmpty(packet.WeaponId)))
                 Break(packet.HitPointWorld, packet.HitNormalWorld);
         }
         public ShipCombatState GetCombatState() => IsBroken ? ShipCombatState.Destroyed : ShipCombatState.CombatReady;

@@ -269,9 +269,12 @@ namespace JunkerEquipment.Editor
                 "stored battery remains stable and retains remaining charge");
 
             var pistol = Child("Battery reload test pistol"); pistol.SetActive(false);
+            pistol.AddComponent<BoxCollider>();
+            pistol.AddComponent<Rigidbody>();
+            var pistolGrab = pistol.AddComponent<XRGrabInteractable>();
+            pistolGrab.interactionManager = manager;
             var socket = pistol.AddComponent<JunkerPistolBatterySocket>();
             var anchor = new GameObject("Battery socket").transform; anchor.SetParent(pistol.transform, false); socket.socketAnchor = anchor;
-            pistol.GetComponent<XRGrabInteractable>().interactionManager = manager;
             pistol.SetActive(true); pistol.GetComponent<Rigidbody>().isKinematic = true;
             anchor.position = cellItem.transform.position;
             Check(!socket.CanInsert(cell), "nearby pistol socket cannot steal stored battery");

@@ -223,11 +223,15 @@ namespace JunkerEquipment
             var inventoryItem = GetComponent<VRInventoryItem>();
             if (inventoryItem && inventoryItem.CurrentContainer) return false;
             pendingRelease=false; Activated=false; currentSlot=slot; currentState=EquipmentState.Holstered;
-            if(slot.detachMountedItem && transform.parent) transform.SetParent(null,true);
+            if(slot.detachMountedItem)
+            {
+                if(transform.parent) transform.SetParent(null,true);
+            }
+            else transform.SetParent(slot.transform, true);
             if(!Body.isKinematic) { Body.linearVelocity=Vector3.zero; Body.angularVelocity=Vector3.zero; }
             Body.isKinematic=true; Body.useGravity=false; Body.detectCollisions=true; SetTriggers(true);
             IgnorePlayerCollisions();
-            transform.SetPositionAndRotation(slot.transform.TransformPoint(holsterPosition),slot.transform.rotation*Quaternion.Euler(holsterEuler));
+            transform.SetLocalPositionAndRotation(holsterPosition, Quaternion.Euler(holsterEuler));
             Pulse(.25f,.05f); return true;
         }
         internal void Unmount(JunkerEquipmentSlot slot)

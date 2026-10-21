@@ -147,6 +147,7 @@ public static class BanditMocapNpcInstaller
                 driver.enabled = true;
                 grip.enabled = false;
                 grip.applySavedFingerPose = true;
+                ArmedBanditPass.Configure(root);
                 PrefabUtility.SaveAsPrefabAsset(root, assetPath);
                 count++;
             }

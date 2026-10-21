@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d0c4c93315d0c941aa154c363126c29, type: 3}
+  m_Name: bandit_spiked_hood
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.AppearanceItemDefinition
+  slot: 2
+  prefab: {fileID: 6887995938380120351, guid: 2e443e896731d2043a20282465d24ba4, type: 3}
+  attachBoneName: CC_Base_Head_038
+  skinned: 0
+  requiredMorphs: []
+  hideRendererNames: []
+  styleFamily: bandit
+  fitNote: Fit authored in Assets/CharacterCreator/ImportedArmor/ArmorFittingsEditable.unity.
+  hideHair: 1
+  coversOutfit: 0
+  randomWeight: 1

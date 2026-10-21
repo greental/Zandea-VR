@@ -8,6 +8,7 @@ namespace KenshiVR.Bandaging
         WoundWrapZone zone;
         Mesh mesh;
         float width, thickness, startAngle, center;
+        float visualRadiusScale = 1f;
         int samplesPerTurn, totalTurns;
         Vector3[] vertices;
         Vector2[] uvs;
@@ -15,9 +16,10 @@ namespace KenshiVR.Bandaging
         static Material fallback;
 
         public void Initialize(WoundWrapZone target, Material material, float clothWidth, float clothThickness,
-            int samples, int turns, float angle, float axialCenter)
+            int samples, int turns, float angle, float axialCenter, float radiusScale = 1f)
         {
             zone = target; width = clothWidth; thickness = clothThickness;
+            visualRadiusScale = Mathf.Clamp(radiusScale, .5f, 1.1f);
             samplesPerTurn = Mathf.Max(8, samples); totalTurns = Mathf.Max(1, turns);
             startAngle = angle; center = axialCenter;
             int rows = samplesPerTurn * totalTurns + 2;
@@ -44,7 +46,7 @@ namespace KenshiVR.Bandaging
                 float fraction = steps == 0 ? 0f : Mathf.Min(1f, i / (float)steps);
                 float a = (startAngle + signedAngle * fraction) * Mathf.Deg2Rad;
                 float axial = Mathf.Clamp(center + (turns * fraction - totalTurns * .5f) * pitch, -cap, cap);
-                float r = zone.RadiusAt(axial) + zone.surfaceOffset + thickness;
+                float r = zone.RadiusAt(axial) * visualRadiusScale + zone.surfaceOffset + thickness;
                 Vector3 first, second;
                 if (free)
                 {
@@ -75,6 +77,10 @@ namespace KenshiVR.Bandaging
             mesh.SetTriangles(triangles, 0, t, 0);
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
+        }
+        public void ExpireAfter(float seconds)
+        {
+            if (seconds > 0f) Destroy(gameObject, seconds);
         }
         static Material DefaultMaterial()
         {

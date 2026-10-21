@@ -3266,7 +3266,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage:
+  m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -3281,7 +3281,7 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fddf10fe63dc2194b983efdf85f53d4e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.MocapStaffPreview
   attack: {fileID: 3094330708855449807, guid: 04d7996e4b80c684a97630c930541aff, type: 3}
   animations:
@@ -3332,6 +3332,8 @@ MonoBehaviour:
   animationIndex: 0
   staff: {fileID: 0}
   secondaryVisualWeapon: {fileID: 0}
+  secondaryPhysicalWeapon: {fileID: 0}
+  secondaryWeaponTarget: {fileID: 0}
   secondaryWeaponFromRightHand: {x: 0, y: 0, z: 0, w: 1}
   desiredStaff: {fileID: 1123687080465878315}
   positiveTip: {fileID: 0}
@@ -3343,11 +3345,12 @@ MonoBehaviour:
   normalizedTime: 0
   playing: 1
   playbackSpeed: 1
-  driveVisualStaff: 0
+  driveVisualStaff: 1
   rightGripLocal: {x: 0.030278444, y: -0.06664657, z: 0.041436754}
   leftGripLocal: {x: -0.07288868, y: 0.1306538, z: -0.09567903}
   rightHandFromStaff: {x: 0.6631564, y: -0.3452369, z: -0.49252367, w: -0.445484}
   leftHandFromStaff: {x: -0.3806437, y: 0.54003793, z: 0.6822994, w: 0.31294966}
+  armedFingerPoseVersion: 0
   fingers:
   - bone: {fileID: 5295935178775249252}
     rotation: {x: 0.008463697, y: -0.021108443, z: 0.4168229, w: 0.90870315}
@@ -3422,7 +3425,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3c36dbd91fb7cc846893bab2d8df4518, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.BanditMocapNpcDriver
   brain: {fileID: 2678758142090184725}
   agent: {fileID: 8841680358568244029}
@@ -3433,6 +3436,19 @@ MonoBehaviour:
   useImportedCombatAttacks: 0
   useImportedCombatGuards: 0
   useImportedCombatReactions: 0
+  usePresentedTwoHandStrikes: 0
+  presentAxeHeadForward: 0
+  reviewLocomotionOverride: 0
+  reviewLocomotion: {x: 0, y: 0}
+  armedGuardRotations:
+  - {x: 0.055340946, y: -0.061466742, z: 0.7554402, w: 0.6499765}
+  - {x: 0.30342248, y: 0.061088312, z: 0.29623577, w: 0.90357476}
+  - {x: 0.7028062, y: 0.31571773, z: 0.23864348, w: 0.59113044}
+  - {x: 0.1380328, y: 0.40707472, z: -0.16081491, w: 0.8884682}
+  - {x: 0.02448288, y: 0.09600383, z: -0.7308313, w: 0.6753292}
+  - {x: 0.44872347, y: -0.0044484506, z: -0.3802355, w: 0.80873257}
+  - {x: 0.49521583, y: 0.09275129, z: 0.072400466, w: 0.86076516}
+  - {x: -0.10047412, y: 0.09986489, z: 0.12996611, w: 0.9813464}
   locomotionReferenceSpeed: 3.2
   blendSeconds: 0.12
   inPlaceAttackStep: 0.35
@@ -4674,6 +4690,7 @@ GameObject:
   - component: {fileID: 7590053521626566764}
   - component: {fileID: 9184756300080214101}
   - component: {fileID: 9184756300080214102}
+  - component: {fileID: 4771488081764016298}
   m_Layer: 0
   m_Name: StarvingBandit_BoStaff_Unified
   m_TagString: Untagged
@@ -4753,34 +4770,40 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7fe04d625824b6bb1d8a17a14449de1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScavengerNPC.ScavengerHealth
-  maxHealth: 55
-  knockoutTrauma: 30
-  minimumKnockoutHit: 3
-  severeHealthFraction: 0.22
-  unarmedTraumaMultiplier: 2
-  bluntTraumaMultiplier: 1.3
-  sharpTraumaMultiplier: 0.35
-  knockoutDuration: 12
-  recoveryHealthFraction: 0.12
-  additionalDamageDelay: 0.4
-  minimumHeadHitDamage: 7
-  headHitRadius: 0.3
-  baseHeadKnockoutChance: 0.08
-  maximumHeadKnockoutChance: 0.45
-  headProtection: 0
-  shortKnockoutDuration: 2.5
-  fleeWhenUnarmed: 1
-  fleeBelowHealthFraction: 0.35
-  fleeSeconds: 7
-  logStateChanges: 0
+  maxHealth: 95
   onDamaged:
     m_PersistentCalls:
       m_Calls: []
   onDeath:
     m_PersistentCalls:
       m_Calls: []
+  onKnockout:
+    m_PersistentCalls:
+      m_Calls: []
+  onWakeUp:
+    m_PersistentCalls:
+      m_Calls: []
+  knockoutTrauma: 60
+  minimumKnockoutHit: 3
+  severeHealthFraction: 0.13
+  unarmedTraumaMultiplier: 2
+  bluntTraumaMultiplier: 0.85
+  sharpTraumaMultiplier: 0.16
+  knockoutDuration: 12
+  recoveryHealthFraction: 0.12
+  additionalDamageDelay: 0.4
+  minimumHeadHitDamage: 7
+  headHitRadius: 0.3
+  baseHeadKnockoutChance: 0.04
+  maximumHeadKnockoutChance: 0.25
+  headProtection: 0
+  shortKnockoutDuration: 2.5
+  fleeWhenUnarmed: 1
+  fleeBelowHealthFraction: 0.35
+  fleeSeconds: 7
+  logStateChanges: 0
 --- !u!114 &2678758142090184725
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4791,7 +4814,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
   state: 3
   target: {fileID: 0}
@@ -6302,7 +6325,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e879504fc6fc4ca19f0529d4f0142d3c, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScavengerNPC.ScavengerRagdoll
   animator: {fileID: 4550047753241524032}
   pose: {fileID: 0}
@@ -6336,6 +6359,11 @@ MonoBehaviour:
   maxDepenetrationSpeed: 2.5
   deathLinearDamping: 0.15
   deathAngularDamping: 0.3
+  knockdownImpulse: 5
+  maximumNavMeshRecoveryDistance: 0.8
+  getUpBlendSeconds: 0.65
+  faceUpGetUpState: 
+  faceDownGetUpState: 
 --- !u!114 &1847860416755195971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6346,7 +6374,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4c064f011a7cdf043b8f0f9e309fac10, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.CharacterAppearanceController
   appearance:
     height: 1
@@ -6449,7 +6477,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 17f33bd6fbc17714daf903fecdb9502e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.CharacterCosmeticsController
   appearance: {fileID: 1847860416755195971}
   skeletonRoot: {fileID: 221024135740072518}
@@ -6470,7 +6498,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3359090c1c14b8b47ac28e897c29c58a, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.NPCCharacterAppearance
   appearance: {fileID: 1847860416755195971}
   cosmetics: {fileID: 6481986245891992860}
@@ -6487,7 +6515,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0baefd7c75ecd174eb0f2684989f953c, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.NPCFacialExpressionController
   visualRoot: {fileID: 221024135740072518}
   previewExpression: 0
@@ -6503,16 +6531,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fc7eccc04dbf68640a97eafc01d56cef, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcGeneratedWeapon
-  inventory: {fileID: 9184756300080214101}
-  weaponItem: {fileID: 11400000, guid: 8b56b27b5a0f45fba9684b56d7534df9, type: 2}
   weaponPrefab: {fileID: 221771960174766966, guid: f571c246b49492c4296686d3ba772adf, type: 3}
-  gripTarget: {fileID: 1123687080465878315}
+  gripTarget: {fileID: 1249444970989701248}
+  weaponPoseTarget: {fileID: 1123687080465878315}
   bandit: {fileID: 2678758142090184725}
   health: {fileID: 5950924122389326169}
   dropOnDestroy: 1
   startEquipped: 1
+  inventory: {fileID: 9184756300080214101}
+  weaponItem: {fileID: 11400000, guid: 8b56b27b5a0f45fba9684b56d7534df9, type: 2}
   acquireNearbyWeapons: 1
   searchRadius: 12
   searchInterval: 1
@@ -6529,7 +6558,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1878900648faf664289baeaafac25a7d, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.CharacterAttributes
   profile: {fileID: 11400000, guid: 4986891bfdef0464385b64bb5da15771, type: 2}
   startingValues:
@@ -6539,6 +6568,7 @@ MonoBehaviour:
     meleeDefense: 50
     toughness: 50
     staffProficiency: 50
+    martialArts: 50
   runtimeMaximum: 200
   runtimeValues:
     strength: 0
@@ -6547,6 +6577,7 @@ MonoBehaviour:
     meleeDefense: 0
     toughness: 0
     staffProficiency: 0
+    martialArts: 0
 --- !u!114 &7590053521626566764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6557,11 +6588,61 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 16bd66a0f88326b4eb3a5823692b1f3f, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcMartialArts
   profile: {fileID: 11400000, guid: 38b4b75b28e5f0b4bb2e51150708c797, type: 2}
   brain: {fileID: 2678758142090184725}
   animator: {fileID: 4550047753241524032}
+--- !u!114 &9184756300080214101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3638151384212234887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1067fb1e17f4fd5a61707c509c1754f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcInventory
+  lootTable: {fileID: 11400000, guid: 0fe268f5a046420785cb730d5b516ff9, type: 2}
+  seed: 0
+  logChanges: 0
+  generated: 0
+  items: []
+--- !u!114 &9184756300080214102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3638151384212234887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98721669e4094b018d743d9cc00c1d4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcClothingLoot
+  inventory: {fileID: 9184756300080214101}
+  health: {fileID: 5950924122389326169}
+  pullDistance: 0.24
+  minimumOutwardDot: -1
+  handleRadius: 0.18
+--- !u!114 &4771488081764016298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3638151384212234887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6badcf226b498b47b1d40c677183564, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.BanditDuelStrikeDamage
+  brain: {fileID: 2678758142090184725}
+  damage: 9
+  maximumRootDistance: 1.85
+  cleanHitChance: 0.8
 --- !u!1 &3648264276581143905
 GameObject:
   m_ObjectHideFlags: 0
@@ -12468,8 +12549,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8869623516754596006}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.6631562, y: -0.3452368, z: -0.49252355, w: -0.4454839}
+  m_LocalPosition: {x: 0.030278444, y: -0.06664657, z: 0.041436754}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12730,38 +12811,3 @@ Transform:
   - {fileID: 7036042061830894845}
   m_Father: {fileID: 468610008845098605}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-
---- !u!114 &9184756300080214101
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3638151384212234887}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1067fb1e17f4fd5a61707c509c1754f, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcInventory
-  lootTable: {fileID: 11400000, guid: 0fe268f5a046420785cb730d5b516ff9, type: 2}
-  seed: 0
-  logChanges: 0
-  generated: 0
-  items: []
---- !u!114 &9184756300080214102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3638151384212234887}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98721669e4094b018d743d9cc00c1d4a, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcClothingLoot
-  inventory: {fileID: 9184756300080214101}
-  health: {fileID: 5950924122389326169}
-  pullDistance: 0.24
-  minimumOutwardDot: -1
-  handleRadius: 0.18

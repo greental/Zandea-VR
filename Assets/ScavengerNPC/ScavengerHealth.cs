@@ -18,12 +18,12 @@ namespace ScavengerNPC
         public event Action<NpcConsciousness, NpcConsciousness> StateChanged;
 
         [Header("Accumulated trauma")]
-        [Min(1f)] public float knockoutTrauma = 30f;
+        [Min(1f)] public float knockoutTrauma = 60f;
         [Min(0f)] public float minimumKnockoutHit = 3f;
-        [Range(0f, 1f)] public float severeHealthFraction = .22f;
+        [Range(0f, 1f)] public float severeHealthFraction = .13f;
         [Min(0f)] public float unarmedTraumaMultiplier = 2f;
-        [Min(0f)] public float bluntTraumaMultiplier = 1.3f;
-        [Min(0f)] public float sharpTraumaMultiplier = .35f;
+        [Min(0f)] public float bluntTraumaMultiplier = .85f;
+        [Min(0f)] public float sharpTraumaMultiplier = .16f;
         [Min(.1f)] public float knockoutDuration = 12f;
         [Range(0f, 1f)] public float recoveryHealthFraction = .12f;
         [Min(0f)] public float additionalDamageDelay = .4f;
@@ -31,8 +31,8 @@ namespace ScavengerNPC
         [Header("Short head knockout")]
         [Min(0f)] public float minimumHeadHitDamage = 7f;
         [Min(.05f)] public float headHitRadius = .3f;
-        [Range(0f, 1f)] public float baseHeadKnockoutChance = .08f;
-        [Range(0f, 1f)] public float maximumHeadKnockoutChance = .45f;
+        [Range(0f, 1f)] public float baseHeadKnockoutChance = .04f;
+        [Range(0f, 1f)] public float maximumHeadKnockoutChance = .25f;
         [Range(0f, 1f)] public float headProtection;
         [Min(.1f)] public float shortKnockoutDuration = 2.5f;
 

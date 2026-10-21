@@ -15,8 +15,12 @@ namespace KenshiVR.Bandaging
         public enum WrapState { Idle, Ready, Wrapping, Complete }
         public Transform looseTip;
         public Material clothMaterial;
-        [Min(.015f)] public float clothWidth = .055f;
+        [Min(.015f)] public float clothWidth = .04f;
         [Min(.001f)] public float clothThickness = .002f;
+        [Range(.5f, 1.1f), Tooltip("Visual wrap radius relative to the treatment zone; treatment gestures are unaffected.")]
+        public float fittedRadiusScale = .8f;
+        [Min(0f), Tooltip("Seconds before an applied wrap is removed. Zero keeps it until the player is destroyed.")]
+        public float appliedWrapLifetime = 180f;
         [Min(2)] public int samplesPerTurn = 40;
         [Min(1)] public int requiredTurns = 3;
         [Range(5f, 60f)] public float directionLockDegrees = 24f;
@@ -120,7 +124,7 @@ namespace KenshiVR.Bandaging
             go.transform.SetParent(zone.bone, false);
             ribbon = go.AddComponent<BandageRibbon>();
             ribbon.Initialize(zone, clothMaterial, clothWidth, clothThickness, samplesPerTurn, requiredTurns,
-                startAngle, axialCenter);
+                startAngle, axialCenter, fittedRadiusScale);
             wounds.ShowCue(null);
             candidate = null;
             State = WrapState.Wrapping;
@@ -148,8 +152,11 @@ namespace KenshiVR.Bandaging
             float radial = new Vector2(local.x, local.z).magnitude;
             if (Vector3.Distance(point, zone.ToWorld(new Vector3(0f, axialCenter, 0f))) > cancellationDistance)
             { Cancel(); return; }
-            bool valid = Mathf.Abs(local.y - axialCenter) <= zone.length * .5f + zone.axialTolerance &&
-                Mathf.Abs(radial - zone.RadiusAt(local.y)) <= zone.radialTolerance;
+            // Track the controller orbit, not just a narrow shell at the skin. The
+            // controller sits outside the roll and naturally traces a wider circle.
+            bool valid = Mathf.Abs(local.y - axialCenter) <= zone.length * .5f + zone.axialTolerance + .08f &&
+                radial >= zone.RadiusAt(local.y) * .4f &&
+                radial <= zone.RadiusAt(local.y) + Mathf.Max(zone.radialTolerance, .28f);
             float angle = Angle(point);
             if (!valid)
             {
@@ -193,6 +200,8 @@ namespace KenshiVR.Bandaging
             State = WrapState.Complete;
             ribbon.UpdateRibbon(direction * requiredTurns * 360f, looseTip.position, true);
             wounds.TreatArea(zone, axialCenter, clothWidth * (.5f + .41f * requiredTurns), ribbon.transform);
+            ribbon.gameObject.AddComponent<AppliedBandage>();
+            ribbon.ExpireAfter(appliedWrapLifetime);
             if (equipment) equipment.Pulse(.3f, .07f);
             ribbon = null;
             wounds.ShowCue(null);
@@ -200,6 +209,15 @@ namespace KenshiVR.Bandaging
         }
         IEnumerator ConsumeAfterSelection()
         {
+            // CancelInteractableSelection alone leaves XRI's manual interaction
+            // latch set. End the owning hand's manual grab before destroying it.
+            if (grab)
+            {
+                var selectors = grab.interactorsSelecting.ToArray();
+                foreach (var selector in selectors)
+                    if (selector is XRBaseInteractor interactor && interactor.isPerformingManualInteraction)
+                        interactor.EndManualInteraction();
+            }
             if (grab && grab.isSelected && grab.interactionManager)
                 grab.interactionManager.CancelInteractableSelection((IXRSelectInteractable)grab);
             yield return null;

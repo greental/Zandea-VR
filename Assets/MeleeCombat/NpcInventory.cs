@@ -15,13 +15,71 @@ namespace KenshiVR.MeleeCombat
         [SerializeField] List<NpcItemInstance> items = new();
         public IReadOnlyList<NpcItemInstance> Items => items;
         public event Action<NpcItemInstance> Changed;
+        bool initializing;
+        static readonly Dictionary<AppearanceItemDefinition, NpcItemDefinition> wearableDefinitions = new();
 
         void Awake()
         {
+            var cosmetics = GetComponent<CharacterCosmeticsController>();
+            var torso = cosmetics ? cosmetics.torso : null;
+            var legs = cosmetics ? cosmetics.legs : null;
+            var head = cosmetics ? cosmetics.headwear : null;
+            bool authored = false;
+            foreach (var group in FindObjectsByType<BanditGroup>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (group.authoredMembers != null && Array.Exists(group.authoredMembers, member => member && member.gameObject == gameObject))
+                { authored = true; break; }
             foreach (var item in items) Restore(item);
             if (generated) return;
             if (seed == 0) seed = Guid.NewGuid().GetHashCode();
+            initializing = true;
             Generate();
+            initializing = false;
+            if (authored && cosmetics)
+            {
+                cosmetics.torso = torso; cosmetics.legs = legs; cosmetics.headwear = head;
+                AdoptWornClothing();
+            }
+        }
+
+        public void AdoptWornClothing()
+        {
+            var cosmetics = GetComponent<CharacterCosmeticsController>();
+            if (!cosmetics) return;
+            Adopt(NpcEquipmentSlot.Torso, cosmetics.torso);
+            Adopt(NpcEquipmentSlot.Legs, cosmetics.legs);
+            Adopt(NpcEquipmentSlot.Headwear, cosmetics.headwear);
+            SyncClothing();
+        }
+
+        void Adopt(NpcEquipmentSlot slot, AppearanceItemDefinition visual)
+        {
+            var current = Equipped(slot);
+            if (current?.Definition?.equippedAppearance == visual) return;
+            // Preserve pockets and item identity when replacing randomized attire.
+            if (!visual)
+            {
+                if (current != null) current.SetLocation(this, NpcEquipmentSlot.None, null, null);
+                return;
+            }
+            if (!wearableDefinitions.TryGetValue(visual, out var definition) || !definition)
+            {
+                definition = ScriptableObject.CreateInstance<NpcItemDefinition>();
+                definition.name = visual.name + " loot";
+                definition.itemId = "appearance/" + visual.name;
+                definition.displayName = visual.name;
+                definition.category = NpcItemCategory.Clothing;
+                definition.defaultSlot = slot;
+                definition.equippedAppearance = visual;
+                definition.flattenAxis = GarmentFlattenAxis.None;
+                wearableDefinitions[visual] = definition;
+            }
+            if (current != null) current.SetDefinition(definition);
+            else
+            {
+                current = new NpcItemInstance(definition);
+                items.Add(current);
+                current.SetLocation(this, slot, null, null);
+            }
         }
         void Start() => SyncClothing();
         void OnEnable() { if (generated) SyncClothing(); }
@@ -195,7 +253,7 @@ namespace KenshiVR.MeleeCombat
         void Notify(NpcItemInstance item)
         {
             Changed?.Invoke(item);
-            if (item.Definition && item.Definition.category == NpcItemCategory.Clothing && Application.isPlaying)
+            if (!initializing && item.Definition && item.Definition.category == NpcItemCategory.Clothing && Application.isPlaying)
                 SyncClothing();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (logChanges) Debug.Log($"Inventory {name}: {item.Definition.displayName} {item.InstanceId} owner={item.Owner?.name} slot={item.EquippedSlot} container={item.ContainerId}", this);

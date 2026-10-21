@@ -102,8 +102,8 @@ Transform:
   - {fileID: 7980503350918020990}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &5810472753395577612
-CapsuleCollider:
+--- !u!65 &5810472753395577612
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -121,9 +121,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.045
-  m_Height: 0.085
-  m_Direction: 1
+  m_Size: {x: 0.14, y: 0.10, z: 0.14}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2939800228537453127
 Rigidbody:
@@ -135,7 +133,7 @@ Rigidbody:
   serializedVersion: 5
   m_Mass: 0.12
   m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_AngularDamping: 3
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -337,7 +335,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.Bandaging.BandageRoll
   looseTip: {fileID: 7980503350918020990}
   clothMaterial: {fileID: 2100000, guid: 1ffa5ce8ee2f10e42a1da580d305c5fe, type: 2}
-  clothWidth: 0.055
+  clothWidth: 0.04
   clothThickness: 0.002
   samplesPerTurn: 40
   requiredTurns: 3

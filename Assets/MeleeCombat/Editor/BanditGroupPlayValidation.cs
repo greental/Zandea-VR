@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using KenshiVR.MeleeCombat;
+using KenshiVR.CharacterCreator;
 using UnityEditor;
 using UnityEngine;
 
@@ -52,8 +53,10 @@ public static class BanditGroupPlayValidation
             if (Time.frameCount < startFrame + (phase == 1 ? 12 : 30)) return;
             var members = UnityEngine.Object.FindObjectsByType<StarvingBandit>(FindObjectsSortMode.None)
                 .Where(bandit => bandit.combatGroup == group).OrderBy(bandit => bandit.name).ToArray();
-            if (members.Length < group.groupSize)
-                throw new Exception($"Only {members.Length}/{group.groupSize} group members spawned");
+            bool authored = group.authoredMembers != null && group.authoredMembers.Length > 0;
+            int expectedCount = authored ? group.authoredMembers.Count(member => member) : group.groupSize;
+            if (members.Length != expectedCount)
+                throw new Exception($"Expected {expectedCount} members, found {members.Length}");
             foreach (var member in members)
                 if (!member.staff || member.staff.State != PhysicalMeleeWeapon.HoldState.HeldByNpc)
                 {
@@ -67,6 +70,29 @@ public static class BanditGroupPlayValidation
                         $"grip={(generated && generated.gripTarget ? generated.gripTarget.name : "null")}, " +
                         $"state={(member.staff ? member.staff.State.ToString() : "none")}");
                 }
+            if (authored && group.authoredWeaponChoices != null)
+                for (int i = 0; i < group.authoredMembers.Length && i < group.authoredWeaponChoices.Length; i++)
+                {
+                    var choice = group.authoredWeaponChoices[i];
+                    var authoredMember = group.authoredMembers[i];
+                    if (choice && authoredMember && (!authoredMember.staff || authoredMember.staff.name != choice.name))
+                        throw new Exception(authoredMember.name + " did not equip its selected weapon " + choice.name);
+                }
+            if (!authored && members.Select(member => member.staff.name).Distinct().Count() < 2)
+                throw new Exception("The editable group still has one weapon type: " +
+                    string.Join(", ", members.Select(member => member.staff.name)));
+            if (!authored && (members.Select(member => member.GetComponent<CharacterAppearanceController>()?.Data.weight ?? -1f)
+                .Distinct().Count() < 2 ||
+                members.Select(member => member.GetComponent<CharacterAppearanceController>()?.Data.noseWidth ?? -1f)
+                .Distinct().Count() < 2))
+                throw new Exception("The editable group did not vary body weight and face shape");
+            if (!authored && members.Any(member => { var cosmetics = member.GetComponent<CharacterCosmeticsController>();
+                    return !cosmetics || !cosmetics.headwear; }))
+                throw new Exception("At least one editable member has no chosen headwear");
+            if (!authored && members.Any(member => !member.GetComponentsInChildren<AppearanceSpawnedItem>(true)
+                .Any(item => item.slot == AppearanceSlot.Headwear && item.gameObject.activeInHierarchy &&
+                    item.GetComponentsInChildren<Renderer>(true).Any(renderer => renderer.enabled && !renderer.forceRenderingOff))))
+                throw new Exception("At least one editable member has no rendered headgear");
             var leader = members.FirstOrDefault(member => member.name == "Bandit Leader");
             if (!leader) throw new Exception("No bandit leader spawned");
             foreach (var member in members)

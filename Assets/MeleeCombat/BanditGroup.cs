@@ -8,6 +8,7 @@ using UnityEngine.AI;
 namespace KenshiVR.MeleeCombat
 {
     /// <summary>Spawns a patrol around this object. The first living bandit leads.</summary>
+    [DefaultExecutionOrder(100)]
     public sealed class BanditGroup : MonoBehaviour, MyAssets.Planet.IFloatingOriginListener
     {
         [Header("Spawn")]
@@ -17,6 +18,9 @@ namespace KenshiVR.MeleeCombat
         [Min(1)] public int groupSize = 4;
         [Tooltip("Scene bandits spawned from the Inspector. When set, these are used instead of runtime clones.")]
         public StarvingBandit[] authoredMembers;
+        [Tooltip("Weapon prefab for each authored member, in the same order. An empty entry keeps that bandit's saved weapon. Grip, hand pose, and combat references are set automatically at runtime.")]
+        public PhysicalMeleeWeapon[] authoredWeaponChoices;
+        [HideInInspector] public StarvingBandit[] authoredWeaponProfiles;
         [Min(0.5f)] public float spawnRadius = 4f;
         [Min(0.1f)] public float navMeshSampleRadius = 3f;
         [Tooltip("Build navigation around this group from the active terrain tiles at runtime. Useful for the planet treadmill.")]
@@ -29,7 +33,7 @@ namespace KenshiVR.MeleeCombat
         public AppearanceItemDefinition[] torsoOptions;
         public AppearanceItemDefinition[] legsOptions;
         public AppearanceItemDefinition[] outerArmorOptions;
-        [Tooltip("Armed bandit prefabs to use for this group's weapon choices. The first option is the leader. Each prefab keeps its matching grip and attacks.")]
+        [Tooltip("Weapon variants used when spawning a new group. Editable scene members retain their own weapons and appearances. The first option is the leader.")]
         public StarvingBandit[] weaponOptions;
 
         [Header("Patrol")]
@@ -47,7 +51,6 @@ namespace KenshiVR.MeleeCombat
             home -= shift;
             waypoint -= shift;
         }
-
 
         [Header("Detection")]
         public Transform player;
@@ -68,32 +71,42 @@ namespace KenshiVR.MeleeCombat
         {
             bool useAuthored = authoredMembers != null && authoredMembers.Length > 0;
             if (!banditPrefab && !useAuthored) { Debug.LogError("Bandit Group needs a bandit prefab.", this); enabled = false; return; }
-            if (!SnapToTerrain())
+            if (!useAuthored && !SnapToTerrain())
                 Debug.LogWarning("Bandit Group is not above an active terrain tile. Move it over the terrain.", this);
             home = transform.position;
             if (buildLocalNavMesh) BuildLocalNavMesh();
             if (!useAuthored && !NavMesh.SamplePosition(home, out _, navMeshSampleRadius, NavMesh.AllAreas))
             { Debug.LogError("Bandit Group has no NavMesh near its position. Check terrain placement and navigation settings.", this); enabled = false; return; }
+            int headwearOffset = headwearOptions != null && headwearOptions.Length > 0
+                ? Random.Range(0, headwearOptions.Length) : 0;
             if (useAuthored)
-                foreach (var bandit in authoredMembers)
+                for (int i = 0; i < authoredMembers.Length; i++)
                 {
+                    var bandit = authoredMembers[i];
                     if (!bandit) continue;
                     bandit.groupControlled = true;
                     bandit.combatGroup = this;
                     bandit.groupWalkSpeed = patrolWalkSpeed;
                     bandit.groupDestination = bandit.transform.position;
+                    var generated = bandit.GetComponent<NpcGeneratedWeapon>();
+                    var selectedWeapon = authoredWeaponChoices != null && i < authoredWeaponChoices.Length
+                        ? authoredWeaponChoices[i] : null;
+                    if (selectedWeapon)
+                    {
+                        var profile = authoredWeaponProfiles != null && i < authoredWeaponProfiles.Length
+                            ? authoredWeaponProfiles[i] : null;
+                        if (!EquipAuthoredMember(i, selectedWeapon, profile))
+                            Debug.LogWarning("Bandit Group could not equip selected weapon for " + bandit.name, bandit);
+                    }
                     if (!bandit.staff)
                     {
-                        var generated = bandit.GetComponent<NpcGeneratedWeapon>();
-                        if (generated && !generated.EnsureStartingWeapon())
+                        if (generated && generated.startEquipped && !generated.EnsureStartingWeapon())
                             Debug.LogWarning("Bandit Group could not equip authored member " + bandit.name, bandit);
                     }
                     members.Add(bandit);
                 }
             else
             {
-                int headwearOffset = headwearOptions != null && headwearOptions.Length > 0
-                    ? Random.Range(0, headwearOptions.Length) : 0;
                 for (int i = 0; i < Mathf.Max(1, groupSize); i++)
                 {
                     Vector2 offset = i == 0 ? Vector2.zero : Random.insideUnitCircle * spawnRadius;
@@ -107,23 +120,7 @@ namespace KenshiVR.MeleeCombat
                     bandit.combatGroup = this;
                     bandit.groupWalkSpeed = patrolWalkSpeed;
                     bandit.groupDestination = hit.position;
-                    var appearance = bandit.GetComponent<NPCCharacterAppearance>();
-                    if (appearance)
-                    {
-                        var option = PickAppearance();
-                        if (option) appearance.archetype = option;
-                        appearance.Generate(Random.Range(1, int.MaxValue));
-                        var cosmetics = appearance.cosmetics;
-                        if (cosmetics)
-                        {
-                            cosmetics.headwear = headwearOptions != null && headwearOptions.Length > 0
-                                ? headwearOptions[(headwearOffset + i) % headwearOptions.Length] : cosmetics.headwear;
-                            cosmetics.torso = PickItem(torsoOptions, cosmetics.torso);
-                            cosmetics.legs = PickItem(legsOptions, cosmetics.legs);
-                            cosmetics.outerArmor = PickItem(outerArmorOptions, cosmetics.outerArmor);
-                            cosmetics.Refresh();
-                        }
-                    }
+                    ApplyAppearance(bandit, i, headwearOffset);
                     members.Add(bandit);
                 }
             }
@@ -131,6 +128,92 @@ namespace KenshiVR.MeleeCombat
             leader = members[0];
             waypoint = leader.transform.position;
             nextWaypoint = Time.time;
+            ResolvePlayer();
+            if (!useAuthored) StartCoroutine(RefreshAppearanceAfterInventory(headwearOffset));
+        }
+
+        System.Collections.IEnumerator RefreshAppearanceAfterInventory(int headwearOffset)
+        {
+            yield return null;
+            for (int i = 0; i < members.Count; i++)
+            {
+                var bandit = members[i];
+                if (bandit) ApplyAppearance(bandit, i, headwearOffset, false);
+            }
+        }
+
+        public bool EquipAuthoredMember(int index, PhysicalMeleeWeapon prefab, StarvingBandit profile)
+        {
+            if (!prefab || authoredMembers == null || index < 0 || index >= authoredMembers.Length || !authoredMembers[index])
+                return false;
+            var bandit = authoredMembers[index];
+            var generated = bandit.GetComponent<NpcGeneratedWeapon>();
+            bool equipped;
+            if (bandit.staff && (!generated || generated.Instance != bandit.staff))
+                equipped = ReplaceEmbeddedWeapon(bandit, prefab);
+            else if (generated)
+            {
+                generated.startEquipped = true;
+                generated.SetStartingWeapon(prefab);
+                equipped = generated.EnsureStartingWeapon();
+            }
+            else return false;
+            if (!equipped || !bandit.staff || bandit.staff.State != PhysicalMeleeWeapon.HoldState.HeldByNpc)
+                return false;
+            var driver = bandit.GetComponentInChildren<BanditMocapNpcDriver>(true);
+            var profileDriver = profile ? profile.GetComponentInChildren<BanditMocapNpcDriver>(true) : null;
+            if (driver && profileDriver) driver.ApplyWeaponProfile(profileDriver);
+            return bandit.staff.name == prefab.name;
+        }
+
+        static bool ReplaceEmbeddedWeapon(StarvingBandit bandit, PhysicalMeleeWeapon prefab)
+        {
+            var old = bandit.staff;
+            var target = old ? old.npcGripTarget : null;
+            if (!target) return false;
+            var generated = bandit.GetComponent<NpcGeneratedWeapon>();
+            if (generated && generated.Instance == old) generated.ClearStartingWeapon();
+            else { old.Drop(); Destroy(old.gameObject); }
+            var weapon = Instantiate(prefab, target.position, target.rotation);
+            weapon.name = prefab.name;
+            weapon.ownerRoot = null;
+            weapon.npcGripTarget = null;
+            bool equipped;
+            if (generated)
+            {
+                generated.weaponPrefab = prefab;
+                generated.weaponItem = null;
+                generated.acquireNearbyWeapons = true;
+                equipped = generated.TryEquipWorldWeapon(weapon);
+            }
+            else equipped = weapon.TryEquipNpc(bandit, target);
+            if (!equipped) { Destroy(weapon.gameObject); return false; }
+            if (!generated) bandit.SetEquippedStaff(weapon, target);
+            var preview = bandit.GetComponentInChildren<MocapStaffPreview>(true);
+            if (preview) { preview.staff = weapon; preview.driveVisualStaff = false; }
+            var motion = bandit.GetComponent<BanditRigMotion>();
+            if (motion) motion.staff = weapon;
+            return true;
+        }
+
+        void ApplyAppearance(StarvingBandit bandit, int index, int headwearOffset, bool newSeed = true)
+        {
+            var appearance = bandit.GetComponent<NPCCharacterAppearance>();
+            if (!appearance) return;
+            var option = PickAppearance();
+            if (option) appearance.archetype = option;
+            if (newSeed) appearance.seed = Random.Range(1, int.MaxValue);
+            appearance.Generate(appearance.seed);
+            var cosmetics = appearance.cosmetics;
+            if (!cosmetics) return;
+            cosmetics.headwear = headwearOptions != null && headwearOptions.Length > 0
+                ? headwearOptions[(headwearOffset + index) % headwearOptions.Length] : cosmetics.headwear;
+            cosmetics.torso = PickItem(torsoOptions, cosmetics.torso);
+            cosmetics.legs = PickItem(legsOptions, cosmetics.legs);
+            cosmetics.outerArmor = PickItem(outerArmorOptions, cosmetics.outerArmor);
+            cosmetics.Refresh();
+            var inventory = bandit.GetComponent<NpcInventory>();
+            if (inventory) inventory.AdoptWornClothing();
         }
 
         StarvingBandit PickBanditPrefab(int memberIndex)
@@ -296,7 +379,12 @@ namespace KenshiVR.MeleeCombat
                 if (!Alive(member)) continue;
                 Vector3 eye = member.transform.position + Vector3.up * 1.5f;
                 Vector3 direction = player.position - eye;
-                if (direction.magnitude > sightRange || Vector3.Angle(member.transform.forward, direction) > fieldOfView * .5f) continue;
+                float distance = direction.magnitude;
+                if (distance > sightRange) continue;
+                // A person within striking distance is noticed even when the patrol
+                // animation faces away or a held prop crosses the sight ray.
+                if (distance <= 7f) return true;
+                if (Vector3.Angle(member.transform.forward, direction) > fieldOfView * .5f) continue;
                 var hits = Physics.RaycastAll(eye, direction.normalized, direction.magnitude, sightMask, QueryTriggerInteraction.Ignore);
                 System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
                 bool blocked = false;

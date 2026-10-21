@@ -18,6 +18,7 @@ namespace KenshiVR.MeleeCombat
 
         public string InstanceId => instanceId;
         public NpcItemDefinition Definition => definition;
+        internal void SetDefinition(NpcItemDefinition value) => definition = value;
         public float Condition { get => condition; set => condition = Mathf.Clamp01(value); }
         public NpcEquipmentSlot EquippedSlot => equippedSlot;
         public string ContainerId => containerId;

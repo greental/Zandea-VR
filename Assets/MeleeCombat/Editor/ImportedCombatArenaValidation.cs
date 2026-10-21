@@ -46,13 +46,15 @@ public static class ImportedCombatArenaValidation
                 playedImportedState = true;
             var grip = driver.grip;
             maxGripError = Mathf.Max(maxGripError, grip.primaryHandIsLeft ? grip.LeftGripError : grip.RightGripError);
+            if (grip.secondaryHandGrips || grip.secondaryVisualWeapon)
+                maxGripError = Mathf.Max(maxGripError, grip.LeftGripError, grip.RightGripError);
         }
         if (Time.realtimeSinceStartup - started < 65f) return;
         var leftNav = left.GetComponent<NavMeshAgent>();
         var rightNav = right.GetComponent<NavMeshAgent>();
         bool nav = leftNav && rightNav && (leftNav.isOnNavMesh || left.health.IsDead) && (rightNav.isOnNavMesh || right.health.IsDead);
         bool pass = nav && moved && struck && damaged && dodged && parried && playedImportedState &&
-            hud.LeftDirections >= 3 && hud.RightDirections >= 3 && maxGripError < .25f;
+            hud.LeftDirections >= 3 && hud.RightDirections >= 3 && maxGripError < .025f;
         Debug.Log($"IMPORTED_ARENA_{(pass ? "PASS" : "FAIL")} nav={nav} move={moved} strike={struck} damage={damaged} dodge={dodged} parry={parried} imported={playedImportedState} angles={hud.LeftDirections}/{hud.RightDirections} maxGrip={maxGripError:F3} health={left.health.Current:F0}/{right.health.Current:F0}");
         SessionState.SetBool(Key, false);
         EditorApplication.isPlaying = false;

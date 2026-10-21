@@ -12,10 +12,10 @@ public static class ImportedCombatAnimationInstaller
     const string Axe = "Assets/MeleeCombat/ImportedAnimations/ProMeleeAxePack/";
     const string Sword = "Assets/MeleeCombat/ImportedAnimations/GreatSword/";
     static readonly string[] OneHandAttacks = {
-        "standing melee attack downward", "standing melee attack 360 high",
-        "standing melee attack horizontal", "standing melee attack 360 low",
+        "standing melee attack downward", "standing melee attack downward",
+        "standing melee attack backhand", "standing melee attack backhand",
         "standing melee attack backhand", "standing melee attack downward",
-        "standing melee attack horizontal", "standing melee attack backhand"
+        "standing melee attack downward", "standing melee attack backhand"
     };
 
     static AnimationClip Clip(string folder, string name)
@@ -61,8 +61,7 @@ public static class ImportedCombatAnimationInstaller
                 if (twoHands)
                 {
                     var slash = Clip(Sword, "Great Sword Slash");
-                    attackClips = new[] { grip.attack, slash, grip.attack, slash,
-                        grip.attack, slash, grip.attack, slash };
+                    attackClips = Enumerable.Repeat(slash, 8).ToArray();
                     twoHand++;
                 }
                 else
@@ -76,7 +75,8 @@ public static class ImportedCombatAnimationInstaller
                     {
                         var children = tree.children;
                         children[0].motion = Clip(Axe, "standing idle");
-                        children[1].motion = Clip(Axe, "standing run forward");
+                        children[1].motion = Clip(Axe, name.EndsWith("_Axe") ?
+                            "standing walk forward" : "standing run forward");
                         children[3].motion = Clip(Axe, "standing walk right");
                         children[5].motion = Clip(Axe, "standing walk back");
                         children[7].motion = Clip(Axe, "standing walk left");
@@ -139,6 +139,7 @@ public static class ImportedCombatAnimationInstaller
                         if (!playlist.Contains(extra)) playlist.Add(extra);
                     }
                 grip.animations = playlist.ToArray();
+                ArmedBanditPass.Configure(root);
                 EditorUtility.SetDirty(controller);
                 PrefabUtility.SaveAsPrefabAsset(root, path);
                 Debug.Log($"IMPORTED_COMBAT_INSTALLED {name} hand={(twoHands ? "two" : leftHand ? "left" : "right")} attacks={attackClips.Length} preview={playlist.Count}");

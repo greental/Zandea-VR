@@ -21,6 +21,7 @@ namespace KenshiVR.Bandaging
             public float bleedingPerSecond;
             public float remainingRecovery;
             public bool treated;
+            public float treatedAt;
             public Transform bandage;
             public GameObject visual;
             public ParticleSystem blood;
@@ -29,7 +30,7 @@ namespace KenshiVR.Bandaging
 
         public VRBodyController body;
         [Min(0f)] public float bleedMultiplier = .007f;
-        [Min(0f)] public float postTreatmentBleedFraction = .02f;
+        [Min(0f)] public float postTreatmentBleedFraction = 0f;
         public bool createTestWoundOnStart;
         [Tooltip("Seed a left forearm wound only while testing in the Unity Editor.")]
         public bool spawnEditorTestWound = true;
@@ -116,7 +117,12 @@ namespace KenshiVR.Bandaging
                     float recovered = health.ApplyBandageRecovery(Mathf.Min(budget, wound.remainingRecovery));
                     wound.remainingRecovery -= recovered;
                     budget -= recovered;
+                    if (wound.remainingRecovery <= 0f && wound.bandage)
+                        wound.bandage.GetComponent<AppliedBandage>()?.MarkReady();
                 }
+            foreach(var wound in wounds)
+                if(wound.treated&&wound.bandage&&Time.time-wound.treatedAt>=10f)
+                    wound.bandage.GetComponent<AppliedBandage>()?.MarkReady();
         }
         void BuildZones()
         {
@@ -231,7 +237,8 @@ namespace KenshiVR.Bandaging
             foreach (var wound in wounds)
             {
                 if (wound.treated || wound.zone != zone || Mathf.Abs(wound.localPosition.y - axialCenter) > halfWidth) continue;
-                wound.treated = true; wound.bandage = wrap; count++;
+                wound.treated = true; wound.treatedAt=Time.time; wound.bandage = wrap; count++;
+                wound.bleedingPerSecond = 0f;
                 if (wound.blood) wound.blood.Stop(true, ParticleSystemStopBehavior.StopEmitting);
                 if (wound.visual) wound.visual.SetActive(false);
             }

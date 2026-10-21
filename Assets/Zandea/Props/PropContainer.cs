@@ -21,12 +21,22 @@ namespace KenshiVR.MeleeCombat
         readonly Dictionary<string, PropItemPresentation> presentations = new();
         readonly Dictionary<string, GameObject> physicalPrefabs = new();
         string stableId;
+        public string StableId => stableId;
         bool initialized;
         BreakableProp breakable;
         void Awake()
         {
             breakable = GetComponent<BreakableProp>();
             if (breakable) breakable.Broken += OnBroken;
+            // A grabbable crate must not claim its hinged lid's collider in XRI.
+            var rootGrab = GetComponent<XRGrabInteractable>();
+            if (rootGrab && GetComponentInChildren<PropHingedLid>(true))
+            {
+                rootGrab.colliders.Clear();
+                foreach (var shape in GetComponents<Collider>()) rootGrab.colliders.Add(shape);
+            }
+            if (GetComponentInChildren<PropHingedLid>(true) && !GetComponent<ChestStorageVolume>())
+                gameObject.AddComponent<ChestStorageVolume>();
         }
         void Start()
         {

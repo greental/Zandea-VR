@@ -1,0 +1,194 @@
+[
+  {
+    "name": "bandit_head_wrap",
+    "vertices": 30017,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_spiked_hood",
+    "vertices": 25882,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_rib_vest",
+    "vertices": 33321,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_scrap_cleaver",
+    "vertices": 26497,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_pointed_beard",
+    "vertices": 31236,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_horned_hood",
+    "vertices": 32479,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_spiked_helmet",
+    "vertices": 26484,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_long_coat",
+    "vertices": 31662,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_black_horn_helmet",
+    "vertices": 29919,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_scrap_spear",
+    "vertices": 29155,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_straw_hat_a",
+    "vertices": 29022,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_straw_hat_b",
+    "vertices": 24649,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_barred_helmet",
+    "vertices": 27186,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_armored_skirt",
+    "vertices": 32944,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_rib_outfit",
+    "vertices": 31596,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_shoulder_pad",
+    "vertices": 30660,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_rust_greatsword",
+    "vertices": 25386,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_desert_glove",
+    "vertices": 31812,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_rust_gauntlet",
+    "vertices": 26066,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_armored_boot",
+    "vertices": 28986,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_armored_pants",
+    "vertices": 27830,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_crusader_helmet",
+    "vertices": 27440,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_samurai_helmet",
+    "vertices": 30467,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_mercenary_chest",
+    "vertices": 31762,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "bandit_rust_shoulder",
+    "vertices": 36281,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "paladin_full_beard",
+    "vertices": 26815,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "paladin_ragged_skirt",
+    "vertices": 34105,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "paladin_gauntlet",
+    "vertices": 25435,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "paladin_armored_boot",
+    "vertices": 29013,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "paladin_winged_helmet",
+    "vertices": 23892,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "paladin_medieval_chest",
+    "vertices": 26288,
+    "faces": 40000,
+    "ok": true
+  },
+  {
+    "name": "paladin_metal_shoulder",
+    "vertices": 24967,
+    "faces": 40000,
+    "ok": true
+  }
+]

@@ -84,6 +84,12 @@ namespace KenshiVR.MeleeCombat
         public bool disableSevering;
         [Min(0f)] public float minimumSlashSpeed = 5f;
         [Min(0f)] public float minimumSeveringDamage = 6f;
+        [Header("Living combat resistance")]
+        [Min(1f)] public float livingSeverSpeedMultiplier = 1.5f;
+        [Min(1f)] public float livingSeverDamageMultiplier = 2f;
+        [Header("Postmortem cuts")]
+        [Range(.1f, 1f)] public float corpseSeverSpeedMultiplier = .6f;
+        [Range(.1f, 1f)] public float corpseSeverDamageMultiplier = .35f;
         [Range(0f, 1f)] public float minimumEdgeAlignment = .3f;
         [Min(0f)] public float jointHitRadius = .18f;
         [Min(0f)] public float physicsImpulseMultiplier = 1f;
@@ -162,10 +168,16 @@ namespace KenshiVR.MeleeCombat
             if (!bestBone) return false;
             if (!forceSeverOnValidJointStrike)
             {
-                if (speed < minimumSlashSpeed || damage < minimumSeveringDamage) return false;
+                float speedMultiplier = health && health.IsDead ? corpseSeverSpeedMultiplier :
+                    health ? Mathf.Max(1.5f, livingSeverSpeedMultiplier) : 1f;
+                float damageMultiplier = health && health.IsDead ? corpseSeverDamageMultiplier :
+                    health ? Mathf.Max(2f, livingSeverDamageMultiplier) : 1f;
+                if (speed < minimumSlashSpeed * speedMultiplier ||
+                    damage < minimumSeveringDamage * damageMultiplier) return false;
                 foreach (var resistance in resistances)
                     if (resistance != null && resistance.point == best &&
-                        (speed < resistance.speed || damage < resistance.damage)) return false;
+                        (speed < resistance.speed * speedMultiplier ||
+                         damage < resistance.damage * damageMultiplier)) return false;
             }
             bool completed = Sever(best, bestBone, hit, slashVelocity, inheritedVelocity);
             if (completed) lastSeverTime = Time.time;
@@ -352,6 +364,7 @@ namespace KenshiVR.MeleeCombat
             body.angularVelocity = UnityEngine.Random.onUnitSphere * 3f;
             var grab = detached.AddComponent<XRGrabInteractable>();
             grab.colliders.Add(box);
+            detached.AddComponent<HeldLootCollisionGuard>().Bind(grab);
             var identity = detached.AddComponent<SeveredBodyPartIdentity>();
             identity.npcId = npcId; identity.characterName = characterName; identity.factionId = factionId;
             identity.bountyId = bountyId; identity.bountyValue = bountyValue;
@@ -363,9 +376,15 @@ namespace KenshiVR.MeleeCombat
             var severedPart = detached.AddComponent<SeveredBodyPart>();
             foreach (var mesh in detachedMeshes) severedPart.OwnMesh(mesh);
             parts.Add(identity);
+            if (point == SeverPoint.Head)
+            {
+                GetComponent<CharacterCosmeticsController>()?.PrepareDetachedHair(detached.transform,bone);
+                GetComponent<NpcClothingLoot>()?.TransferHeadwearToDetachedHead(detached.transform);
+                GetComponent<CharacterCosmeticsController>()?.SetHeadPresent(false);
+            }
             StartCoroutine(AllowFormerBodyCollision(box));
             blood?.RegisterAmputation(amputationBleedPerSecond, amputationBleedSeconds,
-                bone.position, slashVelocity, point == SeverPoint.Head);
+                bone.position, slashVelocity, point == SeverPoint.Head, bone.parent);
             ReactToLoss(point, bone, hit, slashVelocity);
             return true;
         }
@@ -398,6 +417,7 @@ namespace KenshiVR.MeleeCombat
                 else keptColliders.Add(collider);
             }
             ragdoll.boneColliders = keptColliders.ToArray();
+            ragdoll.RefreshCorpseGrabColliders();
         }
 
         void ReactToLoss(SeverPoint point, Transform bone, Vector3 hit, Vector3 direction)

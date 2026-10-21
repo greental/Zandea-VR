@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using KenshiVR.MeleeCombat;
 using JunkerEquipment;
 using UnityEditor;
@@ -14,7 +15,8 @@ public static class GroundLootPlayValidation
     const string StartedPlay = "GroundLootPlayValidation.StartedPlay";
     const string Sword = "Assets/MyAssets/prefabs/weapons/Player practice sword - generated long blade.prefab";
     const string Cloth = "Assets/MeleeCombat/Inventory/GeneratedLoot/rag-shirt.prefab";
-    static GameObject sword, cloth;
+    static GameObject sword, cloth, extraSlotObject;
+    static readonly System.Collections.Generic.List<GameObject> mountedSwords = new();
     static Terrain terrain;
     static int startFrame = -1;
     static float swordStart, clothStart;
@@ -67,17 +69,58 @@ public static class GroundLootPlayValidation
             Check(cloth, clothStart, "clothing loot");
             var rig = UnityEngine.Object.FindFirstObjectByType<JunkerEquipmentRig>();
             var equipment = sword.GetComponent<JunkerEquipmentItem>();
-            if (!rig || !rig.meleeSheath || !equipment)
-                throw new Exception("Player equipment rig or melee slot is unavailable");
-            sword.transform.position = rig.meleeSheath.position;
-            sword.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
-            equipment.rig = rig;
-            if (!rig.TryHolster(equipment) || !equipment.currentSlot || !equipment.currentSlot.meleeOnly)
-                throw new Exception("Sword did not enter the player's normal equipment slot");
-            equipment.currentSlot.ReleaseItem(equipment);
-            if (equipment.currentSlot || sword.GetComponent<Rigidbody>().isKinematic)
-                throw new Exception("Sword did not leave the equipment slot cleanly");
-            File.WriteAllText(Result, "PASS terrain ground contact and equipment slot: sword and clothing landed on terrain; sword holstered and unmounted through the player rig");
+            var physical = sword.GetComponent<PhysicalMeleeWeapon>();
+            if (!physical || !physical.rightGrip || !physical.leftGrip ||
+                physical.rightGripEuler != Vector3.zero ||
+                physical.leftGripEuler != Vector3.zero)
+                throw new Exception("Practice sword lacks its fixed authored hand angle");
+            if (!rig || !rig.meleeSheath || !rig.rightHipSheath || !rig.leftBackSheath ||
+                !rig.rightBackSheath || !equipment)
+                throw new Exception("Player equipment rig does not expose all four additional item slots");
+            var anchors = new[] { rig.meleeSheath, rig.rightHipSheath, rig.leftBackSheath,
+                rig.rightBackSheath };
+            var testSwordPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(Sword);
+            var meleeSlots = anchors.Select(anchor => anchor.GetComponent<JunkerEquipmentSlot>()).ToArray();
+            if (meleeSlots.Any(slot => !slot || !slot.Accepts(equipment)) || meleeSlots.Distinct().Count() != 4 ||
+                meleeSlots.Any(slot => !rig.slots.Contains(slot)))
+                throw new Exception("Four distinct item slots accepting weapons were not registered in the existing rig");
+            var ordinaryItem = rig.GetComponentsInChildren<JunkerEquipmentItem>(true)
+                .FirstOrDefault(item => item && !item.GetComponent<PhysicalMeleeWeapon>());
+            if (!ordinaryItem || meleeSlots.Any(slot => !slot.Accepts(ordinaryItem)))
+                throw new Exception("Added body slots reject ordinary equipment items");
+            extraSlotObject = new GameObject("Validation extra item slot");
+            extraSlotObject.transform.SetParent(rig.transform, false);
+            extraSlotObject.transform.localPosition = new Vector3(0f, 3f, 0f);
+            var extraSlot = extraSlotObject.AddComponent<JunkerEquipmentSlot>();
+            rig.ConfigureItemSlots();
+            if (!rig.slots.Contains(extraSlot) || !extraSlot.Accepts(equipment) ||
+                !extraSlot.Accepts(ordinaryItem))
+                throw new Exception("An arbitrary additional item slot did not register or accept both item kinds");
+            extraSlot.approvedItemIds.Add(equipment.itemId);
+            if (!extraSlot.Accepts(equipment) || extraSlot.Accepts(ordinaryItem))
+                throw new Exception("Shared item ID filter did not apply to weapons and ordinary equipment");
+            extraSlot.approvedItemIds.Clear();
+            for (int index = 0; index < anchors.Length; index++)
+            {
+                var current = index == 0 ? sword : UnityEngine.Object.Instantiate(testSwordPrefab);
+                if (index > 0) mountedSwords.Add(current);
+                var item = current.GetComponent<JunkerEquipmentItem>();
+                item.rig = rig;
+                current.transform.position = anchors[index].position;
+                current.GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
+                if (!rig.TryHolster(item) || item.currentSlot != meleeSlots[index] ||
+                    meleeSlots[index].Occupant != item)
+                    throw new Exception("Sword did not enter item slot " + index);
+            }
+            if (rig.TryHolster(equipment)) throw new Exception("Occupied item slot accepted a second sword");
+            foreach (var item in new[] { sword }.Concat(mountedSwords))
+            {
+                var equipped = item.GetComponent<JunkerEquipmentItem>();
+                equipped.currentSlot.ReleaseItem(equipped);
+                if (equipped.currentSlot || item.GetComponent<Rigidbody>().isKinematic)
+                    throw new Exception("Sword did not leave its equipment slot cleanly");
+            }
+            File.WriteAllText(Result, "PASS terrain ground contact and shared item slots: four body slots accept weapons and other equipment; an arbitrary fifth slot auto-registers and obeys item ID filtering; four swords mount and unmount separately");
             Finish();
         }
         catch (Exception error)
@@ -110,7 +153,11 @@ public static class GroundLootPlayValidation
     {
         if (sword) UnityEngine.Object.Destroy(sword);
         if (cloth) UnityEngine.Object.Destroy(cloth);
+        if (extraSlotObject) UnityEngine.Object.Destroy(extraSlotObject);
+        foreach (var item in mountedSwords) if (item) UnityEngine.Object.Destroy(item);
+        mountedSwords.Clear();
         sword = cloth = null;
+        extraSlotObject = null;
         terrain = null;
         SessionState.SetBool(Running, false);
         bool startedPlay = SessionState.GetBool(StartedPlay, false);

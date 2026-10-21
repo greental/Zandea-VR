@@ -74,7 +74,7 @@ namespace Zandea.POI
                 ? (1 - Mathf.SmoothStep(0, 1, along)) * (1 - Mathf.SmoothStep(0, 1, lateral / d.blendDistance)) : 0;
             return Mathf.Max(plateau, approach);
         }
-        public static void Stamp(PlanetTerrainTreadmill t, BanditOutpostDefinition d, Vector2 site, float height, PlanetTileCoord tile, TerrainData data)
+        public static void Stamp(PlanetTerrainTreadmill t, BanditOutpostDefinition d, Vector2 site, float height, PlanetTileCoord tile, TerrainData data, Quaternion? rotation = null)
         {
             float reach = d.dimensions.magnitude / 2 + d.blendDistance + d.approachLength;
             Vector2 tileOrigin = new Vector2(tile.x, tile.z) * t.TileSizeMeters;
@@ -82,7 +82,7 @@ namespace Zandea.POI
                 site.x - reach > tileOrigin.x + data.size.x || site.y - reach > tileOrigin.y + data.size.z) return;
             int n = data.heightmapResolution;
             var heights = data.GetHeights(0, 0, n, n);
-            var inverse = Quaternion.Euler(0, -d.gateQuarterTurns * 90, 0);
+            var inverse = Quaternion.Inverse(rotation ?? Quaternion.Euler(0, d.gateQuarterTurns * 90, 0));
             for (int z = 0; z < n; z++)
                 for (int x = 0; x < n; x++)
                 {

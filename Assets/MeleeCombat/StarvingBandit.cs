@@ -192,6 +192,7 @@ namespace KenshiVR.MeleeCombat
         public float DesiredTipTravel { get; private set; }
         public float AchievedTipTravel { get; private set; }
         public int CurrentAttack => attackIndex;
+        public int AttackSequence { get; private set; }
         public float CurrentAttackAngle => attackIndex * 45f;
         public static readonly string[] ClockDirections = { "12", "1:30", "3", "4:30", "6", "7:30", "9", "10:30" };
         public float AttackProgress { get; private set; }
@@ -355,6 +356,7 @@ namespace KenshiVR.MeleeCombat
         }
         void Start()
         {
+            if (staff && !GetComponent<BanditDuelStrikeDamage>()) gameObject.AddComponent<BanditDuelStrikeDamage>();
             CaptureGuard();
             nextAttack = Time.time + initialAttackDelay;
         }
@@ -374,6 +376,8 @@ namespace KenshiVR.MeleeCombat
         void OnDestroy() { if (staff) staff.Blocked -= OnBlocked; if (previewDummy) Destroy(previewDummy); if (previewDummyMaterial) Destroy(previewDummyMaterial); }
         public void SetEquippedStaff(PhysicalMeleeWeapon value, Transform goal)
         {
+            if (value && Application.isPlaying && !GetComponent<BanditDuelStrikeDamage>())
+                gameObject.AddComponent<BanditDuelStrikeDamage>();
             if (staff) staff.Blocked -= OnBlocked;
             staff = value; weaponGoal = goal; guardCaptured = false;
             staffBody = staff ? staff.GetComponent<Rigidbody>() : null;
@@ -599,6 +603,7 @@ namespace KenshiVR.MeleeCombat
                 target.position + Vector3.up * 1.1f) : 0f;
         void StartAttack(int index)
         {
+            AttackSequence++;
             attackIndex = Mathf.Clamp(index, 0, 7);
             var toTarget = target ? Vector3.ProjectOnPlane(target.position - transform.position, Vector3.up) : transform.forward;
             frozenAimYaw = toTarget.sqrMagnitude > .001f ? Mathf.Clamp(Vector3.SignedAngle(transform.forward, toTarget, Vector3.up), -maximumAimYaw, maximumAimYaw) : 0;

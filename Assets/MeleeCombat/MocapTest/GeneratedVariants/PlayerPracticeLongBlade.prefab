@@ -260,6 +260,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.PhysicalMeleeWeapon
   rightGrip: {fileID: 3192015291374802462}
   leftGrip: {fileID: 3192015291374802462}
+  rightGripEuler: {x: 0, y: 0, z: 0}
+  leftGripEuler: {x: 0, y: 0, z: 0}
   strikeType: 1
   grip: {fileID: 3192015291374802462}
   npcGripTarget: {fileID: 0}

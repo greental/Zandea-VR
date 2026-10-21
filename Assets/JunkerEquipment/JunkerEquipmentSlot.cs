@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
-using KenshiVR.MeleeCombat;
 namespace JunkerEquipment
 {
     public sealed class JunkerEquipmentSlot : MonoBehaviour
@@ -11,7 +10,6 @@ namespace JunkerEquipment
         public string acceptedItemId { get => legacyAcceptedItemId; set => legacyAcceptedItemId = value; }
         [Tooltip("If non-empty, only these item IDs may be mounted.")] public List<string> approvedItemIds = new();
         [Tooltip("These item IDs are always rejected, even if approved above.")] public List<string> blockedItemIds = new();
-        [Tooltip("Reserve this equipment slot for physical melee weapons.")] public bool meleeOnly;
         public JunkerEquipmentItem startingItem;
         [Tooltip("Keep mounted physics outside a moving vehicle hierarchy; the item follows this slot's pose.")]
         public bool detachMountedItem;
@@ -28,8 +26,6 @@ namespace JunkerEquipment
         public bool Accepts(JunkerEquipmentItem item)
         {
             if (!item || blockedItemIds.Contains(item.itemId)) return false;
-            if (meleeOnly && !item.GetComponent<PhysicalMeleeWeapon>()) return false;
-            if (!meleeOnly && item.GetComponent<PhysicalMeleeWeapon>()) return false;
             return approvedItemIds.Count == 0 || approvedItemIds.Contains(item.itemId);
         }
         public bool TryMount(JunkerEquipmentItem item)

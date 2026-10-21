@@ -56,10 +56,11 @@ namespace KenshiVR.Bandaging.Editor
                     visual.transform.localScale = Vector3.one * scale;
                     visual.transform.localPosition = -bounds.center * scale;
                 }
-                var collider = root.AddComponent<CapsuleCollider>();
-                collider.direction = 1; collider.radius = .045f; collider.height = .085f;
+                var collider = root.AddComponent<BoxCollider>();
+                collider.size = new Vector3(.14f, .10f, .14f);
                 var body = root.AddComponent<Rigidbody>();
                 body.mass = .12f; body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+                body.angularDamping = 3f;
                 var grab = root.AddComponent<XRGrabInteractable>();
                 grab.throwOnDetach = false;
                 var grip = new GameObject("Grip pose").transform;

@@ -12,6 +12,8 @@ namespace JunkerEquipment
         public GameObject closedVisual, openVisual;
         public Transform storedItemsRoot;
         public BackpackStorageVolume storageVolume;
+        [Tooltip("World containers such as open chests are always usable and do not require wearable equipment.")]
+        public bool alwaysOpenStorage;
         [Header("Handle and return to back")]
         public Transform topHandle;
         public JunkerEquipmentSlot backSlot;
@@ -29,13 +31,13 @@ namespace JunkerEquipment
         public BackpackState State => equipment && equipment.currentSlot ? BackpackState.OnBack :
             equipment && equipment.Grab && equipment.Grab.isSelected ? BackpackState.Held : BackpackState.Open;
         // Held is already usable; no separate opening gesture is required.
-        public bool IsUsable => isActiveAndEnabled && State != BackpackState.OnBack;
+        public bool IsUsable => isActiveAndEnabled && (alwaysOpenStorage || State != BackpackState.OnBack);
 
         void Awake()
         {
             grabShell = GetComponent<Collider>();
             if (!equipment) equipment = GetComponent<JunkerEquipmentItem>();
-            if (!equipment || !equipment.Grab) return;
+            if (alwaysOpenStorage || !equipment || !equipment.Grab) return;
             var grab = equipment.Grab;
             if (topHandle) grab.attachTransform = topHandle;
             // Position attaches at the handle; dynamic rotation preserves the bag's current
@@ -69,6 +71,7 @@ namespace JunkerEquipment
         }
         void FreezeBody()
         {
+            if (!equipment || !equipment.Body) return;
             var body = equipment.Body;
             if (!body.isKinematic) { body.linearVelocity = Vector3.zero; body.angularVelocity = Vector3.zero; }
             body.isKinematic = true; body.useGravity = false; body.interpolation = RigidbodyInterpolation.None;
@@ -119,6 +122,12 @@ namespace JunkerEquipment
             return true;
         }
         internal void Forget(VRInventoryItem item) => items.Remove(item);
+        public bool RestoreStored(VRInventoryItem item)
+        {
+            if(!item||!storedItemsRoot||item.CurrentContainer||!items.Add(item))return false;
+            item.gameObject.SetActive(true);item.transform.position=storageVolume?storageVolume.transform.TransformPoint(storageVolume.Box.center):storedItemsRoot.position;
+            item.StoreIn(this);return true;
+        }
         void OnDrawGizmosSelected()
         {
             if (!backSlot || !equipment) return;

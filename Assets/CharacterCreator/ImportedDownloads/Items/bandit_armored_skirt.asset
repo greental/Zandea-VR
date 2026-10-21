@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d0c4c93315d0c941aa154c363126c29, type: 3}
+  m_Name: bandit_armored_skirt
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.AppearanceItemDefinition
+  slot: 4
+  prefab: {fileID: 4744653281818643913, guid: 973b9b6530681984b9034130fcfafd80, type: 3}
+  attachBoneName: CC_Base_Hip_02
+  skinned: 1
+  requiredMorphs:
+  - WeightThin
+  - WeightHeavy
+  - MuscularitySlim
+  - MuscularityMuscular
+  hideRendererNames: []
+  styleFamily: bandit
+  fitNote: Skinned fit authored and mesh-baked in Assets/CharacterCreator/ImportedArmor/ArmorFittingsEditable.unity.
+  hideHair: 0
+  coversOutfit: 0
+  randomWeight: 1

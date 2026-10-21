@@ -22,7 +22,7 @@ namespace KenshiVR.MeleeCombat
         }
 
         readonly List<Surface> surfaces = new();
-        readonly MaterialPropertyBlock block = new();
+        MaterialPropertyBlock block;
         static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
         static readonly int ColorProperty = Shader.PropertyToID("_Color");
         static readonly int GltfBaseColor = Shader.PropertyToID("baseColorFactor");
@@ -94,6 +94,7 @@ namespace KenshiVR.MeleeCombat
 
         void Apply()
         {
+            if (block == null) block = new MaterialPropertyBlock();
             int stage = coverage <= .001f ? 0 : coverage < .33f ? 1 : coverage < .7f ? 2 : 3;
             foreach (var surface in surfaces)
             {

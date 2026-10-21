@@ -15,6 +15,10 @@ namespace Zandea.Props
         bool initialized;
         void Start()
         {
+            // The imported rack used one solid box across its entire opening. It
+            // prevented authored and returned weapons from occupying the rack.
+            foreach (var box in GetComponentsInParent<BoxCollider>(true))
+                if (!box.isTrigger && box.bounds.Contains(transform.position)) box.enabled = false;
             if (!initialized) Initialize(OutpostPropPopulation.ScenePropId(gameObject));
         }
         public void Initialize(string id)

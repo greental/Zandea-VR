@@ -69,7 +69,7 @@ namespace KenshiVR.CharacterCreator
         static readonly int GltfBaseColorTexture = Shader.PropertyToID("baseColorTexture");
 
         public CharacterAppearanceData Data => appearance.Copy();
-        void Awake() { Preview(); }
+        void Awake() { Preview(); CreatorPlayerHands.Ensure(this); }
         void OnEnable() { Preview(); }
         public void Preview()
         {

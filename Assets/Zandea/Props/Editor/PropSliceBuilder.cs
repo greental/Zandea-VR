@@ -208,10 +208,10 @@ namespace Zandea.Props.Editor
                     }
                     container.presentationPoints = points.ToArray();
                     SetupLid(model, body, container);
+                    root.AddComponent<ChestStorageVolume>();
                 }
                 else if (key == "rack")
                 {
-                    AddBox(root, bounds);
                     var socket = new GameObject("Bo Staff socket").AddComponent<PropRackSocket>();
                     socket.transform.SetParent(root.transform, false);
                     socket.transform.localPosition = new Vector3(0, bounds.min.y + bounds.size.y * .72f, 0);
@@ -232,6 +232,7 @@ namespace Zandea.Props.Editor
                             breakable.fracturedPrefab = debris;
                             breakable.collisionEnergyThreshold = key == "pot" ? 8 : key == "stool" ? 28 : 80;
                             breakable.minimumImpactSpeed = key == "pot" ? 3 : key == "stool" ? 4 : 5;
+                            breakable.requireWeaponDamage = key == "barrel";
                         }
                         if (key == "barrel")
                         {
@@ -283,7 +284,11 @@ namespace Zandea.Props.Editor
                 var hinge = mesh.gameObject.AddComponent<HingeJoint>();
                 hinge.connectedBody = baseBody; hinge.axis = Vector3.right; hinge.useLimits = true;
                 hinge.limits = new JointLimits { min = -4, max = 105, bounciness = 0 };
-                mesh.gameObject.AddComponent<XRGrabInteractable>().useDynamicAttach = true;
+                var grab = mesh.gameObject.AddComponent<XRGrabInteractable>();
+                grab.useDynamicAttach = true;
+                grab.movementType = XRBaseInteractable.MovementType.VelocityTracking;
+                grab.throwOnDetach = false;
+                grab.retainTransformParent = true;
                 mesh.gameObject.AddComponent<PropHingedLid>().container = container;
                 return;
             }

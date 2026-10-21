@@ -28,16 +28,16 @@ public static class GeneratedMocapVariantBuilder
     }
     static readonly Variant[] Variants = {
         new Variant("BoStaff", null, Vector3.up, 2f, "HumanM@AttackPolearm01", "HumanM@CombatIdlePolearm01", bothHands:true),
-        new Variant("CurvedCleaver", "5yoj435yoj435yoj", Vector3.left, .85f, "HumanM@Attack1H01_R", "HumanM@CombatIdle1H01"),
+        new Variant("CurvedCleaver", "5yoj435yoj435yoj", Vector3.right, .85f, "HumanM@Attack1H01_R", "HumanM@CombatIdle1H01"),
         new Variant("PoleBlade", "7a0nqg7a0nqg7a0n", Vector3.up, 1.65f, "HumanM@AttackPolearm01", "HumanM@CombatIdlePolearm01", bothHands:true),
-        new Variant("HeavyCleaver", "cmp4cscmp4cscmp4", Vector3.left, 1.35f, "HumanM@Attack2H01", "HumanM@CombatIdle2H01", bothHands:true),
-        new Variant("HookSword", "ctvo3tctvo3tctvo", Vector3.left, .95f, "HumanM@Attack1H01_L", "HumanM@CombatIdle1H01", leftHand:true),
+        new Variant("HeavyCleaver", "cmp4cscmp4cscmp4", Vector3.right, 1.35f, "HumanM@Attack2H01", "HumanM@CombatIdle2H01", bothHands:true),
+        new Variant("HookSword", "ctvo3tctvo3tctvo", Vector3.right, .95f, "HumanM@Attack1H01_L", "HumanM@CombatIdle1H01", leftHand:true),
         new Variant("RustedDoubleAxe", "icncchicncchicnc", Vector3.up, 1.35f, "HumanM@Attack2H01", "HumanM@CombatIdle2H01", bothHands:true),
-        new Variant("BroadCleaver", "j8jvw8j8jvw8j8jv", Vector3.up, 1.25f, "HumanM@Attack2H01", "HumanM@CombatIdle2H01", bothHands:true),
-        new Variant("ShortSaber", "qh6xjiqh6xjiqh6x", Vector3.left, .9f, "HumanM@Attack1H01_R", "HumanM@CombatIdle1H01"),
+        new Variant("BroadCleaver", "j8jvw8j8jvw8j8jv", Vector3.down, 1.25f, "HumanM@Attack2H01", "HumanM@CombatIdle2H01", bothHands:true),
+        new Variant("ShortSaber", "qh6xjiqh6xjiqh6x", Vector3.right, .9f, "HumanM@Attack1H01_R", "HumanM@CombatIdle1H01"),
         new Variant("LongBlade", "rm5g6jrm5g6jrm5g", Vector3.up, 1.5f, "HumanM@Attack2H01", "HumanM@CombatIdle2H01", bothHands:true),
         new Variant("SpikedDoubleAxe", "scu0f9scu0f9scu0", Vector3.up, 1.35f, "HumanM@Attack2H01", "HumanM@CombatIdle2H01", bothHands:true),
-        new Variant("SawCleaver", "v24ohsv24ohsv24o", Vector3.left, 1.4f, "HumanM@Attack2H01", "HumanM@CombatIdle2H01", bothHands:true),
+        new Variant("SawCleaver", "v24ohsv24ohsv24o", Vector3.right, 1.4f, "HumanM@Attack2H01", "HumanM@CombatIdle2H01", bothHands:true),
         new Variant("Axe", "xl1dq9xl1dq9xl1d", Vector3.up, .9f, "HumanM@Attack1H01_R", "HumanM@CombatIdle1H01"),
         new Variant("SpikedMace", "xopexxxopexxxope", Vector3.up, .8f, "HumanM@Attack1H01_R", "HumanM@CombatIdle1H01"),
         new Variant("ShieldAndSaber", null, Vector3.up, .65f, "HumanM@AttackShield01", "HumanM@CombatIdle1H01", leftHand:true, shield:true)
@@ -176,7 +176,8 @@ public static class GeneratedMocapVariantBuilder
         var grip = bounds.center;
         float fraction = bothHands ? .26f : .15f;
         float along = axis.x < -.5f ? bounds.max.x - span * fraction :
-            (axis.x > .5f ? bounds.min.x : bounds.min.y) + span * fraction;
+            axis.x > .5f ? bounds.min.x + span * fraction :
+            axis.y < -.5f ? bounds.max.y - span * fraction : bounds.min.y + span * fraction;
         if (Mathf.Abs(axis.x) > .5f) grip.x = along; else grip.y = along;
         float scale = length / span;
         var rotation = Quaternion.FromToRotation(axis, desiredDirection);
