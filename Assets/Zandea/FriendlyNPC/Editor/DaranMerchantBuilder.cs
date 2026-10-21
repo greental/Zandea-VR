@@ -142,7 +142,9 @@ namespace Zandea.FriendlyNPC.Editor
             var palm = Find<PalmDialogueChoices>();
             var starter = Find<StarterBackpackGoods>();
             var pose = Find<MerchantHandshakePose>();
+            var animator = npc ? npc.GetComponentInChildren<Animator>() : null;
             if (!npc || !npc.brain || npc.brain.hostileToPlayer || !npc.face ||
+                !animator || !animator.isHuman ||
                 !npc.mouthAudio || !npc.conversationTarget || !npc.dialogue || npc.dialogue.nodes.Count < 10 ||
                 !counter || counter.merchant != npc || !counter.configuration ||
                 !counter.buyArea || !counter.sellArea || !counter.paymentSpot ||
