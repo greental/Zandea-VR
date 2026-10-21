@@ -204,7 +204,9 @@ namespace Zandea.FriendlyNPC
 
         public void PlayContextLine(string nodeId)
         {
-            if (active && dialogue) ShowNode(dialogue.Find(nodeId));
+            if (!active || !dialogue) return;
+            var node = dialogue.Find(nodeId);
+            if (node != null) ShowNode(node);
         }
 
         public void EndConversation()

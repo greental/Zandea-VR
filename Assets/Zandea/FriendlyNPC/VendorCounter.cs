@@ -123,6 +123,7 @@ namespace Zandea.FriendlyNPC
             offers.Add(item.InstanceId, offer);
             Recalculate();
         }
+        public void TryOffer(TradeItem item) => OnItemReleased(item);
 
         void OnPurseSelected(CurrencyPouch pouch)
         {
@@ -137,6 +138,7 @@ namespace Zandea.FriendlyNPC
             Recalculate();
             if (NetCats < 0 && !ready) merchant?.PlayContextLine("insufficient_funds_001");
         }
+        public void TryPresentPurse(CurrencyPouch pouch) => OnPurseReleased(pouch);
 
         public void Cancel()
         {
@@ -219,6 +221,7 @@ namespace Zandea.FriendlyNPC
                     payout = Instantiate(payoutPouchPrefab, payoutPosition.position, payoutPosition.rotation, transform);
                     payout.gameObject.SetActive(false);
                     payout.personal = false;
+                    payout.AssignStableId(Guid.NewGuid().ToString("N"));
                     payout.SetInitialBalance(NetCats);
                 }
                 // Revalidate after preparing the payout object, before changing ownership or balances.

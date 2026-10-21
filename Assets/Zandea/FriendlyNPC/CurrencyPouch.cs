@@ -93,15 +93,21 @@ namespace Zandea.FriendlyNPC
             for (int i = 0; i < count; i++)
             {
                 var other = mergeHits[i] ? mergeHits[i].GetComponentInParent<CurrencyPouch>() : null;
-                if (!other || other == this || other.personal || other.Cats <= 0 || other.Grab.isSelected) continue;
-                int amount = other.Cats;
-                if (cats > int.MaxValue - amount) return;
-                other.cats = 0;
-                cats += amount;
-                MerchantSessionState.MarkPayoutCollected(other.stableId);
-                Destroy(other.gameObject);
-                return;
+                if (TryMergePayout(other)) return;
             }
+        }
+
+        public bool TryMergePayout(CurrencyPouch other)
+        {
+            if (!personal || !other || other == this || other.personal || other.Cats <= 0 ||
+                other.Grab.isSelected || Vector3.Distance(transform.position, other.transform.position) > mergeRadius ||
+                cats > int.MaxValue - other.Cats) return false;
+            int amount = other.Cats;
+            other.cats = 0;
+            cats += amount;
+            MerchantSessionState.MarkPayoutCollected(other.stableId);
+            Destroy(other.gameObject);
+            return true;
         }
 
         public void ReturnHomeWhenReleased()
