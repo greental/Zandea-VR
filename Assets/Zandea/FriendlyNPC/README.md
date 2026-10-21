@@ -1,6 +1,6 @@
 # Friendly merchant integration
 
-`DaranMerchantBuilder` is the authoring entry point. In Unity, choose **Zandea > Friendly NPC > Build Daran test scene**. It creates a Daran prefab, a reusable counter prefab, a personal purse, a payout pouch, dialogue and vendor assets, and `DaranMerchantTest.unity` under `Generated/`. Stock includes an existing physical sword and bo staff, plus an existing bandage prefab. The build checks D: free space first and stops below 20 GiB.
+`DaranMerchantBuilder` is the authoring entry point. In Unity, choose **Zandea > Friendly NPC > Build Daran test scene**. It creates a Daran prefab, a reusable counter prefab, a personal purse, a payout pouch, dialogue and vendor assets, and `DaranMerchantTest.unity` under `Generated/`. Open that scene to try the interaction. Stock includes an existing physical sword and bo staff, plus an existing bandage prefab. The build checks D: free space first and stops below 20 GiB.
 
 The merchant uses `CombinedStarvingBandit`'s CC_Base skeleton, `BanditRigMotion`, health and facial rig. Its Animator has no Avatar and is disabled by the existing rig driver. `StarvingBandit.hostileToPlayer` is false for Daran and stays true for existing bandits. Damage makes Daran hostile and ends dialogue. `MerchantHandshakePose` performs a small arm reach after `BanditRigMotion`; it only runs while an offer is ready. `NPCFacialExpressionController` remains the sole owner of the expression blendshapes and jaw. Dialogue adds a bounded speech opening to that controller's existing jaw result.
 
@@ -28,6 +28,8 @@ The handshake contact is enabled only for a valid offer. Deliberate Grip on that
 
 ## Current validation and limits
 
-Use `DaranMerchantBuilder.BuildAndValidate` from a Unity batch Editor run to build the scene and check its Edit Mode wiring. This does not verify actual XRI selection, runtime settlement, headset reach, readable text, arm pose or frame time. Those require Play Mode and Quest 2 via PCVR.
+Use `DaranMerchantBuilder.BuildAndValidate` from a Unity batch Editor run to build the scene and check its Edit Mode wiring. The separate Play Mode test covers settlement logic. Actual XRI selection, headset reach, readable text, arm pose and frame time still require Quest 2 via PCVR.
+
+On 2026-10-21, Unity 6000.2.8f1 compiled the merchant scripts and `BuildAndValidate` passed after reopening the generated scene. The Unity Test Framework ran `MerchantTradeTests.CombinedTradePayoutAndFailureCases` in Play Mode: 1 passed, 0 failed. It exercises netted buying/selling, once-only commit, physical payout and merge, insufficient funds, and cancellation. The scene has not been played in a headset or profiled; no FPS or CPU claims are made.
 
 Vendor balances, transferred source IDs and outstanding payout pouches are retained across POI unload/reload within one play session. A disk save adapter is still required for persistence across application restarts. Actual generated speech is also required before the spoken dialogue acceptance test passes. Do not mark the merchant feature complete until those checks pass.
