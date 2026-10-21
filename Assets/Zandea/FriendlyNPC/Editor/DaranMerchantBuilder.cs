@@ -75,6 +75,8 @@ namespace Zandea.FriendlyNPC.Editor
             var price = BuildLabel("PriceLabel", 2.5f);
             var merchantPrefab = BuildMerchant(dialogue);
             var counterPrefab = BuildCounter(vendor, payout, price, wood, red, green);
+            var stockPaths = new List<string>(vendor.startingStock.Count);
+            foreach (var item in vendor.startingStock) stockPaths.Add(AssetDatabase.GetAssetPath(item));
             AssetDatabase.SaveAssets();
 
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
@@ -115,7 +117,7 @@ namespace Zandea.FriendlyNPC.Editor
             handshake.counter = vendorCounter;
             vendorCounter.handshake = handshake;
             npc.GetComponent<MerchantHandshakePose>().handshake = handshake;
-            PlaceStock(scene, counter.transform, vendor, interaction.npcId);
+            PlaceStock(scene, counter.transform, stockPaths, interaction.npcId);
             var scenePath = Folder + "/DaranMerchantTest.unity";
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, scenePath);
@@ -501,7 +503,7 @@ namespace Zandea.FriendlyNPC.Editor
             return choices;
         }
 
-        static void PlaceStock(Scene scene, Transform counter, VendorConfiguration config, string vendorId)
+        static void PlaceStock(Scene scene, Transform counter, IReadOnlyList<string> stockPaths, string vendorId)
         {
             int placed = 0;
             var shelf = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -509,9 +511,9 @@ namespace Zandea.FriendlyNPC.Editor
             shelf.name = "Merchant stock shelf";
             shelf.transform.position = counter.position + new Vector3(0, .87f, .60f);
             shelf.transform.localScale = new Vector3(1.65f, .1f, .32f);
-            for (int index = 0; index < config.startingStock.Count; index++)
+            for (int index = 0; index < stockPaths.Count; index++)
             {
-                var definition = config.startingStock[index];
+                var definition = AssetDatabase.LoadAssetAtPath<NpcItemDefinition>(stockPaths[index]);
                 var prefab = definition && definition.worldPrefab ? definition.worldPrefab :
                     definition && definition.itemId == "bandage" ? AssetDatabase.LoadAssetAtPath<GameObject>(
                         "Assets/MyAssets/prefabs/medical/BandageRoll.prefab") : null;
@@ -519,7 +521,7 @@ namespace Zandea.FriendlyNPC.Editor
                 { Debug.LogWarning("No physical stock prefab for " + (definition ? definition.itemId : "missing item")); continue; }
                 var stock = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
                 stock.name = definition.displayName + " merchant stock";
-                float across = (index - (config.startingStock.Count - 1) * .5f) * .52f;
+                float across = (index - (stockPaths.Count - 1) * .5f) * .52f;
                 stock.transform.position = shelf.transform.position + new Vector3(across, .18f, 0);
                 if (!stock.GetComponent<Rigidbody>()) stock.AddComponent<Rigidbody>();
                 if (!stock.GetComponent<XRGrabInteractable>()) stock.AddComponent<XRGrabInteractable>();
