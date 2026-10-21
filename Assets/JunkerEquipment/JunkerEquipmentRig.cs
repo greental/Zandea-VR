@@ -92,7 +92,8 @@ namespace JunkerEquipment
                 var hand=hands[i];
                 if(!hand || !hand.isActiveAndEnabled)continue;
                 var martial=martialHands[i];
-                if(martial && martial.InStance){gripWasPressed[i]=false;continue;}
+                if(Zandea.FriendlyNPC.FriendlyInputReservation.IsReserved(hand) || martial && martial.InStance)
+                {gripWasPressed[i]=false;continue;}
                 bool pressed=hand.selectInput.ReadIsPerformed();
                 if((assistedGrab[i] || hand.isPerformingManualInteraction) && (!pressed || !hand.hasSelection))
                 {

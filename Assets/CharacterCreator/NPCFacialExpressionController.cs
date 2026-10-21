@@ -27,6 +27,10 @@ namespace KenshiVR.CharacterCreator
         readonly float[] temporaryReturn = new float[Names.Length];
         float transitionStart, transitionDuration, temporaryEnd;
         bool temporary;
+        float speechOpen;
+
+        // Speech composes with emotion in this controller; no other component writes the jaw.
+        public void SetSpeechOpen(float amount) => speechOpen = Mathf.Clamp01(amount);
 
         void OnEnable()
         {
@@ -64,6 +68,7 @@ namespace KenshiVR.CharacterCreator
         }
         void OnDisable()
         {
+            speechOpen = 0f;
             if (jaw) jaw.localRotation = restJawRotation;
         }
         static Transform FindBone(Transform root, string boneName)
@@ -151,7 +156,7 @@ namespace KenshiVR.CharacterCreator
             if (!jaw) return;
             float degrees = 0f;
             for (int i = 1; i < current.Length; i++) degrees += JawDegrees[i] * current[i];
-            jaw.localRotation = restJawRotation * Quaternion.Euler(0f, 0f, -Mathf.Clamp(degrees, 0f, 20f));
+            jaw.localRotation = restJawRotation * Quaternion.Euler(0f, 0f, -Mathf.Clamp(degrees + speechOpen * 13f, 0f, 20f));
         }
     }
 }

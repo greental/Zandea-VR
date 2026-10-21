@@ -56,6 +56,8 @@ namespace KenshiVR.MeleeCombat
         public enum State { Idle, Threaten, Approach, Circle, Anticipate, Strike, Recover, Stagger, Retreat, Dead, FollowThrough, Dodge, Block, Parry }
         public enum AttackPhase { Windup, Strike, FollowThrough, Recovery }
         public State state;
+        [Tooltip("Friendly NPCs may idle until existing hostility rules or damage make them hostile.")]
+        public bool hostileToPlayer = true;
         public Transform target, weaponGoal;
         public PhysicalMeleeWeapon staff;
         public NpcMartialArts martialArts;
@@ -421,6 +423,13 @@ namespace KenshiVR.MeleeCombat
                 // Shared-prefab NPCs release through NpcGeneratedWeapon's death event.
                 if (!dropped && staff && !GetComponent<NpcGeneratedWeapon>())
                 { staff.DropFromNpc(); dropped = true; }
+                return;
+            }
+            if (!hostileToPlayer)
+            {
+                state = State.Idle;
+                Move(false);
+                ReturnToGuard();
                 return;
             }
             CaptureGuard();

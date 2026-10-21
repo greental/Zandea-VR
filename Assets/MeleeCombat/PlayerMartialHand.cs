@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using VRKoombar.WeaponsStaging.Contracts;
+using Zandea.FriendlyNPC;
 
 namespace KenshiVR.MeleeCombat
 {
@@ -58,6 +59,10 @@ namespace KenshiVR.MeleeCombat
         void Update()
         {
             if (!glove || !glove.input || !interactor) return;
+            if (FriendlyInputReservation.IsReserved(interactor))
+            {
+                LeaveStance(); State = HandState.Idle; return;
+            }
             bool grip = (glove.input.gripValue.action?.ReadValue<float>() ?? 0f) > .7f;
             bool trigger = (glove.input.triggerValue.action?.ReadValue<float>() ?? 0f) > .7f;
             bool holding = interactor.hasSelection || interactor.isPerformingManualInteraction;
