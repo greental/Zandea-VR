@@ -1,6 +1,6 @@
 # Friendly merchant integration
 
-`DaranMerchantBuilder` is the authoring entry point. In Unity, choose **Zandea > Friendly NPC > Build Daran test scene**. It creates a Daran prefab, a reusable counter prefab, a personal purse, a payout pouch, dialogue and vendor assets, and `DaranMerchantTest.unity` under `Generated/`. The build checks D: free space first and stops below 20 GiB.
+`DaranMerchantBuilder` is the authoring entry point. In Unity, choose **Zandea > Friendly NPC > Build Daran test scene**. It creates a Daran prefab, a reusable counter prefab, a personal purse, a payout pouch, dialogue and vendor assets, and `DaranMerchantTest.unity` under `Generated/`. Stock includes an existing physical sword and bo staff, plus an existing bandage prefab. The build checks D: free space first and stops below 20 GiB.
 
 The merchant uses `CombinedStarvingBandit`'s humanoid, Animator, health and facial rig. `StarvingBandit.hostileToPlayer` is false for Daran and stays true for existing bandits. Damage makes Daran hostile and ends dialogue. `MerchantHandshakePose` performs a small arm reach after the Animator; it only runs while an offer is ready. `NPCFacialExpressionController` remains the sole owner of the expression blendshapes and jaw. Dialogue adds a bounded speech opening to that controller's existing jaw result.
 
@@ -18,7 +18,7 @@ ElevenLabs uses `ELEVENLABS_API_KEY` from the developer's environment. The key i
 
 ## Physical interaction
 
-The player grips the merchant's conversation contact to begin. A raised free controller hand shows up to four responses by the palm. The opposite controller's thumbstick cycles choices and its primary button confirms; the choice colliders also accept direct interaction. Lowering the palm hides the panel. Input reservation suppresses the choosing hand's grab and martial stance only while the panel is visible. Controller axis and palm orientation require headset tuning.
+The player grips the merchant's conversation contact to begin. A raised free controller hand shows up to four responses by the palm. The opposite controller's thumbstick cycles choices and its primary button confirms; the choice colliders also accept direct interaction. Lowering the palm hides the panel. Input reservation suppresses the choosing hand's grab and martial stance, and pauses movement/turn providers while the panel is visible. Previous input states are restored when it hides. Controller axis and palm orientation require headset tuning.
 
 Merchant stock carries `TradeItem` with an existing `NpcItemDefinition`, instance ID and legal owner ID. Only release into the Buy or Sell area registers an offer. Grabbing removes it. The counter verifies identity, owner, position and current quote again at handshake. Item price labels show a red minus for purchases and a green plus for sales. `NetCats = sale proceeds − purchase costs`.
 

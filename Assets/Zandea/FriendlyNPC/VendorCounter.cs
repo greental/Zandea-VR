@@ -256,7 +256,13 @@ namespace Zandea.FriendlyNPC
             }
             catch (Exception error)
             {
-                foreach (var offer in changed) if (offer.item) offer.item.Transfer(offer.originalOwner);
+                foreach (var offer in changed)
+                    if (offer.item)
+                    {
+                        offer.item.Transfer(offer.originalOwner);
+                        if (offer.zone == sellArea &&
+                            offer.item.TryGetComponent<XRGrabInteractable>(out var grab)) grab.enabled = true;
+                    }
                 merchantCats = oldMerchantCats;
                 if (paymentPurse) paymentPurse.SetInitialBalance(oldPurseCats);
                 if (payout) Destroy(payout.gameObject);

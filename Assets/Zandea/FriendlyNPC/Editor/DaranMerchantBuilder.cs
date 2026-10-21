@@ -10,6 +10,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion;
+using JunkerBody;
 
 namespace Zandea.FriendlyNPC.Editor
 {
@@ -23,6 +25,7 @@ namespace Zandea.FriendlyNPC.Editor
         public static void Build()
         {
             if (EditorApplication.isPlaying) { Debug.LogError("Exit Play Mode before building Daran"); return; }
+            if (!Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             if (new DriveInfo("D").AvailableFreeSpace < 20L * 1024 * 1024 * 1024)
             { Debug.LogError("Less than 20 GiB free on D:. Merchant build stopped."); return; }
             Directory.CreateDirectory(Folder);
@@ -43,7 +46,17 @@ namespace Zandea.FriendlyNPC.Editor
             vendor.startingCats = 400;
             vendor.purchaseMultiplier = 1f;
             vendor.saleMultiplier = .5f;
+            var sword = Asset<NpcItemDefinition>("DaranPracticeSword");
+            sword.itemId = "practice-sword";
+            sword.displayName = "Sword";
+            sword.category = NpcItemCategory.Weapon;
+            sword.valueCats = 80;
+            sword.worldPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/MyAssets/prefabs/weapons/Player practice sword - generated long blade.prefab");
+            sword.defaultSlot = NpcEquipmentSlot.MainWeapon;
+            EditorUtility.SetDirty(sword);
             vendor.startingStock.Clear();
+            vendor.startingStock.Add(sword);
             foreach (var path in new[] { "Bo Staff", "Bandage" })
             {
                 var item = Item(path);
@@ -142,8 +155,8 @@ namespace Zandea.FriendlyNPC.Editor
             foreach (var root in roots)
                 foreach (var item in root.GetComponentsInChildren<TradeItem>(true))
                     if (item.ownerId == counter.configuration.vendorId) stockCount++;
-            if (stockCount < 2)
-                throw new System.InvalidOperationException("Fewer than two physical merchant stock items were built");
+            if (stockCount < 3)
+                throw new System.InvalidOperationException("Fewer than three physical merchant stock items were built");
             Debug.Log("Daran merchant Edit Mode wiring validation passed. Actual dialogue, trading and ergonomics require Play Mode and headset testing.");
         }
 
@@ -174,11 +187,13 @@ namespace Zandea.FriendlyNPC.Editor
             DialogueResponse Reply(string text, string next, DialogueAction action = DialogueAction.None)
                 => new() { text = text, nextNodeId = next, action = action };
             var greeting = Node("greeting_001", "Looking to trade, traveler? Or are you looking for work?", ExpressionType.Happy);
+            greeting.gestureId = "nod";
             greeting.responses.Add(Reply("Show me your wares.", "trade_offer_001", DialogueAction.BeginTrading));
             greeting.responses.Add(Reply("Any work available?", "work_001"));
             greeting.responses.Add(Reply("Tell me about this place.", "place_001"));
             greeting.responses.Add(Reply("Goodbye.", "farewell_001"));
             var trade = Node("trade_offer_001", "Put your goods on the counter. Let's see what they're worth.");
+            trade.gestureId = "nod";
             trade.responses.Add(Reply("I'll look around.", "trade_offer_001"));
             trade.responses.Add(Reply("That's all for now.", "farewell_001"));
             var work = Node("work_001", "A caravan vanished near the old toll station. I might pay for a useful answer.", ExpressionType.Sad);
@@ -394,6 +409,10 @@ namespace Zandea.FriendlyNPC.Editor
                 if (hand.left) { choices.leftHand = interactor; choices.leftPalm = hand.transform; }
                 else { choices.rightHand = interactor; choices.rightPalm = hand.transform; }
             }
+            var movement = new List<Behaviour>();
+            movement.AddRange(player.GetComponentsInChildren<LocomotionProvider>(true));
+            movement.AddRange(player.GetComponentsInChildren<JunkerSprint>(true));
+            choices.pauseWhileVisible = movement.ToArray();
             var panel = new GameObject("Choices");
             panel.transform.SetParent(root.transform, false);
             panel.transform.localPosition = new Vector3(0, .09f, .16f);
@@ -423,24 +442,24 @@ namespace Zandea.FriendlyNPC.Editor
             shelf.name = "Merchant stock shelf";
             shelf.transform.position = counter.position + new Vector3(0, .87f, .60f);
             shelf.transform.localScale = new Vector3(1.65f, .1f, .32f);
-            foreach (var pair in new[] { ("Bo Staff", -.45f), ("Bandage", .45f) })
+            for (int index = 0; index < config.startingStock.Count; index++)
             {
-                var definition = Item(pair.Item1);
+                var definition = config.startingStock[index];
                 var prefab = definition && definition.worldPrefab ? definition.worldPrefab :
-                    pair.Item1 == "Bandage" ? AssetDatabase.LoadAssetAtPath<GameObject>(
+                    definition && definition.itemId == "bandage" ? AssetDatabase.LoadAssetAtPath<GameObject>(
                         "Assets/MyAssets/prefabs/medical/BandageRoll.prefab") : null;
                 if (!prefab) continue;
                 var stock = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
-                stock.name = pair.Item1 + " merchant stock";
-                stock.transform.position = shelf.transform.position + new Vector3(pair.Item2, .18f, 0);
+                stock.name = definition.displayName + " merchant stock";
+                float across = (index - (config.startingStock.Count - 1) * .5f) * .52f;
+                stock.transform.position = shelf.transform.position + new Vector3(across, .18f, 0);
                 if (!stock.GetComponent<Rigidbody>()) stock.AddComponent<Rigidbody>();
                 if (!stock.GetComponent<XRGrabInteractable>()) stock.AddComponent<XRGrabInteractable>();
                 var trade = stock.GetComponent<TradeItem>();
                 if (!trade) trade = stock.AddComponent<TradeItem>();
                 trade.definition = definition;
                 trade.ownerId = vendorId;
-                trade.AssignPersistentIdentity("merchant-daran-stock-" +
-                    (pair.Item1 == "Bo Staff" ? "bo-staff" : "bandage") + "-001");
+                trade.AssignPersistentIdentity(vendorId + "-stock-" + definition.itemId + "-001");
             }
         }
     }

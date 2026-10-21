@@ -59,6 +59,8 @@ namespace Zandea.FriendlyNPC.Editor
         void GenerateAll(bool force)
         {
             if (!dialogue) return;
+            if (new DriveInfo("D").AvailableFreeSpace < 20L * 1024 * 1024 * 1024)
+            { UnityEngine.Debug.LogError("Less than 20 GiB free on D:. Dialogue voice import stopped."); return; }
             string target = selectedNodeId;
             selectedNodeId = null;
             int generated = 0, skipped = 0, failed = 0;
@@ -70,6 +72,7 @@ namespace Zandea.FriendlyNPC.Editor
                 { UnityEngine.Debug.LogError("Voice missing profile, voice ID, or text for " + node?.id); failed++; continue; }
                 string fingerprint = Hash(profile.providerId + "|" + profile.providerVoiceId + "|" +
                     profile.speechRate.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + "|" + node.text);
+                if (!force && node.audio && string.IsNullOrEmpty(node.generatedFingerprint)) { skipped++; continue; }
                 if (!force && node.audio && node.generatedFingerprint == fingerprint) { skipped++; continue; }
                 string folder = "Assets/Audio/Dialogue/" + SafeName(dialogue.npcId);
                 Directory.CreateDirectory(folder);
@@ -109,13 +112,14 @@ namespace Zandea.FriendlyNPC.Editor
                     Quote(profile.providerVoiceId) + " --speed " +
                     profile.speechRate.ToString("R", System.Globalization.CultureInfo.InvariantCulture) +
                     " --output " + Quote(Path.GetFullPath(output)),
-                UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true,
-                RedirectStandardOutput = true
+                UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true
             };
             using var child = Process.Start(process);
             if (child == null) throw new InvalidOperationException("Could not start Python");
-            string stderr = child.StandardError.ReadToEnd();
-            child.WaitForExit();
+            var errorText = child.StandardError.ReadToEndAsync();
+            if (!child.WaitForExit(300000))
+            { child.Kill(); throw new TimeoutException("Kokoro did not finish within five minutes"); }
+            string stderr = errorText.GetAwaiter().GetResult();
             if (child.ExitCode != 0) throw new InvalidOperationException(stderr);
         }
 
@@ -145,30 +149,36 @@ namespace Zandea.FriendlyNPC.Editor
             var importer = AssetImporter.GetAtPath(path) as AudioImporter;
             if (!importer) return Array.Empty<float>();
             var original = importer.defaultSampleSettings;
-            var temporary = original;
-            temporary.loadType = AudioClipLoadType.DecompressOnLoad;
-            importer.defaultSampleSettings = temporary;
-            importer.SaveAndReimport();
-            clip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
-            float[] samples = new float[clip.samples * clip.channels];
-            if (!clip.GetData(samples, 0)) throw new InvalidOperationException("Cannot read imported audio for mouth envelope");
-            int frames = Mathf.CeilToInt(clip.length * 30f);
-            var envelope = new float[frames];
-            int frameSamples = Mathf.Max(1, clip.frequency / 30);
-            for (int f = 0; f < frames; f++)
+            try
             {
-                int from = f * frameSamples * clip.channels;
-                int end = Mathf.Min(samples.Length, (f + 1) * frameSamples * clip.channels);
-                float energy = 0f;
-                for (int s = from; s < end; s++) energy += samples[s] * samples[s];
-                envelope[f] = Mathf.Clamp01(Mathf.Sqrt(energy / Mathf.Max(1, end - from)) * 5f);
+                var temporary = original;
+                temporary.loadType = AudioClipLoadType.DecompressOnLoad;
+                importer.defaultSampleSettings = temporary;
+                importer.SaveAndReimport();
+                clip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+                float[] samples = new float[clip.samples * clip.channels];
+                if (!clip.GetData(samples, 0)) throw new InvalidOperationException("Cannot read imported audio for mouth envelope");
+                int frames = Mathf.CeilToInt(clip.length * 30f);
+                var envelope = new float[frames];
+                int frameSamples = Mathf.Max(1, clip.frequency / 30);
+                for (int f = 0; f < frames; f++)
+                {
+                    int from = f * frameSamples * clip.channels;
+                    int end = Mathf.Min(samples.Length, (f + 1) * frameSamples * clip.channels);
+                    float energy = 0f;
+                    for (int s = from; s < end; s++) energy += samples[s] * samples[s];
+                    envelope[f] = Mathf.Clamp01(Mathf.Sqrt(energy / Mathf.Max(1, end - from)) * 5f);
+                }
+                return envelope;
             }
-            temporary = original;
-            temporary.compressionFormat = AudioCompressionFormat.Vorbis;
-            temporary.loadType = AudioClipLoadType.CompressedInMemory;
-            importer.defaultSampleSettings = temporary;
-            importer.SaveAndReimport();
-            return envelope;
+            finally
+            {
+                var compressed = original;
+                compressed.compressionFormat = AudioCompressionFormat.Vorbis;
+                compressed.loadType = AudioClipLoadType.CompressedInMemory;
+                importer.defaultSampleSettings = compressed;
+                importer.SaveAndReimport();
+            }
         }
     }
 }

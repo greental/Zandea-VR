@@ -42,6 +42,8 @@ namespace Zandea.FriendlyNPC
         public GameObject panel;
         public TMP_Text[] optionLabels;
         public XRSimpleInteractable[] optionTargets;
+        [Tooltip("Movement and turn providers paused only while choices are visible.")]
+        public Behaviour[] pauseWhileVisible;
         [Tooltip("Palm facing direction in controller local space; tune in headset.")]
         public Vector3 palmNormalLocal = Vector3.up;
         [Range(0f, 1f)] public float showDot = .65f;
@@ -54,6 +56,7 @@ namespace Zandea.FriendlyNPC
         int highlighted;
         float nextStick;
         bool visible;
+        bool[] previousProviderStates;
 
         void Awake()
         {
@@ -61,6 +64,7 @@ namespace Zandea.FriendlyNPC
             rightStick = new InputAction("Dialogue right stick", InputActionType.Value, "<XRController>{RightHand}/primary2DAxis");
             leftConfirm = new InputAction("Dialogue left confirm", InputActionType.Button, "<XRController>{LeftHand}/primaryButton");
             rightConfirm = new InputAction("Dialogue right confirm", InputActionType.Button, "<XRController>{RightHand}/primaryButton");
+            previousProviderStates = new bool[pauseWhileVisible?.Length ?? 0];
             if (optionTargets != null)
                 for (int i = 0; i < optionTargets.Length; i++)
                     if (optionTargets[i])
@@ -135,6 +139,7 @@ namespace Zandea.FriendlyNPC
 
         void SetVisible(XRDirectInteractor hand)
         {
+            if (visible) PauseProviders(false);
             FriendlyInputReservation.Set(activeHand, false);
             activeHand = hand;
             visible = hand;
@@ -144,6 +149,23 @@ namespace Zandea.FriendlyNPC
                 panel.SetActive(visible);
             }
             FriendlyInputReservation.Set(activeHand, visible, true);
+            if (visible) PauseProviders(true);
+        }
+
+        void PauseProviders(bool pause)
+        {
+            if (pauseWhileVisible == null) return;
+            for (int i = 0; i < pauseWhileVisible.Length; i++)
+            {
+                var provider = pauseWhileVisible[i];
+                if (!provider) continue;
+                if (pause)
+                {
+                    previousProviderStates[i] = provider.enabled;
+                    provider.enabled = false;
+                }
+                else provider.enabled = previousProviderStates[i];
+            }
         }
 
         void RefreshLabels()

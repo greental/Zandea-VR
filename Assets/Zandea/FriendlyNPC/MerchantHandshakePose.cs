@@ -13,6 +13,12 @@ namespace Zandea.FriendlyNPC
         public float blendSpeed = 3f;
         Transform upper, lower, hand, head;
         float weight;
+        float nodStart = -10f;
+
+        public void PlayGesture(string gestureId)
+        {
+            if (gestureId == "nod") nodStart = Time.time;
+        }
 
         void Awake()
         {
@@ -36,6 +42,11 @@ namespace Zandea.FriendlyNPC
                 if (look.sqrMagnitude > .04f)
                     head.rotation = Quaternion.RotateTowards(head.rotation,
                         Quaternion.LookRotation(look, transform.up), 30f);
+            }
+            if (head && Time.time - nodStart < .7f && weight < .1f)
+            {
+                float progress = (Time.time - nodStart) / .7f;
+                head.localRotation *= Quaternion.Euler(Mathf.Sin(progress * Mathf.PI * 2f) * 4f, 0f, 0f);
             }
             if (weight <= .001f || !upper || !lower || !hand) return;
             Vector3 desired = transform.TransformPoint(handTargetLocal);

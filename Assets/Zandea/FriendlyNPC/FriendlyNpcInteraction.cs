@@ -35,6 +35,7 @@ namespace Zandea.FriendlyNPC
         DialogueNode current;
         readonly System.Collections.Generic.List<DialogueResponse> availableResponses = new(4);
         float fallbackEnd;
+        float mouthOpening;
         bool active;
         bool trading;
         bool wasHostile;
@@ -128,13 +129,15 @@ namespace Zandea.FriendlyNPC
                 transform.rotation = Quaternion.RotateTowards(transform.rotation,
                     Quaternion.LookRotation(direction), turnDegreesPerSecond * Time.deltaTime);
 
+            float mouthTarget = 0f;
             if (mouthAudio && mouthAudio.isPlaying && current?.mouthEnvelope is { Length: > 0 })
             {
                 int index = Mathf.Min(current.mouthEnvelope.Length - 1,
                     Mathf.FloorToInt(mouthAudio.timeSamples / (float)mouthAudio.clip.frequency * 30f));
-                if (face) face.SetSpeechOpen(current.mouthEnvelope[index]);
+                mouthTarget = current.mouthEnvelope[index];
             }
-            else if (face) face.SetSpeechOpen(0f);
+            mouthOpening = Mathf.MoveTowards(mouthOpening, mouthTarget, Time.deltaTime * 8f);
+            if (face) face.SetSpeechOpen(mouthOpening);
 
             if (current != null && (!mouthAudio || !mouthAudio.isPlaying) && Time.time >= fallbackEnd)
             {
@@ -162,6 +165,8 @@ namespace Zandea.FriendlyNPC
             if (node == null || !ConditionAllows(node.conditionId)) { EndConversation(); return; }
             current = node;
             if (face) face.SetExpression(node.expression);
+            var pose = GetComponent<MerchantHandshakePose>();
+            if (pose) pose.PlayGesture(node.gestureId);
             if (subtitle)
             {
                 subtitle.text = displayName + ": " + node.text;
@@ -217,6 +222,7 @@ namespace Zandea.FriendlyNPC
             if (mouthAudio) mouthAudio.Stop();
             if (subtitle) subtitle.gameObject.SetActive(false);
             if (face) { face.SetSpeechOpen(0f); face.ResetExpression(); }
+            mouthOpening = 0f;
             choices?.Hide();
             if (trading) { trading = false; TradingChanged?.Invoke(false); }
             ConversationEnded?.Invoke();
