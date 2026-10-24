@@ -55,8 +55,15 @@ namespace Zandea.POI
             return false;
         }
         public void EnsureLayout() { if (Layout == null) Layout = OutpostLayout.Generate(definition, seed); }
+        public void InvalidateLayout() { Layout = null; }
         void Awake()
         {
+            var generatedPreview = transform.Find("Generated Layout Preview");
+            if (generatedPreview)
+            {
+                generatedPreview.gameObject.SetActive(false);
+                Destroy(generatedPreview.gameObject);
+            }
             if (!treadmill) treadmill = FindFirstObjectByType<PlanetTerrainTreadmill>();
             try
             {
@@ -304,6 +311,7 @@ namespace Zandea.POI
             BuildNavigation();
             foreach (var stair in structures.GetComponentsInChildren<OutpostStairRamp>(true))
                 stair.ConnectNavigation();
+            if (definition.residentBandits == 0) return;
             if (authoredLayout && authoredLayout.GetComponentsInChildren<StarvingBandit>(true).Length > 0)
             {
                 members.Clear();

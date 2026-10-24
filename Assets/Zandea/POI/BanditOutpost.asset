@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.POI.BanditOutpostDefinition
   seed: 4301
   buildingCount: 5
+  residentBandits: 6
+  useAllBuildingVariants: 0
+  useAllShadeVariants: 0
   dimensions: {x: 88, y: 80}
   mainBuilding:
     prefab: {fileID: 1570540408999375077, guid: 603602947433c174594acaea86c5d0da, type: 3}
@@ -59,6 +62,7 @@ MonoBehaviour:
     size: {x: 6.3999996, y: 3.4292421, z: 1.7561284}
     center: {x: 0, y: 1.7146212, z: 0.000016868114}
     entranceYaw: 0
+  wallVariants: []
   gate:
     prefab: {fileID: 2928346546755526627, guid: d3cf328129c4b5c4386813ba3b31c7b0, type: 3}
     size: {x: 10.000921, y: 6.814436, z: 1.6748105}

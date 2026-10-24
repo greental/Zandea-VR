@@ -63,6 +63,22 @@ namespace Zandea.POI
             float x = d.dimensions.x / 2, z = d.dimensions.y / 2;
             float J() => fallback ? 0 : (float)(rng.NextDouble() - .5) * 1.4f;
             OutpostAsset Pick(OutpostAsset[] a) => a[fallback ? 0 : rng.Next(a.Length)];
+            OutpostAsset[] Order(OutpostAsset[] source)
+            {
+                var result = (OutpostAsset[])source.Clone();
+                if (!fallback)
+                    for (int i = result.Length - 1; i > 0; i--)
+                    {
+                        int j = rng.Next(i + 1);
+                        var swap = result[i]; result[i] = result[j]; result[j] = swap;
+                    }
+                return result;
+            }
+            var buildingOrder = d.useAllBuildingVariants ? Order(d.buildings) : null;
+            var shadeOrder = d.useAllShadeVariants ? Order(d.shades) : null;
+            int buildingIndex = 0, shadeIndex = 0;
+            OutpostAsset PickBuilding() => buildingOrder == null ? Pick(d.buildings) : buildingOrder[buildingIndex++ % buildingOrder.Length];
+            OutpostAsset PickShade() => shadeOrder == null ? Pick(d.shades) : shadeOrder[shadeIndex++ % shadeOrder.Length];
             l.Reserve(ReservationKind.Path, "Gate to courtyard", new Vector2(0, -z / 2), new Vector2(d.pathWidth, z));
             l.Reserve(ReservationKind.Path, "Combat courtyard", Vector2.zero, new Vector2(23, 22));
             l.Reserve(ReservationKind.Path, "Building access", new Vector2(0, 17), new Vector2(59, d.pathWidth));
@@ -70,20 +86,27 @@ namespace Zandea.POI
             int side = fallback || rng.Next(2) == 0 ? 1 : -1;
             l.Add(d.tower, ReservationKind.Tower, side * (x - 9), -z + 10, 0);
             l.Add(d.mainBuilding, ReservationKind.Building, J(), z - 11.25f, 180 + d.mainBuilding.entranceYaw);
-            l.Add(Pick(d.buildings), ReservationKind.Building, -x + 11 + J(), 7 + J(), 90);
-            l.Add(Pick(d.buildings), ReservationKind.Building, x - 11 + J(), 7 + J(), -90);
-            l.Add(Pick(d.buildings), ReservationKind.Building, -x + 11 + J(), z - 10 + J(), 180);
-            if (d.buildingCount == 5) l.Add(Pick(d.buildings), ReservationKind.Building, x - 11 + J(), z - 10 + J(), 180);
+            var west = PickBuilding();
+            var east = PickBuilding();
+            var northWest = PickBuilding();
+            l.Add(west, ReservationKind.Building, -x + 11 + J(), 7 + J(), 90 + west.entranceYaw);
+            l.Add(east, ReservationKind.Building, x - 11 + J(), 7 + J(), -90 + east.entranceYaw);
+            l.Add(northWest, ReservationKind.Building, -x + 11 + J(), z - 10 + J(), 180 + northWest.entranceYaw);
+            if (d.buildingCount == 5)
+            {
+                var northEast = PickBuilding();
+                l.Add(northEast, ReservationKind.Building, x - 11 + J(), z - 10 + J(), 180 + northEast.entranceYaw);
+            }
             foreach (float sx in new[] { -1f, 1f })
                 foreach (float sz in new[] { -5f, -18f, -31f })
-                    l.Add(Pick(d.shades), ReservationKind.Shade, sx * (18 + (sz == -18 ? 3 : sz == -31 ? -1 : 0) + J()), sz + J(), fallback ? 0 : J() * 16);
+                    l.Add(PickShade(), ReservationKind.Shade, sx * (18 + (sz == -18 ? 3 : sz == -31 ? -1 : 0) + J()), sz + J(), fallback ? 0 : J() * 16);
             l.Add(d.gate, ReservationKind.Gate, 0, -z, 0);
             // Fit each run to measured module widths, with only a small joint overlap.
-            l.WallRun(d.wall, new Vector2(-x, z), new Vector2(x, z));
-            l.WallRun(d.wall, new Vector2(-x, -z), new Vector2(-x, z));
-            l.WallRun(d.wall, new Vector2(x, -z), new Vector2(x, z));
-            l.WallRun(d.wall, new Vector2(-x, -z), new Vector2(-d.gate.size.x / 2, -z));
-            l.WallRun(d.wall, new Vector2(d.gate.size.x / 2, -z), new Vector2(x, -z));
+            l.WallRun(d.wall, d.wallVariants, rng, new Vector2(-x, z), new Vector2(x, z));
+            l.WallRun(d.wall, d.wallVariants, rng, new Vector2(-x, -z), new Vector2(-x, z));
+            l.WallRun(d.wall, d.wallVariants, rng, new Vector2(x, -z), new Vector2(x, z));
+            l.WallRun(d.wall, d.wallVariants, rng, new Vector2(-x, -z), new Vector2(-d.gate.size.x / 2, -z));
+            l.WallRun(d.wall, d.wallVariants, rng, new Vector2(d.gate.size.x / 2, -z), new Vector2(x, -z));
             l.spawns.AddRange(new[] { new Vector2(-2, -z + 7), new Vector2(2, -z + 7),
                 new Vector2(-7, 1), new Vector2(7, 5), new Vector2(-10, -18), new Vector2(side * (x - 9), -z + 18) });
             l.patrol.AddRange(new[] { new Vector2(0, -z + 6), new Vector2(0, -16), new Vector2(-7, 0), new Vector2(7, 7), new Vector2(0, 17) });
@@ -107,7 +130,7 @@ namespace Zandea.POI
                 Reserve(ReservationKind.FutureProp, "Entrance side", entrance + new Vector2(forward.z, -forward.x) * 3, new Vector2(1, 1), yaw);
             }
         }
-        void WallRun(OutpostAsset asset, Vector2 a, Vector2 b)
+        void WallRun(OutpostAsset asset, OutpostAsset[] variants, System.Random rng, Vector2 a, Vector2 b)
         {
             float length = Vector2.Distance(a, b);
             int count = Mathf.Max(1, Mathf.RoundToInt(length / asset.size.x));
@@ -116,7 +139,8 @@ namespace Zandea.POI
             for (int i = 0; i < count; i++)
             {
                 var p = Vector2.Lerp(a, b, (i + .5f) / count);
-                Add(asset, ReservationKind.Wall, p.x, p.y, yaw, new Vector3((step + .04f) / asset.size.x, 1, 1));
+                var module = variants != null && variants.Length > 0 ? variants[rng.Next(variants.Length)] : asset;
+                Add(module, ReservationKind.Wall, p.x, p.y, yaw, new Vector3((step + .04f) / module.size.x, 1, 1));
             }
         }
         void Reserve(ReservationKind k, string name, Vector2 p, Vector2 size, float yaw = 0) =>
@@ -147,7 +171,9 @@ namespace Zandea.POI
                     var size = new Vector2(Mathf.Abs(Mathf.Cos(angle)) * r.size.x + Mathf.Abs(Mathf.Sin(angle)) * r.size.y,
                         Mathf.Abs(Mathf.Sin(angle)) * r.size.x + Mathf.Abs(Mathf.Cos(angle)) * r.size.y);
                     if (Mathf.Abs(r.center.x - a.position.x) < (size.x + a.Footprint.x) / 2 &&
-                        Mathf.Abs(r.center.y - a.position.y) < (size.y + a.Footprint.y) / 2) error = "Blocked path";
+                        Mathf.Abs(r.center.y - a.position.y) < (size.y + a.Footprint.y) / 2)
+                        error = "Blocked path '" + r.category + "' by " + a.asset.prefab.name +
+                            " at " + a.position + " (footprint " + a.Footprint + ")";
                 }
                 foreach (var p in spawns)
                     if (Mathf.Abs(p.x - a.position.x) < ext.x + .6f && Mathf.Abs(p.y - a.position.y) < ext.y + .6f) error = "Blocked NPC spawn";

@@ -7,6 +7,9 @@ namespace Zandea.Props
     {
         public GameObject ceramicPot, woodenStool, chest, barrel, weaponRack;
         public GameObject crate, sack, table, statue;
+        public GameObject wickerBasket;
+        [Range(0, 3)] public int basketsPerCanopy;
+        [Range(0, 4)] public int storageBaskets;
         [Range(0, 4)] public int extraPotsPerCanopy = 1;
         [Min(.5f)] public float potScale = 2f;
         [Min(.5f)] public float sackScale = 1.5f;

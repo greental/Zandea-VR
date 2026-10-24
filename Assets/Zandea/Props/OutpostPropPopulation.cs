@@ -67,6 +67,8 @@ namespace Zandea.Props
                     Place(definition.ceramicPot, reservation, ref slot, random, .45f);
                     for (int j = 1; j < definition.extraPotsPerCanopy; j++)
                         Place(definition.ceramicPot, reservation, ref slot, random, .42f);
+                    for (int j = 0; j < definition.basketsPerCanopy; j++)
+                        Place(definition.wickerBasket, reservation, ref slot, random, .25f);
                 }
                 else if (category == "Storage")
                 {
@@ -74,6 +76,8 @@ namespace Zandea.Props
                     Place(definition.barrel, reservation, ref slot, random, .5f);
                     Place(definition.crate, reservation, ref slot, random, .55f);
                     Place(definition.sack, reservation, ref slot, random, .4f);
+                    for (int j = 0; j < definition.storageBaskets; j++)
+                        Place(definition.wickerBasket, reservation, ref slot, random, .25f);
                 }
                 else if (category == "Courtyard social")
                 {

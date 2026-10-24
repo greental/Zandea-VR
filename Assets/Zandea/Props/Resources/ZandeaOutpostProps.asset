@@ -21,6 +21,9 @@ MonoBehaviour:
   sack: {fileID: 3570368607654842983, guid: 8b056f3dc2ffa894fb93f669c027f5e1, type: 3}
   table: {fileID: 5126918192941887461, guid: cf828c8bcb4b53d4fb9062b99beae71b, type: 3}
   statue: {fileID: 2571906202327579669, guid: a5f449f10bdc4c648938fc45b11ccbc9, type: 3}
+  wickerBasket: {fileID: 0}
+  basketsPerCanopy: 0
+  storageBaskets: 0
   extraPotsPerCanopy: 1
   potScale: 2
   sackScale: 1.5
