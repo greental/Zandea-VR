@@ -121,13 +121,15 @@ namespace Zandea.POI
             var p = new Placement { asset = a, kind = k, position = new Vector2(x, z), yaw = yaw, scale = scale ?? Vector3.one };
             structures.Add(p);
             Reserve(k, a.prefab.name, p.position, new Vector2(a.size.x * p.scale.x, a.size.z * p.scale.z), yaw);
-            if (k == ReservationKind.Shade) Reserve(ReservationKind.FutureProp, "Under canopy", p.position, new Vector2(2, 2), yaw);
+            if (k == ReservationKind.Shade)
+                Reserve(ReservationKind.FutureProp, "Under canopy", p.position,
+                    new Vector2(Mathf.Min(6, a.size.x - 2), Mathf.Min(4, a.size.z - 2)), yaw);
             if (k == ReservationKind.Building)
             {
                 var forward = Quaternion.Euler(0, yaw - a.entranceYaw, 0) * Vector3.forward;
                 var entrance = p.position + new Vector2(forward.x, forward.z) * (a.size.z / 2 + 2);
                 Reserve(ReservationKind.Path, "Door clearance", entrance, new Vector2(4, 3), yaw);
-                Reserve(ReservationKind.FutureProp, "Entrance side", entrance + new Vector2(forward.z, -forward.x) * 3, new Vector2(1, 1), yaw);
+                Reserve(ReservationKind.FutureProp, "Entrance side", entrance + new Vector2(forward.z, -forward.x) * 3, new Vector2(2, 2), yaw);
             }
         }
         void WallRun(OutpostAsset asset, OutpostAsset[] variants, System.Random rng, Vector2 a, Vector2 b)
@@ -136,11 +138,20 @@ namespace Zandea.POI
             int count = Mathf.Max(1, Mathf.RoundToInt(length / asset.size.x));
             float step = length / count;
             float yaw = -Mathf.Atan2(b.y - a.y, b.x - a.x) * Mathf.Rad2Deg;
+            var order = variants != null && variants.Length > 0 ? (OutpostAsset[])variants.Clone() : null;
             for (int i = 0; i < count; i++)
             {
                 var p = Vector2.Lerp(a, b, (i + .5f) / count);
-                var module = variants != null && variants.Length > 0 ? variants[rng.Next(variants.Length)] : asset;
-                Add(module, ReservationKind.Wall, p.x, p.y, yaw, new Vector3((step + .04f) / module.size.x, 1, 1));
+                if (order != null && i % order.Length == 0)
+                    for (int j = order.Length - 1; j > 0; j--)
+                    {
+                        int swapIndex = rng.Next(j + 1);
+                        var swap = order[j]; order[j] = order[swapIndex]; order[swapIndex] = swap;
+                    }
+                var module = order != null ? order[i % order.Length] : asset;
+                float moduleYaw = order != null && rng.Next(2) == 0 ? yaw + 180 : yaw;
+                Add(module, ReservationKind.Wall, p.x, p.y, moduleYaw,
+                    new Vector3((step + .04f) / module.size.x, 1, 1));
             }
         }
         void Reserve(ReservationKind k, string name, Vector2 p, Vector2 size, float yaw = 0) =>

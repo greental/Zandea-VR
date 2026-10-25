@@ -242,9 +242,9 @@ namespace Zandea.Pueblo.Editor
             definition = UnityEngine.Object.Instantiate(existing);
             definition.name = "PuebloProps";
             definition.wickerBasket = basket;
-            definition.extraPotsPerCanopy = 1;
-            definition.basketsPerCanopy = 1;
-            definition.storageBaskets = 3;
+            definition.extraPotsPerCanopy = 3;
+            definition.basketsPerCanopy = 2;
+            definition.storageBaskets = 4;
             AssetDatabase.CreateAsset(definition, PropsPath);
             EditorUtility.SetDirty(definition);
             return definition;
@@ -259,18 +259,14 @@ namespace Zandea.Pueblo.Editor
                 {
                     var poi = review.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<BanditOutpost>(true))
                         .FirstOrDefault(p => p.poiId == PoiId + ".review");
-                    var preview = poi ? poi.transform.Find("Layout Preview") : null;
-                    var mainBuilding = preview ? preview.Cast<Transform>()
-                        .FirstOrDefault(child => child.name.Contains("Pueblo_house_large_two_stories")) : null;
-                    int wallCount = preview ? preview.Cast<Transform>().Count(child => child.name.StartsWith("Wall - ")) : 0;
-                    if (poi && (!mainBuilding ||
-                        Vector3.Distance(RenderBounds(mainBuilding.gameObject).size,
-                            definition.mainBuilding.size) > .1f ||
-                        wallCount > 200))
+                    var preview = poi ? poi.transform.Find("Layout Preview") ??
+                        poi.transform.Find("Generated Layout Preview") : null;
+                    if (poi)
                     {
                         if (preview) UnityEngine.Object.DestroyImmediate(preview.gameObject);
                         poi.InvalidateLayout();
-                        poi.InstantiateStructures("Layout Preview");
+                        var rebuilt = poi.InstantiateStructures("Generated Layout Preview");
+                        PopulatePreview(poi, rebuilt.transform, props);
                         EditorSceneManager.SaveScene(review);
                     }
                 }
@@ -317,7 +313,8 @@ namespace Zandea.Pueblo.Editor
                 poi.stream = false;
                 var population = root.AddComponent<OutpostPropPopulation>();
                 population.definition = props;
-                poi.InstantiateStructures("Layout Preview");
+                var preview = poi.InstantiateStructures("Generated Layout Preview");
+                PopulatePreview(poi, preview.transform, props);
                 EditorSceneManager.SaveScene(scene, ReviewPath);
             }
             finally
@@ -382,12 +379,73 @@ namespace Zandea.Pueblo.Editor
                 existing.InvalidateLayout();
                 var preview = existing.InstantiateStructures("Generated Layout Preview");
                 preview.tag = "EditorOnly";
+                PopulatePreview(existing, preview.transform, props);
                 EditorUtility.SetDirty(existing);
                 EditorUtility.SetDirty(population);
                 EditorSceneManager.MarkSceneDirty(main);
                 EditorSceneManager.SaveScene(main);
             }
             finally { if (opened) EditorSceneManager.CloseScene(main, true); }
+        }
+
+        // A visual-only edit-mode copy makes the settlement readable before Play Mode.
+        // Runtime props are spawned independently with stable IDs by OutpostPropPopulation.
+        static void PopulatePreview(BanditOutpost poi, Transform preview, OutpostPropDefinition props)
+        {
+            var root = new GameObject("Prop Preview");
+            root.transform.SetParent(preview, false);
+            int index = 0;
+            foreach (var shade in poi.Layout.structures.Where(p => p.kind == ReservationKind.Shade))
+            {
+                var turn = Quaternion.Euler(0, shade.yaw, 0);
+                foreach (var offset in new[] { new Vector2(-2, -1), new Vector2(0, -1.2f), new Vector2(2, -1) })
+                    PreviewProp(props.ceramicPot, props.potScale, shade.position, offset, turn, poi, root.transform, index++);
+                foreach (var offset in new[] { new Vector2(-1.5f, 1), new Vector2(1.5f, 1) })
+                    PreviewProp(props.wickerBasket, 1, shade.position, offset, turn, poi, root.transform, index++);
+            }
+            var storageAreas = poi.Layout.reservations.Where(r =>
+                r.kind == ReservationKind.FutureProp && r.category == "Storage").ToArray();
+            if (storageAreas.Length > 0)
+            {
+                var storage = storageAreas[0];
+                foreach (var offset in new[] { new Vector2(-2, -2), new Vector2(2, -2), new Vector2(-2, 2), new Vector2(2, 2) })
+                    PreviewProp(props.wickerBasket, 1, storage.center, offset, Quaternion.identity, poi, root.transform, index++);
+                PreviewProp(props.ceramicPot, props.potScale, storage.center, new Vector2(0, 2), Quaternion.identity,
+                    poi, root.transform, index++);
+                PreviewProp(props.barrel, 1, storage.center, new Vector2(-1, 0), Quaternion.identity,
+                    poi, root.transform, index++);
+                PreviewProp(props.crate, props.crateScale, storage.center, new Vector2(1, 0), Quaternion.identity,
+                    poi, root.transform, index++, 90);
+                PreviewProp(props.sack, props.sackScale, storage.center, new Vector2(0, -2), Quaternion.identity,
+                    poi, root.transform, index++);
+            }
+        }
+
+        static void PreviewProp(GameObject prefab, float scale, Vector2 center, Vector2 offset,
+            Quaternion turn, BanditOutpost poi, Transform parent, int index, float pitch = 0)
+        {
+            if (!prefab) return;
+            var rotated = turn * new Vector3(offset.x, 0, offset.y);
+            var local = center + new Vector2(rotated.x, rotated.z);
+            var instance = UnityEngine.Object.Instantiate(prefab, poi.ToWorld(local),
+                poi.Rotation * turn * Quaternion.Euler(pitch, 0, 0), parent);
+            instance.name = "Preview " + index + " - " + prefab.name;
+            instance.transform.localScale = prefab.transform.localScale * scale;
+            var bounds = RenderBounds(instance);
+            float ground = poi.Center.y;
+            float nearest = float.PositiveInfinity;
+            foreach (var terrain in Terrain.activeTerrains)
+            {
+                if (!terrain || !terrain.enabled || !terrain.terrainData) continue;
+                var origin = terrain.transform.position;
+                var size = terrain.terrainData.size;
+                if (instance.transform.position.x < origin.x || instance.transform.position.x > origin.x + size.x ||
+                    instance.transform.position.z < origin.z || instance.transform.position.z > origin.z + size.z) continue;
+                float candidate = terrain.SampleHeight(instance.transform.position) + origin.y;
+                float delta = Mathf.Abs(candidate - poi.Center.y);
+                if (delta < nearest && delta < 30f) { ground = candidate; nearest = delta; }
+            }
+            instance.transform.position += Vector3.up * (ground - bounds.min.y);
         }
     }
 }

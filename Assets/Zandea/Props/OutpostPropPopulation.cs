@@ -88,8 +88,14 @@ namespace Zandea.Props
                     Place(definition.weaponRack, reservation, ref slot, random, .55f);
                 else if (category == "Perimeter clutter")
                     Place(definition.statue, reservation, ref slot, random, .6f);
-                else if (category == "Entrance side" && random.NextDouble() < .55)
-                    Place(definition.sack ? definition.sack : definition.ceramicPot, reservation, ref slot, random, .4f);
+                else if (category == "Entrance side")
+                {
+                    if (definition.wickerBasket)
+                        Place(definition.ceramicPot, reservation, ref slot, random, .4f);
+                    else if (random.NextDouble() < .55)
+                        Place(definition.sack ? definition.sack : definition.ceramicPot,
+                            reservation, ref slot, random, .4f);
+                }
             }
         }
         void Place(GameObject prefab, OutpostReservation area, ref int slot, System.Random random, float radius)
@@ -99,7 +105,7 @@ namespace Zandea.Props
                 prefab == definition.sack ? Mathf.Max(.5f, definition.sackScale) :
                 prefab == definition.crate ? Mathf.Max(.5f, definition.crateScale) : 1f;
             radius *= scale;
-            for (int attempt = 0; attempt < 16; attempt++)
+            for (int attempt = 0; attempt < 64; attempt++)
             {
                 var offset = new Vector2((float)(random.NextDouble() - .5) * (area.size.x - radius * 2),
                                          (float)(random.NextDouble() - .5) * (area.size.y - radius * 2));

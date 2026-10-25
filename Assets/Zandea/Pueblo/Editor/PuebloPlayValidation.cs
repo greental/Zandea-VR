@@ -56,11 +56,17 @@ namespace Zandea.Pueblo.Editor
             try
             {
                 Check(poi.Members.Count == 6, "six hostile bandits inhabit the settlement");
+                var walls = poi.Layout.structures.Where(p => p.kind == ReservationKind.Wall).ToArray();
+                Check(walls.Select(w => w.asset.prefab).Distinct().Count() == 3,
+                    "all three perimeter wall forms are present");
+                Check(walls.Any(w => Mathf.Repeat(w.yaw, 360) >= 180) &&
+                    walls.Any(w => Mathf.Repeat(w.yaw, 360) < 180),
+                    "perimeter wall orientation varies");
                 var population = poi.GetComponent<OutpostPropPopulation>();
                 Check(population && population.Instances.Count >= 16, "contextual props populate settlement");
                 var props = population.Instances.Where(p => p).ToArray();
-                Check(props.Count(p => p.name.Contains("pot")) >= 6, "pots appear across ramadas");
-                Check(props.Count(p => p.name.Contains("basket")) >= 3, "wicker baskets appear in settlement");
+                Check(props.Count(p => p.name.Contains("pot")) >= 12, "pots appear across ramadas and entrances");
+                Check(props.Count(p => p.name.Contains("basket")) >= 8, "wicker baskets appear in settlement");
                 Check(props.Any(p => p.name.Contains("barrel")) && props.Any(p => p.name.Contains("chest")) &&
                       props.Any(p => p.name.Contains("table")), "storage and social props appear");
                 var outside = poi.GatePosition + poi.ApproachDirection * 5;

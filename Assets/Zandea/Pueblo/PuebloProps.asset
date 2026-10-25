@@ -22,9 +22,9 @@ MonoBehaviour:
   table: {fileID: 5126918192941887461, guid: cf828c8bcb4b53d4fb9062b99beae71b, type: 3}
   statue: {fileID: 2571906202327579669, guid: a5f449f10bdc4c648938fc45b11ccbc9, type: 3}
   wickerBasket: {fileID: 6958247705510661623, guid: b44e9734e7be281499fa7b7c1341058c, type: 3}
-  basketsPerCanopy: 1
-  storageBaskets: 3
-  extraPotsPerCanopy: 1
+  basketsPerCanopy: 2
+  storageBaskets: 4
+  extraPotsPerCanopy: 3
   potScale: 2
   sackScale: 1.5
   crateScale: 1.5
