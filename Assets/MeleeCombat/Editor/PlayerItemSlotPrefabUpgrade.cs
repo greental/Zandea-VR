@@ -5,16 +5,10 @@ using UnityEngine;
 
 namespace KenshiVR.MeleeCombat.Editor
 {
-    [InitializeOnLoad]
     static class PlayerItemSlotPrefabUpgrade
     {
         static readonly string[] Players={"Assets/CharacterCreator/Player/VR player - Man Creator.prefab","Assets/MyAssets/prefabs/Player/VR player - Man Creator.prefab"};
         const string SwordPath="Assets/MyAssets/prefabs/weapons/Player practice sword - generated long blade.prefab";
-        static PlayerItemSlotPrefabUpgrade()
-        {
-            EditorApplication.delayCall+=Upgrade;
-            EditorApplication.playModeStateChanged += state => { if (state == PlayModeStateChange.EnteredEditMode) EditorApplication.delayCall += Upgrade; };
-        }
         [MenuItem("Zandea/Junker Equipment/Upgrade ordinary player item slots")]
         static void Upgrade()
         {

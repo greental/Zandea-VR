@@ -91,11 +91,9 @@ public sealed class WeaponGripFittingStationEditor : Editor
     static void OpenScene() => EditorSceneManager.OpenScene(WeaponGripFittingSceneBuilder.ScenePath);
 }
 
-[InitializeOnLoad]
 static class WeaponGripFittingSceneBuilder
 {
     internal const string ScenePath = "Assets/MeleeCombat/WeaponGripFitting.unity";
-    static WeaponGripFittingSceneBuilder() => EditorApplication.delayCall += EnsureScene;
     [MenuItem("Zandea/Melee Combat/Rebuild weapon grip fitting scene")]
     static void EnsureScene()
     {

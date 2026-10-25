@@ -16,6 +16,9 @@ namespace KenshiVR.CharacterCreator
         readonly Dictionary<AppearanceSlot, AppearanceSpawnedItem> spawned = new Dictionary<AppearanceSlot, AppearanceSpawnedItem>();
         readonly Dictionary<Renderer, bool> hiddenByAppearance = new Dictionary<Renderer, bool>();
         bool refreshFromInspector;
+#if UNITY_EDITOR
+        bool refreshQueued;
+#endif
         static readonly int BaseColor = Shader.PropertyToID("baseColorFactor");
         static readonly int DiffuseColor = Shader.PropertyToID("diffuseFactor");
         static readonly int UnityBaseColor = Shader.PropertyToID("_BaseColor");
@@ -34,9 +37,19 @@ namespace KenshiVR.CharacterCreator
         void OnValidate()
         {
 #if UNITY_EDITOR
-            UnityEditor.EditorApplication.delayCall += () => { if (this && isActiveAndEnabled) Refresh(); };
+            if (!this || refreshQueued || UnityEditor.EditorUtility.IsPersistent(this)) return;
+            refreshQueued = true;
+            UnityEditor.EditorApplication.delayCall += RefreshAfterValidate;
 #endif
         }
+#if UNITY_EDITOR
+        void RefreshAfterValidate()
+        {
+            refreshQueued = false;
+            if (this && isActiveAndEnabled && !UnityEditor.EditorApplication.isCompiling &&
+                !UnityEditor.EditorApplication.isUpdating) Refresh();
+        }
+#endif
         public void Refresh()
         {
             if (!appearance || !skeletonRoot) return;

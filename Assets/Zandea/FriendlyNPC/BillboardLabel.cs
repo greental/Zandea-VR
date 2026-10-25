@@ -19,7 +19,7 @@ namespace Zandea.FriendlyNPC
             if (!viewer) return;
             var direction = viewer.position - transform.position;
             if (direction.sqrMagnitude > .001f)
-                transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
+                transform.rotation = Quaternion.LookRotation(-direction, Vector3.up);
         }
     }
 }

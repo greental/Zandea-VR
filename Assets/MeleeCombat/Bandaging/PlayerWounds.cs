@@ -33,7 +33,7 @@ namespace KenshiVR.Bandaging
         [Min(0f)] public float postTreatmentBleedFraction = 0f;
         public bool createTestWoundOnStart;
         [Tooltip("Seed a left forearm wound only while testing in the Unity Editor.")]
-        public bool spawnEditorTestWound = true;
+        public bool spawnEditorTestWound;
         public BandageRoll startingRollPrefab;
         [Min(0f)] public float recoveryPerSecond = .75f;
         [Min(0f)] public float recoveryDelayAfterHit = 5f;

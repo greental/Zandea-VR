@@ -44,10 +44,9 @@ namespace Zandea.FriendlyNPC
         public XRSimpleInteractable[] optionTargets;
         [Tooltip("Movement and turn providers paused only while choices are visible.")]
         public Behaviour[] pauseWhileVisible;
-        [Tooltip("Palm facing direction in controller local space; tune in headset.")]
-        public Vector3 palmNormalLocal = Vector3.up;
-        [Range(0f, 1f)] public float showDot = .65f;
-        [Range(0f, 1f)] public float hideDot = .35f;
+        [Tooltip("A free controller raised in front of the chest reveals the choices. No optical hand tracking is required.")]
+        [Min(.2f)] public float showDistance = .72f;
+        [Min(.2f)] public float hideDistance = .82f;
         [Min(.1f)] public float stickRepeatSeconds = .3f;
         readonly List<DialogueResponse> responses = new(4);
         InputAction leftStick, rightStick, leftConfirm, rightConfirm;
@@ -56,10 +55,14 @@ namespace Zandea.FriendlyNPC
         int highlighted;
         float nextStick;
         bool visible;
+        Transform viewer;
+        float lastShownAt;
         bool[] previousProviderStates;
 
         void Awake()
         {
+            var origin = GetComponentInParent<Unity.XR.CoreUtils.XROrigin>();
+            viewer = origin && origin.Camera ? origin.Camera.transform : Camera.main ? Camera.main.transform : null;
             leftStick = new InputAction("Dialogue left stick", InputActionType.Value, "<XRController>{LeftHand}/primary2DAxis");
             rightStick = new InputAction("Dialogue right stick", InputActionType.Value, "<XRController>{RightHand}/primary2DAxis");
             leftConfirm = new InputAction("Dialogue left confirm", InputActionType.Button, "<XRController>{LeftHand}/primaryButton");
@@ -111,8 +114,8 @@ namespace Zandea.FriendlyNPC
         void Update()
         {
             if (responses.Count == 0) return;
-            if (visible && (!activeHand || !activeHand.gameObject.activeInHierarchy ||
-                Vector3.Dot((activeHand == leftHand ? leftPalm : rightPalm).TransformDirection(palmNormalLocal), Vector3.up) < hideDot))
+            if (visible && Time.unscaledTime - lastShownAt > .3f &&
+                !HandRaised(activeHand, activeHand == leftHand ? leftPalm : rightPalm, hideDistance))
                 SetVisible(null);
             if (!visible)
             {
@@ -130,22 +133,46 @@ namespace Zandea.FriendlyNPC
                 nextStick = Time.time + stickRepeatSeconds;
                 RefreshLabels();
             }
-            if (confirm.WasPressedThisFrame()) Choose(highlighted);
+            if (confirm.WasPressedThisFrame() ||
+                ((activeHand == leftHand ? leftConfirm : rightConfirm).WasPressedThisFrame() &&
+                 (activeHand == leftHand ? !rightHand || rightHand.hasSelection : !leftHand || leftHand.hasSelection)))
+                Choose(highlighted);
         }
 
-        bool CanShow(XRDirectInteractor hand, Transform palm) => hand && palm &&
-            !hand.hasSelection && !hand.isPerformingManualInteraction &&
-            Vector3.Dot(palm.TransformDirection(palmNormalLocal), Vector3.up) >= showDot;
+        void LateUpdate()
+        {
+            if (!visible || !panel || !viewer) return;
+            var palm = activeHand == leftHand ? leftPalm : rightPalm;
+            if (!palm) return;
+            var towardViewer = viewer.position - palm.position;
+            panel.transform.position = palm.position + Vector3.up * .12f + towardViewer.normalized * .035f;
+            // TMP's readable face points away from its local forward axis.
+            panel.transform.rotation = Quaternion.LookRotation(panel.transform.position - viewer.position, Vector3.up);
+        }
+
+        bool HandRaised(XRDirectInteractor hand, Transform palm, float distance)
+        {
+            if (!hand || !palm || !viewer || !hand.gameObject.activeInHierarchy || hand.hasSelection ||
+                hand.isPerformingManualInteraction) return false;
+            var fromEye = palm.position - viewer.position;
+            float belowEye = -fromEye.y;
+            return fromEye.sqrMagnitude <= distance * distance &&
+                belowEye >= .08f && belowEye <= .68f &&
+                Vector3.Dot(viewer.forward, fromEye) > .05f;
+        }
+
+        bool CanShow(XRDirectInteractor hand, Transform palm) => HandRaised(hand, palm, showDistance);
 
         void SetVisible(XRDirectInteractor hand)
         {
+            if (activeHand == hand && visible == (hand != null) && (!panel || panel.activeSelf == visible)) return;
             if (visible) PauseProviders(false);
             FriendlyInputReservation.Set(activeHand, false);
             activeHand = hand;
-            visible = hand;
+            visible = hand != null;
+            if (visible) lastShownAt = Time.unscaledTime;
             if (panel)
             {
-                if (hand && leftPalm && rightPalm) panel.transform.SetParent(hand == leftHand ? leftPalm : rightPalm, false);
                 panel.SetActive(visible);
             }
             FriendlyInputReservation.Set(activeHand, visible, true);
