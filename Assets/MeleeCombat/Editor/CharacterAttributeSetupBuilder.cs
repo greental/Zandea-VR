@@ -14,7 +14,7 @@ namespace KenshiVR.MeleeCombat.Editor
         public const string StatArena = "Assets/MeleeCombat/MocapTest/GeneratedVariants/BoStaffStatCombatArena.unity";
         const string VrArena = "Assets/MeleeCombat/MocapTest/GeneratedVariants/BoStaffUnifiedVRArena.unity";
 
-        [MenuItem("Tools/Melee Combat/Set up character attribute profiles")]
+        [MenuItem("Zandea/Melee Combat/Set up character attribute profiles")]
         public static void Build()
         {
             if (!AssetDatabase.IsValidFolder(Directory)) AssetDatabase.CreateFolder("Assets/MeleeCombat", "Profiles");

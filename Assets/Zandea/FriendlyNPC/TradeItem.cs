@@ -15,15 +15,27 @@ namespace Zandea.FriendlyNPC
         public string ownerId = "player";
         [SerializeField] string persistentInstanceId;
         XRGrabInteractable grab;
+        Rigidbody body;
+        Collider[] itemColliders;
+        bool tradeHeld;
+        bool wasKinematic;
+        bool hadGravity;
+        RigidbodyInterpolation oldInterpolation;
+        Vector3 heldPosition;
+        Quaternion heldRotation;
+        bool releasePending;
         public static event Action<TradeItem> Released;
         public static event Action<TradeItem> Selected;
         public string InstanceId => persistentInstanceId;
         public string ItemId => definition ? definition.itemId : null;
         public bool IsHeld => grab && grab.isSelected;
+        public bool IsFloatingForTrade => tradeHeld;
 
         void Awake()
         {
             grab = GetComponent<XRGrabInteractable>();
+            body = GetComponent<Rigidbody>();
+            itemColliders = GetComponentsInChildren<Collider>(true);
             var existing = GetComponent<NpcWorldItem>();
             if (string.IsNullOrEmpty(persistentInstanceId) && existing && existing.Item != null)
                 persistentInstanceId = existing.Item.InstanceId;
@@ -49,10 +61,75 @@ namespace Zandea.FriendlyNPC
             grab.selectExited.RemoveListener(OnRelease);
             grab.selectEntered.RemoveListener(OnSelected);
         }
-        void OnSelected(SelectEnterEventArgs _) => Selected?.Invoke(this);
+        void OnSelected(SelectEnterEventArgs _)
+        {
+            releasePending = false;
+            ReleaseTradeHold();
+            Selected?.Invoke(this);
+        }
         void OnRelease(SelectExitEventArgs args)
         {
-            if (!args.isCanceled && !grab.isSelected) Released?.Invoke(this);
+            if (!args.isCanceled) releasePending = true;
+        }
+
+        // Match the backpack's released-pose behavior without changing legal ownership.
+        public void HoldForTrade()
+        {
+            if (!body || IsHeld) return;
+            if (!tradeHeld)
+            {
+                wasKinematic = body.isKinematic;
+                hadGravity = body.useGravity;
+                oldInterpolation = body.interpolation;
+            }
+            heldPosition = transform.position;
+            heldRotation = transform.rotation;
+            tradeHeld = true;
+            FreezeTradeBody();
+        }
+
+        public void ReleaseTradeHold()
+        {
+            if (!tradeHeld) return;
+            tradeHeld = false;
+            if (!body) return;
+            body.isKinematic = wasKinematic;
+            body.useGravity = hadGravity;
+            body.interpolation = oldInterpolation;
+        }
+
+        void LateUpdate()
+        {
+            if (releasePending && !IsHeld)
+            {
+                releasePending = false;
+                Released?.Invoke(this);
+            }
+            if (!tradeHeld || IsHeld) return;
+            FreezeTradeBody();
+            transform.SetPositionAndRotation(heldPosition, heldRotation);
+        }
+
+        void FreezeTradeBody()
+        {
+            if (!body) return;
+            if (!body.isKinematic)
+            {
+                body.linearVelocity = Vector3.zero;
+                body.angularVelocity = Vector3.zero;
+            }
+            body.isKinematic = true;
+            body.useGravity = false;
+            body.interpolation = RigidbodyInterpolation.None;
+        }
+
+        public bool Intersects(Bounds volume)
+        {
+            if (itemColliders == null) return false;
+            foreach (var itemCollider in itemColliders)
+                if (itemCollider && itemCollider.enabled && !itemCollider.isTrigger &&
+                    itemCollider.bounds.Intersects(volume)) return true;
+            return false;
         }
 
         public void Transfer(string newOwnerId)

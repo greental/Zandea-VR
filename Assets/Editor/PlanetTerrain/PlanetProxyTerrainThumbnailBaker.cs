@@ -27,7 +27,7 @@ public static class PlanetProxyTerrainThumbnailBaker
     // instead of clamping the vertical pole borders.
     static readonly Vector2 ProxyTextureScale = new Vector2(3f, 3f);
 
-    [MenuItem("Tools/Koombar/Planet Terrain/Bake Proxy Sphere Terrain Thumbnail")]
+    [MenuItem("Zandea/Koombar/Planet Terrain/Bake Proxy Sphere Terrain Thumbnail")]
     public static void BakeFromSelectionOrScene()
     {
         PlanetTerrainTreadmill treadmill = Selection.activeGameObject != null

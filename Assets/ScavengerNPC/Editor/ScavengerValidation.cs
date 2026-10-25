@@ -21,7 +21,7 @@ namespace ScavengerNPC.Editor
             try { ScavengerSetup.Build(); Validate(); }
             catch (Exception e) { File.WriteAllText("Library/Scavenger-build.txt", e.ToString()); Debug.LogException(e); }
         }
-        [MenuItem("Tools/Scavenger NPC/Validate generated prefabs")]
+        [MenuItem("Zandea/Scavenger NPC/Validate generated prefabs")]
         public static void Validate()
         {
             var restartSign = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ScavengerNPC/Generated/ScavengerRestartSign.prefab");

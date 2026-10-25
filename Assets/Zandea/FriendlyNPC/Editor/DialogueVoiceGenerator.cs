@@ -144,7 +144,7 @@ namespace Zandea.FriendlyNPC.Editor
             File.WriteAllBytes(output, response.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult());
         }
 
-        static float[] BakeEnvelope(string path, AudioClip clip)
+        internal static float[] BakeEnvelope(string path, AudioClip clip)
         {
             var importer = AssetImporter.GetAtPath(path) as AudioImporter;
             if (!importer) return Array.Empty<float>();
@@ -167,7 +167,7 @@ namespace Zandea.FriendlyNPC.Editor
                     int end = Mathf.Min(samples.Length, (f + 1) * frameSamples * clip.channels);
                     float energy = 0f;
                     for (int s = from; s < end; s++) energy += samples[s] * samples[s];
-                    envelope[f] = Mathf.Clamp01(Mathf.Sqrt(energy / Mathf.Max(1, end - from)) * 5f);
+                    envelope[f] = Mathf.Clamp01(Mathf.Sqrt(energy / Mathf.Max(1, end - from)) * 3.2f);
                 }
                 return envelope;
             }

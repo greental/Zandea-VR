@@ -156,7 +156,7 @@ namespace KenshiVR.CharacterCreator
             if (!jaw) return;
             float degrees = 0f;
             for (int i = 1; i < current.Length; i++) degrees += JawDegrees[i] * current[i];
-            jaw.localRotation = restJawRotation * Quaternion.Euler(0f, 0f, -Mathf.Clamp(degrees + speechOpen * 13f, 0f, 20f));
+            jaw.localRotation = restJawRotation * Quaternion.Euler(0f, 0f, -Mathf.Clamp(degrees + speechOpen * 9f, 0f, 20f));
         }
     }
 }

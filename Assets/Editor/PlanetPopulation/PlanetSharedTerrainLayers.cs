@@ -118,7 +118,7 @@ public static class PlanetSharedTerrainLayers
         AssetDatabase.DeleteAsset(folder + "/UnpaintedTexture.asset");
     }
 
-    [MenuItem("Tools/Planet Population/Consolidate Generated Terrain Layers")]
+    [MenuItem("Zandea/Planet Population/Consolidate Generated Terrain Layers")]
     public static void ConsolidateGenerated()
     {
         const string generated = "Assets/PlanetPopulation/Generated";

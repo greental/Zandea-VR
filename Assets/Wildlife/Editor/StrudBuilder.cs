@@ -21,7 +21,7 @@ public static class StrudBuilder
         try { Build(); File.WriteAllText("Temp/StrudBuild.result", "PASS Strud prefab, controller and test scene built"); }
         catch (Exception e) { File.WriteAllText("Temp/StrudBuild.result", e.ToString()); Debug.LogException(e); }
     }
-    [MenuItem("Tools/Zandea/Wildlife/Rebuild Strud")]
+    [MenuItem("Zandea/Wildlife/Rebuild Strud")]
     public static void Build()
     {
         AssetDatabase.ImportAsset(ModelPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
@@ -136,7 +136,7 @@ public static class StrudBuilder
         EditorSceneManager.SaveScene(scene, Folder + "/StrudTest.unity");
         EditorSceneManager.CloseScene(scene,true); UnityEngine.SceneManagement.SceneManager.SetActiveScene(original);
     }
-    [MenuItem("Tools/Zandea/Wildlife/Spawn Strud in Front of Scene View")]
+    [MenuItem("Zandea/Wildlife/Spawn Strud in Front of Scene View")]
     static void Spawn()
     {
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/Strud.prefab"); if (!prefab) { Build(); prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Folder + "/Strud.prefab"); }

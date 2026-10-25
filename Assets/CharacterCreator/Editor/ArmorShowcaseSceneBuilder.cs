@@ -37,7 +37,7 @@ namespace KenshiVR.CharacterCreator.Editor
             };
         }
 
-        [MenuItem("Tools/Character Creator/Build Imported Armor Fittings Scene")]
+        [MenuItem("Zandea/Character Creator/Build Imported Armor Fittings Scene")]
         public static void Build()
         {
             var banditPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BanditPath);
@@ -216,7 +216,7 @@ namespace KenshiVR.CharacterCreator.Editor
             camera.GetComponent<Camera>().farClipPlane = 80f;
         }
 
-        [MenuItem("Tools/Character Creator/Capture Imported Armor Fittings")]
+        [MenuItem("Zandea/Character Creator/Capture Imported Armor Fittings")]
         public static void Capture()
         {
             var scene = SceneManager.GetActiveScene();
@@ -309,7 +309,7 @@ namespace KenshiVR.CharacterCreator.Editor
         static void CopyTransform(Transform source, Transform target)
         { target.localPosition = source.localPosition; target.localRotation = source.localRotation; target.localScale = source.localScale; }
 
-        [MenuItem("Tools/Character Creator/Validate Imported Armor Fittings Scene")]
+        [MenuItem("Zandea/Character Creator/Validate Imported Armor Fittings Scene")]
         public static void Validate()
         {
             var scene = EditorSceneManager.GetSceneByPath(ScenePath);
@@ -326,7 +326,7 @@ namespace KenshiVR.CharacterCreator.Editor
             finally { if (opened) EditorSceneManager.CloseScene(scene, true); }
         }
 
-        [MenuItem("Tools/Character Creator/Capture Imported Armor Fittings Images")]
+        [MenuItem("Zandea/Character Creator/Capture Imported Armor Fittings Images")]
         public static void CaptureImages()
         {
             const string output = "Assets/CharacterCreator/ImportedArmor/ShowcaseCaptures";

@@ -14,7 +14,7 @@ public static class BanditMocapNpcInstaller
     const string Folder = "Assets/MeleeCombat/MocapTest/GeneratedVariants";
     const string AnimationFolder = "Assets/Kevin Iglesias/Human Animations/Animations/Male";
 
-    [MenuItem("Tools/Melee Combat/Connect generated bandits to NPC animation")]
+    [MenuItem("Zandea/Melee Combat/Connect generated bandits to NPC animation")]
     public static void Install()
     {
         BoStaffDirectionalClipBuilder.Build();

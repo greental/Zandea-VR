@@ -12,11 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8d32ec75aaa4734bf04cba591ca5014, type: 3}
   m_Name: VoiceProfile_MerchantMale01
   m_EditorClassIdentifier: Assembly-CSharp:Zandea.FriendlyNPC:VoiceProfile
-  providerId: kokoro
-  providerVoiceId: am_michael
-  voiceDescription: Experienced, dry frontier merchant. Weathered and restrained;
-    no theatrical narrator delivery.
+  providerId: elevenlabs
+  providerVoiceId: 
+  voiceDescription: Recorded weathered frontier merchant; restrained delivery.
   speechRate: 1
   defaultExpression: 0
-  licenseNotes: Verify the local Kokoro model and selected voice license before commercial
-    distribution.
+  licenseNotes: ElevenLabs prerecorded pack supplied by project owner. Confirm voice
+    rights and commercial terms before release.

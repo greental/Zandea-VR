@@ -42,7 +42,7 @@ namespace JunkerEquipment.Editor
             var child = new GameObject(name).transform; child.SetParent(parent, false); return child;
         }
 
-        [MenuItem("Tools/Junker Equipment/Configure physical backpack inventory")]
+        [MenuItem("Zandea/Junker Equipment/Configure physical backpack inventory")]
         public static void Configure()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Configure in Edit Mode.");

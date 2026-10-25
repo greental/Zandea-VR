@@ -10,7 +10,7 @@ namespace KenshiVR.CharacterCreator.Editor
         [InitializeOnLoadMethod]
         static void QueueDefaults() => EditorApplication.delayCall += CreateDefaults;
 
-        [MenuItem("Tools/Character Creator/Create default NPC archetypes")]
+        [MenuItem("Zandea/Character Creator/Create default NPC archetypes")]
         public static void CreateDefaults()
         {
             if (!AssetDatabase.IsValidFolder(Folder)) AssetDatabase.CreateFolder("Assets/CharacterCreator", "Archetypes");

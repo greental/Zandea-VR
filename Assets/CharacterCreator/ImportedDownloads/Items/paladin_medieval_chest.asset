@@ -13,17 +13,13 @@ MonoBehaviour:
   m_Name: paladin_medieval_chest
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.AppearanceItemDefinition
   slot: 3
-  prefab: {fileID: 6075552187721149257, guid: ba161fd0088d6dc4ca052408f45ca309, type: 3}
+  prefab: {fileID: 8648404496736590101, guid: 0682f9a4196133b48b276d29a7c41a79, type: 3}
   attachBoneName: CC_Base_Spine02_035
-  skinned: 1
-  requiredMorphs:
-  - WeightThin
-  - WeightHeavy
-  - MuscularitySlim
-  - MuscularityMuscular
+  skinned: 0
+  requiredMorphs: []
   hideRendererNames: []
   styleFamily: paladin
-  fitNote: Skinned fit authored and mesh-baked in Assets/CharacterCreator/ImportedArmor/ArmorFittingsEditable.unity.
+  fitNote: Fit captured from Assets/Scenes/CharacterCreator/ChestArmorFittings.unity.
   hideHair: 0
   coversOutfit: 0
   randomWeight: 1

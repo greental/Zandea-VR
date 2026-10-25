@@ -45,6 +45,8 @@ GameObject:
   - component: {fileID: 4118011870419221737}
   - component: {fileID: 8921636132240460514}
   - component: {fileID: 1457914462307869088}
+  - component: {fileID: 7204208054339568393}
+  - component: {fileID: 696949283609770141}
   m_Layer: 0
   m_Name: Player practice sword - generated long blade
   m_TagString: Untagged
@@ -262,7 +264,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2d57298a541ce74e87ef190ec46533f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.PhysicalMeleeWeapon
-  weaponId: bo-staff
+  weaponId: long-blade
   proficiencyClass: 0
   currentState: 0
   useMeshContactShape: 0
@@ -318,6 +320,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.PracticeSwordGuard
   protectionSeconds: 0.45
+--- !u!114 &7204208054339568393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2041516720199629192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20006ec5b11f68a4e9f1602f7caa9574, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.JunkerEquipmentItem
+  currentState: 0
+  itemId: long-blade
+  gripPose: {fileID: 9034146178989404606}
+  muzzle: {fileID: 0}
+  useGripTransformDirectly: 1
+  gripPositionOffset: {x: 0, y: 0, z: 0}
+  gripRotationOffset: {x: 0, y: 0, z: 0}
+  useSmoothHeldPose: 1
+  heldCollidersAreTriggers: 0
+  heldPositionSmoothness: 24
+  heldRotationSmoothness: 24
+  holsterPosition: {x: 0, y: 0, z: 0}
+  holsterEuler: {x: 0, y: 0, z: 0}
+  holsterRadius: 0.4
+  rig: {fileID: 0}
+  gripBasePosition: {x: 0, y: 0, z: 0}
+  gripBaseRotation: {x: 0, y: 0, z: 0, w: 1}
+  gripBaseCaptured: 0
+--- !u!114 &696949283609770141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2041516720199629192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85fa05afba1c10440927611a01057601, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.VRInventoryItem
+  CanStoreInBackpack: 1
+  InventoryAnchor: {fileID: 0}
 --- !u!1 &5655434478425894698
 GameObject:
   m_ObjectHideFlags: 0

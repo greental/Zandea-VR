@@ -39,9 +39,9 @@ namespace JunkerEquipment.Thermal.Editor
         }
         static void Changed(PlayModeStateChange state)
         { if(state==PlayModeStateChange.EnteredPlayMode && SessionState.GetBool(Flag,false)) { SessionState.SetBool(Flag,false); new GameObject("Thermal synthetic validation").AddComponent<ThermalValidationRunner>(); } }
-        [MenuItem("Tools/Junker Equipment/Thermal/Run Play Mode validation")]
+        [MenuItem("Zandea/Junker Equipment/Thermal/Run Play Mode validation")]
         public static void Run() { if(EditorApplication.isPlayingOrWillChangePlaymode) return; SessionState.SetBool(Flag,true); EditorApplication.isPlaying=true; }
-        [MenuItem("Tools/Junker Equipment/Thermal/Validate assets and render preview")]
+        [MenuItem("Zandea/Junker Equipment/Thermal/Validate assets and render preview")]
         public static void ValidateAssets()
         {
             foreach(string name in new[]{"ScrapCutter","CuttableBoard","WeldablePipes"})
@@ -87,7 +87,7 @@ namespace JunkerEquipment.Thermal.Editor
             }
         }
         // Upgrade only this generated prototype's cylinder collider, preserving scene edits.
-        [MenuItem("Tools/Junker Equipment/Thermal/Refresh prototype pipe colliders")]
+        [MenuItem("Zandea/Junker Equipment/Thermal/Refresh prototype pipe colliders")]
         public static void RefreshPipeColliders()
         {
             string path="Assets/JunkerEquipment/Thermal/Generated/WeldablePipes.prefab";

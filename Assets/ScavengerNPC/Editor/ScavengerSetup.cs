@@ -19,13 +19,13 @@ namespace ScavengerNPC.Editor
         const string Prefix = "Assets/ScavengerNPC/Models/Meshy_AI_Wasteland_Scavenger_biped_Animation_";
         static Transform Bone(GameObject model, string name) => model.GetComponentsInChildren<Transform>(true).Single(t => t.name == "mixamorig:" + name);
 
-        [MenuItem("Tools/Scavenger NPC/Add player health to selected rig")]
+        [MenuItem("Zandea/Scavenger NPC/Add player health to selected rig")]
         static void AddPlayerHealth()
         {
             if (!Selection.activeGameObject) { Debug.LogWarning("Select the player root containing the CharacterController."); return; }
             if (!Selection.activeGameObject.GetComponent<ScavengerPlayerHealth>()) Undo.AddComponent<ScavengerPlayerHealth>(Selection.activeGameObject);
         }
-        [MenuItem("Tools/Scavenger NPC/Create cover and peek markers")]
+        [MenuItem("Zandea/Scavenger NPC/Create cover and peek markers")]
         static void AddCover()
         {
             var cover = new GameObject("Scavenger Cover").AddComponent<ScavengerCover>();
@@ -35,7 +35,7 @@ namespace ScavengerNPC.Editor
             cover.peekPoints.Add(new ScavengerCover.PeekPoint { point = cover.peek, style = ScavengerCover.PeekStyle.Side });
             Selection.activeGameObject = cover.gameObject;
         }
-        [MenuItem("Tools/Scavenger NPC/Preview selected scavenger aim")]
+        [MenuItem("Zandea/Scavenger NPC/Preview selected scavenger aim")]
         static void PreviewSelectedAim()
         {
             var pose = Selection.activeGameObject ? Selection.activeGameObject.GetComponentInParent<ScavengerPose>() : null;
@@ -46,7 +46,7 @@ namespace ScavengerNPC.Editor
             SceneView.RepaintAll();
         }
 
-        [MenuItem("Tools/Scavenger NPC/Build enemy prefabs and test scene")]
+        [MenuItem("Zandea/Scavenger NPC/Build enemy prefabs and test scene")]
         public static void Build()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
@@ -220,7 +220,7 @@ namespace ScavengerNPC.Editor
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube); go.name = name; go.transform.position = position; go.transform.localScale = size; return go;
         }
-        [MenuItem("Tools/Scavenger NPC/Build shootable restart sign")]
+        [MenuItem("Zandea/Scavenger NPC/Build shootable restart sign")]
         public static void BuildRestartSign()
         {
             Directory.CreateDirectory(Folder);
@@ -255,7 +255,7 @@ namespace ScavengerNPC.Editor
             finally { Object.DestroyImmediate(root); }
             AssetDatabase.SaveAssets();
         }
-        [MenuItem("Tools/Scavenger NPC/Place restart sign in active scene")]
+        [MenuItem("Zandea/Scavenger NPC/Place restart sign in active scene")]
         static void PlaceRestartSign()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;

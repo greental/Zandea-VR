@@ -30,10 +30,10 @@ public static class DesertOutpostExpansion
         EditorApplication.update -= RunFrameRequested;
     }
 
-    [MenuItem("Tools/Koombar/Desert Outpost/Frame Large Market Depot")]
+    [MenuItem("Zandea/Koombar/Desert Outpost/Frame Large Market Depot")]
     public static void MenuFrameMarket() => FrameLarge("Large Scavenger Market Depot");
 
-    [MenuItem("Tools/Koombar/Desert Outpost/Frame Large Fuel Yard")]
+    [MenuItem("Zandea/Koombar/Desert Outpost/Frame Large Fuel Yard")]
     public static void MenuFrameFuel() => FrameLarge("Large Scavenger Fuel Yard");
 
     static bool FrameLarge(string prefix)
@@ -66,7 +66,7 @@ public static class DesertOutpostExpansion
         }
     }
 
-    [MenuItem("Tools/Koombar/Desert Outpost/Detail Small And Add Large POIs")]
+    [MenuItem("Zandea/Koombar/Desert Outpost/Detail Small And Add Large POIs")]
     public static void MenuBuild() => Build();
 
     public static bool Build()

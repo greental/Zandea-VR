@@ -1,5 +1,25 @@
 # VR combat and loot bug fix plan
 
+## ArmorFittings recovery (22 October 2026)
+
+- `ChestArmorFittings.unity` is a separate seven-station Torso fitting scene. Each station has a character and an editable armor Transform; skinned items preview Position/Rotation/Scale edits, and **Capture Chest Armor Fits** saves them to the item assets.
+- Preserved the user's saved `ArmorFittings.unity` as `ArmorFittings_UserFitBackup_20261022.unity` before capture. Edit Mode cosmetics refresh no longer overwrites fitting scene transforms on load.
+- Captured fitted prefab transforms for linked headwear, beard, boots, skirt, coat, and armor entries. Chest, vest, paladin skirt, and three shoulder sets use the replacement prefab instances from the saved scene; distant spare chest/skirt copies are inactive in the resulting prefabs.
+- Kept the replacement armor skinned with its creator bone mapping and four body morph declarations. Arm/hand armor and armored pants remain unmatched and need manual art work.
+- The saved-scene capture completed in Unity. In-game animation and headset appearance of the replacement pieces remain to be checked before marking those items fully fixed.
+
+## Headset pass (22 October 2026) — implementation
+
+- Blood particles rendered as opaque red quads. Wound bleeding and impact sprays now use an alpha-masked droplet texture and transparent particle material.
+- The Man player wrists now use the known-good controller wrist bases from the Junker player instead of the extra opposing Y corrections.
+- `PlayerStartingItems` exposes all four ordinary item slots and their starting prefabs/items on the player root before Play, while retaining `JunkerEquipmentSlot` for every item type.
+- `ArmorFittings.unity` is the capture source. Capture includes visual-child offsets for pieces aligned by moving their mesh, and the catalog collects every imported armor, hat, hair, and beard definition.
+- Chest streaming re-enables the authored lid and renderers. A chest variant that lost its lid child creates a visible, grabbable, hinged fallback and storage volume.
+- Daran starts his greeting at conversational distance, chest selection falls back to the main camera when needed, and he wanders locally while idle.
+- Wildlife groups use `Strud 1` with its authored material, spawn 3–5 together, and contain baby, medium, and large sizes.
+- Random bandit encounters retry every 90–180 seconds, use a packaged bandit when the settlement group is unloaded, and fall back to terrain ground when no NavMesh sample exists. Another group may spawn after the earlier encounter is removed.
+- `PlayerWeaponGripAuthoring` lives on the actual Man player prefab. Its Inspector lists weapon prefabs, creates a hand-held scene preview, saves per-weapon right/left offsets plus the second-hand marker, and applies the fit when that weapon is grabbed.
+
 ## Creator-player headset pass (21 October 2026) — active
 
 1. **Creator hand alignment — critical.** Correct the imported creator wrists: the right hand was turned 90 degrees outward and the left hand 90 degrees outward in the opposite direction.

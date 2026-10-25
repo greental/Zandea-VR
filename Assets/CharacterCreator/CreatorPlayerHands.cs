@@ -11,8 +11,9 @@ namespace KenshiVR.CharacterCreator
     {
         [Serializable] struct Finger { public Transform bone; public Quaternion rest; public Vector3 axis; public float degrees; public bool index; }
         public VRBodyController body;
-        public Vector3 leftWristCorrection = new(0f, 90f, 0f);
-        public Vector3 rightWristCorrection = new(0f, -90f, 0f);
+        [Tooltip("Known-good controller-to-wrist bases copied from the Junker player rig.")]
+        public Vector3 leftWristOffset = new(14.827744f, 90f, 90.000046f);
+        public Vector3 rightWristOffset = new(16.187147f, 269.99997f, 269.9999f);
         InputAction leftGrip, rightGrip, leftTrigger, rightTrigger;
         Finger[] left = Array.Empty<Finger>(), right = Array.Empty<Finger>();
         bool corrected;
@@ -42,8 +43,8 @@ namespace KenshiVR.CharacterCreator
         void CorrectWrists()
         {
             if (corrected || !body) return;
-            body.leftArm.wristRotationOffset = (Quaternion.Euler(body.leftArm.wristRotationOffset) * Quaternion.Euler(leftWristCorrection)).eulerAngles;
-            body.rightArm.wristRotationOffset = (Quaternion.Euler(body.rightArm.wristRotationOffset) * Quaternion.Euler(rightWristCorrection)).eulerAngles;
+            body.leftArm.wristRotationOffset = leftWristOffset;
+            body.rightArm.wristRotationOffset = rightWristOffset;
             corrected = true;
         }
         Finger[] Build(bool isLeft)

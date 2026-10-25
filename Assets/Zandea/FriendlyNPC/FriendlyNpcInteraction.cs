@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using KenshiVR.CharacterCreator;
 using KenshiVR.MeleeCombat;
 using ScavengerNPC;
@@ -7,6 +8,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.AI;
+using Unity.XR.CoreUtils;
 
 namespace Zandea.FriendlyNPC
 {
@@ -22,6 +25,7 @@ namespace Zandea.FriendlyNPC
         public Transform playerHead;
         public XRSimpleInteractable conversationTarget;
         public DialogueDefinition dialogue;
+        public NpcVoiceBank voiceBank;
         public MonoBehaviour conditionSource;
         public AudioSource mouthAudio;
         public TMP_Text subtitle;
@@ -29,6 +33,11 @@ namespace Zandea.FriendlyNPC
         [Min(1f)] public float maxConversationDistance = 4f;
         [Min(.03f)] public float turnDegreesPerSecond = 85f;
         public UnityEvent onQuestHook = new();
+        [Header("Friendly idle movement")]
+        [Min(0f)] public float wanderRadius = 3f;
+        public Vector2 wanderPauseSeconds = new(4f, 9f);
+        [Header("Ambient market calls")]
+        public Vector2 ambientCallIntervalSeconds = new(45f, 120f);
         public event Action<bool> TradingChanged;
         public event Action ConversationEnded;
 
@@ -36,11 +45,31 @@ namespace Zandea.FriendlyNPC
         readonly System.Collections.Generic.List<DialogueResponse> availableResponses = new(4);
         float fallbackEnd;
         float mouthOpening;
+        float[] speakingEnvelope;
+        readonly Dictionary<string, int> lastTakeByEvent = new();
+        readonly Dictionary<string, float> lastPlayedAt = new();
+        float nextAmbientCall;
+        float ambientEnd;
+        bool ambientSpeaking;
+        int lastAmbientIndex = -1;
+        bool alternateGreeting = true;
+        string pendingBark;
+        string pendingContext;
+        bool barkSpeaking;
+        float barkEnd;
         bool active;
         bool trading;
         bool wasHostile;
+        bool greetedPlayer;
+        bool nearby;
+        Transform cachedViewer;
+        float nextViewerLookup;
+        NavMeshAgent navAgent;
+        Vector3 home;
+        float nextWander;
         public bool IsConversing => active;
         public bool IsTrading => active && trading;
+        public bool IsAttending => active || nearby;
 
         void Awake()
         {
@@ -49,6 +78,11 @@ namespace Zandea.FriendlyNPC
             if (!face) face = GetComponentInChildren<NPCFacialExpressionController>(true);
             if (!conversationTarget) conversationTarget = GetComponentInChildren<XRSimpleInteractable>(true);
             if (!choices) choices = FindFirstObjectByType<PalmDialogueChoices>();
+            navAgent = GetComponent<NavMeshAgent>();
+            home = transform.position;
+            var origin = FindFirstObjectByType<XROrigin>();
+            cachedViewer = origin && origin.Camera ? origin.Camera.transform :
+                Camera.main ? Camera.main.transform : null;
             if (mouthAudio)
             {
                 mouthAudio.spatialBlend = 1f;
@@ -59,6 +93,7 @@ namespace Zandea.FriendlyNPC
             }
             if (subtitle) subtitle.gameObject.SetActive(false);
             if (choices) choices.Hide();
+            ScheduleAmbientCall();
         }
 
         void OnEnable()
@@ -87,18 +122,22 @@ namespace Zandea.FriendlyNPC
             var hand = args.interactorObject?.transform;
             if (!hand) return;
             var origin = hand.GetComponentInParent<Unity.XR.CoreUtils.XROrigin>();
-            if (!origin || !origin.Camera) return;
-            TryBegin(origin.Camera.transform);
+            var viewer = origin && origin.Camera ? origin.Camera.transform : Camera.main ? Camera.main.transform : null;
+            if (viewer) TryBegin(viewer);
         }
 
         public bool TryBegin(Transform viewer)
         {
             if (active || !viewer || !dialogue || !CanTalk() ||
                 Vector3.Distance(viewer.position, transform.position) > maxConversationDistance) return false;
+            StopVoice();
+            ambientSpeaking = false;
             playerHead = viewer;
             active = true;
             wasHostile = brain && brain.hostileToPlayer;
-            ShowNode(dialogue.Find(dialogue.entryNodeId));
+            alternateGreeting = !alternateGreeting;
+            var alternate = dialogue.Find("greeting_002");
+            ShowNode(alternateGreeting && alternate != null ? alternate : dialogue.Find(dialogue.entryNodeId));
             return active;
         }
 
@@ -118,7 +157,51 @@ namespace Zandea.FriendlyNPC
 
         void Update()
         {
+            if (!active)
+            {
+                if (!cachedViewer && Time.time >= nextViewerLookup)
+                {
+                    nextViewerLookup = Time.time + 2f;
+                    var origin = FindFirstObjectByType<XROrigin>();
+                    cachedViewer = origin && origin.Camera ? origin.Camera.transform :
+                        Camera.main ? Camera.main.transform : null;
+                }
+                float distance = cachedViewer ? Vector3.Distance(cachedViewer.position, transform.position) : float.MaxValue;
+                nearby = CanTalk() && distance <= Mathf.Min(2.5f, maxConversationDistance);
+                playerHead = nearby ? cachedViewer : null;
+                if (nearby && !greetedPlayer)
+                {
+                    greetedPlayer = true;
+                    GreetNearby();
+                }
+                if (distance > 3.5f) greetedPlayer = false;
+                if (nearby)
+                {
+                    var toward = Vector3.ProjectOnPlane(cachedViewer.position - transform.position, Vector3.up);
+                    if (toward.sqrMagnitude > .01f)
+                        transform.rotation = Quaternion.RotateTowards(transform.rotation,
+                            Quaternion.LookRotation(toward), turnDegreesPerSecond * .45f * Time.deltaTime);
+                }
+                UpdateMouth();
+                if (ambientSpeaking && VoiceFinished(ambientEnd))
+                {
+                    ambientSpeaking = false;
+                    if (mouthAudio) mouthAudio.maxDistance = 10f;
+                    if (subtitle) subtitle.gameObject.SetActive(false);
+                    if (face) face.ResetExpression();
+                }
+                if (!ambientSpeaking && !nearby && CanTalk() && Time.time >= nextAmbientCall)
+                    TryAmbientCall();
+            }
+            if (!active && navAgent && navAgent.enabled && navAgent.isOnNavMesh && wanderRadius > 0f && Time.time >= nextWander)
+            {
+                nextWander = Time.time + UnityEngine.Random.Range(wanderPauseSeconds.x, wanderPauseSeconds.y);
+                Vector2 circle = UnityEngine.Random.insideUnitCircle * wanderRadius;
+                if (NavMesh.SamplePosition(home + new Vector3(circle.x, 0f, circle.y), out var destination, 2f, NavMesh.AllAreas))
+                    navAgent.SetDestination(destination.position);
+            }
             if (!active) return;
+            if (navAgent && navAgent.enabled && navAgent.isOnNavMesh) navAgent.ResetPath();
             if (!playerHead || !CanTalk() || brain && brain.hostileToPlayer != wasHostile ||
                 Vector3.Distance(playerHead.position, transform.position) > maxConversationDistance ||
                 IsPlayerIncapacitated())
@@ -129,17 +212,21 @@ namespace Zandea.FriendlyNPC
                 transform.rotation = Quaternion.RotateTowards(transform.rotation,
                     Quaternion.LookRotation(direction), turnDegreesPerSecond * Time.deltaTime);
 
-            float mouthTarget = 0f;
-            if (mouthAudio && mouthAudio.isPlaying && current?.mouthEnvelope is { Length: > 0 })
-            {
-                int index = Mathf.Min(current.mouthEnvelope.Length - 1,
-                    Mathf.FloorToInt(mouthAudio.timeSamples / (float)mouthAudio.clip.frequency * 30f));
-                mouthTarget = current.mouthEnvelope[index];
-            }
-            mouthOpening = Mathf.MoveTowards(mouthOpening, mouthTarget, Time.deltaTime * 8f);
-            if (face) face.SetSpeechOpen(mouthOpening);
+            UpdateMouth();
 
-            if (current != null && (!mouthAudio || !mouthAudio.isPlaying) && Time.time >= fallbackEnd)
+            if (barkSpeaking)
+            {
+                if (VoiceFinished(barkEnd))
+                {
+                    barkSpeaking = false;
+                    if (subtitle) subtitle.gameObject.SetActive(false);
+                    if (face) face.ResetExpression();
+                    if (availableResponses.Count > 0) choices?.Show(availableResponses, SelectResponse);
+                }
+                return;
+            }
+
+            if (current != null && VoiceFinished(fallbackEnd))
             {
                 var finished = current;
                 current = null;
@@ -151,6 +238,41 @@ namespace Zandea.FriendlyNPC
                 if (availableResponses.Count > 0) choices?.Show(availableResponses, SelectResponse);
                 else if (!string.IsNullOrEmpty(finished.nextNodeId)) ShowNode(dialogue.Find(finished.nextNodeId));
             }
+            if (current == null && !barkSpeaking && !string.IsNullOrEmpty(pendingBark))
+            {
+                var eventId = pendingBark;
+                pendingBark = null;
+                choices?.Hide();
+                if (face) face.SetExpression(ExpressionType.Neutral);
+                barkEnd = Time.time + PlayVoiceEvent(eventId, null, null);
+                barkSpeaking = true;
+            }
+            else if (current == null && !barkSpeaking && !string.IsNullOrEmpty(pendingContext))
+            {
+                string eventId = pendingContext;
+                pendingContext = null;
+                PlayContextLine(eventId);
+            }
+        }
+
+        void GreetNearby()
+        {
+            var pose = GetComponent<MerchantHandshakePose>();
+            if (pose) pose.PlayGesture("wave");
+        }
+
+        void UpdateMouth()
+        {
+            float target = 0f;
+            if (mouthAudio && mouthAudio.isPlaying && mouthAudio.clip &&
+                speakingEnvelope is { Length: > 0 })
+            {
+                int index = Mathf.Min(speakingEnvelope.Length - 1,
+                    Mathf.FloorToInt(mouthAudio.timeSamples / (float)mouthAudio.clip.frequency * 30f));
+                target = speakingEnvelope[index];
+            }
+            mouthOpening = Mathf.MoveTowards(mouthOpening, target, Time.deltaTime * 5f);
+            if (face) face.SetSpeechOpen(mouthOpening);
         }
 
         bool IsPlayerIncapacitated()
@@ -164,22 +286,12 @@ namespace Zandea.FriendlyNPC
             choices?.Hide();
             if (node == null || !ConditionAllows(node.conditionId)) { EndConversation(); return; }
             current = node;
-            if (face) face.SetExpression(node.expression);
+            if (face) face.SetExpression(node.expression,
+                node.expression == ExpressionType.Happy ? .3f : .65f);
             var pose = GetComponent<MerchantHandshakePose>();
             if (pose) pose.PlayGesture(node.gestureId);
-            if (subtitle)
-            {
-                subtitle.text = displayName + ": " + node.text;
-                subtitle.gameObject.SetActive(true);
-            }
-            if (mouthAudio)
-            {
-                mouthAudio.Stop();
-                mouthAudio.clip = node.audio;
-                if (node.audio) mouthAudio.Play();
-            }
-            fallbackEnd = Time.time + (node.audio ? node.audio.length + .2f :
-                Mathf.Max(1.5f, node.text.Length / 14f));
+            fallbackEnd = Time.time + PlayVoiceEvent(node.id, node.audio, node.text,
+                node.mouthEnvelope);
             Execute(node.onEnter);
         }
 
@@ -214,15 +326,116 @@ namespace Zandea.FriendlyNPC
             if (node != null) ShowNode(node);
         }
 
+        public void QueueContextLine(string nodeId)
+        {
+            if (active && dialogue && dialogue.Find(nodeId) != null) pendingContext = nodeId;
+        }
+
+        public void WithdrawContextLine(string nodeId)
+        {
+            if (pendingContext == nodeId) pendingContext = null;
+            if (active && current != null && current.id == nodeId)
+            {
+                StopVoice();
+                ShowNode(dialogue.Find("trade_offer_001"));
+            }
+        }
+
+        public void QueueBark(string eventId)
+        {
+            if (!active || !trading || !voiceBank || voiceBank.Find(eventId) == null) return;
+            if (lastPlayedAt.TryGetValue(eventId, out float last) &&
+                Time.time - last < voiceBank.Find(eventId).cooldownSeconds) return;
+            if (pendingBark == eventId || barkSpeaking) return;
+            pendingBark = eventId;
+        }
+
+        void ScheduleAmbientCall()
+        {
+            float low = Mathf.Max(10f, ambientCallIntervalSeconds.x);
+            nextAmbientCall = Time.time + UnityEngine.Random.Range(low,
+                Mathf.Max(low, ambientCallIntervalSeconds.y));
+        }
+
+        void TryAmbientCall()
+        {
+            ScheduleAmbientCall();
+            if (!voiceBank || voiceBank.ambientEventIds.Count == 0 ||
+                mouthAudio && mouthAudio.isPlaying) return;
+            int count = voiceBank.ambientEventIds.Count;
+            int index = NpcVoiceBank.SelectNextIndex(count, lastAmbientIndex,
+                UnityEngine.Random.Range(0, count));
+            lastAmbientIndex = index;
+            string eventId = voiceBank.ambientEventIds[index];
+            if (voiceBank.Find(eventId) == null) return;
+            if (face) face.SetExpression(ExpressionType.Neutral);
+            ambientEnd = Time.time + PlayVoiceEvent(eventId, null, null);
+            if (mouthAudio) mouthAudio.maxDistance = 16f;
+            ambientSpeaking = true;
+            var pose = GetComponent<MerchantHandshakePose>();
+            if (pose && index == 0) pose.PlayGesture("present");
+        }
+
+        bool VoiceFinished(float end) => (!mouthAudio || !mouthAudio.isPlaying) && Time.time >= end;
+
+        float PlayVoiceEvent(string eventId, AudioClip fallbackClip, string fallbackText,
+            float[] fallbackEnvelope = null)
+        {
+            AudioClip clip = fallbackClip;
+            string spokenText = fallbackText;
+            speakingEnvelope = fallbackEnvelope;
+            var voiceEvent = voiceBank ? voiceBank.Find(eventId) : null;
+            if (voiceEvent != null && voiceEvent.takes.Count > 0)
+            {
+                int count = voiceEvent.takes.Count;
+                int last = lastTakeByEvent.TryGetValue(eventId, out int previous) ? previous : -1;
+                int index = NpcVoiceBank.SelectNextIndex(count, last,
+                    UnityEngine.Random.Range(0, count));
+                lastTakeByEvent[eventId] = index;
+                var take = voiceEvent.takes[index];
+                if (take != null)
+                {
+                    clip = take.clip;
+                    spokenText = string.IsNullOrEmpty(take.subtitle) ? fallbackText : take.subtitle;
+                    speakingEnvelope = take.mouthEnvelope;
+                }
+                lastPlayedAt[eventId] = Time.time;
+            }
+            if (subtitle)
+            {
+                subtitle.text = string.IsNullOrWhiteSpace(spokenText) ? "" : displayName + ": " + spokenText;
+                subtitle.gameObject.SetActive(!string.IsNullOrWhiteSpace(spokenText));
+            }
+            if (mouthAudio)
+            {
+                mouthAudio.Stop();
+                mouthAudio.clip = clip;
+                if (clip) mouthAudio.Play();
+            }
+            return clip ? clip.length + .15f :
+                Mathf.Max(1.5f, (spokenText?.Length ?? 0) / 14f);
+        }
+
+        void StopVoice()
+        {
+            if (mouthAudio) { mouthAudio.Stop(); mouthAudio.maxDistance = 10f; }
+            speakingEnvelope = null;
+            if (face) face.SetSpeechOpen(0f);
+            mouthOpening = 0f;
+            if (subtitle) subtitle.gameObject.SetActive(false);
+        }
+
         public void EndConversation()
         {
-            if (!active) return;
+            if (!active && !ambientSpeaking) return;
             active = false;
             current = null;
-            if (mouthAudio) mouthAudio.Stop();
-            if (subtitle) subtitle.gameObject.SetActive(false);
-            if (face) { face.SetSpeechOpen(0f); face.ResetExpression(); }
-            mouthOpening = 0f;
+            ambientSpeaking = barkSpeaking = false;
+            pendingBark = null;
+            pendingContext = null;
+            StopVoice();
+            if (face) face.ResetExpression();
+            ScheduleAmbientCall();
             choices?.Hide();
             if (trading) { trading = false; TradingChanged?.Invoke(false); }
             ConversationEnded?.Invoke();

@@ -28,7 +28,7 @@ public static class DesertOutpostMatteMaterials
         Apply();
     }
 
-    [MenuItem("Tools/Koombar/Desert Outpost/Make Materials Editable And Matte")]
+    [MenuItem("Zandea/Koombar/Desert Outpost/Make Materials Editable And Matte")]
     public static void Apply()
     {
         EnsureFolder(MaterialFolder);

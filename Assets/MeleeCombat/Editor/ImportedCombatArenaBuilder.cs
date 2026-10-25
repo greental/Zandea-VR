@@ -7,7 +7,7 @@ public static class ImportedCombatArenaBuilder
 {
     public const string Output = "Assets/MeleeCombat/MocapTest/GeneratedVariants/ImportedCombatArena.unity";
 
-    [MenuItem("Tools/Melee Combat/Build imported combat arena")]
+    [MenuItem("Zandea/Melee Combat/Build imported combat arena")]
     public static void Build()
     {
         var scene = EditorSceneManager.OpenScene("Assets/MeleeCombat/BanditDuel.unity");

@@ -10615,7 +10615,7 @@ MonoBehaviour:
     moonBackgroundRoughness01: 0.045
     moonMacroElevationVariation01: 0.16
     moonRockyAreaStrength01: 0.05
-  logTiming: 1
+  logTiming: 0
   drawGizmos: 1
 --- !u!4 &978065200
 Transform:

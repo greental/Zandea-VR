@@ -28,7 +28,7 @@ namespace KenshiVR.MeleeCombat.Editor
             };
         }
 
-        [MenuItem("Tools/Melee Combat/Build POC Scene")]
+        [MenuItem("Zandea/Melee Combat/Build POC Scene")]
         public static void Build()
         {
             var male = AssetDatabase.LoadAssetAtPath<GameObject>(MalePath);
@@ -102,7 +102,7 @@ namespace KenshiVR.MeleeCombat.Editor
             Debug.Log("Built " + ScenePath + " with male rig motion and a baked NavMesh.");
         }
 
-        [MenuItem("Tools/Melee Combat/Upgrade POC motion and navigation")]
+        [MenuItem("Zandea/Melee Combat/Upgrade POC motion and navigation")]
         public static void UpgradeExistingScene()
         {
             var previous = SceneManager.GetActiveScene();

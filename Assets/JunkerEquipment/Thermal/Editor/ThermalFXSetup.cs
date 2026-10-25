@@ -20,7 +20,7 @@ namespace JunkerEquipment.Thermal.Editor
             try { Configure(); File.WriteAllText(Report,"PASS: thermal VFX and audio configured on tool prefabs."); }
             catch(Exception e) { File.WriteAllText(Report,e.ToString()); Debug.LogException(e); }
         }
-        [MenuItem("Tools/Junker Equipment/Thermal/Configure plasma effects and audio")]
+        [MenuItem("Zandea/Junker Equipment/Thermal/Configure plasma effects and audio")]
         public static void Configure()
         {
             foreach(string path in new[]{"Assets/MyAssets/prefabs/Tools/PLS-T ScrapCutter.prefab",Folder+"/ScrapCutter.prefab"})

@@ -371,7 +371,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.16
+  m_Radius: 0.22
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &754915139702689919
 MonoBehaviour:
@@ -458,6 +458,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.FriendlyNPC.HandshakeTarget
   counter: {fileID: 0}
+  gripRadius: 0.28
 --- !u!1 &5924281846124166178
 GameObject:
   m_ObjectHideFlags: 0
@@ -503,13 +504,13 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.85
   m_Pitch: 1
   Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 90
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 10
@@ -723,6 +724,7 @@ MonoBehaviour:
   playerHead: {fileID: 0}
   conversationTarget: {fileID: 331156765477284505}
   dialogue: {fileID: 11400000, guid: fa087058b9f5adc41becf7482e308351, type: 2}
+  voiceBank: {fileID: 11400000, guid: eb8d7be88df29b34f9c3602987616c62, type: 2}
   conditionSource: {fileID: 0}
   mouthAudio: {fileID: 6764099429955217581}
   subtitle: {fileID: 6635955063553327784}
@@ -732,6 +734,9 @@ MonoBehaviour:
   onQuestHook:
     m_PersistentCalls:
       m_Calls: []
+  wanderRadius: 0
+  wanderPauseSeconds: {x: 4, y: 9}
+  ambientCallIntervalSeconds: {x: 45, y: 120}
 --- !u!114 &8693581044028892402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -747,8 +752,10 @@ MonoBehaviour:
   merchant: {fileID: 3199236456029880873}
   handshake: {fileID: 0}
   animator: {fileID: 0}
-  handTargetLocal: {x: 0.26, y: 1.25, z: 0.46}
+  handTargetLocal: {x: 0.22, y: 1.25, z: 0.55}
   blendSpeed: 3
+  maxHeadYaw: 20
+  maxHeadPitch: 12
 --- !u!114 &6352769025239779255 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8229122519162650255, guid: f9505f92542734d4e80deaec5cb498cd, type: 3}

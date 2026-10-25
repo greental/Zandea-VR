@@ -48,8 +48,8 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3877652894364832360}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!135 &9155201962642787743
-SphereCollider:
+--- !u!65 &9155201962642787743
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -67,7 +67,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Size: {x: 0.95, y: 0.85, z: 1.1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &6352514170268256192
 MeshRenderer:
@@ -126,8 +126,8 @@ Rigidbody:
   m_GameObject: {fileID: 3877652894364832360}
   serializedVersion: 5
   m_Mass: 0.2
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_LinearDamping: 0.25
+  m_AngularDamping: 1.5
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}

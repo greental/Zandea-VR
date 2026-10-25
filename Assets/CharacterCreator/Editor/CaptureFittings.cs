@@ -11,7 +11,7 @@ namespace KenshiVR.CharacterCreator.Editor
     // One-shot migration of the hand-authored neutral fits in Fittings.unity.
     public static class CaptureFittings
     {
-        const string ScenePath = "Assets/Scenes/Fittings.unity";
+        const string ScenePath = "Assets/CharacterCreator/ImportedArmor/ArmorFittings.unity";
         const string Items = "Assets/CharacterCreator/ImportedDownloads/Items";
         const string PairFolder = "Assets/CharacterCreator/ImportedDownloads/HandFitted";
         const string Request = "Temp/CaptureFittings.request";
@@ -34,13 +34,22 @@ namespace KenshiVR.CharacterCreator.Editor
             EditorApplication.delayCall += () =>
             {
                 if (!File.Exists(Request)) return;
+                if (EditorApplication.isPlayingOrWillChangePlaymode)
+                { EditorApplication.playModeStateChanged -= CaptureAfterPlay; EditorApplication.playModeStateChanged += CaptureAfterPlay; return; }
                 File.Delete(Request);
                 try { Capture(); File.WriteAllText(Result, "OK"); }
                 catch (Exception exception) { Debug.LogException(exception); File.WriteAllText(Result, exception.ToString()); }
             };
         }
 
-        [MenuItem("Tools/Character Creator/Capture Hand-Fitted Gear")]
+        static void CaptureAfterPlay(PlayModeStateChange state)
+        {
+            if (state != PlayModeStateChange.EnteredEditMode) return;
+            EditorApplication.playModeStateChanged -= CaptureAfterPlay;
+            OnReload();
+        }
+
+        [MenuItem("Zandea/Character Creator/Capture Hand-Fitted Gear")]
         public static void Capture()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -50,10 +59,8 @@ namespace KenshiVR.CharacterCreator.Editor
             var characters = new Dictionary<string, GameObject>();
             foreach (var root in scene.GetRootGameObjects()) characters[root.name] = root;
             var fitted = new HashSet<AppearanceItemDefinition>();
-            for (int index = 6; index <= 10; index++)
+            foreach (var character in scene.GetRootGameObjects())
             {
-                if (!characters.TryGetValue("CombinedStarvingBandit (" + index + ")", out var character))
-                    throw new InvalidOperationException("Missing fitted character " + index);
                 foreach (var marker in character.GetComponentsInChildren<AppearanceSpawnedItem>(true))
                 {
                     var definition = marker.definition;
@@ -65,12 +72,13 @@ namespace KenshiVR.CharacterCreator.Editor
                 }
             }
             var boots = AssetDatabase.LoadAssetAtPath<AppearanceItemDefinition>(Items + "/wrapped_boot.asset");
-            if (!boots) throw new InvalidOperationException("Missing wrapped_boot item definition.");
-            CreateBootPair(characters["CombinedStarvingBandit (9)"], boots);
+            GameObject bootCharacter = null;
+            if (boots && characters.TryGetValue("CombinedStarvingBandit (9)", out bootCharacter))
+                CreateBootPair(bootCharacter, boots);
             UpdateCatalog();
-            FixBeardCharacter(characters["CombinedStarvingBandit (8)"]);
-            AssignBoots(characters["CombinedStarvingBandit (9)"], boots);
-            AssignBoots(characters["CombinedStarvingBandit (10)"], boots);
+            if (characters.TryGetValue("CombinedStarvingBandit (8)", out var beardCharacter)) FixBeardCharacter(beardCharacter);
+            if (boots && bootCharacter) AssignBoots(bootCharacter, boots);
+            if (boots && characters.TryGetValue("CombinedStarvingBandit (10)", out var secondBootCharacter)) AssignBoots(secondBootCharacter, boots);
             AssetDatabase.SaveAssets();
             EditorSceneManager.MarkSceneDirty(scene);
             if (!EditorSceneManager.SaveScene(scene)) throw new IOException("Could not save Fittings scene");
@@ -85,10 +93,15 @@ namespace KenshiVR.CharacterCreator.Editor
             try
             {
                 CopyTransform(instance.transform, contents.transform);
-                // Rigid imported previews have one visual child. Copy its authored mesh offset.
-                if (contents.transform.childCount == 1 && instance.transform.childCount == 1 &&
-                    path.StartsWith(Items + "/", StringComparison.Ordinal))
+                // Copy the authored visual offset as well as the item root. Some
+                // imported armor could only be aligned by moving its mesh child.
+                if (contents.transform.childCount == 1 && instance.transform.childCount == 1)
                     CopyTransform(instance.transform.GetChild(0), contents.transform.GetChild(0));
+                else
+                    foreach (Transform authoredChild in instance.transform)
+                        foreach (Transform prefabChild in contents.transform)
+                            if (authoredChild.name == prefabChild.name && authoredChild.GetComponentInChildren<Renderer>(true))
+                                CopyTransform(authoredChild, prefabChild);
                 var fromRenderers = instance.GetComponentsInChildren<Renderer>(true);
                 var toRenderers = contents.GetComponentsInChildren<Renderer>(true);
                 if (fromRenderers.Length == toRenderers.Length)
@@ -151,15 +164,27 @@ namespace KenshiVR.CharacterCreator.Editor
             if (!catalog) throw new InvalidOperationException("Missing cosmetic catalog");
             var horned = AssetDatabase.LoadAssetAtPath<AppearanceItemDefinition>(Items + "/horned_hair_beard.asset");
             if (!horned || horned.slot != AppearanceSlot.Beard) throw new InvalidOperationException("Horned item must be Beard");
-            var full = new List<AppearanceItemDefinition>(catalog.fullBeardVariants ?? Array.Empty<AppearanceItemDefinition>());
-            if (!full.Contains(horned)) full.Add(horned);
-            catalog.fullBeardVariants = full.ToArray();
+            var full = new List<AppearanceItemDefinition>();
+            var shortBeards = new List<AppearanceItemDefinition>();
+            var hair = new List<AppearanceItemDefinition>();
             var wardrobe = new List<AppearanceItemDefinition>();
             foreach (string guid in AssetDatabase.FindAssets("t:AppearanceItemDefinition", new[] { Items }))
             {
                 var item = AssetDatabase.LoadAssetAtPath<AppearanceItemDefinition>(AssetDatabase.GUIDToAssetPath(guid));
-                if (item && item.prefab && item.slot >= AppearanceSlot.Headwear) wardrobe.Add(item);
+                if (!item || !item.prefab) continue;
+                if (item.slot == AppearanceSlot.Beard)
+                {
+                    if (item.name.Contains("moustache") || item.name.Contains("scruffy")) shortBeards.Add(item); else full.Add(item);
+                }
+                else if (item.slot == AppearanceSlot.Hair) hair.Add(item);
+                else if (item.slot >= AppearanceSlot.Headwear) wardrobe.Add(item);
             }
+            full.Sort((a,b)=>string.Compare(a.name,b.name,StringComparison.Ordinal));
+            shortBeards.Sort((a,b)=>string.Compare(a.name,b.name,StringComparison.Ordinal));
+            hair.Sort((a,b)=>string.Compare(a.name,b.name,StringComparison.Ordinal));
+            catalog.fullBeardVariants = full.ToArray();
+            catalog.shortBeardVariants = shortBeards.ToArray();
+            catalog.shortHairVariants = hair.ToArray();
             wardrobe.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
             catalog.wardrobeItems = wardrobe.ToArray();
             EditorUtility.SetDirty(catalog);
@@ -195,7 +220,7 @@ namespace KenshiVR.CharacterCreator.Editor
             cosmetics.Refresh();
         }
 
-        [MenuItem("Tools/Character Creator/Validate Hand-Fitted Gear")]
+        [MenuItem("Zandea/Character Creator/Validate Hand-Fitted Gear")]
         public static string Validate()
         {
             var scene = EditorSceneManager.GetSceneByPath(ScenePath);

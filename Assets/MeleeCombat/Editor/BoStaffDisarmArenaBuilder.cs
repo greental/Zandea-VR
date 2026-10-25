@@ -10,7 +10,7 @@ namespace KenshiVR.MeleeCombat.Editor
         public const string Output = "Assets/MeleeCombat/MocapTest/GeneratedVariants/BoStaffDisarmArena.unity";
         const string Npc = "Assets/MeleeCombat/MocapTest/GeneratedVariants/StarvingBandit_BoStaff_Unified.prefab";
 
-        [MenuItem("Tools/Melee Combat/Build Bo Staff disarm arena")]
+        [MenuItem("Zandea/Melee Combat/Build Bo Staff disarm arena")]
         public static void Build()
         {
             var scene = EditorSceneManager.OpenScene("Assets/MeleeCombat/BanditDuel.unity");

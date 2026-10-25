@@ -13,7 +13,7 @@ namespace KenshiVR.MeleeCombat.Editor
         const string ModelPath = "Assets/CharacterCreator/Models/male_creator.glb";
         const string PrefabPath = "Assets/MeleeCombat/CombinedStarvingBandit.prefab";
 
-        [MenuItem("Tools/Melee Combat/Build combined bandit prefab")]
+        [MenuItem("Zandea/Melee Combat/Build combined bandit prefab")]
         public static void Build()
         {
             var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Additive);

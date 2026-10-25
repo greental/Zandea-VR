@@ -18,7 +18,7 @@ public sealed class ImportedCombatAnimationImport : AssetPostprocessor
         model.animationCompression = ModelImporterAnimationCompression.Off;
     }
 
-    [MenuItem("Tools/Melee Combat/Report imported combat animations")]
+    [MenuItem("Zandea/Melee Combat/Report imported combat animations")]
     public static void Report()
     {
         foreach (var path in Directory.GetFiles(Root, "*.fbx", SearchOption.AllDirectories).OrderBy(p => p))
@@ -31,7 +31,7 @@ public sealed class ImportedCombatAnimationImport : AssetPostprocessor
         }
     }
 
-    [MenuItem("Tools/Melee Combat/Name imported combat clips")]
+    [MenuItem("Zandea/Melee Combat/Name imported combat clips")]
     public static void NameClips()
     {
         foreach (var path in Directory.GetFiles(Root, "*.fbx", SearchOption.AllDirectories))

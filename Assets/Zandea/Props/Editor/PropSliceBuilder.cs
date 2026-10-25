@@ -30,7 +30,7 @@ namespace Zandea.Props.Editor
             try { Build(); File.WriteAllText("Temp/ZandeaProps.result", "OK"); }
             catch (Exception e) { File.WriteAllText("Temp/ZandeaProps.result", e.ToString()); Debug.LogException(e); }
         }
-        [MenuItem("Tools/Zandea/Props/Build Slice 8 Prefabs and Test Scene")]
+        [MenuItem("Zandea/Props/Build Slice 8 Prefabs and Test Scene")]
         public static void Build()
         {
             Directory.CreateDirectory(Prefabs);

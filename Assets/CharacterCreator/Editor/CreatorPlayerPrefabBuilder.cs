@@ -41,7 +41,7 @@ namespace KenshiVR.CharacterCreator.Editor
             catch (Exception error) { File.WriteAllText(AuditResult, "FAIL " + error); Debug.LogException(error); }
         }
 
-        [MenuItem("Tools/Character Creator/Build Man player prefab from Main")]
+        [MenuItem("Zandea/Character Creator/Build Man player prefab from Main")]
         public static void Build()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Build in Edit Mode");
@@ -214,7 +214,7 @@ namespace KenshiVR.CharacterCreator.Editor
             return controller;
         }
 
-        [MenuItem("Tools/Character Creator/Audit Main player conversion")]
+        [MenuItem("Zandea/Character Creator/Audit Main player conversion")]
         public static void Audit()
         {
             var body = UnityEngine.Object.FindObjectsByType<VRBodyController>(FindObjectsInactive.Include, FindObjectsSortMode.None)

@@ -8,7 +8,7 @@ namespace KenshiVR.MeleeCombat.Editor
 {
     public static class CharacterAttributeValidation
     {
-        [MenuItem("Tools/Melee Combat/Validate character attributes")]
+        [MenuItem("Zandea/Melee Combat/Validate character attributes")]
         public static void Validate()
         {
             var weak = AssetDatabase.LoadAssetAtPath<CharacterAttributeProfile>(

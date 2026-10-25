@@ -44,7 +44,7 @@ namespace KenshiVR.CharacterCreator.Editor
             File.WriteAllText("Temp/CharacterCreatorImportReport.txt", report.ToString());
         }
 
-        [MenuItem("Tools/Character Creator/Build POC Scene")]
+        [MenuItem("Zandea/Character Creator/Build POC Scene")]
         public static void Build()
         {
             var model = AssetDatabase.LoadAssetAtPath<GameObject>(ModelPath);

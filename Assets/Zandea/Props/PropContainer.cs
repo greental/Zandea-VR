@@ -35,8 +35,41 @@ namespace KenshiVR.MeleeCombat
                 rootGrab.colliders.Clear();
                 foreach (var shape in GetComponents<Collider>()) rootGrab.colliders.Add(shape);
             }
+            EnsureVisibleLid();
             if (GetComponentInChildren<PropHingedLid>(true) && !GetComponent<ChestStorageVolume>())
                 gameObject.AddComponent<ChestStorageVolume>();
+        }
+        void EnsureVisibleLid()
+        {
+            var lid = GetComponentInChildren<PropHingedLid>(true);
+            if (lid)
+            {
+                lid.gameObject.SetActive(true);
+                foreach (var renderer in lid.GetComponentsInChildren<Renderer>(true)) renderer.enabled = true;
+                return;
+            }
+            // Streaming/import variants have occasionally lost the FBX lid child. A
+            // physical fallback is preferable to silently spawning an open box.
+            var bounds = new Bounds(Vector3.zero, new Vector3(.9f, .55f, .6f));
+            var boxes = GetComponents<BoxCollider>();
+            if (boxes.Length > 0)
+            {
+                bounds = new Bounds(boxes[0].center, boxes[0].size);
+                for (int i = 1; i < boxes.Length; i++) { bounds.Encapsulate(boxes[i].center - boxes[i].size * .5f); bounds.Encapsulate(boxes[i].center + boxes[i].size * .5f); }
+            }
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.name = "Chest lid (runtime fallback)";
+            go.transform.SetParent(transform, false);
+            go.transform.localPosition = new Vector3(bounds.center.x, bounds.max.y + .035f, bounds.center.z);
+            go.transform.localScale = new Vector3(bounds.size.x, .07f, bounds.size.z);
+            var sourceRenderer = GetComponentInChildren<Renderer>(true);
+            if (sourceRenderer) go.GetComponent<Renderer>().sharedMaterial = sourceRenderer.sharedMaterial;
+            go.AddComponent<Rigidbody>();
+            go.AddComponent<HingeJoint>();
+            go.AddComponent<XRGrabInteractable>();
+            lid = go.AddComponent<PropHingedLid>();
+            lid.container = this;
+            lid.Configure();
         }
         void Start()
         {

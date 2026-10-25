@@ -21,7 +21,7 @@ public static class BanditGroupPlayValidation
 
     static BanditGroupPlayValidation() => EditorApplication.update += Tick;
 
-    [MenuItem("Tools/Melee Combat/Validate bandit group in Play mode")]
+    [MenuItem("Zandea/Melee Combat/Validate bandit group in Play mode")]
     public static void Run() { File.WriteAllText(Request, "run"); Tick(); }
 
     static void Tick()

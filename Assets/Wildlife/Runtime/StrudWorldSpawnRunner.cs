@@ -8,11 +8,14 @@ namespace Zandea.Wildlife
         readonly RaycastHit[] hits = new RaycastHit[32];
         public Vector2 intervalSeconds = new(75f, 140f);
         public Vector2 distance = new(22f, 48f);
-        public int maximumAnimals = 4;
+        public int maximumAnimals = 10;
+        public Vector2Int groupSize = new(3, 5);
+        public Vector2 sizeRange = new(.58f, 1.35f);
         IEnumerator Start()
         {
-            var prefabs = Resources.LoadAll<GameObject>("Wildlife");
-            if (prefabs.Length == 0) { Debug.LogWarning("Wildlife prefabs are missing from Resources/Wildlife."); Destroy(gameObject); yield break; }
+            var prefab = Resources.Load<GameObject>("Wildlife/Strud 1");
+            if (!prefab) prefab = Resources.Load<GameObject>("Wildlife/Strud");
+            if (!prefab) { Debug.LogWarning("Strud 1 is missing from Resources/Wildlife."); Destroy(gameObject); yield break; }
             while (enabled)
             {
                 var camera = Camera.main;
@@ -31,9 +34,16 @@ namespace Zandea.Wildlife
                     { hitDistance = hits[i].distance; ground = hits[i].point; }
                 if (hitDistance < float.MaxValue)
                 {
-                    var prefab = prefabs[Random.Range(0, prefabs.Length)];
-                    var creature = Instantiate(prefab, ground, Quaternion.LookRotation(forward));
-                    creature.name = prefab.name + " wildlife";
+                    int remaining = maximumAnimals - FindObjectsByType<WildlifeBrain>(FindObjectsSortMode.None).Length;
+                    int amount = Mathf.Min(remaining, Random.Range(groupSize.x, groupSize.y + 1));
+                    for (int i = 0; i < amount; i++)
+                    {
+                        Vector3 offset = right * Random.Range(-3.5f, 3.5f) + forward * Random.Range(-2.5f, 2.5f);
+                        var creature = Instantiate(prefab, ground + offset, Quaternion.LookRotation(forward));
+                        float size = i == 0 ? Random.Range(.58f, .76f) : i == amount - 1 ? Random.Range(1.15f, sizeRange.y) : Random.Range(.82f, 1.08f);
+                        creature.transform.localScale = Vector3.one * size;
+                        creature.name = "Strud 1 wildlife " + (i + 1);
+                    }
                 }
                 yield return new WaitForSeconds(Random.Range(intervalSeconds.x, intervalSeconds.y));
             }

@@ -10,7 +10,7 @@ namespace Zandea.Props.Editor
     {
         const string Rack="Assets/Zandea/Props/Prefabs/rack.prefab",Folder="Assets/Zandea/Props/WeaponItems";
         static WeaponRackUpgrade()=>EditorApplication.delayCall+=Upgrade;
-        [MenuItem("Tools/Zandea/Props/Upgrade multi-weapon rack")]
+        [MenuItem("Zandea/Props/Upgrade multi-weapon rack")]
         static void Upgrade()
         {
             if(EditorApplication.isPlayingOrWillChangePlaymode||EditorApplication.isCompiling||EditorApplication.isUpdating||!AssetDatabase.LoadAssetAtPath<GameObject>(Rack))return;

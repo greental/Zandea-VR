@@ -17,7 +17,7 @@ public static class GoreImpactPlayValidation
 
     static GoreImpactPlayValidation() => EditorApplication.update += Tick;
 
-    [MenuItem("Tools/Melee Combat/Validate hit blood particles in Play mode")]
+    [MenuItem("Zandea/Melee Combat/Validate hit blood particles in Play mode")]
     public static void Run() { File.WriteAllText(Request, "run"); Tick(); }
 
     static void Tick()

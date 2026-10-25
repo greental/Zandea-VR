@@ -966,6 +966,8 @@ GameObject:
   - component: {fileID: 5876077170010229092}
   - component: {fileID: 221771960174766966}
   - component: {fileID: 742572211078719609}
+  - component: {fileID: 5273750435096256106}
+  - component: {fileID: 4753273285006113899}
   m_Layer: 0
   m_Name: Bo Staff
   m_TagString: Untagged
@@ -1250,6 +1252,50 @@ MonoBehaviour:
   m_LimitAngularVelocity: 0
   m_MaxLinearVelocityDelta: 10
   m_MaxAngularVelocityDelta: 20
+--- !u!114 &5273750435096256106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6682448478070432096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20006ec5b11f68a4e9f1602f7caa9574, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.JunkerEquipmentItem
+  currentState: 0
+  itemId: bo-staff
+  gripPose: {fileID: 4851184717578714083}
+  muzzle: {fileID: 0}
+  useGripTransformDirectly: 1
+  gripPositionOffset: {x: 0, y: 0, z: 0}
+  gripRotationOffset: {x: 0, y: 0, z: 0}
+  useSmoothHeldPose: 1
+  heldCollidersAreTriggers: 0
+  heldPositionSmoothness: 24
+  heldRotationSmoothness: 24
+  holsterPosition: {x: 0, y: 0, z: 0}
+  holsterEuler: {x: 0, y: 0, z: 0}
+  holsterRadius: 0.4
+  rig: {fileID: 0}
+  gripBasePosition: {x: 0, y: 0, z: 0}
+  gripBaseRotation: {x: 0, y: 0, z: 0, w: 1}
+  gripBaseCaptured: 0
+--- !u!114 &4753273285006113899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6682448478070432096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85fa05afba1c10440927611a01057601, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.VRInventoryItem
+  CanStoreInBackpack: 1
+  InventoryAnchor: {fileID: 0}
 --- !u!1 &7898050229720148367
 GameObject:
   m_ObjectHideFlags: 0

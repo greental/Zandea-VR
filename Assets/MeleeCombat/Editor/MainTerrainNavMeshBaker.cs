@@ -12,7 +12,7 @@ namespace KenshiVR.MeleeCombat.Editor
         const string ScenePath = "Assets/Main.unity";
         const string DataPath = "Assets/MeleeCombat/MainTerrainNavMesh.asset";
 
-        [MenuItem("Tools/Melee Combat/Bake Main terrain NavMesh")]
+        [MenuItem("Zandea/Melee Combat/Bake Main terrain NavMesh")]
         public static void Bake()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)

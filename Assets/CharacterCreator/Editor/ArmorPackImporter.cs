@@ -29,7 +29,7 @@ namespace KenshiVR.CharacterCreator.Editor
             "paladin_ragged_skirt", "paladin_medieval_chest", "paladin_metal_shoulder"
         };
 
-        [MenuItem("Tools/Character Creator/Import Cleaned Armor Pack")]
+        [MenuItem("Zandea/Character Creator/Import Cleaned Armor Pack")]
         public static void Import()
         {
             var manifest = JsonUtility.FromJson<Manifest>(File.ReadAllText(ManifestPath));
@@ -60,7 +60,7 @@ namespace KenshiVR.CharacterCreator.Editor
             finally { UnityEngine.Object.DestroyImmediate(reference); }
         }
 
-        [MenuItem("Tools/Character Creator/Validate Cleaned Armor Pack")]
+        [MenuItem("Zandea/Character Creator/Validate Cleaned Armor Pack")]
         public static void Validate()
         {
             var manifest = JsonUtility.FromJson<Manifest>(File.ReadAllText(ManifestPath));

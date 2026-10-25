@@ -17,7 +17,7 @@ public static class MocapTestBuilder
     const string AttackPath = "Assets/Kevin Iglesias/Human Animations/Animations/Male/Combat/Polearm/HumanM@AttackPolearm01.fbx";
     public static void BuildAndValidate() { Build(); Validate(); }
 
-    [MenuItem("Tools/Melee Combat/Build isolated mocap test")]
+    [MenuItem("Zandea/Melee Combat/Build isolated mocap test")]
     public static void Build()
     {
         if (!AssetDatabase.IsValidFolder(Folder)) AssetDatabase.CreateFolder("Assets/MeleeCombat", "MocapTest");
@@ -147,7 +147,7 @@ public static class MocapTestBuilder
         catch { if (instance) UnityEngine.Object.DestroyImmediate(instance); throw; }
     }
 
-    [MenuItem("Tools/Melee Combat/Validate isolated mocap test")]
+    [MenuItem("Zandea/Melee Combat/Validate isolated mocap test")]
     public static void Validate()
     {
         var scene = EditorSceneManager.OpenScene(Folder + "/MocapCombatTest.unity", OpenSceneMode.Single);

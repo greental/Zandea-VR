@@ -21,7 +21,7 @@ namespace JunkerEquipment.Editor
             };
         }
 
-        [MenuItem("Tools/Junker Equipment/Configure PKO reflex dot and audio")]
+        [MenuItem("Zandea/Junker Equipment/Configure PKO reflex dot and audio")]
         public static void Configure()
         {
             var pistol=FindPko();

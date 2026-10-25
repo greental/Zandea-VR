@@ -28,7 +28,7 @@ namespace JunkerEquipment.Editor
         };
         const string MaterialPath = "Assets/JunkerEquipment/Generated/BinocularOpticsDisplay.mat";
 
-        [MenuItem("Tools/Junker Equipment/Configure binocular optics on player prefabs")]
+        [MenuItem("Zandea/Junker Equipment/Configure binocular optics on player prefabs")]
         public static void Configure()
         {
             var material = AssetDatabase.LoadAssetAtPath<Material>(MaterialPath);

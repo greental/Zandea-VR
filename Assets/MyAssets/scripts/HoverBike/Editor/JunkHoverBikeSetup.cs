@@ -31,7 +31,7 @@ public static class JunkHoverBikeSetup
         try{Build();}catch(Exception e){File.WriteAllText(Path.Combine(WorkFolder,"build-result.txt"),e.ToString());Debug.LogException(e);}
     }
 
-    [MenuItem("Tools/Hover Bikes/Build Junk Hover Bike")]
+    [MenuItem("Zandea/Hover Bikes/Build Junk Hover Bike")]
     public static void Build()
     {
         var model=AssetDatabase.LoadAssetAtPath<GameObject>(Folder+"/JunkHoverBikeRigged.fbx");

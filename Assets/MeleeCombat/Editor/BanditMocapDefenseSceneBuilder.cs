@@ -7,11 +7,11 @@ public static class BanditMocapDefenseSceneBuilder
 {
     const string Output = "Assets/MeleeCombat/MocapTest/GeneratedVariants/ShieldBlockDuel.unity";
     const string ParryOutput = "Assets/MeleeCombat/MocapTest/GeneratedVariants/BoStaffParryDuel.unity";
-    [MenuItem("Tools/Melee Combat/Build mocap shield block duel")]
+    [MenuItem("Zandea/Melee Combat/Build mocap shield block duel")]
     public static void Build() => BuildDuel(false);
-    [MenuItem("Tools/Melee Combat/Build mocap Bo Staff parry duel")]
+    [MenuItem("Zandea/Melee Combat/Build mocap Bo Staff parry duel")]
     public static void BuildParry() => BuildDuel(true);
-    [MenuItem("Tools/Melee Combat/Build all weapon parry duels")]
+    [MenuItem("Zandea/Melee Combat/Build all weapon parry duels")]
     public static void BuildAllParries()
     {
         foreach (var guid in AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/MeleeCombat/MocapTest/GeneratedVariants" }))

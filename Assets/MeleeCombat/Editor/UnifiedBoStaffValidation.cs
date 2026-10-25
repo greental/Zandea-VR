@@ -9,7 +9,7 @@ namespace KenshiVR.MeleeCombat.Editor
 {
     public static class UnifiedBoStaffValidation
     {
-        [MenuItem("Tools/Melee Combat/Validate unified Bo Staff prototype")]
+        [MenuItem("Zandea/Melee Combat/Validate unified Bo Staff prototype")]
         public static void Validate()
         {
             const string weaponPath = "Assets/MyAssets/prefabs/weapons/Bo Staff.prefab";

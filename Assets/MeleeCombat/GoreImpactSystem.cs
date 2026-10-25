@@ -225,6 +225,8 @@ namespace KenshiVR.MeleeCombat
             // Particle vertex color supplies the blood tint; multiplying it by
             // another dark red made the spray nearly invisible in the headset.
             defaultBloodMaterial.SetColor("_BaseColor", Color.white);
+            defaultBloodMaterial.SetTexture("_BaseMap", SplatterTexture());
+            defaultBloodMaterial.SetTexture("_MainTex", SplatterTexture());
             defaultBloodMaterial.SetFloat("_Surface", 1f);
             defaultBloodMaterial.SetFloat("_SrcBlend", 5f);
             defaultBloodMaterial.SetFloat("_DstBlend", 10f);

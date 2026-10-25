@@ -34,7 +34,7 @@ namespace Zandea.Props.Editor
             EditorApplication.update += Tick;
             EditorApplication.playModeStateChanged += Mode;
         }
-        [MenuItem("Tools/Zandea/Props/Run Representative Play Validation")]
+        [MenuItem("Zandea/Props/Run Representative Play Validation")]
         public static void Begin()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode || !File.Exists(ScenePath))

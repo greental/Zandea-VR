@@ -21,7 +21,7 @@ public static class ArmedBanditValidation
         File.Delete(Request);
         try { Run(); } catch (Exception e) { Directory.CreateDirectory(Output); File.WriteAllText(Output + "/result.txt", e.ToString()); Debug.LogException(e); }
     }
-    [MenuItem("Tools/Melee Combat/Validate armed bandit poses and colliders")]
+    [MenuItem("Zandea/Melee Combat/Validate armed bandit poses and colliders")]
     public static void Run()
     {
         Directory.CreateDirectory(Output);

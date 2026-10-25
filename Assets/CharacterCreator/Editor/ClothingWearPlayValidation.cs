@@ -24,7 +24,7 @@ namespace KenshiVR.CharacterCreator.Editor
 
         static ClothingWearPlayValidation() => EditorApplication.update += Tick;
 
-        [MenuItem("Tools/Character Creator/Validate clothing storage and wear in Play Mode")]
+        [MenuItem("Zandea/Character Creator/Validate clothing storage and wear in Play Mode")]
         public static void Run() { File.WriteAllText(Request, "run"); Tick(); }
 
         static void Tick()

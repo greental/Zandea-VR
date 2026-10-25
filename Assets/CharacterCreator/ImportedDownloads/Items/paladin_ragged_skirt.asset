@@ -23,7 +23,7 @@ MonoBehaviour:
   - MuscularityMuscular
   hideRendererNames: []
   styleFamily: paladin
-  fitNote: Skinned fit authored and mesh-baked in Assets/CharacterCreator/ImportedArmor/ArmorFittingsEditable.unity.
+  fitNote: User-authored replacement mesh fit from Assets/CharacterCreator/ImportedArmor/ArmorFittings_UserFitBackup_20261022.unity.
   hideHair: 0
   coversOutfit: 0
   randomWeight: 1

@@ -79,7 +79,7 @@ public sealed class WeaponGripFittingStationEditor : Editor
         if(left&&secondary)left.SetPositionAndRotation(secondary.position,secondary.rotation);
         SceneView.RepaintAll();
     }
-    [MenuItem("Tools/Melee Combat/Create weapon grip fitting station")]
+    [MenuItem("Zandea/Melee Combat/Create weapon grip fitting station")]
     static void Create()
     {
         var station = new GameObject("Weapon Grip Fitting Station").AddComponent<WeaponGripFittingStation>();
@@ -87,7 +87,7 @@ public sealed class WeaponGripFittingStationEditor : Editor
         Selection.activeObject = station.gameObject;
     }
 
-    [MenuItem("Tools/Melee Combat/Open weapon grip fitting scene")]
+    [MenuItem("Zandea/Melee Combat/Open weapon grip fitting scene")]
     static void OpenScene() => EditorSceneManager.OpenScene(WeaponGripFittingSceneBuilder.ScenePath);
 }
 
@@ -96,7 +96,7 @@ static class WeaponGripFittingSceneBuilder
 {
     internal const string ScenePath = "Assets/MeleeCombat/WeaponGripFitting.unity";
     static WeaponGripFittingSceneBuilder() => EditorApplication.delayCall += EnsureScene;
-    [MenuItem("Tools/Melee Combat/Rebuild weapon grip fitting scene")]
+    [MenuItem("Zandea/Melee Combat/Rebuild weapon grip fitting scene")]
     static void EnsureScene()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling) return;

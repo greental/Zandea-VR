@@ -57,6 +57,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7720480698386757947}
   - component: {fileID: 4261171989069231587}
+  - component: {fileID: 8820349831898923185}
   m_Layer: 0
   m_Name: rack
   m_TagString: Untagged
@@ -102,6 +103,30 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2, y: 1.3105562, z: 0.44831017}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8820349831898923185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4164144566495051058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5a8cda1971f3dc40b9d91d4fa4d3f7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PropWeaponRack
+  items:
+  - {fileID: 11400000, guid: d1957ef0306067843b9bf7d38f3449f5, type: 2}
+  - {fileID: 11400000, guid: e2745ae5ce4f16c40a8d782e89f562b7, type: 2}
+  - {fileID: 11400000, guid: 7c8d7620b6e11c149a55d1f474cdb4c7, type: 2}
+  - {fileID: 11400000, guid: edf404342043a3b45be072b9e54ccc34, type: 2}
+  weaponPrefabs:
+  - {fileID: 6247905453786691852, guid: 7fa9f8c679ed51840a39b18238ccf50e, type: 3}
+  - {fileID: 5442016423810961629, guid: e57ed5195dd808b4dbc78d042950d98a, type: 3}
+  - {fileID: 8110503260084702684, guid: 062e91f2dfb864049a5eebc095598f21, type: 3}
+  - {fileID: 4952503099691932828, guid: 4067b62c7820bf04792812858dd3614b, type: 3}
+  firstSocket: {x: -0.55, y: 0.28, z: 0}
+  spacing: {x: 0.36, y: 0, z: 0}
 --- !u!1001 &2014408077917643678
 PrefabInstance:
   m_ObjectHideFlags: 0

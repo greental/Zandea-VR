@@ -8771,7 +8771,8 @@ MonoBehaviour:
   target: {fileID: 0}
   tileSizeMeters: 1024
   maxHeightMeters: 1600
-  tileVerticalOffsetMeters: 2220
+  tileVerticalOffsetMeters: 0
+  allowRuntimeVerticalOffset: 0
   heightmapResolution: 257
   terrainLayers:
   - {fileID: 8574412962073106934, guid: 069c438497016ba40b893095ba32096f, type: 2}
@@ -8810,7 +8811,7 @@ MonoBehaviour:
     moonBackgroundRoughness01: 0.045
     moonMacroElevationVariation01: 0.16
     moonRockyAreaStrength01: 0.05
-  logTiming: 1
+  logTiming: 0
   drawGizmos: 1
 --- !u!4 &1428762258
 Transform:

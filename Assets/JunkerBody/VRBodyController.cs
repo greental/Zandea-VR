@@ -68,7 +68,7 @@ namespace JunkerBody
         [Min(0f)] public float bodyRotationSmoothing = 7f;
         [Range(0f, 90f)] public float rotationDeadZone = 35f;
         [Header("Player fit (independent of tracking floor)")]
-        [Min(0.1f), Tooltip("Overall model size. Apply with Tools/JunkerBody/Apply avatar size and eye offset.")]
+        [Min(0.1f), Tooltip("Overall model size. Apply with Zandea/JunkerBody/Apply avatar size and eye offset.")]
         public float meshScale = 1.4f;
         [Min(0.1f), Tooltip("Physical height to the crown; informational, distinct from HMD eye height.")]
         public float playerHeight = 1.78f;
@@ -103,7 +103,7 @@ namespace JunkerBody
             locomotion = GetComponent<JunkerSprint>();
             if (!xrOrigin || !hmd || !leftController || !rightController || !animator || !avatarRoot || !hips || !chest || !head || !headTarget ||
                 !leftArm.Valid || !rightArm.Valid || !leftLeg.Valid || !rightLeg.Valid)
-            { Debug.LogError("Junker body references are incomplete. Run Tools/JunkerBody/Configure scene.", this); enabled = false; return; }
+            { Debug.LogError("Junker body references are incomplete. Run Zandea/JunkerBody/Configure scene.", this); enabled = false; return; }
             animator.applyRootMotion = false;
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             restHeadPosition = avatarRoot.InverseTransformPoint(head.position);

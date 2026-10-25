@@ -22,7 +22,7 @@ public static class PyxolHoverBikeSetup
         };
     }
 
-    [MenuItem("Tools/JunkerBody/Repair Pyxol2 grab colliders")]
+    [MenuItem("Zandea/JunkerBody/Repair Pyxol2 grab colliders")]
     public static void RepairGripColliders()
     {
         if(EditorApplication.isPlayingOrWillChangePlaymode)return;
@@ -45,7 +45,7 @@ public static class PyxolHoverBikeSetup
         }
     }
 
-    [MenuItem("Tools/JunkerBody/Configure Pyxol2 hover bike")]
+    [MenuItem("Zandea/JunkerBody/Configure Pyxol2 hover bike")]
     public static void Configure()
     {
         var root=GameObject.Find("Pyxol2");
@@ -107,7 +107,7 @@ public static class PyxolHoverBikeSetup
         EditorSceneManager.MarkSceneDirty(root.scene);EditorSceneManager.SaveScene(root.scene);AssetDatabase.SaveAssets();
         Debug.Log("Pyxol2 configured: dual sticks, 24V ignition, A-button seat, bounded hover and B-button boost.",root);
     }
-    [MenuItem("Tools/JunkerBody/Assign Pyxol2 engine audio")]
+    [MenuItem("Zandea/JunkerBody/Assign Pyxol2 engine audio")]
     public static void AssignEngineAudio()
     {
         if(EditorApplication.isPlayingOrWillChangePlaymode)return;
@@ -141,7 +141,7 @@ public static class PyxolHoverBikeSetup
         var controlBody=GetOrAdd<Rigidbody>(handle.gameObject);controlBody.isKinematic=true;controlBody.useGravity=false;
         var stick=GetOrAdd<HoverBikeStick>(handle.gameObject);stick.handle=handle;stick.bikeFrame=bike;stick.steeringAngle=31f;stick.localYBack=-.004f;stick.localYForward=-.003f;stick.handTravel=.10f;return stick;
     }
-    [MenuItem("Tools/JunkerBody/Apply Pyxol2 hover fixes")]
+    [MenuItem("Zandea/JunkerBody/Apply Pyxol2 hover fixes")]
     public static void ApplyHoverFixes()
     {
         if(EditorApplication.isPlayingOrWillChangePlaymode)return;

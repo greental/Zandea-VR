@@ -26,7 +26,7 @@ namespace KenshiVR.MeleeCombat.Editor
             };
         }
 
-        [MenuItem("Tools/Melee Combat/Build canonical editable weapon prefabs")]
+        [MenuItem("Zandea/Melee Combat/Build canonical editable weapon prefabs")]
         public static void Build()
         {
             Directory.CreateDirectory(Output);

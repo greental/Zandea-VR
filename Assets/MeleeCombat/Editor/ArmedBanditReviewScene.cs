@@ -25,7 +25,7 @@ public static class ArmedBanditReviewScene
         catch (Exception e) { File.WriteAllText(Result, e.ToString()); Debug.LogException(e); }
     }
 
-    [MenuItem("Tools/Melee Combat/Create armed bandit review scene")]
+    [MenuItem("Zandea/Melee Combat/Create armed bandit review scene")]
     public static void Create()
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);

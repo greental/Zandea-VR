@@ -12,7 +12,9 @@ namespace KenshiVR.MeleeCombat
         [SerializeField, Range(0, 1)] float condition = 1;
         [SerializeField] NpcEquipmentSlot equippedSlot;
         [SerializeField] string containerId;
-        [SerializeField] List<NpcItemInstance> contents = new();
+        // Managed references stop Unity expanding this recursively composable type
+        // to its serialization depth limit even when the actual list is empty.
+        [SerializeReference] List<NpcItemInstance> contents = new();
         [NonSerialized] NpcInventory owner;
         [NonSerialized] GameObject worldObject;
 

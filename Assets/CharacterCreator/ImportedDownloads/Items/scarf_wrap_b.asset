@@ -19,8 +19,7 @@ MonoBehaviour:
   requiredMorphs: []
   hideRendererNames: []
   styleFamily: desert
-  fitNote: Neutral fit authored in Assets/Scenes/Fittings.unity; capture from CombinedStarvingBandit
-    (9).
+  fitNote: Fit captured from Assets/Scenes/CharacterCreator/ChestArmorFittings.unity.
   hideHair: 0
   coversOutfit: 0
   randomWeight: 1

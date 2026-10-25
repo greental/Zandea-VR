@@ -16,7 +16,7 @@ namespace KenshiVR.MeleeCombat.Editor
         const string PrefabPath = "Assets/MeleeCombat/CombinedStarvingBandit.prefab";
         const string ItemPath = "Assets/CharacterCreator/ImportedDownloads/Items/";
 
-        [MenuItem("Tools/Melee Combat/Build bandit duel scene")]
+        [MenuItem("Zandea/Melee Combat/Build bandit duel scene")]
         public static void Build()
         {
             CombinedBanditBuilder.Build();

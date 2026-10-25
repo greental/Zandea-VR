@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using KenshiVR.MeleeCombat;
 using JunkerEquipment;
@@ -10,7 +11,7 @@ namespace Zandea.Props
         public NpcItemDefinition startingItem;
         public GameObject weaponPrefab;
         [Min(.1f)] public float returnRadius = .4f;
-        public NpcItemInstance CurrentItem { get; private set; }
+        [field: NonSerialized] public NpcItemInstance CurrentItem { get; private set; }
         string stableId;
         bool initialized;
         void Start()

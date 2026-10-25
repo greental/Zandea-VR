@@ -20,7 +20,7 @@ namespace KenshiVR.MeleeCombat.Editor
             if (File.Exists(StampPath) || !File.Exists(ScenePath)) return;
             if (Validate()) File.WriteAllText(StampPath, "Read-only attack path screening completed.\n");
         }
-        [MenuItem("Tools/Melee Combat/Validate eight staff paths")]
+        [MenuItem("Zandea/Melee Combat/Validate eight staff paths")]
         public static void ValidateFromMenu() => Validate();
 
         static bool Validate()

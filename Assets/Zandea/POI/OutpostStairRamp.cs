@@ -3,6 +3,7 @@ using UnityEngine.AI;
 
 namespace Zandea.POI
 {
+#pragma warning disable 0618 // Legacy link required by the installed navigation runtime.
     // The imported four-step collision rises 1.25 m at each riser, too high for
     // the player capsule or NavMesh agent. A continuous ramp follows its treads.
     [DisallowMultipleComponent]
@@ -76,4 +77,5 @@ namespace Zandea.POI
 
         void OnDestroy() { if (rampMesh) Destroy(rampMesh); }
     }
+#pragma warning restore 0618
 }

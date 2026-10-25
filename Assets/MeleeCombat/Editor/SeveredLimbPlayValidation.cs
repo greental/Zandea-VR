@@ -21,7 +21,7 @@ public static class SeveredLimbPlayValidation
 
     static SeveredLimbPlayValidation() => EditorApplication.update += Tick;
 
-    [MenuItem("Tools/Melee Combat/Validate severed limbs in Play mode")]
+    [MenuItem("Zandea/Melee Combat/Validate severed limbs in Play mode")]
     public static void Run()
     {
         File.WriteAllText(Request, "run");

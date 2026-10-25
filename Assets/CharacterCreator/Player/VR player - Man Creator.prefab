@@ -693,6 +693,7 @@ MonoBehaviour:
   openVisual: {fileID: 5030339954595622624}
   storedItemsRoot: {fileID: 2785097717628596146}
   storageVolume: {fileID: 6875109621501121488}
+  alwaysOpenStorage: 0
   topHandle: {fileID: 6213640079651738353}
   backSlot: {fileID: 974879898950810438}
   returnRadius: 0.35
@@ -1434,6 +1435,57 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7115573128896750744}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1296660432083785174
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6474247929797399968}
+  - component: {fileID: 5707610996516301795}
+  m_Layer: 0
+  m_Name: Left hip item
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6474247929797399968
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1296660432083785174}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
+  m_LocalPosition: {x: -0.28, y: -0.42, z: 0.06}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7449048044021948707}
+  m_Father: {fileID: 6304680192615585019}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5707610996516301795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1296660432083785174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82570a5f6d4a6cd41a306e5952ab2f1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.JunkerEquipmentSlot
+  legacyAcceptedItemId: 
+  approvedItemIds: []
+  blockedItemIds: []
+  startingItem: {fileID: 8278909251534551043}
+  detachMountedItem: 0
+  radius: 0.3
 --- !u!1 &1389226405298960275
 GameObject:
   m_ObjectHideFlags: 0
@@ -1705,6 +1757,7 @@ GameObject:
   - component: {fileID: 4683851427209996677}
   - component: {fileID: 5348404143372971046}
   - component: {fileID: 3323923235551757807}
+  - component: {fileID: 4096923485829555778}
   m_Layer: 0
   m_Name: JunkerBody
   m_TagString: Untagged
@@ -2225,6 +2278,7 @@ MonoBehaviour:
   feet: {fileID: 0}
   hands: {fileID: 0}
   outerArmor: {fileID: 0}
+  headPresent: 1
 --- !u!114 &5348404143372971046
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2255,6 +2309,21 @@ MonoBehaviour:
   localCamera: {fileID: 565415824440075562}
   visualRoot: {fileID: 2898691424322619202}
   cosmetics: {fileID: 4683851427209996677}
+--- !u!114 &4096923485829555778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1594488017825891786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc954269c7acb63418f8e4ff85a691b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.CreatorPlayerHands
+  body: {fileID: 4851094922413531092}
+  leftWristOffset: {x: 14.827744, y: 90, z: 90.000046}
+  rightWristOffset: {x: 16.187147, y: 269.99997, z: 269.9999}
 --- !u!1 &1674456693272831393
 GameObject:
   m_ObjectHideFlags: 0
@@ -3522,6 +3591,56 @@ Transform:
   - {fileID: 7883421698471398380}
   m_Father: {fileID: 2874039751640545662}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1986056768511737375
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6719337679821042419}
+  - component: {fileID: 1110978022341999956}
+  m_Layer: 0
+  m_Name: Right hip item
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6719337679821042419
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1986056768511737375}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
+  m_LocalPosition: {x: 0.28, y: -0.42, z: 0.06}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6304680192615585019}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1110978022341999956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1986056768511737375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82570a5f6d4a6cd41a306e5952ab2f1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.JunkerEquipmentSlot
+  legacyAcceptedItemId: 
+  approvedItemIds: []
+  blockedItemIds: []
+  startingItem: {fileID: 0}
+  detachMountedItem: 0
+  radius: 0.3
 --- !u!1 &2027831003973347757
 GameObject:
   m_ObjectHideFlags: 0
@@ -3590,6 +3709,10 @@ Transform:
   - {fileID: 4295502782449772653}
   - {fileID: 8670822496639758911}
   - {fileID: 2609618538506149307}
+  - {fileID: 6474247929797399968}
+  - {fileID: 6719337679821042419}
+  - {fileID: 2087879205157073541}
+  - {fileID: 2472781046186703140}
   m_Father: {fileID: 8363936616190926530}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7069929059263741491
@@ -3616,16 +3739,20 @@ MonoBehaviour:
   - {fileID: 6518002684707142074}
   - {fileID: 974879898950810438}
   - {fileID: 4599922371868265956}
+  - {fileID: 5707610996516301795}
+  - {fileID: 1110978022341999956}
+  - {fileID: 5895631996059325688}
+  - {fileID: 8467909036437506659}
   bodyOffset: {x: -0.08, y: 1.37, z: -0.15}
   bodyEulerOffset: {x: 0, y: 21, z: 0}
   crouchFollow: 0.8
   floorPickupReach: 0.55
-  meleeSheath: {fileID: 0}
+  meleeSheath: {fileID: 6474247929797399968}
   meleeSheathLocalPosition: {x: -0.28, y: -0.42, z: 0.06}
   meleeSheathLocalEuler: {x: 0, y: 0, z: 90}
-  rightHipSheath: {fileID: 0}
-  leftBackSheath: {fileID: 0}
-  rightBackSheath: {fileID: 0}
+  rightHipSheath: {fileID: 6719337679821042419}
+  leftBackSheath: {fileID: 2087879205157073541}
+  rightBackSheath: {fileID: 2472781046186703140}
   rightHipLocalPosition: {x: 0.28, y: -0.42, z: 0.06}
   leftBackLocalPosition: {x: -0.29, y: -0.18, z: -0.31}
   rightBackLocalPosition: {x: 0.29, y: -0.18, z: -0.31}
@@ -4150,6 +4277,8 @@ GameObject:
   - component: {fileID: 2522475102812754516}
   - component: {fileID: 2935247819494510045}
   - component: {fileID: 3933765904939714251}
+  - component: {fileID: 8501285131010659542}
+  - component: {fileID: 8399500924443271753}
   m_Layer: 0
   m_Name: VR player - Man Creator
   m_TagString: Untagged
@@ -4225,6 +4354,45 @@ MonoBehaviour:
   recoveryDelayAfterHit: 5
   testRegion: 0
   zones: []
+--- !u!114 &8501285131010659542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2366709615031638500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25b47f38202751f4a9ef66efdbe496e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.PlayerStartingItems
+  leftHip: {fileID: 5707610996516301795}
+  rightHip: {fileID: 1110978022341999956}
+  leftBackpack: {fileID: 5895631996059325688}
+  rightBackpack: {fileID: 8467909036437506659}
+  leftHipPrefab: {fileID: 2041516720199629192, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+  rightHipPrefab: {fileID: 0}
+  leftBackpackPrefab: {fileID: 0}
+  rightBackpackPrefab: {fileID: 0}
+  leftHipItem: {fileID: 8278909251534551043}
+  rightHipItem: {fileID: 0}
+  leftBackpackItem: {fileID: 0}
+  rightBackpackItem: {fileID: 0}
+--- !u!114 &8399500924443271753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2366709615031638500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49eba16df7a65c04a9a3d408b78cf26c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.PlayerWeaponGripAuthoring
+  selectedWeapon: {fileID: 0}
+  savedFits: []
+  preview: {fileID: 0}
 --- !u!1 &2374754761285808787
 GameObject:
   m_ObjectHideFlags: 0
@@ -5170,6 +5338,56 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5571247388064773259}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2627868302326552794
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2087879205157073541}
+  - component: {fileID: 5895631996059325688}
+  m_Layer: 0
+  m_Name: Left backpack item
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2087879205157073541
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2627868302326552794}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0.3007058, w: 0.95371693}
+  m_LocalPosition: {x: -0.29, y: -0.18, z: -0.31}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6304680192615585019}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5895631996059325688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2627868302326552794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82570a5f6d4a6cd41a306e5952ab2f1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.JunkerEquipmentSlot
+  legacyAcceptedItemId: 
+  approvedItemIds: []
+  blockedItemIds: []
+  startingItem: {fileID: 0}
+  detachMountedItem: 0
+  radius: 0.3
 --- !u!1 &2701705808661412477
 GameObject:
   m_ObjectHideFlags: 0
@@ -6022,6 +6240,56 @@ Transform:
   - {fileID: 584452940461407934}
   m_Father: {fileID: 8992772840129623483}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3619700724292306361
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2472781046186703140}
+  - component: {fileID: 8467909036437506659}
+  m_Layer: 0
+  m_Name: Right backpack item
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2472781046186703140
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3619700724292306361}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: -0.3007058, w: 0.95371693}
+  m_LocalPosition: {x: 0.29, y: -0.18, z: -0.31}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6304680192615585019}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8467909036437506659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3619700724292306361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82570a5f6d4a6cd41a306e5952ab2f1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.JunkerEquipmentSlot
+  legacyAcceptedItemId: 
+  approvedItemIds: []
+  blockedItemIds: []
+  startingItem: {fileID: 0}
+  detachMountedItem: 0
+  radius: 0.3
 --- !u!1 &3622548574668696359
 GameObject:
   m_ObjectHideFlags: 0
@@ -14243,6 +14511,83 @@ Transform:
   - {fileID: 8785891586874525659}
   m_Father: {fileID: 8992772840129623483}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1233675237166578442
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6474247929797399968}
+    m_Modifications:
+    - target: {fileID: 2041516720199629192, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+      propertyPath: m_Name
+      value: Player demo sword
+      objectReference: {fileID: 0}
+    - target: {fileID: 7204208054339568393, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+      propertyPath: rig
+      value: 
+      objectReference: {fileID: 7069929059263741491}
+    - target: {fileID: 8538456201510083113, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8538456201510083113, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8538456201510083113, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8538456201510083113, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8538456201510083113, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8538456201510083113, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8538456201510083113, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8538456201510083113, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8538456201510083113, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8538456201510083113, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+--- !u!4 &7449048044021948707 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8538456201510083113, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+  m_PrefabInstance: {fileID: 1233675237166578442}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8278909251534551043 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7204208054339568393, guid: 1ee9985ebdd8a3a429e7110f95d17307, type: 3}
+  m_PrefabInstance: {fileID: 1233675237166578442}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20006ec5b11f68a4e9f1602f7caa9574, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.JunkerEquipmentItem
 --- !u!1001 &5999616417471197068
 PrefabInstance:
   m_ObjectHideFlags: 0

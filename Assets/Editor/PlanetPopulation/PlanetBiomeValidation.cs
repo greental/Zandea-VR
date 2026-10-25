@@ -152,7 +152,7 @@ public static class PlanetBiomeValidation
         Debug.Log($"Wrapped treadmill passed: opposite X/Z height, biome, and paint edges match across {maxX-minX+1}x{maxZ-minZ+1} tiles.");
     }
 
-    [MenuItem("Tools/Planet Population/Validate Biome Continuity")]
+    [MenuItem("Zandea/Planet Population/Validate Biome Continuity")]
     public static void Validate()
     {
         var root = new GameObject("Biome validation");

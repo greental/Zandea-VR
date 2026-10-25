@@ -18,7 +18,7 @@ namespace Zandea.Props.Editor
         const string Report = "Temp/ZandeaProps.main-validation.txt";
         static double next;
         static OutpostPropPlayValidation() => EditorApplication.update += Tick;
-        [MenuItem("Tools/Zandea/Props/Run Main Outpost Streaming Validation")]
+        [MenuItem("Zandea/Props/Run Main Outpost Streaming Validation")]
         public static void Begin()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) throw new Exception("Exit Play Mode first.");

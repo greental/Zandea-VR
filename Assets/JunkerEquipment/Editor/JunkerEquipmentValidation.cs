@@ -32,7 +32,7 @@ namespace JunkerEquipment.Editor
             if(state==PlayModeStateChange.EnteredPlayMode && SessionState.GetBool(FloorFlag,false))
             { SessionState.SetBool(FloorFlag,false); new GameObject("Floor pickup validation").AddComponent<JunkerFloorPickupValidationRunner>(); }
         }
-        [MenuItem("Tools/Junker Equipment/Validate saved equipment")]
+        [MenuItem("Zandea/Junker Equipment/Validate saved equipment")]
         public static void Validate()
         {
             var scene=JunkerEquipmentSetup.Scene(); var log=new StringBuilder();
@@ -53,21 +53,21 @@ namespace JunkerEquipment.Editor
             log.AppendLine("PASS five slots, existing body references, no missing scripts.");
             File.WriteAllText("Temp/JunkerEquipment.validation",log.ToString());
         }
-        [MenuItem("Tools/Junker Equipment/Run equipment Play Mode validation")]
+        [MenuItem("Zandea/Junker Equipment/Run equipment Play Mode validation")]
         public static void Play()
         {
             Validate(); var scene=SceneManager.GetActiveScene();
             if(scene.isDirty) EditorSceneManager.SaveScene(scene);
             SessionState.SetBool(Flag,true); EditorApplication.isPlaying=true;
         }
-        [MenuItem("Tools/Junker Equipment/Test dropped pistol pickup")]
+        [MenuItem("Zandea/Junker Equipment/Test dropped pistol pickup")]
         public static void TestFloorPickup()
         {
             if(EditorApplication.isPlayingOrWillChangePlaymode)return;
             SessionState.SetBool(FloorFlag,true);
             EditorApplication.isPlaying=true;
         }
-        [MenuItem("Tools/Junker Equipment/Render glove and tool previews")]
+        [MenuItem("Zandea/Junker Equipment/Render glove and tool previews")]
         public static void Previews()
         {
             JunkerEquipmentSetup.Scene();
@@ -81,7 +81,7 @@ namespace JunkerEquipment.Editor
             foreach(var item in UnityEngine.Object.FindObjectsByType<JunkerEquipmentItem>(FindObjectsSortMode.None))
             { var copy=UnityEngine.Object.Instantiate(item.gameObject); copy.transform.SetPositionAndRotation(Vector3.zero,Quaternion.identity); Render(copy,"Temp/item-"+item.itemId+".png",new Vector3(.7f,.5f,-1)); }
         }
-        [MenuItem("Tools/Junker Equipment/Render held tool previews")]
+        [MenuItem("Zandea/Junker Equipment/Render held tool previews")]
         public static void HeldPreviews()
         {
             JunkerEquipmentSetup.Scene();

@@ -567,8 +567,10 @@ namespace MyAssets.PlanetTerrain
         [Header("Terrain tile settings")]
         [SerializeField] private float tileSizeMeters = 1024f;
         [SerializeField] private float maxHeightMeters = 520f;
-        [Tooltip("World-space Y offset applied to every visible terrain tile. Increase this to raise the generated/authored treadmill terrain without changing logical tile coordinates.")]
-        [SerializeField] private float tileVerticalOffsetMeters = 2220f;
+        [Tooltip("World-space Y offset applied to every visible terrain tile. Kenshi terrain stays at its authored world height by default.")]
+        [SerializeField] private float tileVerticalOffsetMeters = 0f;
+        [Tooltip("Allows planet-transition code to move all terrain tiles vertically at runtime. Leave disabled for Kenshi world-space terrain and POIs.")]
+        [SerializeField] private bool allowRuntimeVerticalOffset;
         [SerializeField] private int heightmapResolution = 129;
         [SerializeField] private TerrainLayer[] terrainLayers;
 
@@ -585,7 +587,7 @@ namespace MyAssets.PlanetTerrain
         [SerializeField] private PlanetHeightProvider heightProvider = new PlanetHeightProvider();
 
         [Header("Debug")]
-        [SerializeField] private bool logTiming = true;
+        [SerializeField] private bool logTiming;
         [SerializeField] private bool drawGizmos = true;
 
         private readonly List<TerrainTileView> tiles = new List<TerrainTileView>(25);
@@ -984,6 +986,9 @@ namespace MyAssets.PlanetTerrain
 
         public void SetTileVerticalOffset(float offsetMeters)
         {
+            if (!allowRuntimeVerticalOffset)
+                offsetMeters = 0f;
+
             if (Mathf.Approximately(tileVerticalOffsetMeters, offsetMeters))
                 return;
 

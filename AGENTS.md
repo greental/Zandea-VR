@@ -1,5 +1,10 @@
 # Disk-space rule for this Unity project
 
+# Scene and editor menu organization
+
+- Create and save project-authored Unity scenes under `Assets/Scenes/`. Use subfolders there when helpful. Keep imported third-party sample scenes in their packages.
+- Put project-authored Unity editor menu commands under the top-level `Zandea/` menu, with feature submenus as needed. Do not add new commands under `Tools/`.
+
 - Check free space on D: before and after asset imports, terrain bakes, Unity batch tests, Blender exports, or large validation captures. Do not start a disk-heavy run below 20 GiB free; report the shortage first.
 - Keep one copy of generated intermediate assets. Put disposable logs and exports in a named temporary directory, record its path, and clean that directory when the task finishes if deletion is permitted.
 - Treat `Assets/`, `ProjectSettings/`, `Packages/`, authored TileSets (including `Assets/PlanetPopulation/Generated/Planet_42_0336eccd/`), saved scenes, source downloads, and `TestCaptures/` as user data. Never clear them as cache.

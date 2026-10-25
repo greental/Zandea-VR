@@ -13,10 +13,10 @@ namespace KenshiVR.MeleeCombat.Editor
         const string Input = "Assets/MyAssets/mesh/weapons/Generated";
         const string Output = "Assets/MeleeCombat/GeneratedWeapons";
 
-        [MenuItem("Tools/Melee Combat/Build missing generated weapons")]
+        [MenuItem("Zandea/Melee Combat/Build missing generated weapons")]
         public static void BuildMissing() => Build(false);
 
-        [MenuItem("Tools/Melee Combat/Rebuild generated weapons (discard prefab tuning)")]
+        [MenuItem("Zandea/Melee Combat/Rebuild generated weapons (discard prefab tuning)")]
         public static void RebuildAll() => Build(true);
 
         static void Build(bool overwrite)

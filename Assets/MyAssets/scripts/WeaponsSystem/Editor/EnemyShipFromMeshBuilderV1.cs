@@ -40,14 +40,14 @@ public static class EnemyShipFromMeshBuilderV1
             EditorApplication.delayCall += UpgradeYellowJacketFromSavedScene;
     }
 
-    [MenuItem("Tools/Ships/Build YellowJacket Combat V2")]
+    [MenuItem("Zandea/Ships/Build YellowJacket Combat V2")]
     public static void BuildYellowJacket()
     {
         Build(YellowJacketModelPath, YellowJacketOutputPath, 20f);
         UpgradeYellowJacketFromSavedScene();
     }
 
-    [MenuItem("Tools/Ships/Use Saved YellowJacket Turrets")]
+    [MenuItem("Zandea/Ships/Use Saved YellowJacket Turrets")]
     public static void UpgradeYellowJacketFromSavedScene()
     {
         GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(YellowJacketOutputPath);
@@ -120,7 +120,7 @@ public static class EnemyShipFromMeshBuilderV1
         finally { EditorSceneManager.ClosePreviewScene(preview); }
     }
 
-    [MenuItem("Tools/Ships/Build Enemy Ship From Selected Mesh")]
+    [MenuItem("Zandea/Ships/Build Enemy Ship From Selected Mesh")]
     public static void BuildSelected()
     {
         string path = AssetDatabase.GetAssetPath(Selection.activeObject);
@@ -134,7 +134,7 @@ public static class EnemyShipFromMeshBuilderV1
         Build(path, output, 20f);
     }
 
-    [MenuItem("Tools/Ships/Build Enemy Ship From Selected Mesh", true)]
+    [MenuItem("Zandea/Ships/Build Enemy Ship From Selected Mesh", true)]
     static bool CanBuildSelected() => Selection.activeObject != null &&
         AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GetAssetPath(Selection.activeObject)) != null;
 

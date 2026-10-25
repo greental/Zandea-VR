@@ -7,7 +7,7 @@ namespace JunkerBody.Editor
 {
     public static class JunkerCharacterControllerSetup
     {
-        [MenuItem("Tools/JunkerBody/Apply player Character Controller crouch fit")]
+        [MenuItem("Zandea/JunkerBody/Apply player Character Controller crouch fit")]
         public static void Apply()
         {
             var scene = SceneManager.GetActiveScene();

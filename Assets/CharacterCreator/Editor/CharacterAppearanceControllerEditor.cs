@@ -322,14 +322,13 @@ namespace KenshiVR.CharacterCreator.Editor
                 RandomButton("Randomize all clothing", () => RandomizeClothes(cosmetics,
                     new System.Random(Guid.NewGuid().GetHashCode()), null));
             bool changed = EditorGUI.EndChangeCheck(); so.ApplyModifiedProperties();
-            if (changed) cosmetics.Refresh();
+            if (changed) cosmetics.RefreshSelectedFits();
         }
 
         static void DrawItemSlot(SerializedProperty property, AppearanceSlot slot)
         {
             var items = new List<AppearanceItemDefinition> { null };
-            foreach (string guid in AssetDatabase.FindAssets("t:AppearanceItemDefinition",
-                new[] { "Assets/CharacterCreator/ImportedDownloads/Items" }))
+            foreach (string guid in AssetDatabase.FindAssets("t:AppearanceItemDefinition"))
             {
                 var item = AssetDatabase.LoadAssetAtPath<AppearanceItemDefinition>(AssetDatabase.GUIDToAssetPath(guid));
                 if (item && item.prefab && item.slot == slot && !items.Contains(item)) items.Add(item);
@@ -362,6 +361,13 @@ namespace KenshiVR.CharacterCreator.Editor
                     "; it cannot spawn in the " + slot + " slot.", MessageType.Warning);
             else if (assigned && !assigned.prefab)
                 EditorGUILayout.HelpBox(assigned.name + " has no prefab to spawn.", MessageType.Warning);
+            if (assigned && assigned.prefab && assigned.slot == slot)
+            {
+                var fit = assigned.prefab.transform;
+                EditorGUILayout.HelpBox("Saved fit — Position " + fit.localPosition.ToString("F3") +
+                    "\nRotation " + fit.localEulerAngles.ToString("F1") +
+                    "   Scale " + fit.localScale.ToString("F3"), MessageType.None);
+            }
         }
     }
 }

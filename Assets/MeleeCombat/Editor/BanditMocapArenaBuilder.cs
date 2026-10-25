@@ -6,7 +6,7 @@ using UnityEngine;
 public static class BanditMocapArenaBuilder
 {
     public const string Output = "Assets/MeleeCombat/MocapTest/GeneratedVariants/BoStaffFullCombatArena.unity";
-    [MenuItem("Tools/Melee Combat/Build Bo Staff full combat arena")]
+    [MenuItem("Zandea/Melee Combat/Build Bo Staff full combat arena")]
     public static void Build()
     {
         var scene = EditorSceneManager.OpenScene("Assets/MeleeCombat/BanditDuel.unity");

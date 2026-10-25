@@ -19,7 +19,7 @@ namespace JunkerBody.Editor
     {
         const string Flag = "JunkerBody.PlayValidation";
         static JunkerBodyPlayValidation() { EditorApplication.playModeStateChanged += Changed; }
-        [MenuItem("Tools/JunkerBody/Run synthetic Play Mode validation")]
+        [MenuItem("Zandea/JunkerBody/Run synthetic Play Mode validation")]
         public static void Start()
         {
             if (SceneManager.sceneCount != 1 || SceneManager.GetActiveScene().path != "Assets/Scenes/JunkerBody.unity")

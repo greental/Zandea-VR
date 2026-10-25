@@ -276,6 +276,7 @@ namespace KenshiVR.Bandaging
             return woundMaterial;
         }
         static Material bloodMaterial;
+        static Texture2D bloodDropTexture;
         static Material BloodMaterial()
         {
             if (!bloodMaterial)
@@ -283,6 +284,25 @@ namespace KenshiVR.Bandaging
                 var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
                 bloodMaterial = new Material(shader) { name = "Wound blood droplets" };
                 bloodMaterial.SetColor("_BaseColor", Color.white);
+                bloodDropTexture = new Texture2D(32, 32, TextureFormat.RGBA32, false)
+                { name = "Soft blood droplet", wrapMode = TextureWrapMode.Clamp };
+                var pixels = new Color32[32 * 32];
+                for (int y = 0; y < 32; y++) for (int x = 0; x < 32; x++)
+                {
+                    float dx = (x + .5f) / 16f - 1f, dy = (y + .5f) / 16f - 1f;
+                    float alpha = Mathf.Clamp01((1f - Mathf.Sqrt(dx * dx + dy * dy)) * 5f);
+                    pixels[y * 32 + x] = new Color32(255, 255, 255, (byte)(alpha * 255f));
+                }
+                bloodDropTexture.SetPixels32(pixels); bloodDropTexture.Apply(false, true);
+                bloodMaterial.SetTexture("_BaseMap", bloodDropTexture);
+                bloodMaterial.SetTexture("_MainTex", bloodDropTexture);
+                bloodMaterial.SetFloat("_Surface", 1f);
+                bloodMaterial.SetFloat("_SrcBlend", 5f);
+                bloodMaterial.SetFloat("_DstBlend", 10f);
+                bloodMaterial.SetFloat("_ZWrite", 0f);
+                bloodMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                bloodMaterial.SetOverrideTag("RenderType", "Transparent");
+                bloodMaterial.renderQueue = 3000;
             }
             return bloodMaterial;
         }

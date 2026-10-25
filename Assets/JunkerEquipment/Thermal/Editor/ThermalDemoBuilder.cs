@@ -54,7 +54,7 @@ namespace JunkerEquipment.Thermal.Editor
         { var scan=go.AddComponent<ScannableObject>(); scan.displayName=go.name; scan.category="Thermal work"; scan.highlightKind=ScanHighlightKind.Cut; scan.providers=new ScanInfoProvider[]{target}; }
         static void Label(Transform parent,string text,Vector3 pos)
         { var t=Child(parent,"Instructions",pos).gameObject.AddComponent<TextMesh>(); t.text=text; t.characterSize=.025f; t.fontSize=48; t.anchor=TextAnchor.MiddleCenter; t.alignment=TextAlignment.Center; }
-        [MenuItem("Tools/Junker Equipment/Thermal/Build separate demo scene")]
+        [MenuItem("Zandea/Junker Equipment/Thermal/Build separate demo scene")]
         public static void Build()
         {
             if(EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Build in Edit mode.");

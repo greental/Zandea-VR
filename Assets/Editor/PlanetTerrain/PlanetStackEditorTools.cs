@@ -6,7 +6,7 @@ using UnityEngine;
 
 public static class PlanetStackEditorTools
 {
-    [MenuItem("Tools/Koombar/Planet Terrain/Create Planet Stack")]
+    [MenuItem("Zandea/Koombar/Planet Terrain/Create Planet Stack")]
     public static void CreatePlanetStack()
     {
         GameObject planetObject = new GameObject(GetUniqueRootName("PlanetStack"));

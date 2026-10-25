@@ -17,7 +17,7 @@ namespace JunkerEquipment.Thermal.Editor
             if(!File.Exists(Request) || EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode)return;
             File.Delete(Request); File.WriteAllText("Temp/JunkerThermal.audit-result",Audit());
         }
-        [MenuItem("Tools/Junker Equipment/Thermal/Audit scene fixtures")]
+        [MenuItem("Zandea/Junker Equipment/Thermal/Audit scene fixtures")]
         public static string Audit()
         {
             var scene=SceneManager.GetSceneByPath(ThermalDemoBuilder.ScenePath);

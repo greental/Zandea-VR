@@ -19,7 +19,7 @@ namespace VRKoombar.Tools.Editor
         private string _outputFolder = DefaultOutputFolder;
         private bool _overwriteExisting = true;
 
-        [MenuItem("Tools/VR Koombar/GLB to FBX Batch")]
+        [MenuItem("Zandea/VR Koombar/GLB to FBX Batch")]
         private static void OpenWindow()
         {
             var window = GetWindow<GlbToFbxBatchPipeline>("GLB -> FBX");

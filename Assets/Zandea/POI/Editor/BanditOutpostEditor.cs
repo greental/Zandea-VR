@@ -75,7 +75,7 @@ namespace Zandea.POI.Editor
             }
             finally { UnityEngine.Object.DestroyImmediate(instance); }
         }
-        [MenuItem("Tools/Zandea/POI/Install Bandit Outpost Slice")]
+        [MenuItem("Zandea/POI/Install Bandit Outpost Slice")]
         public static void Install()
         {
             if (EditorApplication.isPlaying) throw new Exception("Exit Play Mode before installation.");

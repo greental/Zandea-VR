@@ -40,7 +40,7 @@ public static class StrudValidation
         }
         catch (Exception e) { Finish(false, e.ToString()); }
     }
-    [MenuItem("Tools/Zandea/Wildlife/Validate Strud Assets")]
+    [MenuItem("Zandea/Wildlife/Validate Strud Assets")]
     public static void ValidateAssets()
     {
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(StrudBuilder.Folder + "/Strud.prefab");

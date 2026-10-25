@@ -3486,14 +3486,7 @@ CapsuleCollider:
   m_Height: 1.75
   m_Direction: 1
   m_Center: {x: 0, y: 0.875, z: 0}
---- !u!195 &2883942759482754480
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3090418566522109919}
-  m_Enabled: 1
+$10
   m_AgentTypeID: 0
   m_Radius: 0.28
   m_Speed: 3.5
@@ -3565,6 +3558,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
   state: 3
+  hostileToPlayer: 1
   target: {fileID: 0}
   weaponGoal: {fileID: 3424664490965279871}
   staff: {fileID: 0}
@@ -5107,6 +5101,9 @@ MonoBehaviour:
   maxDepenetrationSpeed: 2.5
   deathLinearDamping: 0.15
   deathAngularDamping: 0.3
+  carriedMassMultiplier: 1.8
+  carriedLinearDamping: 0.8
+  carriedAngularDamping: 1.2
   knockdownImpulse: 5
   maximumNavMeshRecoveryDistance: 0.8
   getUpBlendSeconds: 0.65
@@ -5236,6 +5233,7 @@ MonoBehaviour:
   feet: {fileID: 0}
   hands: {fileID: 0}
   outerArmor: {fileID: 0}
+  headPresent: 1
 --- !u!114 &7764640233951025878
 MonoBehaviour:
   m_ObjectHideFlags: 0

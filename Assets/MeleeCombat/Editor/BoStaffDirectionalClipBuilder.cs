@@ -10,7 +10,7 @@ public static class BoStaffDirectionalClipBuilder
     public static readonly string[] Names = { "Overhead", "DiagonalRight", "HorizontalRight", "LowRight",
         "Thrust", "LowLeft", "HorizontalLeft", "DiagonalLeft" };
 
-    [MenuItem("Tools/Melee Combat/Build directional Bo Staff clips")]
+    [MenuItem("Zandea/Melee Combat/Build directional Bo Staff clips")]
     public static void Build()
     {
         if (!AssetDatabase.IsValidFolder(Folder))

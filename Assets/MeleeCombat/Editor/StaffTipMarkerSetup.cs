@@ -21,7 +21,7 @@ namespace KenshiVR.MeleeCombat.Editor
             };
         }
 
-        [MenuItem("Tools/Melee Combat/Calibrate staff tip markers")]
+        [MenuItem("Zandea/Melee Combat/Calibrate staff tip markers")]
         public static void CalibrateLoadedScene()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;

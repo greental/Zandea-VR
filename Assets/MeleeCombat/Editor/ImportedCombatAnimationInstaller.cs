@@ -26,7 +26,7 @@ public static class ImportedCombatAnimationInstaller
         return clip ? clip : throw new InvalidOperationException("Imported animation missing: " + path);
     }
 
-    [MenuItem("Tools/Melee Combat/Install imported combat animations")]
+    [MenuItem("Zandea/Melee Combat/Install imported combat animations")]
     public static void Install()
     {
         int oneHand = 0, twoHand = 0;

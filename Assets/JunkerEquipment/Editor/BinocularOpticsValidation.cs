@@ -30,7 +30,7 @@ namespace JunkerEquipment.Editor
             Validate();
         }
 
-        [MenuItem("Tools/Junker Equipment/Validate binocular optics rendering")]
+        [MenuItem("Zandea/Junker Equipment/Validate binocular optics rendering")]
         public static void Validate()
         {
             var report = new StringBuilder();

@@ -34,7 +34,7 @@ public static class DesertOutpostPrefabBuilder
         BuildSplitLights();
     }
 
-    [MenuItem("Tools/Koombar/Desert Outpost/Build Split Light Prefabs")]
+    [MenuItem("Zandea/Koombar/Desert Outpost/Build Split Light Prefabs")]
     public static void BuildSplitLights()
     {
         EnsureFolder(OutputFolder);
@@ -61,7 +61,7 @@ public static class DesertOutpostPrefabBuilder
         BuildAll();
     }
 
-    [MenuItem("Tools/Koombar/Desert Outpost/Build Game Ready Prefabs")]
+    [MenuItem("Zandea/Koombar/Desert Outpost/Build Game Ready Prefabs")]
     public static void BuildAll()
     {
         EnsureFolder("Assets/MyAssets/prefabs/buildings");

@@ -16,7 +16,7 @@ namespace KenshiVR.CharacterCreator.Editor
         const int Width = 960;
         const int Height = 1200;
 
-        [MenuItem("Tools/Character Creator/Build Random Character Showcase")]
+        [MenuItem("Zandea/Character Creator/Build Random Character Showcase")]
         public static void Build()
         {
             Directory.CreateDirectory(Output + "/Snapshots");

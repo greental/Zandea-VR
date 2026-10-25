@@ -16,7 +16,7 @@ namespace KenshiVR.MeleeCombat.Editor
         const string SharedArena = "Assets/MeleeCombat/MocapTest/GeneratedVariants/BoStaffUnifiedVRArena.unity";
 
 
-        [MenuItem("Tools/Melee Combat/Build unified Bo Staff prototype")]
+        [MenuItem("Zandea/Melee Combat/Build unified Bo Staff prototype")]
         public static void Build()
         {
             var source = AssetDatabase.LoadAssetAtPath<GameObject>(SourceNpc);

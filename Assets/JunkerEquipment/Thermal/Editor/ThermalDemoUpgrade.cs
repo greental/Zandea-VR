@@ -30,7 +30,7 @@ namespace JunkerEquipment.Thermal.Editor
             try { Upgrade(); File.WriteAllText(Report,"PASS: PLS-T inventory prefab, dedicated right-hip slots, and thermal scene updated."); }
             catch(Exception e) { File.WriteAllText(Report,e.ToString()); Debug.LogException(e); }
         }
-        [MenuItem("Tools/Junker Equipment/Thermal/Reload saved demo")]
+        [MenuItem("Zandea/Junker Equipment/Thermal/Reload saved demo")]
         public static void ReloadDemo()
         {
             var scene=SceneManager.GetActiveScene();
@@ -68,7 +68,7 @@ namespace JunkerEquipment.Thermal.Editor
             if(rig.slots==null || !rig.slots.Contains(slot)) rig.slots=(rig.slots??Array.Empty<JunkerEquipmentSlot>()).Append(slot).ToArray();
             return slot;
         }
-        [MenuItem("Tools/Junker Equipment/Thermal/Upgrade PLS-T inventory and pipe demo")]
+        [MenuItem("Zandea/Junker Equipment/Thermal/Upgrade PLS-T inventory and pipe demo")]
         public static void Upgrade()
         {
             if(EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Upgrade in Edit mode.");

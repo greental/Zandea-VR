@@ -35,7 +35,7 @@ public static class HoverBikeValidation
         };
     }
 
-    [MenuItem("Tools/JunkerBody/Test Pyxol2 interaction")]
+    [MenuItem("Zandea/JunkerBody/Test Pyxol2 interaction")]
     public static void Run()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode) return;
@@ -43,7 +43,7 @@ public static class HoverBikeValidation
         EditorApplication.isPlaying = true;
     }
 
-    [MenuItem("Tools/JunkerBody/Inspect Pyxol2 physics")]
+    [MenuItem("Zandea/JunkerBody/Inspect Pyxol2 physics")]
     public static void InspectPhysics()
     {
         var vehicle=UnityEngine.Object.FindFirstObjectByType<HoverBikeController>();

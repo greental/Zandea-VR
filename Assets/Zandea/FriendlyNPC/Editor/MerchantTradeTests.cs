@@ -87,6 +87,9 @@ namespace Zandea.FriendlyNPC.Editor
             counter.buyArea = Zone("Buy", Vector3.left);
             counter.sellArea = Zone("Sell", Vector3.right);
             counter.paymentSpot = Zone("Payment", Vector3.forward);
+            counter.buyArea.transform.SetParent(counter.transform, true);
+            counter.sellArea.transform.SetParent(counter.transform, true);
+            counter.paymentSpot.transform.SetParent(counter.transform, true);
             var payoutPoint = Root("Payout point");
             payoutPoint.transform.position = Vector3.forward * 1.5f;
             counter.payoutPosition = payoutPoint.transform;
@@ -112,17 +115,26 @@ namespace Zandea.FriendlyNPC.Editor
             purseObject.SetActive(true);
 
             var sword = Item("Sword", Definition("sword", 80), vendor.vendorId, Vector3.left);
+            sword.transform.localScale = new Vector3(.12f, .12f, 1.8f);
             var scrap = Item("Scrap", Definition("scrap", 90), "player", Vector3.right);
             counter.TryOffer(sword);
             counter.TryOffer(scrap);
+            Assert.IsTrue(sword.IsFloatingForTrade, "Long stock must stay at its released pose");
+            Assert.IsTrue(sword.GetComponent<Rigidbody>().isKinematic);
+            Assert.IsTrue(scrap.IsFloatingForTrade);
+            var swordPosition = sword.transform.position;
+            yield return new WaitForFixedUpdate();
+            Assert.AreEqual(swordPosition, sword.transform.position);
             Assert.AreEqual(-35, counter.NetCats);
-            Assert.IsFalse(counter.Ready);
-            counter.TryPresentPurse(purse);
-            Assert.IsTrue(counter.Ready);
+            Assert.IsTrue(counter.Ready, "The payment trigger must recognize the released purse");
             Assert.IsTrue(counter.TryCommit());
             Assert.AreEqual(65, purse.Cats);
             Assert.AreEqual(435, counter.MerchantCats);
             Assert.AreEqual("player", sword.ownerId);
+            Assert.IsTrue(sword.IsFloatingForTrade, "Purchased stock remains accessible above the counter");
+            sword.ReleaseTradeHold();
+            Assert.IsFalse(sword.IsFloatingForTrade, "Grabbing restores the original body state");
+            Assert.IsFalse(sword.GetComponent<Rigidbody>().isKinematic);
             Assert.AreEqual(vendor.vendorId, scrap.ownerId);
             Assert.IsFalse(counter.TryCommit(), "Repeated handshake must not recommit");
 
@@ -150,7 +162,17 @@ namespace Zandea.FriendlyNPC.Editor
             Assert.AreEqual(115, purse.Cats);
             Assert.AreEqual(vendor.vendorId, costly.ownerId);
 
+            var staff = Item("Long staff", Definition("staff", 20), vendor.vendorId,
+                new Vector3(-1.55f, 0, 0));
+            staff.transform.localScale = new Vector3(1.6f, .1f, .1f);
+            Physics.SyncTransforms();
+            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate();
+            Assert.IsTrue(staff.IsFloatingForTrade,
+                "A long item's collider must trigger the holding box even when its pivot is outside");
+
             npc.EndConversation();
+            Assert.IsTrue(staff.IsFloatingForTrade, "Cancelled goods stay retrievable above the counter");
             Assert.AreEqual(115, purse.Cats, "Cancellation cannot debit the purse");
             Assert.AreEqual(385, counter.MerchantCats);
             foreach (var value in created) if (value) UnityEngine.Object.Destroy(value);

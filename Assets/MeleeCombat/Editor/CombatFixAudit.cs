@@ -26,7 +26,7 @@ public static class CombatFixAudit
         catch (Exception error) { File.WriteAllText(Result, "FAIL " + error); Debug.LogException(error); }
     }
 
-    [MenuItem("Tools/Melee Combat/Audit current combat fixes")]
+    [MenuItem("Zandea/Melee Combat/Audit current combat fixes")]
     public static void Run() => Debug.Log(RunAudit());
 
     static string RunAudit()

@@ -12,14 +12,19 @@ namespace Zandea.Props
         HingeJoint hinge;
         Mesh runtimeMesh;
         bool lastOpen;
-        void Awake()
+        bool configured;
+        void Awake() => Configure();
+        void Start() => Configure();
+        public void Configure()
         {
+            if (configured) return;
             hinge = GetComponent<HingeJoint>();
             var body = GetComponent<Rigidbody>();
             var grab = GetComponent<XRGrabInteractable>();
             if (!container || !body || !grab) return;
             var baseBody = container.GetComponent<Rigidbody>();
             if (!baseBody) return;
+            configured = true;
             hinge.connectedBody = null;
             body.isKinematic = true;
             var filter = GetComponent<MeshFilter>();

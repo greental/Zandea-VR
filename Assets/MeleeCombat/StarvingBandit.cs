@@ -358,9 +358,23 @@ namespace KenshiVR.MeleeCombat
         }
         void Start()
         {
+            if (agent && !agent.enabled) StartCoroutine(EnableAgentWhenNavigationExists());
             if (staff && !GetComponent<BanditDuelStrikeDamage>()) gameObject.AddComponent<BanditDuelStrikeDamage>();
             CaptureGuard();
             nextAttack = Time.time + initialAttackDelay;
+        }
+        System.Collections.IEnumerator EnableAgentWhenNavigationExists()
+        {
+            while (agent && !agent.enabled)
+            {
+                if (NavMesh.SamplePosition(transform.position, out var hit, 8f, NavMesh.AllAreas))
+                {
+                    transform.position = hit.position;
+                    agent.enabled = true;
+                    yield break;
+                }
+                yield return new WaitForSeconds(.25f);
+            }
         }
         public void ResetAttackSchedule() => nextAttack = Time.time + initialAttackDelay;
         public void InterruptCombatForKnockout()

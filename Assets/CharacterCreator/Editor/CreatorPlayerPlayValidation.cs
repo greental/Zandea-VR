@@ -22,7 +22,7 @@ namespace KenshiVR.CharacterCreator.Editor
 
         static CreatorPlayerPlayValidation() => EditorApplication.update += Tick;
 
-        [MenuItem("Tools/Character Creator/Validate Man player in Play Mode")]
+        [MenuItem("Zandea/Character Creator/Validate Man player in Play Mode")]
         public static void Run() { File.WriteAllText(Request, "run"); Tick(); }
 
         static void Tick()

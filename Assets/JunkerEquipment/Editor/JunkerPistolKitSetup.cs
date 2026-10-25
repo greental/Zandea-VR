@@ -21,7 +21,7 @@ namespace JunkerEquipment.Editor
         const string ClickPath = "Assets/MyAssets/Audio/switch1.mp3";
         const string LaserMaterialPath = "Assets/laserShotMat.mat";
 
-        [MenuItem("Tools/Junker Equipment/Configure JKR-88 laser shot")]
+        [MenuItem("Zandea/Junker Equipment/Configure JKR-88 laser shot")]
         public static void ConfigureJkrLaserShot()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
@@ -47,7 +47,7 @@ namespace JunkerEquipment.Editor
             Debug.Log("JKR-88 laser bolt configured; Razara prefab and firing system were not changed.", prefab);
         }
 
-        [MenuItem("Tools/Junker Equipment/Create JKR-88 pistol and scene pickup")]
+        [MenuItem("Zandea/Junker Equipment/Create JKR-88 pistol and scene pickup")]
         public static void CreateJkr88()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
@@ -211,7 +211,7 @@ namespace JunkerEquipment.Editor
             finally { PrefabUtility.UnloadPrefabContents(root); }
         }
 
-        [MenuItem("Tools/Junker Equipment/Inspect JKR-88 pistol")]
+        [MenuItem("Zandea/Junker Equipment/Inspect JKR-88 pistol")]
         public static void InspectJkr88()
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
@@ -247,7 +247,7 @@ namespace JunkerEquipment.Editor
         const string PreviousScene = "JunkerEquipment.Jkr88PreviousScene";
         static Jkr88PlayValidation() { EditorApplication.playModeStateChanged += Changed; }
 
-        [MenuItem("Tools/Junker Equipment/Test JKR-88 pistol")]
+        [MenuItem("Zandea/Junker Equipment/Test JKR-88 pistol")]
         public static void Run()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
@@ -495,7 +495,7 @@ namespace JunkerEquipment.Editor
         const string Flag = "JunkerEquipment.JkrLaserValidation";
         static JkrLaserPlayValidation() { EditorApplication.playModeStateChanged += Changed; }
 
-        [MenuItem("Tools/Junker Equipment/Test JKR-88 laser shot")]
+        [MenuItem("Zandea/Junker Equipment/Test JKR-88 laser shot")]
         public static void Run()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;

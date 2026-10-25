@@ -2171,14 +2171,7 @@ CapsuleCollider:
   m_Height: 1.75
   m_Direction: 1
   m_Center: {x: 0, y: 0.875, z: 0}
---- !u!195 &663954065565343347
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1548987744677308204}
-  m_Enabled: 1
+$10
   m_AgentTypeID: 0
   m_Radius: 0.28
   m_Speed: 3.5

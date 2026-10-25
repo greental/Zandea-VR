@@ -8,7 +8,7 @@ namespace JunkerEquipment.Editor
 {
     public static class JunkerAssetInspection
     {
-        [MenuItem("Tools/Junker Equipment/Inspect source models")]
+        [MenuItem("Zandea/Junker Equipment/Inspect source models")]
         public static void Inspect()
         {
             var s = new StringBuilder();
@@ -23,7 +23,7 @@ namespace JunkerEquipment.Editor
             }
             File.WriteAllText("Temp/JunkerEquipment.inspection",s.ToString());
         }
-        [MenuItem("Tools/Junker Equipment/Inspect scene interactions")]
+        [MenuItem("Zandea/Junker Equipment/Inspect scene interactions")]
         public static void Interactions()
         {
             var s=new StringBuilder();var body=UnityEngine.Object.FindFirstObjectByType<JunkerBody.VRBodyController>();

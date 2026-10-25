@@ -27,7 +27,7 @@ public static class CorpseGrabPlayValidation
 
     static CorpseGrabPlayValidation() => EditorApplication.update += Tick;
 
-    [MenuItem("Tools/Melee Combat/Validate grabbable and severable corpse")]
+    [MenuItem("Zandea/Melee Combat/Validate grabbable and severable corpse")]
     public static void Run() { File.WriteAllText(Request, "run"); Tick(); }
 
     static void Tick()

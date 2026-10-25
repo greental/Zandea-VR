@@ -12,7 +12,7 @@ namespace KenshiVR.CharacterCreator.Editor
         [InitializeOnLoadMethod]
         static void Queue() => EditorApplication.delayCall += Run;
 
-        [MenuItem("Tools/Character Creator/Validate V2 appearance")]
+        [MenuItem("Zandea/Character Creator/Validate V2 appearance")]
         public static void Run()
         {
             const string modelPath = "Assets/CharacterCreator/Models/male_creator.glb";

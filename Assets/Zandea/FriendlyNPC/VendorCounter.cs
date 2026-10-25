@@ -24,6 +24,7 @@ namespace Zandea.FriendlyNPC
         bool trading;
         bool ready;
         bool committing;
+        bool acknowledgedSale;
 
         sealed class Offer
         {
@@ -38,6 +39,7 @@ namespace Zandea.FriendlyNPC
         public int CommittedTransactions => committedTransactions;
         public int NetCats { get; private set; }
         public bool Ready => ready;
+        public bool Trading => trading;
 
         void Awake()
         {
@@ -83,7 +85,7 @@ namespace Zandea.FriendlyNPC
 
         void OnTradingChanged(bool enabled)
         {
-            if (enabled) { trading = true; Recalculate(); }
+            if (enabled) { trading = true; acknowledgedSale = false; Recalculate(); }
             else Cancel();
         }
 
@@ -97,14 +99,14 @@ namespace Zandea.FriendlyNPC
         {
             if (!trading || !item || item.IsHeld || !configuration ||
                 string.IsNullOrEmpty(item.InstanceId) || item.GetComponent<CurrencyPouch>()) return;
-            bool buying = buyArea && buyArea.Contains(item.transform.position) &&
+            bool buying = buyArea && buyArea.Contains(item) &&
                 item.ownerId == configuration.vendorId;
-            bool selling = !buying && sellArea && sellArea.Contains(item.transform.position) &&
+            bool selling = !buying && sellArea && sellArea.Contains(item) &&
                 item.ownerId == "player";
             if (!buying && !selling)
             {
-                if (buyArea && buyArea.Contains(item.transform.position) ||
-                    sellArea && sellArea.Contains(item.transform.position))
+                if (buyArea && buyArea.Contains(item) ||
+                    sellArea && sellArea.Contains(item))
                     merchant?.PlayContextLine("item_rejected_001");
                 return;
             }
@@ -121,7 +123,15 @@ namespace Zandea.FriendlyNPC
                 offer.label.color = buying ? new Color(1f, .28f, .25f) : new Color(.35f, 1f, .48f);
             }
             offers.Add(item.InstanceId, offer);
+            // The accepted object stays at the exact released pose, including long stock.
+            // Grabbing it restores normal XR physics and removes its quote.
+            item.HoldForTrade();
             Recalculate();
+            if (selling && !acknowledgedSale)
+            {
+                acknowledgedSale = true;
+                merchant?.QueueBark("sell_ack_001");
+            }
         }
         public void TryOffer(TradeItem item) => OnItemReleased(item);
 
@@ -146,8 +156,11 @@ namespace Zandea.FriendlyNPC
             ready = false;
             if (handshake) handshake.Arm(false);
             foreach (var offer in offers.Values) if (offer.label) Destroy(offer.label.gameObject);
+            // Keep cancelled goods safely suspended until their owner collects them.
+            // Their offers are gone, so no cancelled item contributes to a later trade.
             offers.Clear();
             paymentPurse = null;
+            acknowledgedSale = false;
             NetCats = 0;
             if (netLabel) netLabel.gameObject.SetActive(false);
         }
@@ -162,15 +175,28 @@ namespace Zandea.FriendlyNPC
                 net += offer.zone == sellArea ? offer.quote : -offer.quote;
             if (net < int.MinValue || net > int.MaxValue) return;
             NetCats = (int)net;
+            ready = Validate(out _);
             if (netLabel)
             {
                 netLabel.gameObject.SetActive(trading && offers.Count > 0);
-                netLabel.text = NetCats < 0 ? "You owe " + (-net) + " cats" :
-                    NetCats > 0 ? "Merchant owes " + net + " cats" : "Even exchange";
+                if (NetCats < 0)
+                {
+                    int due = -NetCats;
+                    netLabel.text = !paymentPurse ? "Pay " + due + " cats\nPlace purse on spot" :
+                        !paymentPurse.CanDebit(due) ? "Pay " + due + " cats\nPurse has " + paymentPurse.Cats :
+                        "Pay " + due + " cats\nGrip offered hand";
+                    netLabel.color = new Color(1f, .4f, .36f);
+                }
+                else
+                {
+                    netLabel.text = NetCats > 0 ? "Receive " + net + " cats\nGrip offered hand" :
+                        "Even exchange\nGrip offered hand";
+                    netLabel.color = new Color(.45f, 1f, .55f);
+                }
             }
-            ready = Validate(out _);
             if (handshake) handshake.Arm(ready);
-            if (ready && !previouslyReady) merchant?.PlayContextLine("transaction_ready_001");
+            if (!ready) merchant?.WithdrawContextLine("transaction_ready_001");
+            if (ready && !previouslyReady) merchant?.QueueContextLine("transaction_ready_001");
             else if (!ready && NetCats > 0 && merchantCats < NetCats)
                 merchant?.PlayContextLine("merchant_lacks_funds_001");
         }
@@ -189,7 +215,7 @@ namespace Zandea.FriendlyNPC
                 if (!item || !item.isActiveAndEnabled || item.IsHeld || item.InstanceId != pair.Key ||
                     item.ownerId != offer.originalOwner ||
                     offer.originalOwner != (buying ? configuration.vendorId : "player") ||
-                    !offer.zone || !offer.zone.Contains(item.transform.position) ||
+                    !offer.zone || !offer.zone.Contains(item) ||
                     configuration.Quote(item, buying) != offer.quote || item.GetComponent<CurrencyPouch>())
                 { reason = "Offer changed"; return false; }
                 net += buying ? -offer.quote : offer.quote;

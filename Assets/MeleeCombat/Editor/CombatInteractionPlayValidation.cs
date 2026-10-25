@@ -25,7 +25,7 @@ public static class CombatInteractionPlayValidation
 
     static CombatInteractionPlayValidation() => EditorApplication.update += Tick;
 
-    [MenuItem("Tools/Melee Combat/Validate generated weapon pickup in Play mode")]
+    [MenuItem("Zandea/Melee Combat/Validate generated weapon pickup in Play mode")]
     public static void Run()
     {
         File.WriteAllText(Request, "run");

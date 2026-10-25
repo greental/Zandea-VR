@@ -103,7 +103,7 @@ namespace KenshiVR.CharacterCreator.Editor
             }
         }
 
-        [MenuItem("Tools/Character Creator/Import Downloaded Wardrobe")]
+        [MenuItem("Zandea/Character Creator/Import Downloaded Wardrobe")]
         public static void Import()
         {
             if (AssetDatabase.FindAssets("t:AppearanceItemDefinition", new[] { Items }).Length > 0)
@@ -147,7 +147,7 @@ namespace KenshiVR.CharacterCreator.Editor
             finally { UnityEngine.Object.DestroyImmediate(reference); }
         }
 
-        [MenuItem("Tools/Character Creator/Validate Downloaded Wardrobe")]
+        [MenuItem("Zandea/Character Creator/Validate Downloaded Wardrobe")]
         public static void Validate()
         {
             var model = AssetDatabase.LoadAssetAtPath<GameObject>(ModelPath);

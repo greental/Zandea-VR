@@ -6,7 +6,7 @@ using UnityEngine;
 public static class BoStaffDirectionalPreviewBuilder
 {
     const string Folder = "Assets/MeleeCombat/MocapTest/GeneratedVariants";
-    [MenuItem("Tools/Melee Combat/Build Bo Staff directional preview")]
+    [MenuItem("Zandea/Melee Combat/Build Bo Staff directional preview")]
     public static void Build()
     {
         var scene = EditorSceneManager.OpenScene(Folder + "/BoStaffPreview.unity");

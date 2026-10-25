@@ -33,7 +33,7 @@ namespace KenshiVR.CharacterCreator.Editor
             public readonly Dictionary<Vector3Int, List<int>> grid = new Dictionary<Vector3Int, List<int>>();
         }
 
-        [MenuItem("Tools/Character Creator/Bake Fitted Wardrobe Rig")]
+        [MenuItem("Zandea/Character Creator/Bake Fitted Wardrobe Rig")]
         public static void Bake()
         {
             BakeItems(Names);

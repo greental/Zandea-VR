@@ -13,17 +13,13 @@ MonoBehaviour:
   m_Name: bandit_rib_vest
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.AppearanceItemDefinition
   slot: 3
-  prefab: {fileID: 777099946049152561, guid: 893833eeb810ee74fb2ca6dee7b83e34, type: 3}
+  prefab: {fileID: 7197164069625975706, guid: f958d09eeaffe9545adf9227e6e0d7ae, type: 3}
   attachBoneName: CC_Base_Spine02_035
-  skinned: 1
-  requiredMorphs:
-  - WeightThin
-  - WeightHeavy
-  - MuscularitySlim
-  - MuscularityMuscular
+  skinned: 0
+  requiredMorphs: []
   hideRendererNames: []
   styleFamily: bandit
-  fitNote: Skinned fit authored and mesh-baked in Assets/CharacterCreator/ImportedArmor/ArmorFittingsEditable.unity.
+  fitNote: Fit captured from Assets/Scenes/CharacterCreator/ChestArmorFittings.unity.
   hideHair: 0
   coversOutfit: 0
   randomWeight: 1

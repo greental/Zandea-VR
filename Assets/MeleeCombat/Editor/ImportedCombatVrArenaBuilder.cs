@@ -17,7 +17,7 @@ public static class ImportedCombatVrArenaBuilder
     const string SwordMesh = "Assets/MyAssets/mesh/weapons/Generated/Gemini_Generated_Image_rm5g6jrm5g6jrm5g.glb";
     const string SwordPrefab = "Assets/MeleeCombat/MocapTest/GeneratedVariants/PlayerPracticeLongBlade.prefab";
 
-    [MenuItem("Tools/Melee Combat/Build VR imported combat arena")]
+    [MenuItem("Zandea/Melee Combat/Build VR imported combat arena")]
     public static void Build()
     {
         var source = AssetDatabase.LoadAssetAtPath<GameObject>(SwordMesh);

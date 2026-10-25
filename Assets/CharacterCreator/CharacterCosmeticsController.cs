@@ -15,12 +15,22 @@ namespace KenshiVR.CharacterCreator
         [SerializeField, HideInInspector] bool headPresent = true;
         readonly Dictionary<AppearanceSlot, AppearanceSpawnedItem> spawned = new Dictionary<AppearanceSlot, AppearanceSpawnedItem>();
         readonly Dictionary<Renderer, bool> hiddenByAppearance = new Dictionary<Renderer, bool>();
+        bool refreshFromInspector;
         static readonly int BaseColor = Shader.PropertyToID("baseColorFactor");
         static readonly int DiffuseColor = Shader.PropertyToID("diffuseFactor");
         static readonly int UnityBaseColor = Shader.PropertyToID("_BaseColor");
         static readonly int UnityColor = Shader.PropertyToID("_Color");
 
-        void OnEnable() { if (!appearance) appearance = GetComponent<CharacterAppearanceController>(); Refresh(); }
+        void OnEnable()
+        {
+            if (!appearance) appearance = GetComponent<CharacterAppearanceController>();
+#if UNITY_EDITOR
+            // A fitting scene is authored by moving or replacing scene objects.
+            // Rebuilding cosmetics as it loads destroys those unsaved-in-prefab edits.
+            if (!Application.isPlaying && gameObject.scene.path.Contains("ArmorFittings")) return;
+#endif
+            Refresh();
+        }
         void OnValidate()
         {
 #if UNITY_EDITOR
@@ -66,7 +76,7 @@ namespace KenshiVR.CharacterCreator
             var currentItems = new List<AppearanceSpawnedItem>();
             foreach (var existing in AppearanceItems())
                 if (existing.slot == slot) currentItems.Add(existing);
-            if (definition && currentItems.Count > 0 &&
+            if (definition && currentItems.Count > 0 && !(refreshFromInspector && definition.skinned) &&
                 currentItems.TrueForAll(existing => existing && existing.definition == definition))
             {
                 // A clothing prefab can contain duplicate bone names. Repair old
@@ -85,7 +95,12 @@ namespace KenshiVR.CharacterCreator
                             // Refresh may reuse a helmet that was spawned before its
                             // fitting prefab was captured. Reapply the complete saved
                             // prefab hierarchy so Inspector changes become visible now.
-                            ApplyAuthoredRigidFit(existing.transform, definition.prefab.transform);
+#if UNITY_EDITOR
+                            // Scene fitting previews carry authored overrides. Reapplying the
+                            // prefab here erases them every time the scene is opened/validated.
+                            if (Application.isPlaying || refreshFromInspector || !existing.GetComponent<ArmorShowcaseEntry>())
+#endif
+                                ApplyAuthoredRigidFit(existing.transform, definition.prefab.transform);
                         }
                 }
                 spawned[slot] = currentItems[0]; return;
@@ -118,6 +133,12 @@ namespace KenshiVR.CharacterCreator
 #if UNITY_EDITOR
             if (!Application.isPlaying) UnityEditor.Undo.RegisterCreatedObjectUndo(instance, "Equip appearance item");
 #endif
+        }
+        public void RefreshSelectedFits()
+        {
+            refreshFromInspector = true;
+            try { Refresh(); }
+            finally { refreshFromInspector = false; }
         }
         IEnumerable<AppearanceSpawnedItem> AppearanceItems()
         {

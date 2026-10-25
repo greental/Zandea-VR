@@ -85,7 +85,7 @@ namespace JunkerBody.Editor
             }
             return limb;
         }
-        [MenuItem("Tools/JunkerBody/Configure scene")]
+        [MenuItem("Zandea/JunkerBody/Configure scene")]
         public static void Configure()
         {
             if (EditorApplication.isPlaying) throw new InvalidOperationException("Configure in Edit Mode.");
@@ -158,7 +158,7 @@ namespace JunkerBody.Editor
             if (opened) EditorSceneManager.CloseScene(scene, true);
             File.WriteAllText("Temp/JunkerBody.result", "CONFIGURED and saved JunkerBody.\n" + File.ReadAllText("Temp/JunkerBody.validation"));
         }
-        [MenuItem("Tools/JunkerBody/Inspect fit and floor")]
+        [MenuItem("Zandea/JunkerBody/Inspect fit and floor")]
         public static void InspectFit()
         {
             var scene = SceneManager.GetSceneByPath(ScenePath);
@@ -193,7 +193,7 @@ namespace JunkerBody.Editor
             body.headPositionOffset = Quaternion.Inverse(body.avatarRoot.rotation) * (body.head.position - eye);
             body.headPositionOffset.x = 0f;
         }
-        [MenuItem("Tools/JunkerBody/Apply avatar size and eye offset")]
+        [MenuItem("Zandea/JunkerBody/Apply avatar size and eye offset")]
         public static void FitStandingHeight()
         {
             if (EditorApplication.isPlaying) throw new InvalidOperationException("Fit in Edit Mode.");
@@ -203,7 +203,7 @@ namespace JunkerBody.Editor
             Undo.RecordObjects(new UnityEngine.Object[] { body, body.avatarRoot }, "Apply Junker avatar size");
             FitAvatar(body); EditorUtility.SetDirty(body); EditorSceneManager.MarkSceneDirty(scene);
         }
-        [MenuItem("Tools/JunkerBody/Apply player fit and floor correction")]
+        [MenuItem("Zandea/JunkerBody/Apply player fit and floor correction")]
         public static void ApplyPlayerFitAndFloor()
         {
             if (EditorApplication.isPlaying) throw new InvalidOperationException("Apply fit in Edit Mode.");
@@ -300,7 +300,7 @@ namespace JunkerBody.Editor
             }
             File.WriteAllText("Temp/JunkerBody.validation", sb.ToString());
         }
-        [MenuItem("Tools/JunkerBody/Validate saved scene")]
+        [MenuItem("Zandea/JunkerBody/Validate saved scene")]
         public static void ValidateSaved()
         {
             var scene = SceneManager.GetSceneByPath(ScenePath); bool opened = !scene.isLoaded;

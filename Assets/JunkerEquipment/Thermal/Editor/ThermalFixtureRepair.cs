@@ -22,7 +22,7 @@ namespace JunkerEquipment.Thermal.Editor
             try { Repair(); File.WriteAllText(Report,"PASS: board path rebased, pipe origins rebased, pipe starts as one grabbable assembly."); }
             catch(Exception e) { File.WriteAllText(Report,e.ToString()); Debug.LogException(e); }
         }
-        [MenuItem("Tools/Junker Equipment/Thermal/Repair board and pipe fixtures")]
+        [MenuItem("Zandea/Junker Equipment/Thermal/Repair board and pipe fixtures")]
         public static void Repair()
         {
             foreach(var toolPath in new[]{"Assets/MyAssets/prefabs/Tools/PLS-T ScrapCutter.prefab","Assets/JunkerEquipment/Thermal/Generated/ScrapCutter.prefab"})

@@ -217,6 +217,12 @@ namespace KenshiVR.MeleeCombat
             if (State == HoldState.HeldByPlayer && secondaryGrip && args.interactorObject != hand)
             {
                 secondaryHand = args.interactorObject;
+                var fitSource = playerBody ? playerBody.GetComponentInParent<PlayerWeaponGripAuthoring>() : null;
+                if (fitSource && fitSource.TryGet(weaponId, out var fit))
+                {
+                    secondaryGrip.localPosition = fit.secondaryPosition;
+                    secondaryGrip.localRotation = Quaternion.Euler(fit.secondaryEuler);
+                }
                 bool leftSecondary = IsLeftHand(secondaryHand);
                 selectedSecondaryGrip = leftSecondary
                     ? (secondaryLeftGrip ? secondaryLeftGrip : secondaryGrip)
@@ -234,6 +240,12 @@ namespace KenshiVR.MeleeCombat
             hand = args.interactorObject;
             playerBody = hand.transform.GetComponentInParent<VRBodyController>();
             if (!playerBody) playerBody = FindFirstObjectByType<VRBodyController>();
+            var authoredFits = playerBody ? playerBody.GetComponentInParent<PlayerWeaponGripAuthoring>() : null;
+            if (authoredFits && authoredFits.TryGet(weaponId, out var authoredFit))
+            {
+                rightGripPosition = authoredFit.rightPosition; rightGripEuler = authoredFit.rightEuler;
+                leftGripPosition = authoredFit.leftPosition; leftGripEuler = authoredFit.leftEuler;
+            }
             bool leftHand = IsLeftHand(hand);
             bool rightHand = playerBody && playerBody.rightController &&
                 (hand.transform == playerBody.rightController || hand.transform.IsChildOf(playerBody.rightController));
@@ -375,8 +387,8 @@ namespace KenshiVR.MeleeCombat
             ownerRoot = npc.transform; npcGripTarget = target; hand = null;
             selectedGrip = useMeshContactShape ? grip : null;
             if (grab) grab.enabled = false;
-            body.isKinematic = useMeshContactShape; body.useGravity = false;
             body.linearVelocity = Vector3.zero; body.angularVelocity = Vector3.zero;
+            body.isKinematic = useMeshContactShape; body.useGravity = false;
             if (selectedGrip)
             {
                 var localPosition = transform.InverseTransformPoint(selectedGrip.position);
@@ -683,8 +695,8 @@ namespace KenshiVR.MeleeCombat
             if (speed < minimumImpactSpeed) return;
             if (weaponContact)
             {
-                ownerRoot?.GetComponent<StarvingBandit>()?.RegisterWeaponParry(otherWeapon);
-                otherWeapon.ownerRoot?.GetComponent<StarvingBandit>()?.RegisterWeaponParry(this);
+                if (ownerRoot) ownerRoot.GetComponent<StarvingBandit>()?.RegisterWeaponParry(otherWeapon);
+                if (otherWeapon.ownerRoot) otherWeapon.ownerRoot.GetComponent<StarvingBandit>()?.RegisterWeaponParry(this);
             }
             if (weaponContact && impulse >= blockedImpulseThreshold)
                 Blocked?.Invoke(impulse);
@@ -702,8 +714,9 @@ namespace KenshiVR.MeleeCombat
             // Both speed and solver impulse must indicate a strike. Sustained contact cannot
             // repeatedly score damage just because the controller keeps pushing.
             float energy = .5f * body.mass * speed * speed;
+            var attackerAttributes = ownerRoot ? CharacterAttributes.Find(ownerRoot) : null;
             float damage = Mathf.Min(60f, energy * damagePerJoule * Mathf.Clamp01(impulse / .5f) *
-                CharacterCombatMath.DamageDealt(CharacterAttributes.Find(ownerRoot), proficiencyClass));
+                CharacterCombatMath.DamageDealt(attackerAttributes, proficiencyClass));
             if (damage < .5f) return;
             var receiver = other.GetComponentInParent<IDamageable>();
             if (receiver == null) return;

@@ -23,7 +23,7 @@ public static class GroundLootPlayValidation
 
     static GroundLootPlayValidation() => EditorApplication.update += Tick;
 
-    [MenuItem("Tools/Melee Combat/Validate dropped weapon and clothing on terrain")]
+    [MenuItem("Zandea/Melee Combat/Validate dropped weapon and clothing on terrain")]
     public static void Run() { File.WriteAllText(Request, "run"); Tick(); }
 
     static void Tick()

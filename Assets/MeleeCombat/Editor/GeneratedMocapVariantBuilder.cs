@@ -43,7 +43,7 @@ public static class GeneratedMocapVariantBuilder
         new Variant("ShieldAndSaber", null, Vector3.up, .65f, "HumanM@AttackShield01", "HumanM@CombatIdle1H01", leftHand:true, shield:true)
     };
 
-    [MenuItem("Tools/Melee Combat/Build generated weapon bandits")]
+    [MenuItem("Zandea/Melee Combat/Build generated weapon bandits")]
     public static void Build()
     {
         // These prefabs may already contain the newer imported combat controllers.

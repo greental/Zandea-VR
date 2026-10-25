@@ -10,8 +10,12 @@ namespace KenshiVR.MeleeCombat.Editor
     {
         static readonly string[] Players={"Assets/CharacterCreator/Player/VR player - Man Creator.prefab","Assets/MyAssets/prefabs/Player/VR player - Man Creator.prefab"};
         const string SwordPath="Assets/MyAssets/prefabs/weapons/Player practice sword - generated long blade.prefab";
-        static PlayerItemSlotPrefabUpgrade()=>EditorApplication.delayCall+=Upgrade;
-        [MenuItem("Tools/Junker Equipment/Upgrade ordinary player item slots")]
+        static PlayerItemSlotPrefabUpgrade()
+        {
+            EditorApplication.delayCall+=Upgrade;
+            EditorApplication.playModeStateChanged += state => { if (state == PlayModeStateChange.EnteredEditMode) EditorApplication.delayCall += Upgrade; };
+        }
+        [MenuItem("Zandea/Junker Equipment/Upgrade ordinary player item slots")]
         static void Upgrade()
         {
             if(EditorApplication.isPlayingOrWillChangePlaymode||EditorApplication.isCompiling||EditorApplication.isUpdating)return;
@@ -50,6 +54,11 @@ namespace KenshiVR.MeleeCombat.Editor
                 rig.leftBackSheath=Slot(rig.transform,"Left backpack item",rig.leftBackLocalPosition,new Vector3(0,0,35),all).transform;
                 rig.rightBackSheath=Slot(rig.transform,"Right backpack item",rig.rightBackLocalPosition,new Vector3(0,0,-35),all).transform;
                 rig.slots=all.ToArray();
+                var loadout=root.GetComponent<PlayerStartingItems>();if(!loadout)loadout=root.AddComponent<PlayerStartingItems>();
+                loadout.leftHip=left;
+                loadout.rightHip=rig.rightHipSheath.GetComponent<JunkerEquipmentSlot>();
+                loadout.leftBackpack=rig.leftBackSheath.GetComponent<JunkerEquipmentSlot>();
+                loadout.rightBackpack=rig.rightBackSheath.GetComponent<JunkerEquipmentSlot>();
                 if(!left.startingItem)
                 {
                     var sword=AssetDatabase.LoadAssetAtPath<GameObject>(SwordPath);
@@ -62,6 +71,12 @@ namespace KenshiVR.MeleeCombat.Editor
                         if(left.startingItem)left.startingItem.rig=rig;
                     }
                 }
+                loadout.leftHipItem=left.startingItem;
+                loadout.rightHipItem=loadout.rightHip.startingItem;
+                loadout.leftBackpackItem=loadout.leftBackpack.startingItem;
+                loadout.rightBackpackItem=loadout.rightBackpack.startingItem;
+                if(loadout.leftHipItem)loadout.leftHipPrefab=PrefabUtility.GetCorrespondingObjectFromSource(loadout.leftHipItem.gameObject) as GameObject;
+                if(!root.GetComponent<PlayerWeaponGripAuthoring>())root.AddComponent<PlayerWeaponGripAuthoring>();
                 PrefabUtility.SaveAsPrefabAsset(root,path);
             }
             finally{PrefabUtility.UnloadPrefabContents(root);}

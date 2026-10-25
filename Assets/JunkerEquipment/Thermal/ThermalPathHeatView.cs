@@ -12,7 +12,7 @@ namespace JunkerEquipment.Thermal
         ThermalPathProgress progress;
         Mesh mesh;
         MeshFilter filter;
-        MeshRenderer renderer;
+        MeshRenderer meshRenderer;
         Vector3[] vertices;
         Color[] colors;
         float[] workedAt;
@@ -28,11 +28,11 @@ namespace JunkerEquipment.Thermal
             if(!progress || !progress.Valid || progress.Length<.002f || !material) return;
             if(!filter)filter=GetComponent<MeshFilter>();
             if(!filter)filter=gameObject.AddComponent<MeshFilter>();
-            if(!renderer)renderer=GetComponent<MeshRenderer>();
-            if(!renderer)renderer=gameObject.AddComponent<MeshRenderer>();
-            renderer.sharedMaterial=material;
-            renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
-            renderer.receiveShadows=false;
+            if(!meshRenderer)meshRenderer=GetComponent<MeshRenderer>();
+            if(!meshRenderer)meshRenderer=gameObject.AddComponent<MeshRenderer>();
+            meshRenderer.sharedMaterial=material;
+            meshRenderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+            meshRenderer.receiveShadows=false;
             float length=progress.Length;
             samples=Mathf.Clamp(Mathf.CeilToInt(length/.008f)+1,2,160);
             step=length/(samples-1);
@@ -47,7 +47,7 @@ namespace JunkerEquipment.Thermal
             var triangles=new int[(samples-1)*6];
             // Face the surface normal; the previous winding pointed into the metal.
             for(int i=0;i<samples-1;i++) { int v=i*2,t=i*6; triangles[t]=v; triangles[t+1]=v+2; triangles[t+2]=v+1; triangles[t+3]=v+1; triangles[t+4]=v+2; triangles[t+5]=v+3; }
-            mesh.triangles=triangles; filter.sharedMesh=mesh; renderer.enabled=false; initialized=true;
+            mesh.triangles=triangles; filter.sharedMesh=mesh; meshRenderer.enabled=false; initialized=true;
         }
         public void Record(float distance,Vector3 normal,ThermalMode workMode)
         {
@@ -81,7 +81,7 @@ namespace JunkerEquipment.Thermal
                 colors[i*2]=colors[i*2+1]=color;
                 any|=color.a>0;
             }
-            renderer.enabled=any;
+            meshRenderer.enabled=any;
             if(!any) return;
             mesh.vertices=vertices; mesh.colors=colors; mesh.RecalculateBounds();
         }

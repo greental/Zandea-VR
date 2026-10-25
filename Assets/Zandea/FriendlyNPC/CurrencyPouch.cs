@@ -21,6 +21,7 @@ namespace Zandea.FriendlyNPC
         JunkerEquipmentItem equipment;
         Collider[] mergeHits = new Collider[24];
         bool returnPending;
+        bool releasePending;
 
         void Awake()
         {
@@ -55,10 +56,14 @@ namespace Zandea.FriendlyNPC
             Grab.selectExited.RemoveListener(OnReleased);
         }
         void OnDestroy() { if (PersonalInstance == this) PersonalInstance = null; }
-        void OnSelected(SelectEnterEventArgs _) => Selected?.Invoke(this);
+        void OnSelected(SelectEnterEventArgs _)
+        {
+            releasePending = false;
+            Selected?.Invoke(this);
+        }
         void OnReleased(SelectExitEventArgs args)
         {
-            if (!args.isCanceled && !Grab.isSelected) Released?.Invoke(this);
+            if (!args.isCanceled) releasePending = true;
         }
 
         public bool CanDebit(int amount) => amount >= 0 && cats >= amount;
@@ -122,6 +127,12 @@ namespace Zandea.FriendlyNPC
             if (personal && !homeAnchor && equipment && equipment.Body && !Grab.isSelected)
             { equipment.Body.isKinematic = true; equipment.Body.useGravity = false; }
             if (returnPending) TryReturnHome();
+        }
+        void LateUpdate()
+        {
+            if (!releasePending || Grab.isSelected) return;
+            releasePending = false;
+            Released?.Invoke(this);
         }
         void TryReturnHome()
         {

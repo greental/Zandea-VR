@@ -34,7 +34,7 @@ public class SmartTerrainPainterWindow : EditorWindow
     private Texture2D biomeMaskPreview;
     private bool autoApplyPresetValues = true;
 
-    [MenuItem("Tools/Smart Terrain Painter")]
+    [MenuItem("Zandea/Smart Terrain Painter")]
     public static void Open()
     {
         GetWindow<SmartTerrainPainterWindow>("Smart Terrain Painter");

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class GoreSetupValidation
 {
-    [MenuItem("Tools/Melee Combat/Validate gore setup")]
+    [MenuItem("Zandea/Melee Combat/Validate gore setup")]
     public static void Validate()
     {
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/MeleeCombat/CombinedStarvingBandit.prefab");

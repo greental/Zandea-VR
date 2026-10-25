@@ -24,7 +24,7 @@ namespace JunkerEquipment.Editor
         const string PlayerPath = "Assets/MyAssets/prefabs/Player/JunkerWeapon.prefab";
         const string ItemId = "RustFang";
 
-        [MenuItem("Tools/Junker Equipment/Build RustFang primary rifle")]
+        [MenuItem("Zandea/Junker Equipment/Build RustFang primary rifle")]
         public static void BuildRustFang()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;

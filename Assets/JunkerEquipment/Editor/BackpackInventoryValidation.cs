@@ -32,7 +32,7 @@ namespace JunkerEquipment.Editor
                 File.Delete(request); Run();
             };
         }
-        [MenuItem("Tools/Junker Equipment/Validate physical backpack in Play Mode")]
+        [MenuItem("Zandea/Junker Equipment/Validate physical backpack in Play Mode")]
         public static void Run()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;

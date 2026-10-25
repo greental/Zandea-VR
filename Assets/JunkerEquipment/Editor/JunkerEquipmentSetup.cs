@@ -68,7 +68,7 @@ namespace JunkerEquipment.Editor
         static void Place(JunkerEquipmentItem item,JunkerEquipmentSlot slot)
         { slot.startingItem=item; item.transform.SetPositionAndRotation(slot.transform.position,slot.transform.rotation); }
 
-        [MenuItem("Tools/Junker Equipment/Configure gloves and equipment")]
+        [MenuItem("Zandea/Junker Equipment/Configure gloves and equipment")]
         public static void Configure()
         {
             var scene=Scene();
@@ -120,7 +120,7 @@ namespace JunkerEquipment.Editor
             EditorSceneManager.MarkSceneDirty(scene); EditorSceneManager.SaveScene(scene);
             File.WriteAllText("Temp/JunkerEquipment.setup","Configured and saved JunkerBody: gloves, five slots, four tools, backpack, target, repair panel.");
         }
-        [MenuItem("Tools/Junker Equipment/Retry incomplete setup")]
+        [MenuItem("Zandea/Junker Equipment/Retry incomplete setup")]
         public static void Retry()
         {
             Scene();
@@ -195,7 +195,7 @@ namespace JunkerEquipment.Editor
             foreach(var shadow in body.GetComponentsInChildren<SkinnedMeshRenderer>().Where(r=>r.shadowCastingMode==UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly)) shadow.sharedMesh=visibility.fullMesh;
             EditorUtility.SetDirty(visibility);
         }
-        [MenuItem("Tools/Junker Equipment/Refine glove and tool visuals")]
+        [MenuItem("Zandea/Junker Equipment/Refine glove and tool visuals")]
         public static void RefineVisuals()
         {
             var scene=Scene();

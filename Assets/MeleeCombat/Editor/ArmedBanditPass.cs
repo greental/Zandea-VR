@@ -25,7 +25,7 @@ public static class ArmedBanditPass
         if (command == "refresh") { AssetDatabase.Refresh(); return; }
         try { Run(); } catch (Exception e) { File.WriteAllText(Result, e.ToString()); Debug.LogException(e); }
     }
-    [MenuItem("Tools/Melee Combat/Apply armed bandit grip and contact pass")]
+    [MenuItem("Zandea/Melee Combat/Apply armed bandit grip and contact pass")]
     public static void Run()
     {
         var report = new StringBuilder();

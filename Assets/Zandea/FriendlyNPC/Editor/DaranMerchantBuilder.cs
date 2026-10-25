@@ -18,6 +18,8 @@ namespace Zandea.FriendlyNPC.Editor
     public static class DaranMerchantBuilder
     {
         const string Folder = "Assets/Zandea/FriendlyNPC/Generated";
+        const string SceneFolder = "Assets/Scenes/FriendlyNPC";
+        const string ScenePath = SceneFolder + "/DaranMerchantTest.unity";
         const string NpcSource = "Assets/MeleeCombat/CombinedStarvingBandit.prefab";
         const string PlayerSource = "Assets/MyAssets/prefabs/Player/VR player - Man Creator.prefab";
 
@@ -29,17 +31,19 @@ namespace Zandea.FriendlyNPC.Editor
             if (new DriveInfo("D").AvailableFreeSpace < 20L * 1024 * 1024 * 1024)
             { Debug.LogError("Less than 20 GiB free on D:. Merchant build stopped."); return; }
             Directory.CreateDirectory(Folder);
+            Directory.CreateDirectory(SceneFolder);
             AssetDatabase.Refresh();
             var voice = Asset<VoiceProfile>("VoiceProfile_MerchantMale01");
-            voice.providerId = "kokoro";
-            voice.providerVoiceId = "am_michael";
-            voice.voiceDescription = "Experienced, dry frontier merchant. Weathered and restrained; no theatrical narrator delivery.";
-            voice.licenseNotes = "Verify the local Kokoro model and selected voice license before commercial distribution.";
+            voice.providerId = "elevenlabs";
+            voice.providerVoiceId = ""; // Prerecorded pack; original ElevenLabs voice ID was not supplied.
+            voice.voiceDescription = "Recorded weathered frontier merchant; restrained delivery.";
+            voice.licenseNotes = "ElevenLabs prerecorded pack supplied by project owner. Confirm voice rights and commercial terms before release.";
             EditorUtility.SetDirty(voice);
             var dialogue = Asset<DialogueDefinition>("DaranDialogue");
             dialogue.npcId = "merchant-daran";
             dialogue.defaultVoice = voice;
             dialogue.entryNodeId = "greeting_001";
+            var voiceBank = AssetDatabase.LoadAssetAtPath<NpcVoiceBank>(Folder + "/DaranVoiceBank.asset");
             if (dialogue.nodes.Count == 0) AuthorDialogue(dialogue);
             EnsureTradeContextResponses(dialogue);
             foreach (var id in new[] { "greeting_001", "trade_offer_001" })
@@ -79,7 +83,7 @@ namespace Zandea.FriendlyNPC.Editor
             var payout = BuildPouch("PayoutPouch", false, 0, leather);
             var scrap = BuildScrap(metal);
             var price = BuildLabel("PriceLabel", 2.5f);
-            var merchantPrefab = BuildMerchant(dialogue);
+            var merchantPrefab = BuildMerchant(dialogue, voiceBank);
             var counterPrefab = BuildCounter(vendor, payout, price, wood, red, green);
             var stockPaths = new List<string>(vendor.startingStock.Count);
             foreach (var item in vendor.startingStock) stockPaths.Add(AssetDatabase.GetAssetPath(item));
@@ -124,7 +128,7 @@ namespace Zandea.FriendlyNPC.Editor
             vendorCounter.handshake = handshake;
             npc.GetComponent<MerchantHandshakePose>().handshake = handshake;
             PlaceStock(scene, counter.transform, stockPaths, interaction.npcId);
-            var scenePath = Folder + "/DaranMerchantTest.unity";
+            var scenePath = ScenePath;
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, scenePath);
             AssetDatabase.SaveAssets();
@@ -134,7 +138,7 @@ namespace Zandea.FriendlyNPC.Editor
         public static void BuildAndValidate()
         {
             Build();
-            EditorSceneManager.OpenScene(Folder + "/DaranMerchantTest.unity", OpenSceneMode.Single);
+            EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             var scene = SceneManager.GetActiveScene();
             var roots = scene.GetRootGameObjects();
             T Find<T>() where T : Component
@@ -160,6 +164,28 @@ namespace Zandea.FriendlyNPC.Editor
             if (!motion || !motion.visualRoot) missing.Add("existing CC_Base rig motion");
             if (!npc || !npc.mouthAudio || !npc.conversationTarget) missing.Add("NPC speech/contact");
             if (!npc || !npc.dialogue || npc.dialogue.nodes.Count < 10) missing.Add("Daran dialogue");
+            if (!npc || !npc.voiceBank || npc.voiceBank.Find("greeting_001") == null)
+                missing.Add("recorded voice bank");
+            else
+            {
+                int takes = 0;
+                foreach (var voiceEvent in npc.voiceBank.events)
+                    foreach (var take in voiceEvent.takes)
+                    {
+                        takes++;
+                        if (!take.clip || take.mouthEnvelope == null || take.mouthEnvelope.Length == 0)
+                            missing.Add("voice clip/envelope: " + voiceEvent.eventId);
+                        else
+                        {
+                            float peak = 0f;
+                            foreach (float sample in take.mouthEnvelope)
+                                peak = Mathf.Max(peak, sample);
+                            if (peak < .03f) missing.Add("silent mouth envelope: " + voiceEvent.eventId);
+                        }
+                    }
+                if (takes != 18) missing.Add("18 recorded voice takes");
+                if (npc.voiceBank.ambientEventIds.Count != 3) missing.Add("three market calls");
+            }
             if (!counter || counter.merchant != npc || !counter.configuration) missing.Add("vendor binding");
             if (!counter || !counter.buyArea || !counter.sellArea || !counter.paymentSpot)
                 missing.Add("trade zones");
@@ -214,8 +240,8 @@ namespace Zandea.FriendlyNPC.Editor
             greeting.responses.Add(Reply("Any work available?", "work_001"));
             greeting.responses.Add(Reply("Tell me about this place.", "place_001"));
             greeting.responses.Add(Reply("Goodbye.", "farewell_001"));
-            var trade = Node("trade_offer_001", "Put your goods on the counter. Let's see what they're worth.");
-            trade.gestureId = "nod";
+            var trade = Node("trade_offer_001", "Go on, have a look. Anything on the counter is for sale. Well, almost anything.");
+            trade.gestureId = "present";
             trade.responses.Add(Reply("I'll look around.", "trade_offer_001"));
             trade.responses.Add(Reply("That's all for now.", "farewell_001"));
             var work = Node("work_001", "A caravan vanished near the old toll station. I might pay for a useful answer.", ExpressionType.Sad);
@@ -225,17 +251,17 @@ namespace Zandea.FriendlyNPC.Editor
             var place = Node("place_001", "People call this a settlement. The wind calls it a place to leave.");
             place.responses.Add(Reply("Show me your wares.", "trade_offer_001", DialogueAction.BeginTrading));
             place.responses.Add(Reply("Goodbye.", "farewell_001"));
-            var complete = Node("trade_complete", "Fair enough. We've got ourselves a deal.", ExpressionType.Happy);
+            var complete = Node("trade_complete", "Pleasure doing business with you. A fair trade, more or less.", ExpressionType.Happy);
             complete.responses.Add(Reply("Keep trading.", "trade_offer_001", DialogueAction.BeginTrading));
             complete.responses.Add(Reply("Goodbye.", "farewell_001"));
-            var farewell = Node("farewell_001", "Stay clear of the dust. It doesn't care who you are.");
+            var farewell = Node("farewell_001", "Safe travels! And try not to die before you come back.");
             farewell.endOnComplete = true;
             definition.nodes = new List<DialogueNode> {
                 greeting, trade, work, place, complete, farewell,
-                Node("insufficient_funds_001", "Your purse is lighter than your ambition.", ExpressionType.Angry),
+                Node("insufficient_funds_001", "You're short on cats, friend. Afraid good intentions don't pay the bills. Put something back.", ExpressionType.Angry),
                 Node("merchant_lacks_funds_001", "I'd buy it, if I had the cats to spare.", ExpressionType.Sad),
                 Node("item_rejected_001", "That won't fetch anything here.", ExpressionType.Angry),
-                Node("transaction_ready_001", "Fair enough. We have a deal if you'll shake on it.", ExpressionType.Happy),
+                Node("transaction_ready_001", "Fair enough. Come on, let's shake on it.", ExpressionType.Happy),
                 Node("trade_cancelled_001", "Changed your mind? Happens more than you'd think.")
             };
             EditorUtility.SetDirty(definition);
@@ -264,7 +290,10 @@ namespace Zandea.FriendlyNPC.Editor
             root.name = name;
             root.transform.localScale = new Vector3(.14f, .17f, .09f);
             root.GetComponent<Renderer>().sharedMaterial = leather;
-            var body = root.AddComponent<Rigidbody>(); body.mass = .2f;
+            Object.DestroyImmediate(root.GetComponent<SphereCollider>());
+            root.AddComponent<BoxCollider>().size = new Vector3(.95f, .85f, 1.1f);
+            var body = root.AddComponent<Rigidbody>();
+            body.mass = .2f; body.linearDamping = .25f; body.angularDamping = 1.5f;
             root.AddComponent<XRGrabInteractable>();
             var equipment = root.AddComponent<JunkerEquipmentItem>();
             equipment.itemId = personal ? "personal-coin-purse" : "payout-pouch";
@@ -321,7 +350,7 @@ namespace Zandea.FriendlyNPC.Editor
             return prefab.GetComponent<TMP_Text>();
         }
 
-        static GameObject BuildMerchant(DialogueDefinition dialogue)
+        static GameObject BuildMerchant(DialogueDefinition dialogue, NpcVoiceBank voiceBank)
         {
             string path = Folder + "/DaranMerchant.prefab";
             var old = AssetDatabase.LoadAssetAtPath<GameObject>(path);
@@ -336,11 +365,17 @@ namespace Zandea.FriendlyNPC.Editor
                     throw new System.InvalidOperationException("Cannot update Daran: CC_Base bones or interaction missing");
                 existingInteraction.head = headBone;
                 existingInteraction.dialogue = dialogue;
+                existingInteraction.voiceBank = voiceBank;
+                existingInteraction.wanderRadius = 0f;
                 if (existingInteraction.mouthAudio)
                     existingInteraction.mouthAudio.transform.SetParent(headBone, false);
                 if (existingInteraction.subtitle)
                     existingInteraction.subtitle.transform.SetParent(headBone, false);
                 existingHandshake.transform.SetParent(handBone, false);
+                var existingContact = existingHandshake.GetComponent<SphereCollider>();
+                if (existingContact) existingContact.radius = .22f;
+                var existingPose = existing.GetComponent<MerchantHandshakePose>();
+                if (existingPose) existingPose.handTargetLocal = new Vector3(.22f, 1.25f, .55f);
                 PrefabUtility.SaveAsPrefabAsset(existing, path);
                 PrefabUtility.UnloadPrefabContents(existing);
                 return AssetDatabase.LoadAssetAtPath<GameObject>(path);
@@ -373,7 +408,7 @@ namespace Zandea.FriendlyNPC.Editor
             handContact.transform.SetParent(rightHand, false);
             handContact.transform.localPosition = new Vector3(0, 0, .05f);
             var handCollider = handContact.AddComponent<SphereCollider>();
-            handCollider.isTrigger = true; handCollider.radius = .16f;
+            handCollider.isTrigger = true; handCollider.radius = .22f;
             var handTarget = handContact.AddComponent<XRSimpleInteractable>();
             handTarget.enabled = false;
             handContact.AddComponent<HandshakeTarget>();
@@ -388,10 +423,11 @@ namespace Zandea.FriendlyNPC.Editor
             var subtitle = subtitleObject.AddComponent<TextMeshPro>();
             subtitle.fontSize = 2.6f;
             subtitle.alignment = TextAlignmentOptions.Center;
-            subtitle.enableWordWrapping = true;
+            subtitle.textWrappingMode = TMPro.TextWrappingModes.Normal;
             subtitleObject.AddComponent<BillboardLabel>();
             var interaction = npc.AddComponent<FriendlyNpcInteraction>();
             interaction.dialogue = dialogue;
+            interaction.voiceBank = voiceBank;
             interaction.brain = brain;
             interaction.health = npc.GetComponent<ScavengerNPC.ScavengerHealth>();
             interaction.face = npc.GetComponentInChildren<NPCFacialExpressionController>();
@@ -399,6 +435,7 @@ namespace Zandea.FriendlyNPC.Editor
             interaction.conversationTarget = talkTarget;
             interaction.mouthAudio = audio;
             interaction.subtitle = subtitle;
+            interaction.wanderRadius = 0f;
             npc.AddComponent<MerchantHandshakePose>().merchant = interaction;
             var prefab = PrefabUtility.SaveAsPrefabAsset(npc, path);
             Object.DestroyImmediate(npc);
@@ -418,7 +455,7 @@ namespace Zandea.FriendlyNPC.Editor
             table.GetComponent<Renderer>().sharedMaterial = wood;
             var root = new GameObject("VendorCounter");
             table.transform.SetParent(root.transform, true);
-            TradeZone Zone(string name, Vector3 position, Vector3 size, Material surface)
+            TradeZone Zone(string name, Vector3 position, Vector3 size, Material surface, bool holdingVolume = false)
             {
                 var pad = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 pad.name = name;
@@ -428,16 +465,21 @@ namespace Zandea.FriendlyNPC.Editor
                 pad.GetComponent<Renderer>().sharedMaterial = surface;
                 var collider = pad.GetComponent<BoxCollider>();
                 collider.isTrigger = true;
-                collider.size = new Vector3(1f, size.y / .015f, 1f);
-                return pad.AddComponent<TradeZone>();
+                collider.size = holdingVolume
+                    ? new Vector3(1.15f, .6f / .015f, 1.13f)
+                    : new Vector3(1f, size.y / .015f, 1f);
+                if (holdingVolume) collider.center = new Vector3(0, .3f / .015f, 0);
+                var zone = pad.AddComponent<TradeZone>();
+                zone.holdingVolume = holdingVolume;
+                return zone;
             }
-            var buy = Zone("Buy area", new Vector3(-.43f, .97f, 0), new Vector3(.66f, .24f, .6f), red);
-            var sell = Zone("Sell area", new Vector3(.43f, .97f, 0), new Vector3(.66f, .24f, .6f), green);
+            var buy = Zone("Buy area", new Vector3(-.43f, .97f, 0), new Vector3(.66f, .24f, .6f), red, true);
+            var sell = Zone("Sell area", new Vector3(.43f, .97f, 0), new Vector3(.66f, .24f, .6f), green, true);
             var payment = Zone("Payment spot", new Vector3(.47f, .99f, -.24f),
                 new Vector3(.22f, .26f, .18f), wood);
             var total = new GameObject("Net total");
             total.transform.SetParent(root.transform, false);
-            total.transform.localPosition = new Vector3(0, 1.02f, -.40f);
+            total.transform.localPosition = new Vector3(0, 1.22f, -.40f);
             total.transform.localScale = Vector3.one * .05f;
             var text = total.AddComponent<TextMeshPro>();
             text.fontSize = 2.8f; text.alignment = TextAlignmentOptions.Center;

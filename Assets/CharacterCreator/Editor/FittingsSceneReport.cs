@@ -24,7 +24,7 @@ namespace KenshiVR.CharacterCreator.Editor
             };
         }
 
-        [MenuItem("Tools/Character Creator/Export Fittings Scene Report")]
+        [MenuItem("Zandea/Character Creator/Export Fittings Scene Report")]
         public static void Export()
         {
             var scene = EditorSceneManager.GetSceneByPath("Assets/Scenes/Fittings.unity");

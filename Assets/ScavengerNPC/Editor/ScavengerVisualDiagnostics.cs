@@ -18,7 +18,7 @@ namespace ScavengerNPC.Editor
             Diagnose();
         }
 
-        [MenuItem("Tools/Scavenger NPC/Diagnose visual rig")]
+        [MenuItem("Zandea/Scavenger NPC/Diagnose visual rig")]
         public static void Diagnose()
         {
             var report = new StringBuilder();

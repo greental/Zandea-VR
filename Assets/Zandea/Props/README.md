@@ -36,7 +36,7 @@ The treadmill retains its 121-tile authored TileSet and 11×11 visible window. T
 
 Use **Tools > Zandea > Props > Build Slice 8 Prefabs and Test Scene** after importing the authored FBX and texture files. The builder creates URP materials, physical prefabs, a reusable outpost prop definition in `Resources`, and `ZandeaPropInteractions.unity`. Main's existing bandit outpost loads that definition automatically. The test scene places each representative asset with the existing player prefab.
 
-`python Tools/Props/validate_offline.py` checks the TileSet reference/fallback and imported prefab wiring without starting Unity. In Unity, use **Tools > Zandea > Props > Run Main Outpost Streaming Validation** to exercise the physical outpost lifecycle.
+`python Tools/Props/validate_offline.py` checks the TileSet reference/fallback and imported prefab wiring without starting Unity. In Unity, use **Zandea > Props > Run Main Outpost Streaming Validation** to exercise the physical outpost lifecycle.
 
 ## Known limits and headset checks
 
