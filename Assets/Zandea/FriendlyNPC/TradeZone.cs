@@ -42,9 +42,10 @@ namespace Zandea.FriendlyNPC
         void OnTriggerStay(Collider other)
         {
             if (!counter) counter = GetComponentInParent<VendorCounter>();
-            if (!counter || !counter.Trading) return;
+            if (!counter) return;
             if (this == counter.paymentSpot)
             {
+                if (!counter.Trading) return;
                 var pouch = other.GetComponentInParent<CurrencyPouch>();
                 if (pouch && !pouch.Grab.isSelected && attemptedPurses.Add(pouch))
                     counter.TryPresentPurse(pouch);
@@ -52,7 +53,8 @@ namespace Zandea.FriendlyNPC
             }
             if (this != counter.buyArea && this != counter.sellArea) return;
             var item = other.GetComponentInParent<TradeItem>();
-            if (item && !item.IsHeld && attemptedItems.Add(item)) counter.TryOffer(item);
+            if (item && item.HasPhysicalRelease && !item.IsHeld && counter.TryCapture(item, this) &&
+                counter.Trading && attemptedItems.Add(item)) counter.TryOffer(item);
         }
 
         void OnTriggerExit(Collider other)
@@ -147,5 +149,21 @@ namespace Zandea.FriendlyNPC
 
         public bool Contains(TradeItem item) => item && box && box.enabled &&
             (Contains(item.transform.position) || item.Intersects(box.bounds));
+
+        // Keep the pivot inside the visible holding volume. A long item's collider
+        // may enter while its pivot is outside, which previously let it roll away.
+        public Vector3 ClampHoldPoint(Vector3 worldPoint)
+        {
+            if (!box) box = GetComponent<BoxCollider>();
+            var local = box.transform.InverseTransformPoint(worldPoint);
+            var half = box.size * .5f;
+            float marginX = Mathf.Min(.12f / Mathf.Max(.001f, Mathf.Abs(transform.lossyScale.x)), half.x * .4f);
+            float marginY = Mathf.Min(.12f / Mathf.Max(.001f, Mathf.Abs(transform.lossyScale.y)), half.y * .4f);
+            float marginZ = Mathf.Min(.12f / Mathf.Max(.001f, Mathf.Abs(transform.lossyScale.z)), half.z * .4f);
+            local.x = Mathf.Clamp(local.x, box.center.x - half.x + marginX, box.center.x + half.x - marginX);
+            local.y = Mathf.Clamp(local.y, box.center.y - half.y + marginY, box.center.y + half.y - marginY);
+            local.z = Mathf.Clamp(local.z, box.center.z - half.z + marginZ, box.center.z + half.z - marginZ);
+            return box.transform.TransformPoint(local);
+        }
     }
 }

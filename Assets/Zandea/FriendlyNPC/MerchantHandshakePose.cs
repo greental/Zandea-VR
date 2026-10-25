@@ -17,13 +17,13 @@ namespace Zandea.FriendlyNPC
         [Range(0f, 20f)] public float maxHeadPitch = 12f;
 
         Transform rightUpper, rightLower, rightHand;
-        Transform leftUpper, leftLower, leftHand, head;
-        float handshakeWeight, foldedWeight, waveWeight, presentWeight;
+        Transform leftUpper, leftLower, leftHand, head, upperSpine;
+        Quaternion restingHeadRotation;
+        Quaternion restingSpineRotation;
+        float handshakeWeight, waveWeight, presentWeight;
         float headYaw, headPitch;
         float nodStart = -10f, waveStart = -10f, presentStart = -10f;
-        float nextFoldChange;
         float nextIdleGlance, idleYaw;
-        bool armsFolded;
 
         public void PlayGesture(string gestureId)
         {
@@ -45,6 +45,7 @@ namespace Zandea.FriendlyNPC
                 leftLower = animator.GetBoneTransform(HumanBodyBones.LeftLowerArm);
                 leftHand = animator.GetBoneTransform(HumanBodyBones.LeftHand);
                 head = animator.GetBoneTransform(HumanBodyBones.Head);
+                upperSpine = animator.GetBoneTransform(HumanBodyBones.UpperChest);
             }
             else
             {
@@ -61,10 +62,15 @@ namespace Zandea.FriendlyNPC
                         case "CC_Base_L_Forearm_051": leftLower = bone; break;
                         case "CC_Base_L_Hand_055": leftHand = bone; break;
                         case "CC_Base_Head_038": head = bone; break;
+                        case "CC_Base_Spine02_035": upperSpine = bone; break;
                     }
                 }
             }
-            nextFoldChange = Time.time + 3f;
+            if (!upperSpine)
+                foreach (var bone in GetComponentsInChildren<Transform>(true))
+                    if (bone.name == "CC_Base_Spine02_035") { upperSpine = bone; break; }
+            if (head) restingHeadRotation = head.localRotation;
+            if (upperSpine) restingSpineRotation = upperSpine.localRotation;
             nextIdleGlance = Time.time + 5f;
         }
 
@@ -73,24 +79,20 @@ namespace Zandea.FriendlyNPC
             if (!merchant || !head) return;
             if (merchant.health && merchant.health.State != NpcConsciousness.Conscious)
             {
-                handshakeWeight = foldedWeight = waveWeight = presentWeight = 0f;
+                handshakeWeight = waveWeight = presentWeight = 0f;
                 return;
             }
+            if (merchant.brain && merchant.brain.hostileToPlayer) return;
 
             float dt = Time.deltaTime;
+            // A restrained breath keeps the idle alive without moving the hands
+            // or rocking the whole body. BanditRigMotion restores this bone first.
+            if (upperSpine && (!handshake || !handshake.IsArmed))
+                upperSpine.localRotation = restingSpineRotation *
+                    Quaternion.Euler(Mathf.Sin(Time.time * 1.7f) * .4f, 0f, 0f);
             bool offeringHand = handshake && handshake.IsArmed && merchant.IsTrading;
             handshakeWeight = Mathf.MoveTowards(handshakeWeight, offeringHand ? 1f : 0f, blendSpeed * dt);
 
-            // Quiet folded-arm intervals punctuate a relaxed standing idle. The
-            // arms unfold before talking, presenting goods, or offering a handshake.
-            bool freeToIdle = !merchant.IsAttending && handshakeWeight < .01f;
-            if (freeToIdle && Time.time >= nextFoldChange)
-            {
-                armsFolded = !armsFolded;
-                nextFoldChange = Time.time + (armsFolded ? 4.5f : 6.5f);
-            }
-            if (!freeToIdle) armsFolded = false;
-            foldedWeight = Mathf.MoveTowards(foldedWeight, freeToIdle && armsFolded ? .85f : 0f, dt * 2f);
             waveWeight = Mathf.MoveTowards(waveWeight,
                 !offeringHand && Time.time - waveStart < 1.1f ? .72f : 0f, dt * 2.8f);
             presentWeight = Mathf.MoveTowards(presentWeight,
@@ -127,19 +129,11 @@ namespace Zandea.FriendlyNPC
             float nodAge = Time.time - nodStart;
             if (nodAge >= 0f && nodAge < .6f)
                 nod = Mathf.Sin(nodAge / .6f * Mathf.PI) * 3f;
-            head.localRotation *= Quaternion.Euler(headPitch + nod, headYaw, 0f);
+            // BanditRigMotion can skip its pose reset in authoring/preview states.
+            // Applying a delta to the current bone then accumulates every frame.
+            head.localRotation = restingHeadRotation * Quaternion.Euler(headPitch + nod, headYaw, 0f);
 
             if (!rightUpper || !rightLower || !rightHand) return;
-            if (foldedWeight > .001f && leftUpper && leftLower && leftHand)
-            {
-                Vector3 rightFold = transform.TransformPoint(new Vector3(-.17f, 1.17f, .16f));
-                Vector3 leftFold = transform.TransformPoint(new Vector3(.17f, 1.12f, .19f));
-                SolveBlended(rightUpper, rightLower, rightHand, rightFold,
-                    transform.right + transform.forward * .25f, foldedWeight);
-                SolveBlended(leftUpper, leftLower, leftHand, leftFold,
-                    -transform.right + transform.forward * .25f, foldedWeight);
-            }
-
             float rightWeight = Mathf.Max(handshakeWeight, waveWeight, presentWeight);
             if (rightWeight <= .001f) return;
             Vector3 desired;

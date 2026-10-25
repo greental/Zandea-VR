@@ -24,12 +24,14 @@ namespace Zandea.FriendlyNPC
         Vector3 heldPosition;
         Quaternion heldRotation;
         bool releasePending;
+        bool hasPhysicalRelease;
         public static event Action<TradeItem> Released;
         public static event Action<TradeItem> Selected;
         public string InstanceId => persistentInstanceId;
         public string ItemId => definition ? definition.itemId : null;
         public bool IsHeld => grab && grab.isSelected;
         public bool IsFloatingForTrade => tradeHeld;
+        public bool HasPhysicalRelease => hasPhysicalRelease;
 
         void Awake()
         {
@@ -64,12 +66,17 @@ namespace Zandea.FriendlyNPC
         void OnSelected(SelectEnterEventArgs _)
         {
             releasePending = false;
+            hasPhysicalRelease = false;
             ReleaseTradeHold();
             Selected?.Invoke(this);
         }
         void OnRelease(SelectExitEventArgs args)
         {
-            if (!args.isCanceled) releasePending = true;
+            if (!args.isCanceled)
+            {
+                hasPhysicalRelease = true;
+                releasePending = true;
+            }
         }
 
         // Match the backpack's released-pose behavior without changing legal ownership.
@@ -86,6 +93,13 @@ namespace Zandea.FriendlyNPC
             heldRotation = transform.rotation;
             tradeHeld = true;
             FreezeTradeBody();
+        }
+
+        public void HoldForTradeAt(Vector3 position)
+        {
+            if (IsHeld) return;
+            transform.position = position;
+            HoldForTrade();
         }
 
         public void ReleaseTradeHold()

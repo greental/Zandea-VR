@@ -653,6 +653,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4887045213124422445, guid: f9505f92542734d4e80deaec5cb498cd, type: 3}
+      propertyPath: guardAuthoringMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4887045213124422445, guid: f9505f92542734d4e80deaec5cb498cd, type: 3}
       propertyPath: negativeStrikingTip
       value: 
       objectReference: {fileID: 0}

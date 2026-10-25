@@ -160,6 +160,8 @@ namespace Zandea.FriendlyNPC.Editor
             var missing = new List<string>();
             if (!npc) missing.Add("friendly NPC");
             if (!npc || !npc.brain || npc.brain.hostileToPlayer) missing.Add("friendly brain");
+            if (npc && npc.brain && npc.brain.guardAuthoringMode)
+                missing.Add("merchant rig stuck in bandit guard authoring mode");
             if (!npc || !npc.face) missing.Add("existing face controller");
             if (!motion || !motion.visualRoot) missing.Add("existing CC_Base rig motion");
             if (!npc || !npc.mouthAudio || !npc.conversationTarget) missing.Add("NPC speech/contact");
@@ -206,6 +208,40 @@ namespace Zandea.FriendlyNPC.Editor
             if (stockCount < 3)
                 throw new System.InvalidOperationException("Fewer than three physical merchant stock items were built");
             Debug.Log("Daran merchant Edit Mode wiring validation passed. Actual dialogue, trading and ergonomics require Play Mode and headset testing.");
+        }
+
+        [MenuItem("Zandea/Friendly NPC/Validate saved Daran voice scene")]
+        public static void ValidateSavedVoiceScene()
+        {
+            const string voiceScene = SceneFolder + "/DaranMerchantVoiceTest.unity";
+            var scene = EditorSceneManager.OpenScene(voiceScene, OpenSceneMode.Single);
+            FriendlyNpcInteraction npc = null;
+            VendorCounter counter = null;
+            Unity.XR.CoreUtils.XROrigin origin = null;
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                if (!npc) npc = root.GetComponentInChildren<FriendlyNpcInteraction>(true);
+                if (!counter) counter = root.GetComponentInChildren<VendorCounter>(true);
+                if (!origin) origin = root.GetComponentInChildren<Unity.XR.CoreUtils.XROrigin>(true);
+            }
+            var faults = new List<string>();
+            if (!npc || !npc.brain || npc.brain.guardAuthoringMode || npc.brain.hostileToPlayer)
+                faults.Add("friendly merchant rig/brain");
+            if (!npc || !npc.choices || !npc.conversationTarget || !npc.voiceBank)
+                faults.Add("conversation/voice/palm choices");
+            if (!counter || counter.merchant != npc || !counter.buyArea || !counter.sellArea ||
+                !counter.paymentSpot || !counter.handshake || counter.handshake.counter != counter)
+                faults.Add("counter/handshake links");
+            if (!origin || origin.transform.position.y > .5f)
+                faults.Add("player XR origin starts above the trading floor");
+            if (counter && counter.buyArea && counter.sellArea &&
+                Vector3.Distance(counter.buyArea.transform.position,
+                    counter.sellArea.transform.position) < .5f)
+                faults.Add("buy and sell areas overlap");
+            if (faults.Count > 0)
+                throw new System.InvalidOperationException("Daran voice scene wiring failed: " + string.Join(", ", faults));
+            Debug.Log("Saved Daran voice scene wiring validation passed: player, merchant, palm choices, " +
+                "recorded voice, counter zones and handshake are connected.");
         }
 
         static T Asset<T>(string name) where T : ScriptableObject
@@ -361,9 +397,15 @@ namespace Zandea.FriendlyNPC.Editor
                 var handBone = FindBone(existing.transform, "CC_Base_R_Hand_081");
                 var existingInteraction = existing.GetComponent<FriendlyNpcInteraction>();
                 var existingHandshake = existing.GetComponentInChildren<HandshakeTarget>(true);
+                var existingBrain = existing.GetComponent<StarvingBandit>();
                 if (!headBone || !handBone || !existingInteraction || !existingHandshake)
                     throw new System.InvalidOperationException("Cannot update Daran: CC_Base bones or interaction missing");
                 existingInteraction.head = headBone;
+                if (existingBrain)
+                {
+                    existingBrain.guardAuthoringMode = false;
+                    existingBrain.previewEnabled = false;
+                }
                 existingInteraction.dialogue = dialogue;
                 existingInteraction.voiceBank = voiceBank;
                 existingInteraction.wanderRadius = 0f;
@@ -386,6 +428,8 @@ namespace Zandea.FriendlyNPC.Editor
             npc.name = "Daran Merchant";
             var brain = npc.GetComponent<StarvingBandit>();
             brain.hostileToPlayer = false;
+            brain.guardAuthoringMode = false;
+            brain.previewEnabled = false;
             brain.staff = null;
             foreach (var weapon in npc.GetComponentsInChildren<PhysicalMeleeWeapon>(true))
                 if (weapon && weapon.gameObject != npc) Object.DestroyImmediate(weapon.gameObject);

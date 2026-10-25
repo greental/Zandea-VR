@@ -97,12 +97,15 @@ namespace Zandea.FriendlyNPC
 
         void OnItemReleased(TradeItem item)
         {
-            if (!trading || !item || item.IsHeld || !configuration ||
+            if (!item || item.IsHeld || !configuration ||
                 string.IsNullOrEmpty(item.InstanceId) || item.GetComponent<CurrencyPouch>()) return;
             bool buying = buyArea && buyArea.Contains(item) &&
                 item.ownerId == configuration.vendorId;
             bool selling = !buying && sellArea && sellArea.Contains(item) &&
                 item.ownerId == "player";
+            if (buying) TryCapture(item, buyArea);
+            else if (selling) TryCapture(item, sellArea);
+            if (!trading) return;
             if (!buying && !selling)
             {
                 if (buyArea && buyArea.Contains(item) ||
@@ -134,6 +137,17 @@ namespace Zandea.FriendlyNPC
             }
         }
         public void TryOffer(TradeItem item) => OnItemReleased(item);
+
+        // The holding volume behaves like the backpack even while Daran is idle.
+        // Only a later active trade adds a quote; physical capture is not a sale.
+        public bool TryCapture(TradeItem item, TradeZone zone)
+        {
+            if (!item || !item.HasPhysicalRelease || item.IsHeld || !configuration || item.GetComponent<CurrencyPouch>() ||
+                (zone != buyArea && zone != sellArea) || !zone.Contains(item) ||
+                item.ownerId != (zone == buyArea ? configuration.vendorId : "player")) return false;
+            if (!item.IsFloatingForTrade) item.HoldForTradeAt(zone.ClampHoldPoint(item.transform.position));
+            return true;
+        }
 
         void OnPurseSelected(CurrencyPouch pouch)
         {

@@ -7,12 +7,60 @@ using NUnit.Framework;
 using UnityEditor.TestTools;
 using UnityEngine;
 using UnityEngine.TestTools;
+using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 namespace Zandea.FriendlyNPC.Editor
 {
     public sealed class MerchantTradeTests
     {
+        [UnityTest]
+        public IEnumerator HoldingBoxCatchesReleasedStockWithoutOpeningTrade()
+        {
+            yield return new EnterPlayMode();
+            var vendor = ScriptableObject.CreateInstance<VendorConfiguration>();
+            vendor.vendorId = "idle-capture-test";
+            var counterObject = new GameObject("Idle counter");
+            counterObject.SetActive(false);
+            var counter = counterObject.AddComponent<VendorCounter>();
+            counter.configuration = vendor;
+            var zoneObject = new GameObject("Buy holding box");
+            zoneObject.transform.SetParent(counterObject.transform);
+            var box = zoneObject.AddComponent<BoxCollider>();
+            box.isTrigger = true;
+            box.size = Vector3.one;
+            counter.buyArea = zoneObject.AddComponent<TradeZone>();
+            counterObject.SetActive(true);
+
+            var definition = ScriptableObject.CreateInstance<NpcItemDefinition>();
+            definition.itemId = "test-staff";
+            definition.valueCats = 20;
+            var stock = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            stock.SetActive(false);
+            stock.transform.position = new Vector3(.65f, 0, 0);
+            stock.transform.localScale = new Vector3(1.2f, .1f, .1f);
+            stock.AddComponent<Rigidbody>();
+            var grab = stock.AddComponent<XRGrabInteractable>();
+            var item = stock.AddComponent<TradeItem>();
+            item.definition = definition;
+            item.ownerId = vendor.vendorId;
+            stock.SetActive(true);
+            Physics.SyncTransforms();
+            yield return new WaitForFixedUpdate();
+            Assert.IsFalse(item.IsFloatingForTrade, "Unreleased shelf stock must not enter an offer");
+            grab.selectExited.Invoke(new SelectExitEventArgs());
+            yield return new WaitForFixedUpdate();
+            Assert.IsTrue(item.IsFloatingForTrade, "Released stock should float even before trading starts");
+            Assert.IsTrue(counter.buyArea.Contains(item));
+            Assert.AreEqual(0, counter.NetCats, "Capture alone must not charge or quote the item");
+            Assert.IsFalse(counter.Ready);
+            UnityEngine.Object.Destroy(stock);
+            UnityEngine.Object.Destroy(counterObject);
+            UnityEngine.Object.Destroy(definition);
+            UnityEngine.Object.Destroy(vendor);
+            yield return new ExitPlayMode();
+        }
+
         [UnityTest]
         public IEnumerator CombinedTradePayoutAndFailureCases()
         {
@@ -165,6 +213,7 @@ namespace Zandea.FriendlyNPC.Editor
             var staff = Item("Long staff", Definition("staff", 20), vendor.vendorId,
                 new Vector3(-1.55f, 0, 0));
             staff.transform.localScale = new Vector3(1.6f, .1f, .1f);
+            staff.GetComponent<XRGrabInteractable>().selectExited.Invoke(new SelectExitEventArgs());
             Physics.SyncTransforms();
             yield return new WaitForFixedUpdate();
             yield return new WaitForFixedUpdate();
