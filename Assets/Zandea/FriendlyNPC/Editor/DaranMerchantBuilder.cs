@@ -436,9 +436,13 @@ namespace Zandea.FriendlyNPC.Editor
                     existingInteraction.subtitle.transform.SetParent(headBone, false);
                 existingHandshake.transform.SetParent(handBone, false);
                 var existingContact = existingHandshake.GetComponent<SphereCollider>();
-                if (existingContact) existingContact.radius = .22f;
+                if (existingContact) existingContact.radius = .28f;
                 var existingPose = existing.GetComponent<MerchantHandshakePose>();
-                if (existingPose) existingPose.handTargetLocal = new Vector3(.22f, 1.25f, .55f);
+                if (existingPose)
+                {
+                    existingPose.handshake = existingHandshake;
+                    existingPose.handTargetLocal = new Vector3(.22f, 1.25f, .95f);
+                }
                 PrefabUtility.SaveAsPrefabAsset(existing, path);
                 PrefabUtility.UnloadPrefabContents(existing);
                 return AssetDatabase.LoadAssetAtPath<GameObject>(path);
@@ -473,7 +477,7 @@ namespace Zandea.FriendlyNPC.Editor
             handContact.transform.SetParent(rightHand, false);
             handContact.transform.localPosition = new Vector3(0, 0, .05f);
             var handCollider = handContact.AddComponent<SphereCollider>();
-            handCollider.isTrigger = true; handCollider.radius = .22f;
+            handCollider.isTrigger = true; handCollider.radius = .28f;
             var handTarget = handContact.AddComponent<XRSimpleInteractable>();
             handTarget.enabled = false;
             handContact.AddComponent<HandshakeTarget>();
@@ -504,7 +508,10 @@ namespace Zandea.FriendlyNPC.Editor
             interaction.invitationDistance = 6f;
             interaction.browseDistance = 3f;
             interaction.wanderRadius = 0f;
-            npc.AddComponent<MerchantHandshakePose>().merchant = interaction;
+            var merchantPose = npc.AddComponent<MerchantHandshakePose>();
+            merchantPose.merchant = interaction;
+            merchantPose.handshake = handContact.GetComponent<HandshakeTarget>();
+            merchantPose.handTargetLocal = new Vector3(.22f, 1.25f, .95f);
             var prefab = PrefabUtility.SaveAsPrefabAsset(npc, path);
             Object.DestroyImmediate(npc);
             return prefab;
@@ -602,13 +609,15 @@ namespace Zandea.FriendlyNPC.Editor
             {
                 var row = new GameObject("Choice " + (i + 1));
                 row.transform.SetParent(panel.transform, false);
-                row.transform.localPosition = new Vector3(0, (3 - i) * .045f, 0);
+                row.transform.localPosition = new Vector3(-.16f, (3 - i) * .045f, -.01f);
                 var label = row.AddComponent<TextMeshPro>();
-                label.fontSize = 2.5f; label.alignment = TextAlignmentOptions.Left;
+                label.fontSize = 2.5f; label.alignment = TextAlignmentOptions.MidlineLeft;
+                label.rectTransform.pivot = new Vector2(0f, .5f);
+                label.rectTransform.sizeDelta = new Vector2(6.6f, .82f);
                 row.transform.localScale = Vector3.one * .05f;
                 var hit = row.AddComponent<BoxCollider>();
                 hit.isTrigger = true;
-                hit.size = new Vector3(5f, .7f, .3f);
+                hit.size = new Vector3(6.6f, .82f, .3f);
                 choices.optionLabels[i] = label;
                 choices.optionTargets[i] = row.AddComponent<XRSimpleInteractable>();
             }

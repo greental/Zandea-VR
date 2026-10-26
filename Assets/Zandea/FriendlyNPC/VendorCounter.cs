@@ -18,6 +18,7 @@ namespace Zandea.FriendlyNPC
         public TMP_Text ledgerText;
         public TMP_FontAsset ledgerFont;
         public TMP_Text priceLabelPrefab;
+        [Min(.04f)] public float itemPriceWorldScale = .09f;
         public CurrencyPouch payoutPouchPrefab;
         public Transform payoutPosition;
         [Header("Sold stock display")]
@@ -27,6 +28,8 @@ namespace Zandea.FriendlyNPC
         [SerializeField, Min(0)] int merchantCats;
         [SerializeField] int committedTransactions;
         readonly Dictionary<string, Offer> offers = new();
+        readonly Dictionary<TradeItem, TradeZone> capturedItems = new();
+        readonly List<TradeItem> escapedItems = new();
         CurrencyPouch paymentPurse;
         bool trading;
         bool ready;
@@ -113,6 +116,7 @@ namespace Zandea.FriendlyNPC
             if (merchant) merchant.TradingChanged -= OnTradingChanged;
             Cancel();
             carriedStock.Clear(); warnedStock.Clear();
+            capturedItems.Clear();
         }
 
         void OnDestroy()
@@ -123,6 +127,18 @@ namespace Zandea.FriendlyNPC
 
         void Update()
         {
+            if (capturedItems.Count > 0)
+            {
+                escapedItems.Clear();
+                foreach (var capture in capturedItems)
+                    if (!capture.Key || !capture.Value || capture.Key.IsHeld ||
+                        !capture.Value.Contains(capture.Key)) escapedItems.Add(capture.Key);
+                foreach (var item in escapedItems)
+                    if (!item) capturedItems.Remove(item);
+                    else if (capturedItems.TryGetValue(item, out var zone))
+                        ReleaseCaptureIfOutside(item, zone);
+                escapedItems.Clear();
+            }
             if (carriedStock.Count == 0 || !merchant || !configuration) return;
             finishedCarriedStock.Clear();
             foreach (var pair in carriedStock)
@@ -160,6 +176,7 @@ namespace Zandea.FriendlyNPC
 
         void OnItemSelected(TradeItem item)
         {
+            if (item) capturedItems.Remove(item);
             if (item) displayedSoldStock.Remove(item);
             if (item && offers.Remove(item.InstanceId, out var old))
             { if (old.label) Destroy(old.label.gameObject); Recalculate(); }
@@ -180,6 +197,7 @@ namespace Zandea.FriendlyNPC
                 item.ownerId == "player";
             if (buying) TryCapture(item, buyArea);
             else if (selling) TryCapture(item, sellArea);
+            if ((buying || selling) && !trading) merchant?.TryBeginTradeFromCounter();
             if (!trading) return;
             if (!buying && !selling)
             {
@@ -198,9 +216,13 @@ namespace Zandea.FriendlyNPC
                 offer.label = Instantiate(priceLabelPrefab, item.transform.position + Vector3.up * .22f,
                     Quaternion.identity, item.transform);
                 offer.label.text = (buying ? "−" : "+") + price + " cats";
-                offer.label.fontSize = Mathf.Max(offer.label.fontSize, 3.8f);
-                offer.label.transform.localScale = Vector3.Max(offer.label.transform.localScale,
-                    Vector3.one * .06f);
+                offer.label.fontSize = Mathf.Max(offer.label.fontSize, 4.3f);
+                offer.label.rectTransform.sizeDelta = new Vector2(8f, 1.7f);
+                var parentScale = item.transform.lossyScale;
+                offer.label.transform.localScale = new Vector3(
+                    itemPriceWorldScale / Mathf.Max(.001f, Mathf.Abs(parentScale.x)),
+                    itemPriceWorldScale / Mathf.Max(.001f, Mathf.Abs(parentScale.y)),
+                    itemPriceWorldScale / Mathf.Max(.001f, Mathf.Abs(parentScale.z)));
                 offer.label.color = buying ? new Color(1f, .28f, .25f) : new Color(.35f, 1f, .48f);
             }
             offers.Add(item.InstanceId, offer);
@@ -224,7 +246,22 @@ namespace Zandea.FriendlyNPC
                 (zone != buyArea && zone != sellArea) || !zone.Contains(item) ||
                 item.ownerId != (zone == buyArea ? configuration.vendorId : "player")) return false;
             if (!item.IsFloatingForTrade) item.HoldForTradeAt(zone.ClampHoldPoint(item.transform.position));
+            item.SetTradeHoldingZone(zone);
+            capturedItems[item] = zone;
             return true;
+        }
+
+        public void ReleaseCaptureIfOutside(TradeItem item, TradeZone zone)
+        {
+            if (!item || !zone || zone.Contains(item) ||
+                !capturedItems.TryGetValue(item, out var capturedZone) || capturedZone != zone) return;
+            capturedItems.Remove(item);
+            item.ReleaseTradeHold();
+            if (offers.Remove(item.InstanceId, out var offer))
+            {
+                if (offer.label) Destroy(offer.label.gameObject);
+                Recalculate();
+            }
         }
 
         void OnPurseSelected(CurrencyPouch pouch)
@@ -316,6 +353,8 @@ namespace Zandea.FriendlyNPC
             ledgerText = text.AddComponent<TextMeshPro>();
             ledgerText.fontSize = 3.1f;
             ledgerText.alignment = TextAlignmentOptions.TopLeft;
+            ledgerText.rectTransform.pivot = new Vector2(0f, 1f);
+            ledgerText.rectTransform.sizeDelta = new Vector2(10.8f, 6.2f);
             ledgerText.color = new Color(.15f, .105f, .065f);
             if (!ledgerFont) ledgerFont = Resources.Load<TMP_FontAsset>("CaveatLedger");
             if (ledgerFont)

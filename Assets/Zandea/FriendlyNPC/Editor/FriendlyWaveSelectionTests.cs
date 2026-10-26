@@ -39,6 +39,17 @@ namespace Zandea.FriendlyNPC.Editor
             yield return new ExitPlayMode();
         }
 
+        [Test]
+        public void WaveRequiresPalmFacingNpc()
+        {
+            var palm = new GameObject("Palm");
+            palm.transform.rotation = Quaternion.LookRotation(Vector3.up, Vector3.back);
+            Assert.IsTrue(FriendlyNpcWaveInitiator.PalmFacesTarget(palm.transform, Vector3.forward));
+            palm.transform.rotation = Quaternion.LookRotation(Vector3.up, Vector3.forward);
+            Assert.IsFalse(FriendlyNpcWaveInitiator.PalmFacesTarget(palm.transform, Vector3.forward));
+            Object.DestroyImmediate(palm);
+        }
+
         static FriendlyNpcInteraction CreateNpc(string name, Vector3 position,
             DialogueDefinition dialogue)
         {

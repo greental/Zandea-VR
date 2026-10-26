@@ -54,13 +54,17 @@ namespace Zandea.FriendlyNPC
             if (this != counter.buyArea && this != counter.sellArea) return;
             var item = other.GetComponentInParent<TradeItem>();
             if (item && item.HasPhysicalRelease && !item.IsHeld && counter.TryCapture(item, this) &&
-                counter.Trading && attemptedItems.Add(item)) counter.TryOffer(item);
+                attemptedItems.Add(item)) counter.TryOffer(item);
         }
 
         void OnTriggerExit(Collider other)
         {
             var item = other.GetComponentInParent<TradeItem>();
-            if (item && !Contains(item)) attemptedItems.Remove(item);
+            if (item && !Contains(item))
+            {
+                attemptedItems.Remove(item);
+                counter?.ReleaseCaptureIfOutside(item, this);
+            }
             var pouch = other.GetComponentInParent<CurrencyPouch>();
             if (pouch && !Contains(pouch.transform.position)) attemptedPurses.Remove(pouch);
         }

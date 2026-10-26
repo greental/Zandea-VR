@@ -54,10 +54,92 @@ namespace Zandea.FriendlyNPC.Editor
             Assert.IsTrue(counter.buyArea.Contains(item));
             Assert.AreEqual(0, counter.NetCats, "Capture alone must not charge or quote the item");
             Assert.IsFalse(counter.Ready);
+            stock.transform.position = new Vector3(2f, 0f, 0f);
+            Physics.SyncTransforms();
+            yield return null;
+            Assert.IsFalse(item.IsFloatingForTrade,
+                "An item moved completely outside its holding box must resume normal physics.");
             UnityEngine.Object.Destroy(stock);
             UnityEngine.Object.Destroy(counterObject);
             UnityEngine.Object.Destroy(definition);
             UnityEngine.Object.Destroy(vendor);
+            yield return new ExitPlayMode();
+        }
+
+        [UnityTest]
+        public IEnumerator CopiedScrapsAccumulateAndReleaseStartsTrade()
+        {
+            yield return new EnterPlayMode();
+            var cameraObject = new GameObject("Trade viewer");
+            cameraObject.tag = "MainCamera";
+            cameraObject.transform.position = new Vector3(0f, 1.6f, 0f);
+            cameraObject.AddComponent<Camera>();
+            var dialogue = ScriptableObject.CreateInstance<DialogueDefinition>();
+            dialogue.entryNodeId = "trade_offer_001";
+            dialogue.nodes.Add(new DialogueNode { id = "trade_offer_001", text = "Trade",
+                onEnter = DialogueAction.BeginTrading });
+            var vendor = ScriptableObject.CreateInstance<VendorConfiguration>();
+            vendor.vendorId = "copied-scrap-test-" + Guid.NewGuid().ToString("N");
+            vendor.startingCats = 500;
+            vendor.saleMultiplier = .5f;
+            var definition = ScriptableObject.CreateInstance<NpcItemDefinition>();
+            definition.itemId = "scrap-metal";
+            definition.category = NpcItemCategory.Miscellaneous;
+            definition.valueCats = 64;
+            var npcObject = new GameObject("Nearby Daran");
+            npcObject.SetActive(false);
+            npcObject.transform.position = new Vector3(0f, 0f, 2f);
+            var npc = npcObject.AddComponent<FriendlyNpcInteraction>();
+            npc.dialogue = dialogue;
+            npcObject.SetActive(true);
+            var counterObject = new GameObject("Trade counter");
+            counterObject.SetActive(false);
+            var counter = counterObject.AddComponent<VendorCounter>();
+            counter.merchant = npc;
+            counter.configuration = vendor;
+            var zoneObject = new GameObject("Sell box");
+            zoneObject.transform.SetParent(counterObject.transform, false);
+            var box = zoneObject.AddComponent<BoxCollider>();
+            box.isTrigger = true;
+            box.size = new Vector3(2f, 1f, 3f);
+            counter.sellArea = zoneObject.AddComponent<TradeZone>();
+            counterObject.SetActive(true);
+            TradeItem Scrap(string name)
+            {
+                var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                go.name = name;
+                go.SetActive(false);
+                go.transform.position = new Vector3(0f, 0f, 1.2f);
+                go.AddComponent<Rigidbody>();
+                go.AddComponent<XRGrabInteractable>();
+                var item = go.AddComponent<TradeItem>();
+                item.ownerId = "player";
+                item.definition = definition;
+                go.SetActive(true);
+                return item;
+            }
+            var first = Scrap("Scrap copy one");
+            first.AssignPersistentIdentity("copied-scrap-instance");
+            var second = Scrap("Scrap copy two");
+            second.AssignPersistentIdentity("copied-scrap-instance");
+            Assert.AreNotEqual(first.InstanceId, second.InstanceId);
+            first.GetComponent<XRGrabInteractable>().selectExited.Invoke(new SelectExitEventArgs());
+            second.GetComponent<XRGrabInteractable>().selectExited.Invoke(new SelectExitEventArgs());
+            yield return new WaitForFixedUpdate();
+            yield return null;
+            Assert.IsTrue(first.HasPhysicalRelease && second.HasPhysicalRelease);
+            Assert.IsTrue(counter.sellArea.Contains(first) && counter.sellArea.Contains(second));
+            Assert.IsTrue(npc.IsTrading, "Placing goods on the counter should start trade dialogue.");
+            Assert.AreEqual(64, counter.NetCats, "Two 32-cat scrap offers should accumulate.");
+            UnityEngine.Object.Destroy(first.gameObject);
+            UnityEngine.Object.Destroy(second.gameObject);
+            UnityEngine.Object.Destroy(counterObject);
+            UnityEngine.Object.Destroy(npcObject);
+            UnityEngine.Object.Destroy(cameraObject);
+            UnityEngine.Object.Destroy(definition);
+            UnityEngine.Object.Destroy(vendor);
+            UnityEngine.Object.Destroy(dialogue);
+            yield return null;
             yield return new ExitPlayMode();
         }
 

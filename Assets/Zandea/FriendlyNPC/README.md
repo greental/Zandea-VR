@@ -28,7 +28,7 @@ ElevenLabs uses `ELEVENLABS_API_KEY` from the developer's environment. The key i
 
 ## Physical interaction
 
-From 6–16 m Daran calls out to the market; at 3–6 m he plays one of two invitations. Within 3 m, wave a free controller hand in view to start conversation. The player-side detector recognizes two deliberate sideways reversals and chooses the friendly NPC most directly under the headset gaze; approaching alone never opens dialogue. The old chest-grab target is disabled while idle. The conversation stays open within 9 m so the player can move around the stall. Raise the free left controller in front of the chest to reveal responses on a small physical notebook. Its position follows the tracked left interactor instead of the offset glove visual. The right stick cycles responses and A confirms; the right hand never carries the notebook. Lowering the left hand hides it. Choosing “I'll look around” dismisses the responses and keeps the trade open without repeating Daran's browse line. Dialogue reserves the left hand's grab/combat action while visible but leaves all locomotion and turn providers enabled. Quest 2 wave sensitivity, reach and text size still require headset tuning.
+From 6–16 m Daran calls out to the market; at 3–6 m he plays one of two invitations. Within 3 m, wave a free controller hand with its palm facing Daran to start conversation. The player-side detector recognizes two deliberate sideways reversals and chooses the friendly NPC most directly under the headset gaze; approaching alone never opens dialogue. The old chest-grab target is disabled while idle. The conversation stays open within 9 m so the player can move around the stall. Raise the free left controller in front of the chest to reveal responses on a small physical notebook. Its position follows the tracked left interactor instead of the offset glove visual. The right stick cycles responses and A confirms; the right hand never carries the notebook. Lowering the left hand hides it. Choosing “I'll look around” dismisses the responses and keeps the trade open without repeating Daran's browse line. Dialogue reserves the left hand's grab/combat action while visible but leaves all locomotion and turn providers enabled. Quest 2 wave sensitivity, reach and text size still require headset tuning.
 
 Merchant stock carries `TradeItem` with an existing `NpcItemDefinition`, instance ID and legal owner ID. Only release into the Buy or Sell area registers an offer. Grabbing removes it. The counter verifies identity, owner, position and current quote again at handshake. Item price labels show a red minus for purchases and a green plus for sales. `NetCats = sale proceeds − purchase costs`.
 
@@ -73,6 +73,28 @@ The later follow-up moves Daran's 18 recorded clips to `DecompressOnLoad` with `
 After the shelf, theft and audio-import follow-up, the isolated Unity 6000.2.8f1 Editor suite passed again: 5 passed, 0 failed, 1 ignored headset-only profiler. The trade test now checks a visible, stable sold item on the upper shelf and the vendor's remembered theft hostility. No headset frame-time measurement was possible in this run.
 
 Vendor balances, transferred source IDs and outstanding payout pouches are retained across POI unload/reload within one play session. A disk save adapter is still required for persistence across application restarts. Existing recorded speech has been imported, but the headset dialogue, trading and performance acceptance checks remain outstanding.
+
+## Merchant interaction repair (2026-10-26)
+
+The following changes address the latest in-headset report. They are code and prefab changes; the player's adjusted voice scene was preserved. Headset feel and appearance remain for the player to check.
+
+| Issue | Change | Remaining check |
+|---|---|---|
+| Straight arms at idle | The existing CC_Base rig now pulls both hands across the chest with elbow poles out. A subtle breath and glance animate the idle; alternate gestures temporarily release the right arm. | Inspect the final elbow shape and sleeve clipping in headset. The Lowpoly Dummy idle cannot drive this rig without a compatible Avatar. |
+| Staff-grip fingers | Finger bones are opened after `BanditRigMotion` restores its inherited grip, including rigs with scale-compensation nodes. | Inspect actual finger curl on Daran. |
+| Scrap remains floating outside Sell box | Captured items are checked against their holding zone and released when moved fully outside. Their Rigidbody state is restored and the offer removed. | Physically drag a released scrap away and let go. |
+| Tiny item prices | Buy and Sell prices now use a consistent world scale and larger glyph size, independent of a small item's transform scale. | Check readability at Quest 2 resolution. |
+| Ledger text left of paper | Ledger TMP rect now starts at its paper origin with a top-left pivot and explicit bounds. | Check against the adjusted authored scene. |
+| Conversation text left of notebook | The existing scene's left-hand choice rows are realigned at runtime to the notebook page; newly built rows use the same layout. | Check with tracked controller pose. |
+| Copied scraps share one quote | Live duplicate item IDs are replaced on the additional physical instances. Each released scrap has its own offer and price. | Check two distinct objects copied in the Editor. |
+| Back-of-hand wave | Wave recognition now requires the visual palm side to face the merchant/viewer. | Tune palm axis and threshold with the real glove in headset. |
+| Placing goods does not start trade | A deliberate release in Buy or Sell range starts Daran's trade line when the player is nearby, then quotes the item. | Check audio and trigger timing in headset. |
+| Hand too far away | The handshake target moved 0.4 m toward the player; Daran steps about 0.28 m forward and leans while offering. Contact radius is more forgiving. | Check reach and counter collision in headset. |
+| Spinning turn | A small alternating foot lift accompanies root turning. | Inspect foot placement on the final floor and NavMesh. |
+
+The automated tests cover duplicate IDs and accumulated quotes, release from the floating volume, counter-driven trade start, palm-facing selection, elbow bend, and forward handshake reach. They cannot establish final visual quality or controller comfort.
+
+Unity 6000.2.8f1 ran the focused merchant Editor suite in an isolated validation checkout on 2026-10-26: 8 passed, 0 failed, 1 skipped headset-only profiler test. The pose test checks bent elbows and the start of Daran's forward hand and body movement; the full reach, finger appearance, footwork, notebook alignment, and label readability still need a Quest 2 check. D: had over 414 GB free before and after validation.
 
 ## Headset follow-up issues (2026-10-25)
 

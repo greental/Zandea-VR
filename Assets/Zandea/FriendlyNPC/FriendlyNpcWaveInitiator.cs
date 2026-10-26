@@ -9,7 +9,7 @@ namespace Zandea.FriendlyNPC
         [Min(.06f)] public float minimumSwing = .12f;
         [Min(.3f)] public float waveWindowSeconds = 1.5f;
         [Min(.3f)] public float cooldownSeconds = 1.8f;
-        Transform viewer;
+        Transform viewer, leftPalm, rightPalm;
         XRDirectInteractor leftHand, rightHand;
         readonly WaveState left = new(), right = new();
         float nextAcceptedAt;
@@ -23,28 +23,37 @@ namespace Zandea.FriendlyNPC
         }
 
         public void Configure(Transform head, XRDirectInteractor leftInteractor,
-            XRDirectInteractor rightInteractor)
+            XRDirectInteractor rightInteractor, Transform leftPalmVisual = null,
+            Transform rightPalmVisual = null)
         {
             viewer = head;
             leftHand = leftInteractor;
             rightHand = rightInteractor;
+            leftPalm = leftPalmVisual;
+            rightPalm = rightPalmVisual;
             left.Reset(); right.Reset();
         }
 
         void Update()
         {
             if (!viewer || Time.time < nextAcceptedAt) return;
-            bool waved = Sample(leftHand, left) | Sample(rightHand, right);
+            bool waved = Sample(leftHand, leftPalm, left) | Sample(rightHand, rightPalm, right);
             if (!waved) return;
             left.Reset(); right.Reset();
             if (FriendlyNpcInteraction.TryBeginBestWave(viewer))
                 nextAcceptedAt = Time.time + cooldownSeconds;
         }
 
-        bool Sample(XRDirectInteractor hand, WaveState state)
+        public static bool PalmFacesTarget(Transform palm, Vector3 targetDirection)
+        {
+            return palm && Vector3.Dot(-palm.up, targetDirection.normalized) > .35f;
+        }
+
+        bool Sample(XRDirectInteractor hand, Transform palm, WaveState state)
         {
             if (!hand || !hand.gameObject.activeInHierarchy || hand.hasSelection ||
-                hand.isPerformingManualInteraction || FriendlyInputReservation.IsReserved(hand))
+                hand.isPerformingManualInteraction || FriendlyInputReservation.IsReserved(hand) ||
+                !PalmFacesTarget(palm ? palm : hand.transform, viewer.forward))
             { state.Reset(); return false; }
             Vector3 local = viewer.InverseTransformPoint(hand.transform.position);
             // A deliberate wave is in view near shoulder height, with a sideways

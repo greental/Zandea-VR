@@ -192,6 +192,45 @@ namespace Zandea.FriendlyNPC
             return active;
         }
 
+        // Releasing owned goods into a trade box is itself an intentional request
+        // to trade, even when the player did not first open the notebook dialogue.
+        public bool TryBeginTradeFromCounter()
+        {
+            if (!dialogue || !CanTalk()) return false;
+            if (!active)
+            {
+                var viewer = playerHead ? playerHead : cachedViewer;
+                float closest = viewer ? PlanarDistance(viewer.position, transform.position) : float.PositiveInfinity;
+                // A streamed stall can appear before the XR Origin is registered.
+                // Resolve a nearby active headset camera when the player actually
+                // releases an item; this scan never runs in the per-frame idle path.
+                if (closest > browseDistance)
+                {
+                    foreach (var camera in FindObjectsByType<Camera>(FindObjectsSortMode.None))
+                    {
+                        if (!camera || !camera.isActiveAndEnabled ||
+                            !camera.CompareTag("MainCamera") && !camera.GetComponentInParent<XROrigin>()) continue;
+                        float distance = PlanarDistance(camera.transform.position, transform.position);
+                        if (distance >= closest) continue;
+                        closest = distance;
+                        viewer = camera.transform;
+                    }
+                }
+                if (!viewer || closest > browseDistance)
+                    return false;
+                StopVoice();
+                ambientSpeaking = invitationSpeaking = false;
+                playerHead = viewer;
+                active = true;
+                wasHostile = brain && brain.hostileToPlayer;
+            }
+            if (trading) return true;
+            var offer = dialogue.Find("trade_offer_001");
+            if (offer != null) ShowNode(offer);
+            if (!trading) Execute(DialogueAction.BeginTrading);
+            return trading;
+        }
+
         bool CanTalk() => (!health || health.State == NpcConsciousness.Conscious) &&
             (!brain || !brain.hostileToPlayer);
 

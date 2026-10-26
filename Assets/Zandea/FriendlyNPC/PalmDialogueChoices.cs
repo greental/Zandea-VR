@@ -68,8 +68,9 @@ namespace Zandea.FriendlyNPC
             rightConfirm = new InputAction("Dialogue right confirm", InputActionType.Button, "<XRController>{RightHand}/primaryButton");
             var wave = GetComponent<FriendlyNpcWaveInitiator>();
             if (!wave) wave = gameObject.AddComponent<FriendlyNpcWaveInitiator>();
-            wave.Configure(viewer, leftHand, rightHand);
+            wave.Configure(viewer, leftHand, rightHand, leftPalm, rightPalm);
             BuildNotebook();
+            LayoutChoiceText();
             if (optionTargets != null)
                 for (int i = 0; i < optionTargets.Length; i++)
                     if (optionTargets[i])
@@ -83,7 +84,7 @@ namespace Zandea.FriendlyNPC
         void Start()
         {
             var wave = GetComponent<FriendlyNpcWaveInitiator>();
-            if (wave) wave.Configure(viewer, leftHand, rightHand);
+            if (wave) wave.Configure(viewer, leftHand, rightHand, leftPalm, rightPalm);
         }
 
         void OnEnable()
@@ -157,6 +158,8 @@ namespace Zandea.FriendlyNPC
         {
             if (!hand || !viewer || !hand.gameObject.activeInHierarchy || hand.hasSelection ||
                 hand.isPerformingManualInteraction) return false;
+            if (hand == leftHand && leftPalm &&
+                Vector3.Dot(-leftPalm.up, Vector3.up) < .25f) return false;
             var fromEye = hand.transform.position - viewer.position;
             float belowEye = -fromEye.y;
             return fromEye.sqrMagnitude <= distance * distance &&
@@ -198,6 +201,22 @@ namespace Zandea.FriendlyNPC
                 new Vector3(.365f, .285f, .012f), NotebookMaterial(new Color(.82f, .75f, .58f)));
             AddNotebookPart("Notebook binding", new Vector3(-.177f, .065f, -.002f),
                 new Vector3(.018f, .292f, .01f), NotebookMaterial(new Color(.12f, .075f, .045f)));
+        }
+
+        void LayoutChoiceText()
+        {
+            if (optionLabels == null) return;
+            foreach (var label in optionLabels)
+            {
+                if (!label) continue;
+                var row = label.transform;
+                row.localPosition = new Vector3(-.16f, row.localPosition.y, -.01f);
+                label.alignment = TextAlignmentOptions.MidlineLeft;
+                label.rectTransform.pivot = new Vector2(0f, .5f);
+                label.rectTransform.sizeDelta = new Vector2(6.6f, .82f);
+                var hit = row.GetComponent<BoxCollider>();
+                if (hit) hit.size = new Vector3(6.6f, .82f, .3f);
+            }
         }
 
         void AddNotebookPart(string name, Vector3 position, Vector3 scale, Material material)

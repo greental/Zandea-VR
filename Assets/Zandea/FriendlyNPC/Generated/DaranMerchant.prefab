@@ -371,7 +371,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.22
+  m_Radius: 0.28
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &754915139702689919
 MonoBehaviour:
@@ -458,7 +458,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.FriendlyNPC.HandshakeTarget
   counter: {fileID: 0}
-  gripRadius: 0.28
+  gripRadius: 0.36
 --- !u!1 &5924281846124166178
 GameObject:
   m_ObjectHideFlags: 0
@@ -757,9 +757,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.FriendlyNPC.MerchantHandshakePose
   merchant: {fileID: 3199236456029880873}
-  handshake: {fileID: 0}
+  handshake: {fileID: 3084343881122295867}
   animator: {fileID: 0}
-  handTargetLocal: {x: 0.22, y: 1.25, z: 0.55}
+  handTargetLocal: {x: 0.22, y: 1.25, z: 0.95}
   blendSpeed: 3
   maxHeadYaw: 20
   maxHeadPitch: 12

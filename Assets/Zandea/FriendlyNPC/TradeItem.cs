@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using KenshiVR.MeleeCombat;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -20,6 +21,7 @@ namespace Zandea.FriendlyNPC
         Rigidbody body;
         Collider[] itemColliders;
         bool tradeHeld;
+        TradeZone heldZone;
         bool wasKinematic;
         bool hadGravity;
         RigidbodyInterpolation oldInterpolation;
@@ -27,6 +29,9 @@ namespace Zandea.FriendlyNPC
         Quaternion heldRotation;
         bool releasePending;
         bool hasPhysicalRelease;
+        static readonly Dictionary<string, TradeItem> LiveIds = new();
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetLiveIds() => LiveIds.Clear();
         public static event Action<TradeItem> Released;
         public static event Action<TradeItem> Selected;
         public string InstanceId => persistentInstanceId;
@@ -46,6 +51,20 @@ namespace Zandea.FriendlyNPC
             if (string.IsNullOrEmpty(persistentInstanceId) && existing && existing.Item != null)
                 persistentInstanceId = existing.Item.InstanceId;
             if (string.IsNullOrEmpty(persistentInstanceId)) persistentInstanceId = Guid.NewGuid().ToString("N");
+            // Duplicating an authored scrap object also duplicates its serialized ID.
+            // Keep the first source ID stable and give each additional physical copy its own offer ID.
+            if (Application.isPlaying)
+            {
+                while (LiveIds.TryGetValue(persistentInstanceId, out var liveItem) && liveItem && liveItem != this)
+                    persistentInstanceId = Guid.NewGuid().ToString("N");
+                LiveIds[persistentInstanceId] = this;
+            }
+        }
+
+        void OnDestroy()
+        {
+            if (LiveIds.TryGetValue(persistentInstanceId, out var current) && current == this)
+                LiveIds.Remove(persistentInstanceId);
         }
 
         void Start()
@@ -110,6 +129,7 @@ namespace Zandea.FriendlyNPC
         {
             if (!tradeHeld) return;
             tradeHeld = false;
+            heldZone = null;
             if (!body) return;
             body.isKinematic = wasKinematic;
             body.useGravity = hadGravity;
@@ -124,9 +144,13 @@ namespace Zandea.FriendlyNPC
                 Released?.Invoke(this);
             }
             if (!tradeHeld || IsHeld) return;
+            if (heldZone && !heldZone.Contains(this))
+            { ReleaseTradeHold(); return; }
             FreezeTradeBody();
             transform.SetPositionAndRotation(heldPosition, heldRotation);
         }
+
+        public void SetTradeHoldingZone(TradeZone zone) => heldZone = zone;
 
         void FreezeTradeBody()
         {
@@ -167,7 +191,16 @@ namespace Zandea.FriendlyNPC
 
         public void AssignPersistentIdentity(string id)
         {
-            if (!string.IsNullOrWhiteSpace(id)) persistentInstanceId = id;
+            if (string.IsNullOrWhiteSpace(id)) return;
+            if (LiveIds.TryGetValue(persistentInstanceId, out var current) && current == this)
+                LiveIds.Remove(persistentInstanceId);
+            persistentInstanceId = id;
+            if (Application.isPlaying)
+            {
+                while (LiveIds.TryGetValue(persistentInstanceId, out var existing) && existing && existing != this)
+                    persistentInstanceId = Guid.NewGuid().ToString("N");
+                LiveIds[persistentInstanceId] = this;
+            }
         }
     }
 }

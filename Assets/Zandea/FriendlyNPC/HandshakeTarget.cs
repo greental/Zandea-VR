@@ -19,10 +19,11 @@ namespace Zandea.FriendlyNPC
         InputAction leftGrip, rightGrip;
         GameObject cue;
         bool leftReserved, rightReserved;
-        [Min(.15f)] public float gripRadius = .28f;
+        [Min(.15f)] public float gripRadius = .36f;
         public bool IsArmed => armed;
         void Awake()
         {
+            gripRadius = Mathf.Max(gripRadius, .36f);
             interactable = GetComponent<XRSimpleInteractable>();
             leftGrip = new InputAction("Merchant handshake left grip", InputActionType.Button,
                 "<XRController>{LeftHand}/gripPressed");
