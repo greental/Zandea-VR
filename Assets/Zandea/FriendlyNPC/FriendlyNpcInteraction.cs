@@ -11,7 +11,6 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.AI;
 using Unity.XR.CoreUtils;
-using UnityEngine.InputSystem;
 
 namespace Zandea.FriendlyNPC
 {
@@ -32,7 +31,10 @@ namespace Zandea.FriendlyNPC
         public AudioSource mouthAudio;
         public TMP_Text subtitle;
         public PalmDialogueChoices choices;
-        [Min(1f)] public float maxConversationDistance = 4f;
+        [Min(1f)] public float maxConversationDistance = 9f;
+        [Min(1f)] public float invitationDistance = 6f;
+        [Min(.5f)] public float browseDistance = 3f;
+        [Min(6f)] public float marketCallDistance = 16f;
         [Min(.03f)] public float turnDegreesPerSecond = 85f;
         [Min(.2f)] public float closeGripDistance = .65f;
         public UnityEvent onQuestHook = new();
@@ -52,6 +54,7 @@ namespace Zandea.FriendlyNPC
         readonly Dictionary<string, int> lastTakeByEvent = new();
         readonly Dictionary<string, float> lastPlayedAt = new();
         float nextAmbientCall;
+        float lastMarketCallAt = -100f;
         float ambientEnd;
         bool ambientSpeaking;
         int lastAmbientIndex = -1;
@@ -64,11 +67,14 @@ namespace Zandea.FriendlyNPC
         bool trading;
         bool wasHostile;
         bool greetedPlayer;
+        bool browseLatched;
+        bool farZoneSeen;
+        bool invitationSpeaking;
+        bool pendingBrowse;
         bool nearby;
         Transform cachedViewer;
         float nextViewerLookup;
         NavMeshAgent navAgent;
-        InputAction leftTalkGrip, rightTalkGrip;
         GameObject talkCue;
         Vector3 home;
         float nextWander;
@@ -98,10 +104,6 @@ namespace Zandea.FriendlyNPC
             }
             if (subtitle) subtitle.gameObject.SetActive(false);
             if (choices) choices.Hide();
-            leftTalkGrip = new InputAction("Talk to NPC left grip", InputActionType.Button,
-                "<XRController>{LeftHand}/gripPressed");
-            rightTalkGrip = new InputAction("Talk to NPC right grip", InputActionType.Button,
-                "<XRController>{RightHand}/gripPressed");
             if (conversationTarget)
             {
                 talkCue = new GameObject("Talk cue");
@@ -109,7 +111,7 @@ namespace Zandea.FriendlyNPC
                 talkCue.transform.localPosition = new Vector3(0f, .28f, 0f);
                 talkCue.transform.localScale = Vector3.one * .045f;
                 var cueText = talkCue.AddComponent<TextMeshPro>();
-                cueText.text = "Grip near me to talk";
+                cueText.text = "Come have a look";
                 cueText.fontSize = 2.2f;
                 cueText.alignment = TextAlignmentOptions.Center;
                 talkCue.AddComponent<BillboardLabel>();
@@ -121,7 +123,6 @@ namespace Zandea.FriendlyNPC
         void OnEnable()
         {
             if (conversationTarget) conversationTarget.selectEntered.AddListener(OnSelected);
-            leftTalkGrip?.Enable(); rightTalkGrip?.Enable();
             if (health)
             {
                 health.onDamaged.AddListener(OnDamaged);
@@ -132,7 +133,6 @@ namespace Zandea.FriendlyNPC
         void OnDisable()
         {
             if (conversationTarget) conversationTarget.selectEntered.RemoveListener(OnSelected);
-            leftTalkGrip?.Disable(); rightTalkGrip?.Disable();
             if (talkCue) talkCue.SetActive(false);
             if (health)
             {
@@ -141,8 +141,6 @@ namespace Zandea.FriendlyNPC
             }
             EndConversation();
         }
-
-        void OnDestroy() { leftTalkGrip?.Dispose(); rightTalkGrip?.Dispose(); }
 
         void OnSelected(SelectEnterEventArgs args)
         {
@@ -154,7 +152,8 @@ namespace Zandea.FriendlyNPC
             if (!hand) return false;
             var origin = hand.GetComponentInParent<Unity.XR.CoreUtils.XROrigin>();
             var viewer = origin && origin.Camera ? origin.Camera.transform : Camera.main ? Camera.main.transform : null;
-            return viewer && TryBegin(viewer);
+            return viewer && (Vector3.Distance(viewer.position, transform.position) <= browseDistance
+                ? BeginBrowsing(viewer) : TryBegin(viewer));
         }
 
         public bool TryBegin(Transform viewer)
@@ -169,6 +168,27 @@ namespace Zandea.FriendlyNPC
             alternateGreeting = !alternateGreeting;
             var alternate = dialogue.Find("greeting_002");
             ShowNode(alternateGreeting && alternate != null ? alternate : dialogue.Find(dialogue.entryNodeId));
+            return active;
+        }
+
+        public bool BeginBrowsing(Transform viewer)
+        {
+            if (active || !viewer || !dialogue || !CanTalk() ||
+                Vector3.Distance(viewer.position, transform.position) > browseDistance) return false;
+            playerHead = viewer;
+            active = trading = true;
+            browseLatched = true;
+            greetedPlayer = true;
+            wasHostile = brain && brain.hostileToPlayer;
+            TradingChanged?.Invoke(true);
+            // Let an invitation finish its sentence before the browse line.
+            pendingBrowse = invitationSpeaking && mouthAudio && mouthAudio.isPlaying;
+            if (!pendingBrowse)
+            {
+                StopVoice();
+                ambientSpeaking = invitationSpeaking = false;
+                ShowNode(dialogue.Find("trade_offer_001"));
+            }
             return active;
         }
 
@@ -198,25 +218,26 @@ namespace Zandea.FriendlyNPC
                         Camera.main ? Camera.main.transform : null;
                 }
                 float distance = cachedViewer ? Vector3.Distance(cachedViewer.position, transform.position) : float.MaxValue;
-                nearby = CanTalk() && distance <= Mathf.Min(2.5f, maxConversationDistance);
+                nearby = CanTalk() && distance <= invitationDistance;
                 playerHead = nearby ? cachedViewer : null;
-                if (talkCue) talkCue.SetActive(nearby);
-                if (nearby && choices && conversationTarget)
+                if (talkCue && talkCue.activeSelf) talkCue.SetActive(false);
+                if (distance > browseDistance + .6f) browseLatched = false;
+                if (distance > invitationDistance + 1f) greetedPlayer = false;
+                bool inMarketRange = distance > invitationDistance && distance <= marketCallDistance;
+                if (inMarketRange && !farZoneSeen && Time.time - lastMarketCallAt > 20f)
+                    nextAmbientCall = Time.time;
+                farZoneSeen = inMarketRange;
+                if (nearby && distance <= browseDistance && !browseLatched &&
+                    !IsPlayerIncapacitated())
                 {
-                    var contact = conversationTarget.transform.position;
-                    if (CanStartWithGrip(choices.leftHand, leftTalkGrip, contact) ||
-                        CanStartWithGrip(choices.rightHand, rightTalkGrip, contact))
-                    {
-                        TryBegin(cachedViewer);
-                        return;
-                    }
+                    BeginBrowsing(cachedViewer);
+                    if (active) return;
                 }
-                if (nearby && !greetedPlayer)
+                if (nearby && distance > browseDistance && !greetedPlayer)
                 {
                     greetedPlayer = true;
-                    GreetNearby();
+                    InviteNearby();
                 }
-                if (distance > 3.5f) greetedPlayer = false;
                 if (nearby)
                 {
                     var toward = Vector3.ProjectOnPlane(cachedViewer.position - transform.position, Vector3.up);
@@ -228,11 +249,12 @@ namespace Zandea.FriendlyNPC
                 if (ambientSpeaking && VoiceFinished(ambientEnd))
                 {
                     ambientSpeaking = false;
+                    invitationSpeaking = false;
                     if (mouthAudio) mouthAudio.maxDistance = 10f;
                     if (subtitle) subtitle.gameObject.SetActive(false);
                     if (face) face.ResetExpression();
                 }
-                if (!ambientSpeaking && !nearby && CanTalk() && Time.time >= nextAmbientCall)
+                if (!ambientSpeaking && inMarketRange && CanTalk() && Time.time >= nextAmbientCall)
                     TryAmbientCall();
             }
             if (!active && navAgent && navAgent.enabled && navAgent.isOnNavMesh && wanderRadius > 0f && Time.time >= nextWander)
@@ -256,6 +278,16 @@ namespace Zandea.FriendlyNPC
                     Quaternion.LookRotation(direction), turnDegreesPerSecond * Time.deltaTime);
 
             UpdateMouth();
+
+            if (pendingBrowse)
+            {
+                if (VoiceFinished(ambientEnd))
+                {
+                    pendingBrowse = ambientSpeaking = invitationSpeaking = false;
+                    ShowNode(dialogue.Find("trade_offer_001"));
+                }
+                return;
+            }
 
             if (barkSpeaking)
             {
@@ -298,14 +330,18 @@ namespace Zandea.FriendlyNPC
             }
         }
 
-        bool CanStartWithGrip(XRDirectInteractor hand, InputAction grip, Vector3 contact) =>
-            hand && !hand.hasSelection && grip != null && grip.WasPressedThisFrame() &&
-            (hand.transform.position - contact).sqrMagnitude <= closeGripDistance * closeGripDistance;
-
-        void GreetNearby()
+        void InviteNearby()
         {
             var pose = GetComponent<MerchantHandshakePose>();
             if (pose) pose.PlayGesture("wave");
+            alternateGreeting = !alternateGreeting;
+            string eventId = alternateGreeting && dialogue.Find("greeting_002") != null ?
+                "greeting_002" : dialogue.entryNodeId;
+            var node = dialogue.Find(eventId);
+            if (face) face.SetExpression(ExpressionType.Happy, .3f);
+            ambientEnd = Time.time + PlayVoiceEvent(eventId, node?.audio, node?.text,
+                node?.mouthEnvelope);
+            ambientSpeaking = invitationSpeaking = true;
         }
 
         void UpdateMouth()
@@ -350,6 +386,11 @@ namespace Zandea.FriendlyNPC
             if (!active || current != null || !choices || !choices.TryGetResponse(index, out var response)) return;
             choices.Hide();
             Execute(response.action);
+            if (response.action == DialogueAction.BrowseFreely)
+            {
+                availableResponses.Clear();
+                return;
+            }
             if (active) ShowNode(dialogue.Find(response.nextNodeId));
         }
 
@@ -363,6 +404,7 @@ namespace Zandea.FriendlyNPC
                     break;
                 case DialogueAction.QuestHook: onQuestHook.Invoke(); break;
                 case DialogueAction.EndConversation: EndConversation(); break;
+                case DialogueAction.BrowseFreely: break;
             }
         }
 
@@ -415,6 +457,7 @@ namespace Zandea.FriendlyNPC
             lastAmbientIndex = index;
             string eventId = voiceBank.ambientEventIds[index];
             if (voiceBank.Find(eventId) == null) return;
+            lastMarketCallAt = Time.time;
             if (face) face.SetExpression(ExpressionType.Neutral);
             ambientEnd = Time.time + PlayVoiceEvent(eventId, null, null);
             if (mouthAudio) mouthAudio.maxDistance = 16f;
@@ -476,6 +519,7 @@ namespace Zandea.FriendlyNPC
         {
             if (!active && !ambientSpeaking) return;
             active = false;
+            pendingBrowse = invitationSpeaking = false;
             current = null;
             ambientSpeaking = barkSpeaking = false;
             pendingBark = null;

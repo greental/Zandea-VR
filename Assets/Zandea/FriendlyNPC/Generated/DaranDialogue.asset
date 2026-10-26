@@ -61,8 +61,8 @@ MonoBehaviour:
     nextNodeId: 
     responses:
     - text: I'll look around.
-      nextNodeId: trade_offer_001
-      action: 0
+      nextNodeId:
+      action: 4
       conditionId: 
     - text: That's all for now.
       nextNodeId: farewell_001

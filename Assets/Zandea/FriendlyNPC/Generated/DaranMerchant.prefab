@@ -733,7 +733,10 @@ MonoBehaviour:
   mouthAudio: {fileID: 6764099429955217581}
   subtitle: {fileID: 6635955063553327784}
   choices: {fileID: 0}
-  maxConversationDistance: 4
+  maxConversationDistance: 9
+  invitationDistance: 6
+  browseDistance: 3
+  marketCallDistance: 16
   turnDegreesPerSecond: 85
   onQuestHook:
     m_PersistentCalls:

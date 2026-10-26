@@ -42,8 +42,6 @@ namespace Zandea.FriendlyNPC
         public GameObject panel;
         public TMP_Text[] optionLabels;
         public XRSimpleInteractable[] optionTargets;
-        [Tooltip("Movement and turn providers paused only while choices are visible.")]
-        public Behaviour[] pauseWhileVisible;
         [Tooltip("A free controller raised in front of the chest reveals the choices. No optical hand tracking is required.")]
         [Min(.2f)] public float showDistance = .72f;
         [Min(.2f)] public float hideDistance = .82f;
@@ -57,7 +55,6 @@ namespace Zandea.FriendlyNPC
         bool visible;
         Transform viewer;
         float lastShownAt;
-        bool[] previousProviderStates;
 
         void Awake()
         {
@@ -67,7 +64,7 @@ namespace Zandea.FriendlyNPC
             rightStick = new InputAction("Dialogue right stick", InputActionType.Value, "<XRController>{RightHand}/primary2DAxis");
             leftConfirm = new InputAction("Dialogue left confirm", InputActionType.Button, "<XRController>{LeftHand}/primaryButton");
             rightConfirm = new InputAction("Dialogue right confirm", InputActionType.Button, "<XRController>{RightHand}/primaryButton");
-            previousProviderStates = new bool[pauseWhileVisible?.Length ?? 0];
+            BuildNotebook();
             if (optionTargets != null)
                 for (int i = 0; i < optionTargets.Length; i++)
                     if (optionTargets[i])
@@ -115,12 +112,12 @@ namespace Zandea.FriendlyNPC
         {
             if (responses.Count == 0) return;
             if (visible && Time.unscaledTime - lastShownAt > .3f &&
-                !HandRaised(activeHand, activeHand == leftHand ? leftPalm : rightPalm, hideDistance))
+                !HandRaised(activeHand, hideDistance))
                 SetVisible(null);
             if (!visible)
             {
-                if (CanShow(leftHand, leftPalm)) SetVisible(leftHand);
-                else if (CanShow(rightHand, rightPalm)) SetVisible(rightHand);
+                if (HandRaised(leftHand, showDistance)) SetVisible(leftHand);
+                else if (HandRaised(rightHand, showDistance)) SetVisible(rightHand);
             }
             if (!visible) return;
             // The opposite controller's stick and A/X button work when pointing is awkward.
@@ -142,31 +139,31 @@ namespace Zandea.FriendlyNPC
         void LateUpdate()
         {
             if (!visible || !panel || !viewer) return;
-            var palm = activeHand == leftHand ? leftPalm : rightPalm;
-            if (!palm) return;
-            var towardViewer = viewer.position - palm.position;
-            panel.transform.position = palm.position + Vector3.up * .12f + towardViewer.normalized * .035f;
+            var hand = activeHand;
+            if (!hand) return;
+            // The direct interactor follows the tracked controller. The glove visual can
+            // be offset by its model rig, which previously put the panel a metre left.
+            panel.transform.position = hand.transform.position + Vector3.up * .12f +
+                viewer.right * (hand == leftHand ? .09f : -.09f);
             // TMP's readable face points away from its local forward axis.
             panel.transform.rotation = Quaternion.LookRotation(panel.transform.position - viewer.position, Vector3.up);
         }
 
-        bool HandRaised(XRDirectInteractor hand, Transform palm, float distance)
+        bool HandRaised(XRDirectInteractor hand, float distance)
         {
-            if (!hand || !palm || !viewer || !hand.gameObject.activeInHierarchy || hand.hasSelection ||
+            if (!hand || !viewer || !hand.gameObject.activeInHierarchy || hand.hasSelection ||
                 hand.isPerformingManualInteraction) return false;
-            var fromEye = palm.position - viewer.position;
+            var fromEye = hand.transform.position - viewer.position;
             float belowEye = -fromEye.y;
             return fromEye.sqrMagnitude <= distance * distance &&
                 belowEye >= .08f && belowEye <= .68f &&
-                Vector3.Dot(viewer.forward, fromEye) > .05f;
+                Vector3.Dot(viewer.forward, fromEye) > .05f &&
+                Mathf.Abs(Vector3.Dot(viewer.right, fromEye)) < .4f;
         }
-
-        bool CanShow(XRDirectInteractor hand, Transform palm) => HandRaised(hand, palm, showDistance);
 
         void SetVisible(XRDirectInteractor hand)
         {
             if (activeHand == hand && visible == (hand != null) && (!panel || panel.activeSelf == visible)) return;
-            if (visible) PauseProviders(false);
             FriendlyInputReservation.Set(activeHand, false);
             activeHand = hand;
             visible = hand != null;
@@ -176,23 +173,35 @@ namespace Zandea.FriendlyNPC
                 panel.SetActive(visible);
             }
             FriendlyInputReservation.Set(activeHand, visible, true);
-            if (visible) PauseProviders(true);
         }
 
-        void PauseProviders(bool pause)
+        static Material NotebookMaterial(Color color)
         {
-            if (pauseWhileVisible == null) return;
-            for (int i = 0; i < pauseWhileVisible.Length; i++)
-            {
-                var provider = pauseWhileVisible[i];
-                if (!provider) continue;
-                if (pause)
-                {
-                    previousProviderStates[i] = provider.enabled;
-                    provider.enabled = false;
-                }
-                else provider.enabled = previousProviderStates[i];
-            }
+            var shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (!shader) shader = Shader.Find("Standard");
+            return new Material(shader) { color = color };
+        }
+
+        void BuildNotebook()
+        {
+            if (!panel || panel.transform.Find("Notebook cover")) return;
+            AddNotebookPart("Notebook cover", new Vector3(0f, .065f, .03f),
+                new Vector3(.39f, .31f, .018f), NotebookMaterial(new Color(.19f, .12f, .075f)));
+            AddNotebookPart("Notebook pages", new Vector3(.007f, .065f, .014f),
+                new Vector3(.365f, .285f, .012f), NotebookMaterial(new Color(.82f, .75f, .58f)));
+            AddNotebookPart("Notebook binding", new Vector3(-.177f, .065f, -.002f),
+                new Vector3(.018f, .292f, .01f), NotebookMaterial(new Color(.12f, .075f, .045f)));
+        }
+
+        void AddNotebookPart(string name, Vector3 position, Vector3 scale, Material material)
+        {
+            var part = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            part.name = name;
+            part.transform.SetParent(panel.transform, false);
+            part.transform.localPosition = position;
+            part.transform.localScale = scale;
+            part.GetComponent<Renderer>().sharedMaterial = material;
+            Destroy(part.GetComponent<Collider>());
         }
 
         void RefreshLabels()

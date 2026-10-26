@@ -278,7 +278,7 @@ namespace Zandea.FriendlyNPC.Editor
             greeting.responses.Add(Reply("Goodbye.", "farewell_001"));
             var trade = Node("trade_offer_001", "Go on, have a look. Anything on the counter is for sale. Well, almost anything.");
             trade.gestureId = "present";
-            trade.responses.Add(Reply("I'll look around.", "trade_offer_001"));
+            trade.responses.Add(Reply("I'll look around.", "", DialogueAction.BrowseFreely));
             trade.responses.Add(Reply("That's all for now.", "farewell_001"));
             var work = Node("work_001", "A caravan vanished near the old toll station. I might pay for a useful answer.", ExpressionType.Sad);
             work.onEnter = DialogueAction.QuestHook;
@@ -408,6 +408,9 @@ namespace Zandea.FriendlyNPC.Editor
                 }
                 existingInteraction.dialogue = dialogue;
                 existingInteraction.voiceBank = voiceBank;
+                existingInteraction.maxConversationDistance = 9f;
+                existingInteraction.invitationDistance = 6f;
+                existingInteraction.browseDistance = 3f;
                 existingInteraction.wanderRadius = 0f;
                 if (existingInteraction.mouthAudio)
                     existingInteraction.mouthAudio.transform.SetParent(headBone, false);
@@ -479,6 +482,9 @@ namespace Zandea.FriendlyNPC.Editor
             interaction.conversationTarget = talkTarget;
             interaction.mouthAudio = audio;
             interaction.subtitle = subtitle;
+            interaction.maxConversationDistance = 9f;
+            interaction.invitationDistance = 6f;
+            interaction.browseDistance = 3f;
             interaction.wanderRadius = 0f;
             npc.AddComponent<MerchantHandshakePose>().merchant = interaction;
             var prefab = PrefabUtility.SaveAsPrefabAsset(npc, path);
@@ -568,10 +574,6 @@ namespace Zandea.FriendlyNPC.Editor
                 if (hand.left) { choices.leftHand = interactor; choices.leftPalm = hand.transform; }
                 else { choices.rightHand = interactor; choices.rightPalm = hand.transform; }
             }
-            var movement = new List<Behaviour>();
-            movement.AddRange(player.GetComponentsInChildren<LocomotionProvider>(true));
-            movement.AddRange(player.GetComponentsInChildren<JunkerSprint>(true));
-            choices.pauseWhileVisible = movement.ToArray();
             var panel = new GameObject("Choices");
             panel.transform.SetParent(root.transform, false);
             panel.transform.localPosition = new Vector3(0, .09f, .16f);

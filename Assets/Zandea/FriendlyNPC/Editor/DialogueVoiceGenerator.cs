@@ -176,6 +176,7 @@ namespace Zandea.FriendlyNPC.Editor
                 var compressed = original;
                 compressed.compressionFormat = AudioCompressionFormat.Vorbis;
                 compressed.loadType = AudioClipLoadType.CompressedInMemory;
+                compressed.preloadAudioData = true;
                 importer.defaultSampleSettings = compressed;
                 importer.SaveAndReimport();
             }
