@@ -15,7 +15,7 @@ namespace Zandea.Props.Editor
     {
         const string Folder = "Assets/Zandea/Props";
         const string Models = Folder + "/Models/";
-        const string Prefabs = Folder + "/Prefabs/";
+        const string Prefabs = "Assets/MyAssets/prefabs/buildings/props/";
         const string Materials = Folder + "/Materials/";
         const string Resource = Folder + "/Resources/ZandeaOutpostProps.asset";
         static readonly string[] Keys = { "pot", "stool", "chest", "barrel", "rack", "crate", "sack", "table", "statue" };

@@ -17,7 +17,7 @@ namespace Zandea.Pueblo.Editor
     {
         const string Root = "Assets/Zandea/Pueblo";
         const string Models = Root + "/Models/";
-        const string Prefabs = Root + "/Prefabs/";
+        const string Prefabs = "Assets/MyAssets/prefabs/buildings/PuebloBonito/";
         const string Materials = Root + "/Materials/";
         const string DefinitionPath = Root + "/PuebloSettlement.asset";
         const string PropsPath = Root + "/PuebloProps.asset";
@@ -40,7 +40,9 @@ namespace Zandea.Pueblo.Editor
                 throw new InvalidOperationException("Exit Play Mode before building the pueblo settlement.");
             if (new DriveInfo("D:\\").AvailableFreeSpace < 20L * 1024 * 1024 * 1024)
                 throw new InvalidOperationException("D: has less than 20 GiB free; postpone this import.");
+            PuebloAuthoringSync.OrganizePrefabs();
             Directory.CreateDirectory(Prefabs);
+            Directory.CreateDirectory("Assets/MyAssets/prefabs/buildings/props");
             Directory.CreateDirectory(Materials);
             Directory.CreateDirectory("Assets/Scenes/Zandea");
             AssetDatabase.Refresh();
@@ -58,6 +60,7 @@ namespace Zandea.Pueblo.Editor
                 throw new InvalidOperationException("Pueblo layout invalid: " + issue);
             BuildReviewScene(definition, props);
             InstallMain(definition, props);
+            PuebloAuthoringSync.SyncIfAuthored();
             AssetDatabase.SaveAssets();
             if (new DriveInfo("D:\\").AvailableFreeSpace < 20L * 1024 * 1024 * 1024)
                 Debug.LogWarning("[Pueblo] D: fell below 20 GiB after import.");
@@ -110,6 +113,8 @@ namespace Zandea.Pueblo.Editor
 
         static GameObject BuildStatic(string key)
         {
+            var existing = AssetDatabase.LoadAssetAtPath<GameObject>(Prefabs + "Pueblo_" + key + ".prefab");
+            if (existing) return existing; // preserve Inspector and authored prefab changes
             EnsureModelScale(key);
             var source = AssetDatabase.LoadAssetAtPath<GameObject>(Models + key + ".fbx");
             if (!source) throw new InvalidOperationException("Missing imported Pueblo FBX: " + key);
@@ -142,6 +147,9 @@ namespace Zandea.Pueblo.Editor
         static GameObject BuildBasket()
         {
             const string key = "basket";
+            var existing = AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/MyAssets/prefabs/buildings/props/Pueblo_basket.prefab");
+            if (existing) return existing;
             EnsureModelScale(key);
             var source = AssetDatabase.LoadAssetAtPath<GameObject>(Models + key + ".fbx");
             if (!source) throw new InvalidOperationException("Missing imported basket FBX.");
@@ -164,13 +172,17 @@ namespace Zandea.Pueblo.Editor
                 body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
                 root.AddComponent<XRGrabInteractable>();
                 root.AddComponent<PhysicalProp>();
-                return PrefabUtility.SaveAsPrefabAsset(root, Prefabs + "Pueblo_basket.prefab");
+                return PrefabUtility.SaveAsPrefabAsset(root,
+                    "Assets/MyAssets/prefabs/buildings/props/Pueblo_basket.prefab");
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
 
         static GameObject BuildPhysicalPot(string key)
         {
+            var path = "Assets/MyAssets/prefabs/buildings/props/Pueblo_" + key + ".prefab";
+            var existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing) return existing;
             EnsureModelScale(key);
             var source = AssetDatabase.LoadAssetAtPath<GameObject>(Models + key + ".fbx");
             if (!source) throw new InvalidOperationException("Missing Pueblo pot model: " + key);
@@ -193,13 +205,16 @@ namespace Zandea.Pueblo.Editor
                 body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
                 root.AddComponent<XRGrabInteractable>();
                 root.AddComponent<PhysicalProp>();
-                return PrefabUtility.SaveAsPrefabAsset(root, Prefabs + "Pueblo_" + key + ".prefab");
+                return PrefabUtility.SaveAsPrefabAsset(root, path);
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
 
         static GameObject BuildGroundProp(string key)
         {
+            var path = "Assets/MyAssets/prefabs/buildings/props/Pueblo_" + key + ".prefab";
+            var existing = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (existing) return existing;
             EnsureModelScale(key);
             var source = AssetDatabase.LoadAssetAtPath<GameObject>(Models + key + ".fbx");
             if (!source) throw new InvalidOperationException("Missing Pueblo ground prop model: " + key);
@@ -216,7 +231,7 @@ namespace Zandea.Pueblo.Editor
                 var box = root.AddComponent<BoxCollider>();
                 box.center = bounds.center;
                 box.size = bounds.size;
-                return PrefabUtility.SaveAsPrefabAsset(root, Prefabs + "Pueblo_" + key + ".prefab");
+                return PrefabUtility.SaveAsPrefabAsset(root, path);
             }
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
@@ -348,6 +363,7 @@ namespace Zandea.Pueblo.Editor
                         poi.transform.Find("Generated Layout Preview") : null;
                     if (poi)
                     {
+                        if (preview && preview.name == "Layout Preview") return;
                         if (preview) UnityEngine.Object.DestroyImmediate(preview.gameObject);
                         poi.InvalidateLayout();
                         var rebuilt = poi.InstantiateStructures("Generated Layout Preview");

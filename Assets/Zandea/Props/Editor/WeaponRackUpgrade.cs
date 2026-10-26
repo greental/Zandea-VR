@@ -8,7 +8,7 @@ namespace Zandea.Props.Editor
     [InitializeOnLoad]
     static class WeaponRackUpgrade
     {
-        const string Rack="Assets/Zandea/Props/Prefabs/rack.prefab",Folder="Assets/Zandea/Props/WeaponItems";
+        const string Rack="Assets/MyAssets/prefabs/buildings/props/rack.prefab",Folder="Assets/Zandea/Props/WeaponItems";
         static WeaponRackUpgrade()=>EditorApplication.delayCall+=Upgrade;
         [MenuItem("Zandea/Props/Upgrade multi-weapon rack")]
         static void Upgrade()

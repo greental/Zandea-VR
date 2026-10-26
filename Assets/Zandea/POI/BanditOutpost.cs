@@ -98,7 +98,10 @@ namespace Zandea.POI
         {
             // The Main layout was fitted by hand to the authored terrain's slope.
             // A procedural plateau buries its downhill walls and leaves roof pieces floating.
-            if (!authoredLayout) OutpostTerrain.Stamp(treadmill, definition, stableSite, siteHeight, tile, data, Rotation);
+            // Pueblo's authored layout was arranged on the level review terrain.
+            // It still needs its deterministic stamp when streamed into Main.
+            if (!authoredLayout || poiId.StartsWith("zandea.pueblo.", StringComparison.Ordinal))
+                OutpostTerrain.Stamp(treadmill, definition, stableSite, siteHeight, tile, data, Rotation);
         }
         void AdoptAuthoredSite(Vector3 position)
         {
