@@ -21,6 +21,7 @@ namespace Zandea.FriendlyNPC
         Quaternion restingHeadRotation;
         Quaternion restingSpineRotation;
         float handshakeWeight, waveWeight, presentWeight;
+        float foldedWeight;
         float headYaw, headPitch;
         float nodStart = -10f, waveStart = -10f, presentStart = -10f;
         float nextIdleGlance, idleYaw;
@@ -97,6 +98,9 @@ namespace Zandea.FriendlyNPC
                 !offeringHand && Time.time - waveStart < 1.1f ? .72f : 0f, dt * 2.8f);
             presentWeight = Mathf.MoveTowards(presentWeight,
                 !offeringHand && Time.time - presentStart < 1.5f ? .65f : 0f, dt * 2.8f);
+            foldedWeight = Mathf.MoveTowards(foldedWeight,
+                !offeringHand && waveWeight < .03f && presentWeight < .03f ? .82f : 0f,
+                dt * 2.2f);
 
             // BanditRigMotion supplies the base pose each frame. A world-space
             // LookRotation on this bone caused the observed full head spin.
@@ -133,6 +137,20 @@ namespace Zandea.FriendlyNPC
             // Applying a delta to the current bone then accumulates every frame.
             head.localRotation = restingHeadRotation * Quaternion.Euler(headPitch + nod, headYaw, 0f);
 
+            // Daran's inherited bandit rest pose still grips an absent staff.
+            // Cross both forearms at rest, then yield the right arm to gestures
+            // and the transaction reach without touching the combat rig driver.
+            if (foldedWeight > .001f)
+            {
+                if (leftUpper && leftLower && leftHand)
+                    SolveBlended(leftUpper, leftLower, leftHand,
+                        transform.TransformPoint(new Vector3(.18f, 1.15f, .23f)),
+                        -transform.right + transform.forward * .25f, foldedWeight);
+                if (rightUpper && rightLower && rightHand)
+                    SolveBlended(rightUpper, rightLower, rightHand,
+                        transform.TransformPoint(new Vector3(-.17f, 1.12f, .27f)),
+                        transform.right + transform.forward * .25f, foldedWeight);
+            }
             if (!rightUpper || !rightLower || !rightHand) return;
             float rightWeight = Mathf.Max(handshakeWeight, waveWeight, presentWeight);
             if (rightWeight <= .001f) return;

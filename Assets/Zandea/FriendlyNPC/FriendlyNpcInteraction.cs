@@ -45,6 +45,32 @@ namespace Zandea.FriendlyNPC
         public Vector2 ambientCallIntervalSeconds = new(45f, 120f);
         public event Action<bool> TradingChanged;
         public event Action ConversationEnded;
+        static readonly HashSet<FriendlyNpcInteraction> Available = new();
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetAvailable() => Available.Clear();
+
+        public static bool TryBeginBestWave(Transform viewer)
+        {
+            if (!viewer) return false;
+            FriendlyNpcInteraction best = null;
+            float bestDot = .57f;
+            float bestDistance = float.PositiveInfinity;
+            foreach (var npc in Available)
+            {
+                if (!npc || !npc.isActiveAndEnabled || !npc.CanTalk()) continue;
+                if (npc.active) return false; // One player cannot open another dialogue mid-conversation.
+                Vector3 target = npc.head ? npc.head.position : npc.transform.position + Vector3.up * 1.5f;
+                Vector3 toward = target - viewer.position;
+                float distance = Vector3.ProjectOnPlane(npc.transform.position - viewer.position,
+                    Vector3.up).magnitude;
+                if (distance > npc.browseDistance || distance < .15f) continue;
+                float dot = Vector3.Dot(viewer.forward, toward.normalized);
+                if (dot > bestDot + .001f || Mathf.Abs(dot - bestDot) <= .001f && distance < bestDistance)
+                { best = npc; bestDot = dot; bestDistance = distance; }
+            }
+            return best && best.TryBegin(viewer);
+        }
 
         DialogueNode current;
         readonly System.Collections.Generic.List<DialogueResponse> availableResponses = new(4);
@@ -67,10 +93,8 @@ namespace Zandea.FriendlyNPC
         bool trading;
         bool wasHostile;
         bool greetedPlayer;
-        bool browseLatched;
         bool farZoneSeen;
         bool invitationSpeaking;
-        bool pendingBrowse;
         bool nearby;
         Transform cachedViewer;
         float nextViewerLookup;
@@ -88,6 +112,10 @@ namespace Zandea.FriendlyNPC
             if (!health) health = GetComponent<ScavengerHealth>();
             if (!face) face = GetComponentInChildren<NPCFacialExpressionController>(true);
             if (!conversationTarget) conversationTarget = GetComponentInChildren<XRSimpleInteractable>(true);
+            // Conversation is started by the player's deliberate wave. The old
+            // chest grab target must not steal item or handshake selection.
+            if (conversationTarget && !conversationTarget.GetComponent<HandshakeTarget>())
+                conversationTarget.enabled = false;
             if (!choices) choices = FindFirstObjectByType<PalmDialogueChoices>();
             navAgent = GetComponent<NavMeshAgent>();
             home = transform.position;
@@ -122,7 +150,7 @@ namespace Zandea.FriendlyNPC
 
         void OnEnable()
         {
-            if (conversationTarget) conversationTarget.selectEntered.AddListener(OnSelected);
+            Available.Add(this);
             if (health)
             {
                 health.onDamaged.AddListener(OnDamaged);
@@ -132,7 +160,7 @@ namespace Zandea.FriendlyNPC
 
         void OnDisable()
         {
-            if (conversationTarget) conversationTarget.selectEntered.RemoveListener(OnSelected);
+            Available.Remove(this);
             if (talkCue) talkCue.SetActive(false);
             if (health)
             {
@@ -142,26 +170,12 @@ namespace Zandea.FriendlyNPC
             EndConversation();
         }
 
-        void OnSelected(SelectEnterEventArgs args)
-        {
-            TryBeginFromHand(args.interactorObject?.transform);
-        }
-
-        public bool TryBeginFromHand(Transform hand)
-        {
-            if (!hand) return false;
-            var origin = hand.GetComponentInParent<Unity.XR.CoreUtils.XROrigin>();
-            var viewer = origin && origin.Camera ? origin.Camera.transform : Camera.main ? Camera.main.transform : null;
-            return viewer && (Vector3.Distance(viewer.position, transform.position) <= browseDistance
-                ? BeginBrowsing(viewer) : TryBegin(viewer));
-        }
-
         public bool TryBegin(Transform viewer)
         {
             if (active || !viewer || !dialogue || !CanTalk() ||
-                Vector3.Distance(viewer.position, transform.position) > maxConversationDistance) return false;
+                PlanarDistance(viewer.position, transform.position) > browseDistance) return false;
             StopVoice();
-            ambientSpeaking = false;
+            ambientSpeaking = invitationSpeaking = false;
             playerHead = viewer;
             active = true;
             wasHostile = brain && brain.hostileToPlayer;
@@ -171,29 +185,11 @@ namespace Zandea.FriendlyNPC
             return active;
         }
 
-        public bool BeginBrowsing(Transform viewer)
-        {
-            if (active || !viewer || !dialogue || !CanTalk() ||
-                Vector3.Distance(viewer.position, transform.position) > browseDistance) return false;
-            playerHead = viewer;
-            active = trading = true;
-            browseLatched = true;
-            greetedPlayer = true;
-            wasHostile = brain && brain.hostileToPlayer;
-            TradingChanged?.Invoke(true);
-            // Let an invitation finish its sentence before the browse line.
-            pendingBrowse = invitationSpeaking && mouthAudio && mouthAudio.isPlaying;
-            if (!pendingBrowse)
-            {
-                StopVoice();
-                ambientSpeaking = invitationSpeaking = false;
-                ShowNode(dialogue.Find("trade_offer_001"));
-            }
-            return active;
-        }
-
         bool CanTalk() => (!health || health.State == NpcConsciousness.Conscious) &&
             (!brain || !brain.hostileToPlayer);
+
+        static float PlanarDistance(Vector3 a, Vector3 b) =>
+            Vector3.ProjectOnPlane(a - b, Vector3.up).magnitude;
 
         void OnDamaged()
         {
@@ -217,22 +213,15 @@ namespace Zandea.FriendlyNPC
                     cachedViewer = origin && origin.Camera ? origin.Camera.transform :
                         Camera.main ? Camera.main.transform : null;
                 }
-                float distance = cachedViewer ? Vector3.Distance(cachedViewer.position, transform.position) : float.MaxValue;
+                float distance = cachedViewer ? PlanarDistance(cachedViewer.position, transform.position) : float.MaxValue;
                 nearby = CanTalk() && distance <= invitationDistance;
                 playerHead = nearby ? cachedViewer : null;
                 if (talkCue && talkCue.activeSelf) talkCue.SetActive(false);
-                if (distance > browseDistance + .6f) browseLatched = false;
                 if (distance > invitationDistance + 1f) greetedPlayer = false;
                 bool inMarketRange = distance > invitationDistance && distance <= marketCallDistance;
                 if (inMarketRange && !farZoneSeen && Time.time - lastMarketCallAt > 20f)
                     nextAmbientCall = Time.time;
                 farZoneSeen = inMarketRange;
-                if (nearby && distance <= browseDistance && !browseLatched &&
-                    !IsPlayerIncapacitated())
-                {
-                    BeginBrowsing(cachedViewer);
-                    if (active) return;
-                }
                 if (nearby && distance > browseDistance && !greetedPlayer)
                 {
                     greetedPlayer = true;
@@ -268,7 +257,7 @@ namespace Zandea.FriendlyNPC
             if (talkCue && talkCue.activeSelf) talkCue.SetActive(false);
             if (navAgent && navAgent.enabled && navAgent.isOnNavMesh) navAgent.ResetPath();
             if (!playerHead || !CanTalk() || brain && brain.hostileToPlayer != wasHostile ||
-                Vector3.Distance(playerHead.position, transform.position) > maxConversationDistance ||
+                PlanarDistance(playerHead.position, transform.position) > maxConversationDistance ||
                 IsPlayerIncapacitated())
             { EndConversation(); return; }
 
@@ -278,16 +267,6 @@ namespace Zandea.FriendlyNPC
                     Quaternion.LookRotation(direction), turnDegreesPerSecond * Time.deltaTime);
 
             UpdateMouth();
-
-            if (pendingBrowse)
-            {
-                if (VoiceFinished(ambientEnd))
-                {
-                    pendingBrowse = ambientSpeaking = invitationSpeaking = false;
-                    ShowNode(dialogue.Find("trade_offer_001"));
-                }
-                return;
-            }
 
             if (barkSpeaking)
             {
@@ -318,8 +297,12 @@ namespace Zandea.FriendlyNPC
                 var eventId = pendingBark;
                 pendingBark = null;
                 choices?.Hide();
-                if (face) face.SetExpression(ExpressionType.Neutral);
-                barkEnd = Time.time + PlayVoiceEvent(eventId, null, null);
+                bool theft = eventId == "stock_stolen_001";
+                bool warning = theft || eventId == "stock_warning_001";
+                if (face) face.SetExpression(warning ? ExpressionType.Angry : ExpressionType.Neutral);
+                barkEnd = Time.time + PlayVoiceEvent(eventId, null,
+                    warning ? theft ? "That's mine. Bring it back." :
+                        "Don't walk off with my stock, traveler." : null);
                 barkSpeaking = true;
             }
             else if (current == null && !barkSpeaking && !string.IsNullOrEmpty(pendingContext))
@@ -439,6 +422,20 @@ namespace Zandea.FriendlyNPC
             pendingBark = eventId;
         }
 
+        public void WarnAboutStock(bool stolen)
+        {
+            if (!CanTalk()) return;
+            string eventId = stolen ? "stock_stolen_001" : "stock_warning_001";
+            if (active) { pendingBark = eventId; return; }
+            if (face) face.SetExpression(ExpressionType.Angry, .4f);
+            var pose = GetComponent<MerchantHandshakePose>();
+            if (pose) pose.PlayGesture("wave");
+            ambientEnd = Time.time + PlayVoiceEvent(eventId, null,
+                stolen ? "That's mine. Bring it back." :
+                    "Don't walk off with my stock, traveler.");
+            ambientSpeaking = true;
+        }
+
         void ScheduleAmbientCall()
         {
             float low = Mathf.Max(10f, ambientCallIntervalSeconds.x);
@@ -519,7 +516,7 @@ namespace Zandea.FriendlyNPC
         {
             if (!active && !ambientSpeaking) return;
             active = false;
-            pendingBrowse = invitationSpeaking = false;
+            invitationSpeaking = false;
             current = null;
             ambientSpeaking = barkSpeaking = false;
             pendingBark = null;

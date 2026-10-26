@@ -45,9 +45,7 @@ namespace Zandea.FriendlyNPC
             interactable.hoverEntered.AddListener(OnHover);
             interactable.hoverExited.AddListener(OnHoverExit);
             interactable.selectEntered.AddListener(OnGrip);
-            // An idle hand contact can begin a conversation; only a ready offer
-            // makes the same contact a transaction confirmation.
-            interactable.enabled = true;
+            interactable.enabled = armed;
             leftGrip?.Enable(); rightGrip?.Enable();
         }
         void OnDisable()
@@ -103,7 +101,7 @@ namespace Zandea.FriendlyNPC
                 hovering = null;
                 ClearHandReservations();
             }
-            if (interactable) interactable.enabled = true;
+            if (interactable) interactable.enabled = ready;
             if (cue) cue.SetActive(ready);
         }
         void OnHover(HoverEnterEventArgs args)
@@ -124,11 +122,7 @@ namespace Zandea.FriendlyNPC
         void OnGrip(SelectEnterEventArgs args)
         {
             if (args.interactorObject is not XRDirectInteractor) return;
-            if (!armed)
-            {
-                counter?.merchant?.TryBeginFromHand(args.interactorObject.transform);
-                return;
-            }
+            if (!armed) return;
             if (used) return;
             Confirm();
         }

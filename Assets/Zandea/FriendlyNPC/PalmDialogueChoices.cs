@@ -47,7 +47,8 @@ namespace Zandea.FriendlyNPC
         [Min(.2f)] public float hideDistance = .82f;
         [Min(.1f)] public float stickRepeatSeconds = .3f;
         readonly List<DialogueResponse> responses = new(4);
-        InputAction leftStick, rightStick, leftConfirm, rightConfirm;
+        readonly List<Material> notebookMaterials = new(3);
+        InputAction rightStick, rightConfirm;
         Action<int> selected;
         XRDirectInteractor activeHand;
         int highlighted;
@@ -60,10 +61,11 @@ namespace Zandea.FriendlyNPC
         {
             var origin = GetComponentInParent<Unity.XR.CoreUtils.XROrigin>();
             viewer = origin && origin.Camera ? origin.Camera.transform : Camera.main ? Camera.main.transform : null;
-            leftStick = new InputAction("Dialogue left stick", InputActionType.Value, "<XRController>{LeftHand}/primary2DAxis");
             rightStick = new InputAction("Dialogue right stick", InputActionType.Value, "<XRController>{RightHand}/primary2DAxis");
-            leftConfirm = new InputAction("Dialogue left confirm", InputActionType.Button, "<XRController>{LeftHand}/primaryButton");
             rightConfirm = new InputAction("Dialogue right confirm", InputActionType.Button, "<XRController>{RightHand}/primaryButton");
+            var wave = GetComponent<FriendlyNpcWaveInitiator>();
+            if (!wave) wave = gameObject.AddComponent<FriendlyNpcWaveInitiator>();
+            wave.Configure(viewer, leftHand, rightHand);
             BuildNotebook();
             if (optionTargets != null)
                 for (int i = 0; i < optionTargets.Length; i++)
@@ -75,20 +77,27 @@ namespace Zandea.FriendlyNPC
             Hide();
         }
 
+        void Start()
+        {
+            var wave = GetComponent<FriendlyNpcWaveInitiator>();
+            if (wave) wave.Configure(viewer, leftHand, rightHand);
+        }
+
         void OnEnable()
         {
-            leftStick?.Enable(); rightStick?.Enable(); leftConfirm?.Enable(); rightConfirm?.Enable();
+            rightStick?.Enable(); rightConfirm?.Enable();
         }
 
         void OnDisable()
         {
             Hide();
-            leftStick?.Disable(); rightStick?.Disable(); leftConfirm?.Disable(); rightConfirm?.Disable();
+            rightStick?.Disable(); rightConfirm?.Disable();
         }
 
         void OnDestroy()
         {
-            leftStick?.Dispose(); rightStick?.Dispose(); leftConfirm?.Dispose(); rightConfirm?.Dispose();
+            rightStick?.Dispose(); rightConfirm?.Dispose();
+            foreach (var material in notebookMaterials) if (material) Destroy(material);
         }
 
         public void Show(IReadOnlyList<DialogueResponse> options, Action<int> callback)
@@ -112,27 +121,19 @@ namespace Zandea.FriendlyNPC
         {
             if (responses.Count == 0) return;
             if (visible && Time.unscaledTime - lastShownAt > .3f &&
-                !HandRaised(activeHand, hideDistance))
+                !HandRaised(leftHand, hideDistance))
                 SetVisible(null);
-            if (!visible)
-            {
-                if (HandRaised(leftHand, showDistance)) SetVisible(leftHand);
-                else if (HandRaised(rightHand, showDistance)) SetVisible(rightHand);
-            }
+            if (!visible && HandRaised(leftHand, showDistance)) SetVisible(leftHand);
             if (!visible) return;
-            // The opposite controller's stick and A/X button work when pointing is awkward.
-            var stick = activeHand == leftHand ? rightStick : leftStick;
-            var confirm = activeHand == leftHand ? rightConfirm : leftConfirm;
-            float vertical = stick.ReadValue<Vector2>().y;
+            // The notebook always occupies the left hand; the right stick and A select.
+            float vertical = rightStick.ReadValue<Vector2>().y;
             if (Time.time >= nextStick && Mathf.Abs(vertical) > .65f)
             {
                 highlighted = (highlighted + (vertical < 0 ? 1 : responses.Count - 1)) % responses.Count;
                 nextStick = Time.time + stickRepeatSeconds;
                 RefreshLabels();
             }
-            if (confirm.WasPressedThisFrame() ||
-                ((activeHand == leftHand ? leftConfirm : rightConfirm).WasPressedThisFrame() &&
-                 (activeHand == leftHand ? !rightHand || rightHand.hasSelection : !leftHand || leftHand.hasSelection)))
+            if (rightConfirm.WasPressedThisFrame())
                 Choose(highlighted);
         }
 
@@ -143,8 +144,7 @@ namespace Zandea.FriendlyNPC
             if (!hand) return;
             // The direct interactor follows the tracked controller. The glove visual can
             // be offset by its model rig, which previously put the panel a metre left.
-            panel.transform.position = hand.transform.position + Vector3.up * .12f +
-                viewer.right * (hand == leftHand ? .09f : -.09f);
+            panel.transform.position = hand.transform.position + Vector3.up * .12f + viewer.right * .09f;
             // TMP's readable face points away from its local forward axis.
             panel.transform.rotation = Quaternion.LookRotation(panel.transform.position - viewer.position, Vector3.up);
         }
@@ -175,11 +175,13 @@ namespace Zandea.FriendlyNPC
             FriendlyInputReservation.Set(activeHand, visible, true);
         }
 
-        static Material NotebookMaterial(Color color)
+        Material NotebookMaterial(Color color)
         {
             var shader = Shader.Find("Universal Render Pipeline/Lit");
             if (!shader) shader = Shader.Find("Standard");
-            return new Material(shader) { color = color };
+            var material = new Material(shader) { color = color };
+            notebookMaterials.Add(material);
+            return material;
         }
 
         void BuildNotebook()

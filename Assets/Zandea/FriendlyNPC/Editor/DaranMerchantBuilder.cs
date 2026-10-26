@@ -229,6 +229,11 @@ namespace Zandea.FriendlyNPC.Editor
                 faults.Add("friendly merchant rig/brain");
             if (!npc || !npc.choices || !npc.conversationTarget || !npc.voiceBank)
                 faults.Add("conversation/voice/palm choices");
+            if (npc && npc.choices && !npc.choices.leftHand)
+                faults.Add("tracked left notebook hand");
+            if (!AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(
+                "Assets/Zandea/FriendlyNPC/Resources/CaveatLedger.asset"))
+                faults.Add("handwritten ledger font");
             if (!counter || counter.merchant != npc || !counter.buyArea || !counter.sellArea ||
                 !counter.paymentSpot || !counter.handshake || counter.handshake.counter != counter)
                 faults.Add("counter/handshake links");

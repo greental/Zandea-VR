@@ -16,6 +16,7 @@ namespace Zandea.FriendlyNPC
         [Min(0), SerializeField] int cats;
         public JunkerEquipmentSlot homeAnchor;
         [Min(.05f)] public float mergeRadius = .18f;
+        [Min(.1f)] public float returnRadius = .42f;
         public int Cats => cats;
         public XRGrabInteractable Grab { get; private set; }
         JunkerEquipmentItem equipment;
@@ -104,8 +105,14 @@ namespace Zandea.FriendlyNPC
 
         public bool TryMergePayout(CurrencyPouch other)
         {
+            return AbsorbPayout(other, true);
+        }
+
+        bool AbsorbPayout(CurrencyPouch other, bool requireProximity)
+        {
             if (!personal || !other || other == this || other.personal || other.Cats <= 0 ||
-                other.Grab.isSelected || Vector3.Distance(transform.position, other.transform.position) > mergeRadius ||
+                other.Grab.isSelected || requireProximity &&
+                Vector3.Distance(transform.position, other.transform.position) > mergeRadius ||
                 cats > int.MaxValue - other.Cats) return false;
             int amount = other.Cats;
             other.cats = 0;
@@ -133,6 +140,24 @@ namespace Zandea.FriendlyNPC
             if (!releasePending || Grab.isSelected) return;
             releasePending = false;
             Released?.Invoke(this);
+            if (personal)
+            {
+                var backpack = homeAnchor ? homeAnchor.GetComponentInParent<BackpackInventory>() : null;
+                bool inside = backpack && backpack.storageVolume &&
+                    backpack.storageVolume.Contains(transform.position);
+                if (homeAnchor && (inside ||
+                    Vector3.Distance(transform.position, homeAnchor.transform.position) <= returnRadius))
+                    ReturnHomeWhenReleased();
+            }
+            else
+            {
+                var purse = PersonalInstance;
+                var backpack = purse && purse.homeAnchor ?
+                    purse.homeAnchor.GetComponentInParent<BackpackInventory>() : null;
+                if (backpack && backpack.IsUsable && backpack.storageVolume &&
+                    backpack.storageVolume.Contains(transform.position))
+                    purse.AbsorbPayout(this, false);
+            }
         }
         void TryReturnHome()
         {

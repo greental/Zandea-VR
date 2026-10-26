@@ -184,6 +184,11 @@ namespace Zandea.FriendlyNPC.Editor
             Assert.IsFalse(sword.IsFloatingForTrade, "Grabbing restores the original body state");
             Assert.IsFalse(sword.GetComponent<Rigidbody>().isKinematic);
             Assert.AreEqual(vendor.vendorId, scrap.ownerId);
+            Assert.Contains(scrap, new List<TradeItem>(counter.SoldStock));
+            Assert.IsFalse(scrap.gameObject.activeInHierarchy,
+                "Sold goods should leave the counter for merchant stock.");
+            Assert.IsTrue(MerchantSessionState.Get(vendor.vendorId, vendor.startingCats)
+                .soldStockIds.Contains(scrap.InstanceId));
             Assert.IsFalse(counter.TryCommit(), "Repeated handshake must not recommit");
 
             var valuable = Item("Valuable loot", Definition("valuable", 100), "player", Vector3.right);
@@ -209,6 +214,15 @@ namespace Zandea.FriendlyNPC.Editor
             Assert.IsFalse(counter.TryCommit());
             Assert.AreEqual(115, purse.Cats);
             Assert.AreEqual(vendor.vendorId, costly.ownerId);
+
+            var walkoff = Item("Walkoff stock", Definition("walkoff", 25), vendor.vendorId,
+                new Vector3(0f, 0f, 1f));
+            walkoff.GetComponent<XRGrabInteractable>().selectEntered.Invoke(new SelectEnterEventArgs());
+            walkoff.transform.position = new Vector3(10f, 0f, 0f);
+            yield return null;
+            Assert.IsTrue(walkoff.IsStolen, "Stock carried beyond nine metres is marked stolen.");
+            Assert.IsTrue(MerchantSessionState.Get(vendor.vendorId, vendor.startingCats)
+                .stolenStockIds.Contains(walkoff.InstanceId));
 
             var staff = Item("Long staff", Definition("staff", 20), vendor.vendorId,
                 new Vector3(-1.55f, 0, 0));

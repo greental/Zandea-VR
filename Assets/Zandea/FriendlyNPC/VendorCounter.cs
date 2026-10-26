@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -14,6 +15,8 @@ namespace Zandea.FriendlyNPC
         public TradeZone buyArea, sellArea, paymentSpot;
         public HandshakeTarget handshake;
         public TMP_Text netLabel;
+        public TMP_Text ledgerText;
+        public TMP_FontAsset ledgerFont;
         public TMP_Text priceLabelPrefab;
         public CurrencyPouch payoutPouchPrefab;
         public Transform payoutPosition;
@@ -25,6 +28,18 @@ namespace Zandea.FriendlyNPC
         bool ready;
         bool committing;
         bool acknowledgedSale;
+        readonly StringBuilder ledgerBuffer = new(256);
+        static bool ledgerGlyphsReady;
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetLedgerGlyphs() => ledgerGlyphsReady = false;
+        readonly List<TradeItem> soldStock = new();
+        readonly Dictionary<string, TradeItem> carriedStock = new();
+        readonly HashSet<string> warnedStock = new();
+        readonly List<string> finishedCarriedStock = new();
+        Transform soldStorage;
+        Material ledgerPaperMaterial;
+        public IReadOnlyList<TradeItem> SoldStock => soldStock;
+        public event Action<TradeItem> StockStolen;
 
         sealed class Offer
         {
@@ -47,7 +62,13 @@ namespace Zandea.FriendlyNPC
                 merchantCats = MerchantSessionState.Get(configuration.vendorId, configuration.startingCats).cats;
             if (!merchant) merchant = GetComponentInParent<FriendlyNpcInteraction>();
             if (handshake) handshake.Arm(false);
-            if (netLabel) netLabel.gameObject.SetActive(false);
+            if (netLabel) { netLabel.fontSize = Mathf.Max(netLabel.fontSize, 3.4f); netLabel.gameObject.SetActive(false); }
+            if (!ledgerText) BuildLedger();
+            if (ledgerText) ledgerText.gameObject.SetActive(false);
+            var stockObject = new GameObject("Sold stock storage");
+            stockObject.transform.SetParent(transform, false);
+            stockObject.SetActive(false);
+            soldStorage = stockObject.transform;
         }
 
         void Start()
@@ -81,6 +102,41 @@ namespace Zandea.FriendlyNPC
             CurrencyPouch.Released -= OnPurseReleased;
             if (merchant) merchant.TradingChanged -= OnTradingChanged;
             Cancel();
+            carriedStock.Clear(); warnedStock.Clear();
+        }
+
+        void OnDestroy()
+        {
+            if (ledgerPaperMaterial) Destroy(ledgerPaperMaterial);
+        }
+
+        void Update()
+        {
+            if (carriedStock.Count == 0 || !merchant || !configuration) return;
+            finishedCarriedStock.Clear();
+            foreach (var pair in carriedStock)
+            {
+                var item = pair.Value;
+                if (!item || item.ownerId != configuration.vendorId || item.IsStolen)
+                { finishedCarriedStock.Add(pair.Key); continue; }
+                float distance = Vector3.ProjectOnPlane(item.transform.position - merchant.transform.position,
+                    Vector3.up).magnitude;
+                if (distance > 9f)
+                {
+                    item.MarkStolen(configuration.vendorId);
+                    MerchantSessionState.MarkStockStolen(configuration.vendorId, item.InstanceId);
+                    merchant.WarnAboutStock(true);
+                    StockStolen?.Invoke(item);
+                    finishedCarriedStock.Add(pair.Key);
+                }
+                else if (distance > 6f)
+                {
+                    if (warnedStock.Add(pair.Key)) merchant.WarnAboutStock(false);
+                }
+                else if (!item.IsHeld && distance < 5f)
+                { warnedStock.Remove(pair.Key); finishedCarriedStock.Add(pair.Key); }
+            }
+            foreach (var id in finishedCarriedStock) carriedStock.Remove(id);
         }
 
         void OnTradingChanged(bool enabled)
@@ -93,6 +149,11 @@ namespace Zandea.FriendlyNPC
         {
             if (item && offers.Remove(item.InstanceId, out var old))
             { if (old.label) Destroy(old.label.gameObject); Recalculate(); }
+            if (item && configuration && merchant && item.ownerId == configuration.vendorId &&
+                !item.IsStolen && !string.IsNullOrEmpty(item.InstanceId) &&
+                Vector3.ProjectOnPlane(item.transform.position - merchant.transform.position,
+                    Vector3.up).sqrMagnitude <= 25f)
+                carriedStock[item.InstanceId] = item;
         }
 
         void OnItemReleased(TradeItem item)
@@ -123,6 +184,9 @@ namespace Zandea.FriendlyNPC
                 offer.label = Instantiate(priceLabelPrefab, item.transform.position + Vector3.up * .22f,
                     Quaternion.identity, item.transform);
                 offer.label.text = (buying ? "−" : "+") + price + " cats";
+                offer.label.fontSize = Mathf.Max(offer.label.fontSize, 3.8f);
+                offer.label.transform.localScale = Vector3.Max(offer.label.transform.localScale,
+                    Vector3.one * .06f);
                 offer.label.color = buying ? new Color(1f, .28f, .25f) : new Color(.35f, 1f, .48f);
             }
             offers.Add(item.InstanceId, offer);
@@ -177,6 +241,7 @@ namespace Zandea.FriendlyNPC
             acknowledgedSale = false;
             NetCats = 0;
             if (netLabel) netLabel.gameObject.SetActive(false);
+            if (ledgerText) ledgerText.gameObject.SetActive(false);
         }
 
         void Recalculate()
@@ -208,11 +273,70 @@ namespace Zandea.FriendlyNPC
                     netLabel.color = new Color(.45f, 1f, .55f);
                 }
             }
+            RefreshLedger();
             if (handshake) handshake.Arm(ready);
             if (!ready) merchant?.WithdrawContextLine("transaction_ready_001");
             if (ready && !previouslyReady) merchant?.QueueContextLine("transaction_ready_001");
             else if (!ready && NetCats > 0 && merchantCats < NetCats)
                 merchant?.PlayContextLine("merchant_lacks_funds_001");
+        }
+
+        void BuildLedger()
+        {
+            var paper = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            paper.name = "Counter ledger";
+            paper.transform.SetParent(transform, false);
+            paper.transform.localPosition = new Vector3(0f, 1.08f, .52f);
+            paper.transform.localRotation = Quaternion.Euler(18f, 0f, 0f);
+            paper.transform.localScale = new Vector3(.72f, .42f, .018f);
+            Destroy(paper.GetComponent<Collider>());
+            var shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (!shader) shader = Shader.Find("Standard");
+            ledgerPaperMaterial = new Material(shader)
+                { color = new Color(.78f, .69f, .49f) };
+            paper.GetComponent<Renderer>().sharedMaterial = ledgerPaperMaterial;
+            var text = new GameObject("Ledger writing");
+            text.transform.SetParent(paper.transform, false);
+            text.transform.localPosition = new Vector3(-.45f, .42f, -.55f);
+            text.transform.localScale = new Vector3(.073f, .125f, 1f);
+            ledgerText = text.AddComponent<TextMeshPro>();
+            ledgerText.fontSize = 3.1f;
+            ledgerText.alignment = TextAlignmentOptions.TopLeft;
+            ledgerText.color = new Color(.15f, .105f, .065f);
+            if (!ledgerFont) ledgerFont = Resources.Load<TMP_FontAsset>("CaveatLedger");
+            if (ledgerFont)
+            {
+                if (!ledgerGlyphsReady)
+                {
+                    ledgerFont.TryAddCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-:.'!() ");
+                    ledgerGlyphsReady = true;
+                }
+                ledgerText.font = ledgerFont;
+            }
+        }
+
+        void RefreshLedger()
+        {
+            if (!ledgerText) return;
+            ledgerText.gameObject.SetActive(trading && offers.Count > 0);
+            if (!trading || offers.Count == 0) return;
+            ledgerBuffer.Clear().Append(merchant ? merchant.displayName : "Merchant")
+                .Append("'s ledger\n");
+            int shown = 0;
+            foreach (var offer in offers.Values)
+            {
+                if (shown++ == 6) { ledgerBuffer.Append("...\n"); break; }
+                bool selling = offer.zone == sellArea;
+                ledgerBuffer.Append(selling ? "+ " : "- ")
+                    .Append(offer.item && offer.item.definition ? offer.item.definition.name : "Goods")
+                    .Append("  ").Append(offer.quote).Append(" cats\n");
+            }
+            ledgerBuffer.Append("Net: ");
+            if (NetCats < 0) ledgerBuffer.Append("Pay ").Append(-NetCats);
+            else if (NetCats > 0) ledgerBuffer.Append("Receive ").Append(NetCats);
+            else ledgerBuffer.Append("Even");
+            if (NetCats != 0) ledgerBuffer.Append(" cats");
+            ledgerText.text = ledgerBuffer.ToString();
         }
 
         bool Validate(out string reason)
@@ -287,9 +411,19 @@ namespace Zandea.FriendlyNPC
                 if (paymentPurse) paymentPurse.ReturnHomeWhenReleased();
                 Cancel();
                 var sourceIds = new List<string>(changed.Count);
+                var soldIds = new List<string>();
                 foreach (var offer in changed) sourceIds.Add(offer.item.InstanceId);
+                foreach (var offer in changed)
+                    if (offer.zone == sellArea) soldIds.Add(offer.item.InstanceId);
                 MerchantSessionState.RecordCommit(configuration.vendorId, merchantCats,
-                    sourceIds, payoutId, payoutCats);
+                    sourceIds, payoutId, payoutCats, soldIds);
+                foreach (var offer in changed)
+                    if (offer.zone == sellArea && offer.item)
+                    {
+                        offer.item.ReleaseTradeHold();
+                        soldStock.Add(offer.item);
+                        offer.item.transform.SetParent(soldStorage, true);
+                    }
                 trading = merchant && merchant.IsTrading;
                 merchant?.PlayContextLine("trade_complete");
                 return true;

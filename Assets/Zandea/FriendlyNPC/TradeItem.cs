@@ -13,6 +13,8 @@ namespace Zandea.FriendlyNPC
         public NpcItemDefinition definition;
         [Tooltip("Stable legal owner; physical storage does not change this before settlement.")]
         public string ownerId = "player";
+        [SerializeField] bool stolen;
+        [SerializeField] string stolenFromVendorId;
         [SerializeField] string persistentInstanceId;
         XRGrabInteractable grab;
         Rigidbody body;
@@ -32,6 +34,8 @@ namespace Zandea.FriendlyNPC
         public bool IsHeld => grab && grab.isSelected;
         public bool IsFloatingForTrade => tradeHeld;
         public bool HasPhysicalRelease => hasPhysicalRelease;
+        public bool IsStolen => stolen;
+        public string StolenFromVendorId => stolenFromVendorId;
 
         void Awake()
         {
@@ -150,6 +154,15 @@ namespace Zandea.FriendlyNPC
         {
             if (string.IsNullOrWhiteSpace(newOwnerId)) throw new ArgumentException("Owner ID required");
             ownerId = newOwnerId;
+            stolen = false;
+            stolenFromVendorId = null;
+        }
+
+        public void MarkStolen(string vendorId)
+        {
+            if (string.IsNullOrWhiteSpace(vendorId) || ownerId != vendorId) return;
+            stolen = true;
+            stolenFromVendorId = vendorId;
         }
 
         public void AssignPersistentIdentity(string id)

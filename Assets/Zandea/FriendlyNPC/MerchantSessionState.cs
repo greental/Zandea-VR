@@ -10,6 +10,8 @@ namespace Zandea.FriendlyNPC
         {
             public int cats;
             public readonly HashSet<string> transferredSourceIds = new();
+            public readonly HashSet<string> soldStockIds = new();
+            public readonly HashSet<string> stolenStockIds = new();
             public readonly Dictionary<string, int> outstandingPayouts = new();
         }
 
@@ -42,11 +44,13 @@ namespace Zandea.FriendlyNPC
         }
 
         public static void RecordCommit(string vendorId, int cats, IEnumerable<string> sourceIds,
-            string payoutId, int payoutCats)
+            string payoutId, int payoutCats, IEnumerable<string> soldIds = null)
         {
             var state = Get(vendorId, cats);
             state.cats = cats;
             foreach (var id in sourceIds) state.transferredSourceIds.Add(id);
+            if (soldIds != null)
+                foreach (var id in soldIds) state.soldStockIds.Add(id);
             if (payoutCats > 0) state.outstandingPayouts[payoutId] = payoutCats;
         }
 
@@ -66,6 +70,14 @@ namespace Zandea.FriendlyNPC
         {
             foreach (var state in Vendors.Values) state.outstandingPayouts.Remove(id);
             LivePayouts.Remove(id);
+        }
+
+        public static void MarkStockStolen(string vendorId, string instanceId)
+        {
+            if (string.IsNullOrEmpty(vendorId) || string.IsNullOrEmpty(instanceId)) return;
+            var state = Get(vendorId, 0);
+            state.stolenStockIds.Add(instanceId);
+            state.transferredSourceIds.Add(instanceId);
         }
     }
 }

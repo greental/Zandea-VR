@@ -13,7 +13,7 @@ namespace Zandea.FriendlyNPC.Editor
 {
     public sealed class DaranPerformanceTests
     {
-        [UnityTest, Explicit("Requires a tracked PCVR session; headless XR scene lookup fails before sampling.")]
+        [UnityTest, Ignore("Requires tracked PCVR; headless XR scene reload fails before sampling.")]
         public IEnumerator ProfileApproachConversationAndChoices()
         {
             EditorSceneManager.OpenScene("Assets/Scenes/FriendlyNPC/DaranMerchantVoiceTest.unity", OpenSceneMode.Single);
@@ -44,7 +44,10 @@ namespace Zandea.FriendlyNPC.Editor
             Assert.IsTrue(greetingClip, "Daran should invite the player at 3–6 metres.");
             playerRoot.position = npc.transform.position + new Vector3(0f, 0f, -.6f);
             yield return Measure("near", 90);
-            Assert.IsTrue(npc.IsTrading, "Entering browsing range should open trading without a grip.");
+            Assert.IsFalse(npc.IsConversing, "Approaching alone must not open dialogue.");
+            Assert.IsTrue(FriendlyNpcInteraction.TryBeginBestWave(camera.transform),
+                "A deliberate wave should choose the NPC the player is viewing.");
+            Assert.IsTrue(npc.IsConversing);
             yield return Measure("speaking", 90);
             npc.mouthAudio.Stop();
             yield return new WaitForSecondsRealtime(1f);
@@ -54,6 +57,11 @@ namespace Zandea.FriendlyNPC.Editor
             var providers = playerRoot.GetComponentsInChildren<LocomotionProvider>(true);
             var enabledBefore = new bool[providers.Length];
             for (int i = 0; i < providers.Length; i++) enabledBefore[i] = providers[i].enabled;
+            choices.rightHand.transform.position = camera.transform.position +
+                camera.transform.forward * .3f - Vector3.up * .28f;
+            yield return null;
+            Assert.IsFalse(choices.panel.activeSelf,
+                "The right hand must stay free and never carry dialogue choices.");
             void RaiseHand() => choices.leftHand.transform.position = camera.transform.position +
                 camera.transform.forward * .3f - Vector3.up * .28f;
             RaiseHand();
