@@ -19,24 +19,48 @@ MonoBehaviour:
   useAllShadeVariants: 1
   dimensions: {x: 88, y: 80}
   mainBuilding:
-    prefab: {fileID: 8324734173675526880, guid: 2aa4aa1d39224bc4f8a0be97131b5b41, type: 3}
-    size: {x: 9.845118, y: 4.26321, z: 9.181161}
-    center: {x: 0.08831763, y: -0.18229747, z: -0.11091086}
+    prefab: {fileID: 2354157226731313310, guid: d5cc4306dc4092040ae365712ed94ba1, type: 3}
+    size: {x: 9.7929, y: 6.1926637, z: 9.668141}
+    center: {x: 0.11035514, y: -0.19948351, z: -0.09171912}
     entranceYaw: 0
   buildings:
-  - prefab: {fileID: 8325041625540833455, guid: 29082f6e71908084687473c4b064fd2c, type: 3}
-    size: {x: 9.775413, y: 2.8321834, z: 9.085019}
-    center: {x: 0.096218586, y: -0.12456584, z: -0.087638594}
+  - prefab: {fileID: 4331677010149412975, guid: f09f88a237e761f4f885fa766965c633, type: 3}
+    size: {x: 9.789631, y: 4.497503, z: 9.755666}
+    center: {x: 0.1026628, y: -0.883764, z: -0.098400004}
     entranceYaw: 0
-  - prefab: {fileID: 8725085248309702790, guid: 563c14b6b51b74642a41b800e8519723, type: 3}
-    size: {x: 9.540772, y: 3.0122077, z: 9.769879}
-    center: {x: 0.2332573, y: -0.11657155, z: -0.09862778}
+  - prefab: {fileID: 6161880720560432332, guid: 8da6af0c904d59b42973b876d3de411d, type: 3}
+    size: {x: 9.771835, y: 8.231475, z: 9.777344}
+    center: {x: 0.09557462, y: -0.1114812, z: -0.0983536}
     entranceYaw: 0
-  - prefab: {fileID: 6294305211799830895, guid: 1ae14cd125db2c548b857467d14ec82f, type: 3}
-    size: {x: 9.7645645, y: 3.9016705, z: 9.773379}
-    center: {x: 0.08606076, y: -0.098392256, z: -0.10026}
+  - prefab: {fileID: 6761488654121589817, guid: c2ca9d603bab2614292fc7c69cb2611e, type: 3}
+    size: {x: 9.778969, y: 7.7319174, z: 9.747934}
+    center: {x: 0.095380306, y: -0.106628664, z: -0.096770026}
+    entranceYaw: 0
+  - prefab: {fileID: 8522876411600681105, guid: 575fc7b8ea441b44f983b45e8dd18faf, type: 3}
+    size: {x: 3.4723663, y: 9.821742, z: 3.2179139}
+    center: {x: 0.095909655, y: -0.09872032, z: -0.102390386}
+    entranceYaw: 0
+  - prefab: {fileID: 8465577719877380744, guid: c907d2d46716ca04194ba943d72b3923, type: 3}
+    size: {x: 9.755997, y: 7.360462, z: 9.646164}
+    center: {x: 0.17222524, y: -0.08911873, z: -0.13717052}
+    entranceYaw: 0
+  - prefab: {fileID: 7101650915794589448, guid: a3e4100ae0b7e254b8985c90218b8150, type: 3}
+    size: {x: 9.779257, y: 7.315477, z: 9.753351}
+    center: {x: 0.10042763, y: -0.09925807, z: -0.097674586}
     entranceYaw: 0
   shades:
+  - prefab: {fileID: 5194835712696840189, guid: aca79769859cab040a6f82b8966847af, type: 3}
+    size: {x: 9.809193, y: 5.3286357, z: 7.8246756}
+    center: {x: 0.09932709, y: -0.113423824, z: -0.08812568}
+    entranceYaw: 0
+  - prefab: {fileID: 5194835712696840189, guid: aca79769859cab040a6f82b8966847af, type: 3}
+    size: {x: 9.809193, y: 5.3286357, z: 7.8246756}
+    center: {x: 0.09932709, y: -0.113423824, z: -0.08812568}
+    entranceYaw: 0
+  - prefab: {fileID: 5194835712696840189, guid: aca79769859cab040a6f82b8966847af, type: 3}
+    size: {x: 9.809193, y: 5.3286357, z: 7.8246756}
+    center: {x: 0.09932709, y: -0.113423824, z: -0.08812568}
+    entranceYaw: 0
   - prefab: {fileID: 8441181204586164938, guid: e869d6997f2462c4d8b82f304402cf09, type: 3}
     size: {x: 9.847433, y: 5.897385, z: 7.833476}
     center: {x: 0.0616467, y: -0.24472678, z: -0.094740234}
@@ -60,9 +84,9 @@ MonoBehaviour:
     center: {x: 0.14185762, y: -0.28117773, z: -0.0543625}
     entranceYaw: 0
   tower:
-    prefab: {fileID: 6902468433938482226, guid: 5d3948164240e214eab21734afa9f837, type: 3}
-    size: {x: 9.760995, y: 7.3198504, z: 9.771919}
-    center: {x: 0.09782457, y: -0.13566172, z: -0.10036109}
+    prefab: {fileID: 8231555292972821903, guid: f60b872ca787ad1488662fb488fd5bac, type: 3}
+    size: {x: 5.1954865, y: 9.81855, z: 5.085161}
+    center: {x: 0.09965038, y: -0.09996296, z: -0.1035187}
     entranceYaw: 0
   wallVariants:
   - prefab: {fileID: 3360696733904427928, guid: 9410b4c26b1fc9947a128a592b314ca7, type: 3}

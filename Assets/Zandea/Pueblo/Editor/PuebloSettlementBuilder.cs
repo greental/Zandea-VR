@@ -27,8 +27,11 @@ namespace Zandea.Pueblo.Editor
         static readonly string[] Structures = {
             "house_base", "house_base_stairs", "house_large_two_stories", "house_single",
             "Ramada_attached", "Ramada_attached_3", "Ramada_full", "round",
-            "stairCase", "wall_1", "wall_2", "wall_3", "wall_gate"
+            "stairCase", "wall_1", "wall_2", "wall_3", "wall_gate",
+            "Ramada_new", "animal_pen", "stone_bakery", "stepped_house", "windcatcher",
+            "domed_temple", "adobe_blacksmith", "watchtower_tall", "dome_hut"
         };
+        static readonly string[] NewPots = { "earth_pot", "terracotta_pot", "round_jar", "tall_jar" };
 
         [MenuItem("Zandea/POI/Pueblo/Build Settlement")]
         public static void Build()
@@ -45,8 +48,11 @@ namespace Zandea.Pueblo.Editor
             foreach (var key in Structures)
                 built[key] = BuildStatic(key);
             var basket = BuildBasket();
+            foreach (var key in NewPots)
+                built[key] = BuildPhysicalPot(key);
+            built["feeding_trough"] = BuildGroundProp("feeding_trough");
             var definition = BuildDefinition(built);
-            var props = BuildProps(basket);
+            var props = BuildProps(basket, built);
             var layout = OutpostLayout.Generate(definition, definition.seed);
             if (!layout.Validate(definition, out var issue))
                 throw new InvalidOperationException("Pueblo layout invalid: " + issue);
@@ -72,15 +78,28 @@ namespace Zandea.Pueblo.Editor
             string texturePath = Models + key + "_base." + (key == "basket" ? "jpg" : "png");
             var importer = AssetImporter.GetAtPath(texturePath) as TextureImporter;
             if (!importer) throw new InvalidOperationException("Missing imported Pueblo texture: " + texturePath);
-            if (importer.maxTextureSize != 1024 || !importer.mipmapEnabled ||
+            if (importer.maxTextureSize != 2048 || !importer.mipmapEnabled ||
                 importer.textureCompression != TextureImporterCompression.Compressed)
             {
-                importer.maxTextureSize = 1024;
+                importer.maxTextureSize = 2048;
                 importer.mipmapEnabled = true;
                 importer.textureCompression = TextureImporterCompression.Compressed;
                 importer.SaveAndReimport();
             }
             material.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath));
+            string normalPath = Models + key + "_normal.png";
+            var normalImporter = AssetImporter.GetAtPath(normalPath) as TextureImporter;
+            if (normalImporter)
+            {
+                if (normalImporter.textureType != TextureImporterType.NormalMap || normalImporter.maxTextureSize != 2048)
+                {
+                    normalImporter.textureType = TextureImporterType.NormalMap;
+                    normalImporter.maxTextureSize = 2048;
+                    normalImporter.SaveAndReimport();
+                }
+                material.SetTexture("_BumpMap", AssetDatabase.LoadAssetAtPath<Texture2D>(normalPath));
+                material.EnableKeyword("_NORMALMAP");
+            }
             material.SetColor("_BaseColor", Color.white);
             material.SetFloat("_Smoothness", .1f);
             material.SetFloat("_Cull", 0f); // generated source surfaces are often single-sided
@@ -150,6 +169,58 @@ namespace Zandea.Pueblo.Editor
             finally { UnityEngine.Object.DestroyImmediate(root); }
         }
 
+        static GameObject BuildPhysicalPot(string key)
+        {
+            EnsureModelScale(key);
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>(Models + key + ".fbx");
+            if (!source) throw new InvalidOperationException("Missing Pueblo pot model: " + key);
+            var root = new GameObject("Pueblo_" + key);
+            try
+            {
+                var model = UnityEngine.Object.Instantiate(source, root.transform);
+                model.name = key + " mesh";
+                model.transform.localPosition = Vector3.zero;
+                model.transform.localScale = Vector3.one;
+                foreach (var renderer in model.GetComponentsInChildren<MeshRenderer>())
+                    renderer.sharedMaterial = Material(key);
+                var bounds = RenderBounds(root);
+                var capsule = root.AddComponent<CapsuleCollider>();
+                capsule.center = bounds.center;
+                capsule.radius = Mathf.Max(bounds.size.x, bounds.size.z) * .5f;
+                capsule.height = Mathf.Max(bounds.size.y, capsule.radius * 2);
+                var body = root.AddComponent<Rigidbody>();
+                body.mass = .7f;
+                body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+                root.AddComponent<XRGrabInteractable>();
+                root.AddComponent<PhysicalProp>();
+                return PrefabUtility.SaveAsPrefabAsset(root, Prefabs + "Pueblo_" + key + ".prefab");
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
+        }
+
+        static GameObject BuildGroundProp(string key)
+        {
+            EnsureModelScale(key);
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>(Models + key + ".fbx");
+            if (!source) throw new InvalidOperationException("Missing Pueblo ground prop model: " + key);
+            var root = new GameObject("Pueblo_" + key);
+            try
+            {
+                var model = UnityEngine.Object.Instantiate(source, root.transform);
+                model.name = key + " mesh";
+                model.transform.localPosition = Vector3.zero;
+                model.transform.localScale = Vector3.one;
+                foreach (var renderer in model.GetComponentsInChildren<MeshRenderer>())
+                    renderer.sharedMaterial = Material(key);
+                var bounds = RenderBounds(root);
+                var box = root.AddComponent<BoxCollider>();
+                box.center = bounds.center;
+                box.size = bounds.size;
+                return PrefabUtility.SaveAsPrefabAsset(root, Prefabs + "Pueblo_" + key + ".prefab");
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
+        }
+
         static void EnsureModelScale(string key)
         {
             var importer = AssetImporter.GetAtPath(Models + key + ".fbx") as ModelImporter;
@@ -188,10 +259,9 @@ namespace Zandea.Pueblo.Editor
             var definition = AssetDatabase.LoadAssetAtPath<BanditOutpostDefinition>(DefinitionPath);
             if (definition)
             {
-                // Refresh measured bounds when an imported source's units change.
-                var measuredMain = Asset(built["house_large_two_stories"]);
-                if (definition.mainBuilding.prefab == measuredMain.prefab &&
-                    Vector3.Distance(definition.mainBuilding.size, measuredMain.size) > .05f)
+                // Upgrade the original POC configuration once, while preserving later
+                // Inspector choices made after the new assets have been installed.
+                if (definition.mainBuilding.prefab == built["house_large_two_stories"])
                 {
                     AssignPuebloAssets(definition, built);
                     EditorUtility.SetDirty(definition);
@@ -220,28 +290,43 @@ namespace Zandea.Pueblo.Editor
 
         static void AssignPuebloAssets(BanditOutpostDefinition definition, Dictionary<string, GameObject> built)
         {
-            definition.mainBuilding = Asset(built["house_large_two_stories"]);
-            definition.buildings = new[] { Asset(built["house_base"]), Asset(built["house_base_stairs"]),
-                Asset(built["house_single"]) };
-            definition.shades = new[] { Asset(built["Ramada_full"]), Asset(built["Ramada_attached"]),
-                Asset(built["Ramada_attached_3"]) };
+            definition.mainBuilding = Asset(built["domed_temple"]);
+            definition.buildings = new[] { Asset(built["animal_pen"]), Asset(built["stone_bakery"]),
+                Asset(built["stepped_house"]), Asset(built["windcatcher"]),
+                Asset(built["adobe_blacksmith"]), Asset(built["dome_hut"]) };
+            definition.shades = new[] { Asset(built["Ramada_new"]), Asset(built["Ramada_new"]),
+                Asset(built["Ramada_new"]), Asset(built["Ramada_full"]),
+                Asset(built["Ramada_attached"]), Asset(built["Ramada_attached_3"]) };
             definition.wall = Asset(built["wall_1"]);
             definition.wallVariants = new[] { Asset(built["wall_1"]), Asset(built["wall_2"]),
                 Asset(built["wall_3"]) };
             definition.gate = Asset(built["wall_gate"]);
-            definition.tower = Asset(built["round"]);
+            definition.tower = Asset(built["watchtower_tall"]);
         }
 
-        static OutpostPropDefinition BuildProps(GameObject basket)
+        static OutpostPropDefinition BuildProps(GameObject basket, Dictionary<string, GameObject> built)
         {
             var definition = AssetDatabase.LoadAssetAtPath<OutpostPropDefinition>(PropsPath);
-            if (definition) return definition;
+            if (definition)
+            {
+                if (definition.ceramicPotVariants == null || definition.ceramicPotVariants.Length == 0)
+                {
+                    definition.ceramicPotVariants = new[] { definition.ceramicPot, built["earth_pot"],
+                        built["terracotta_pot"], built["round_jar"], built["tall_jar"] };
+                    definition.extraStorageProps = new[] { built["feeding_trough"] };
+                    EditorUtility.SetDirty(definition);
+                }
+                return definition;
+            }
             var existing = AssetDatabase.LoadAssetAtPath<OutpostPropDefinition>(
                 "Assets/Zandea/Props/Resources/ZandeaOutpostProps.asset");
             if (!existing) throw new InvalidOperationException("The existing Zandea prop definition is missing.");
             definition = UnityEngine.Object.Instantiate(existing);
             definition.name = "PuebloProps";
             definition.wickerBasket = basket;
+            definition.ceramicPotVariants = new[] { definition.ceramicPot, built["earth_pot"],
+                built["terracotta_pot"], built["round_jar"], built["tall_jar"] };
+            definition.extraStorageProps = new[] { built["feeding_trough"] };
             definition.extraPotsPerCanopy = 3;
             definition.basketsPerCanopy = 2;
             definition.storageBaskets = 4;
@@ -395,11 +480,21 @@ namespace Zandea.Pueblo.Editor
             var root = new GameObject("Prop Preview");
             root.transform.SetParent(preview, false);
             int index = 0;
+            var pots = props.ceramicPotVariants != null
+                ? props.ceramicPotVariants.Where(p => p).ToArray() : Array.Empty<GameObject>();
+            if (pots.Length == 0) pots = new[] { props.ceramicPot };
+            int potIndex = 0;
+            void AddPot(Vector2 center, Vector2 offset, Quaternion turn)
+            {
+                var pot = pots[potIndex++ % pots.Length];
+                PreviewProp(pot, pot == props.ceramicPot ? props.potScale : 1,
+                    center, offset, turn, poi, root.transform, index++);
+            }
             foreach (var shade in poi.Layout.structures.Where(p => p.kind == ReservationKind.Shade))
             {
                 var turn = Quaternion.Euler(0, shade.yaw, 0);
                 foreach (var offset in new[] { new Vector2(-2, -1), new Vector2(0, -1.2f), new Vector2(2, -1) })
-                    PreviewProp(props.ceramicPot, props.potScale, shade.position, offset, turn, poi, root.transform, index++);
+                    AddPot(shade.position, offset, turn);
                 foreach (var offset in new[] { new Vector2(-1.5f, 1), new Vector2(1.5f, 1) })
                     PreviewProp(props.wickerBasket, 1, shade.position, offset, turn, poi, root.transform, index++);
             }
@@ -410,14 +505,17 @@ namespace Zandea.Pueblo.Editor
                 var storage = storageAreas[0];
                 foreach (var offset in new[] { new Vector2(-2, -2), new Vector2(2, -2), new Vector2(-2, 2), new Vector2(2, 2) })
                     PreviewProp(props.wickerBasket, 1, storage.center, offset, Quaternion.identity, poi, root.transform, index++);
-                PreviewProp(props.ceramicPot, props.potScale, storage.center, new Vector2(0, 2), Quaternion.identity,
-                    poi, root.transform, index++);
+                AddPot(storage.center, new Vector2(0, 2), Quaternion.identity);
                 PreviewProp(props.barrel, 1, storage.center, new Vector2(-1, 0), Quaternion.identity,
                     poi, root.transform, index++);
                 PreviewProp(props.crate, props.crateScale, storage.center, new Vector2(1, 0), Quaternion.identity,
                     poi, root.transform, index++, 90);
                 PreviewProp(props.sack, props.sackScale, storage.center, new Vector2(0, -2), Quaternion.identity,
                     poi, root.transform, index++);
+                if (props.extraStorageProps != null)
+                    foreach (var extra in props.extraStorageProps)
+                        PreviewProp(extra, 1, storage.center, new Vector2(0, 3), Quaternion.identity,
+                            poi, root.transform, index++);
             }
         }
 

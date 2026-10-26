@@ -1,0 +1,16 @@
+[
+  {"key":"Ramada_new","source":"Ramada.glb","kind":"shade","scale":5.0,"triangleBudget":18000},
+  {"key":"animal_pen","source":"דיר חיות כפרי מואר בשמש.glb","kind":"building","scale":5.0,"triangleBudget":16000},
+  {"key":"earth_pot","source":"כד חרס עתיק בגווני אדמה.glb","kind":"pot","scale":0.55,"triangleBudget":12000},
+  {"key":"terracotta_pot","source":"כד טרקוטה עתיק ומבוקר.glb","kind":"pot","scale":0.55,"triangleBudget":12000},
+  {"key":"stone_bakery","source":"מאפיית כוורת אבן עתיקה.glb","kind":"building","scale":5.0,"triangleBudget":18000},
+  {"key":"stepped_house","source":"מבנה אדמה מדורג עם חלל פנימי ריק.glb","kind":"building","scale":5.0,"triangleBudget":18000},
+  {"key":"windcatcher","source":"מגדל לוכד רוח מלבני בוץિયાદ.glb","kind":"building","scale":5.0,"triangleBudget":14000},
+  {"key":"domed_temple","source":"מקדש בוץ ואבן עם כיפה גדולה.glb","kind":"main","scale":5.0,"triangleBudget":18000},
+  {"key":"adobe_blacksmith","source":"נפחייה עתיקה מלבני בוץ ואבן.glb","kind":"building","scale":5.0,"triangleBudget":18000},
+  {"key":"feeding_trough","source":"Gemini_Generated_Image_5219bh5219bh5219.glb","kind":"ground_prop","scale":1.1,"triangleBudget":10000},
+  {"key":"round_jar","source":"Gemini_Generated_Image_8367mm8367mm8367.glb","kind":"pot","scale":0.55,"triangleBudget":12000},
+  {"key":"watchtower_tall","source":"Gemini_Generated_Image_dwy18mdwy18mdwy1.glb","kind":"tower","scale":5.0,"triangleBudget":14000},
+  {"key":"dome_hut","source":"Gemini_Generated_Image_nc32a9nc32a9nc32.glb","kind":"building","scale":5.0,"triangleBudget":18000},
+  {"key":"tall_jar","source":"Gemini_Generated_Image_yty4s8yty4s8yty4.glb","kind":"pot","scale":0.55,"triangleBudget":12000}
+]

@@ -57,6 +57,23 @@ namespace Zandea.Props
             root.transform.SetParent(poi.transform, false);
             root.transform.SetPositionAndRotation(poi.Center, poi.Rotation);
             var random = new System.Random(unchecked(poi.seed * 31 + 1808));
+            var pots = new List<GameObject>();
+            if (definition.ceramicPotVariants != null)
+                foreach (var variant in definition.ceramicPotVariants)
+                    if (variant) pots.Add(variant);
+            if (pots.Count == 0 && definition.ceramicPot) pots.Add(definition.ceramicPot);
+            int potIndex = 0;
+            GameObject NextPot()
+            {
+                if (pots.Count == 0) return null;
+                if (potIndex % pots.Count == 0)
+                    for (int i = pots.Count - 1; i > 0; i--)
+                    {
+                        int j = random.Next(i + 1);
+                        var swap = pots[i]; pots[i] = pots[j]; pots[j] = swap;
+                    }
+                return pots[potIndex++ % pots.Count];
+            }
             int slot = 0;
             foreach (var reservation in poi.Layout.reservations)
             {
@@ -64,9 +81,9 @@ namespace Zandea.Props
                 string category = reservation.category;
                 if (category == "Under canopy")
                 {
-                    Place(definition.ceramicPot, reservation, ref slot, random, .45f);
+                    Place(NextPot(), reservation, ref slot, random, .45f);
                     for (int j = 1; j < definition.extraPotsPerCanopy; j++)
-                        Place(definition.ceramicPot, reservation, ref slot, random, .42f);
+                        Place(NextPot(), reservation, ref slot, random, .42f);
                     for (int j = 0; j < definition.basketsPerCanopy; j++)
                         Place(definition.wickerBasket, reservation, ref slot, random, .25f);
                 }
@@ -78,6 +95,9 @@ namespace Zandea.Props
                     Place(definition.sack, reservation, ref slot, random, .4f);
                     for (int j = 0; j < definition.storageBaskets; j++)
                         Place(definition.wickerBasket, reservation, ref slot, random, .25f);
+                    if (definition.extraStorageProps != null)
+                        foreach (var extra in definition.extraStorageProps)
+                            Place(extra, reservation, ref slot, random, .7f);
                 }
                 else if (category == "Courtyard social")
                 {
@@ -91,7 +111,7 @@ namespace Zandea.Props
                 else if (category == "Entrance side")
                 {
                     if (definition.wickerBasket)
-                        Place(definition.ceramicPot, reservation, ref slot, random, .4f);
+                        Place(NextPot(), reservation, ref slot, random, .4f);
                     else if (random.NextDouble() < .55)
                         Place(definition.sack ? definition.sack : definition.ceramicPot,
                             reservation, ref slot, random, .4f);

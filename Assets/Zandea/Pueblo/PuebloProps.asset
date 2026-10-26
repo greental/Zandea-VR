@@ -22,6 +22,14 @@ MonoBehaviour:
   table: {fileID: 5126918192941887461, guid: cf828c8bcb4b53d4fb9062b99beae71b, type: 3}
   statue: {fileID: 2571906202327579669, guid: a5f449f10bdc4c648938fc45b11ccbc9, type: 3}
   wickerBasket: {fileID: 6958247705510661623, guid: b44e9734e7be281499fa7b7c1341058c, type: 3}
+  ceramicPotVariants:
+  - {fileID: 3147512537380643691, guid: 8adec3f17817cf04482df01cb52cdb48, type: 3}
+  - {fileID: 7339995113951763555, guid: 8a6cc4eda7efb554ebba2d8e89823896, type: 3}
+  - {fileID: 2565391972842030191, guid: e5eb29b4998ec32449949e29b96f0f01, type: 3}
+  - {fileID: 3747378309794448764, guid: 91216222c323d5844af6aabd62f69fa0, type: 3}
+  - {fileID: 5660121172713013316, guid: 067b60898031dbe49b21883e4981b8e5, type: 3}
+  extraStorageProps:
+  - {fileID: 4695566993899460855, guid: aebd4ee407478964b82a1acc55067d6f, type: 3}
   basketsPerCanopy: 2
   storageBaskets: 4
   extraPotsPerCanopy: 3

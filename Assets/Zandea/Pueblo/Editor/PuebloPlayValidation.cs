@@ -19,6 +19,7 @@ namespace Zandea.Pueblo.Editor
         const string Step = "ZandeaPuebloValidationStep";
         const string Earliest = "ZandeaPuebloValidationEarliest";
         const string Deadline = "ZandeaPuebloValidationDeadline";
+        const string Batch = "ZandeaPuebloValidationBatch";
 
         static PuebloPlayValidation() => EditorApplication.update += Tick;
 
@@ -30,7 +31,7 @@ namespace Zandea.Pueblo.Editor
             if (SceneManager.GetActiveScene().path != ReviewPath)
             {
                 // Preserve any open authored scene before switching to the focused review.
-                if (!EditorSceneManager.SaveOpenScenes())
+                if (!Application.isBatchMode && !EditorSceneManager.SaveOpenScenes())
                     throw new InvalidOperationException("Could not save the currently open scenes.");
                 EditorSceneManager.OpenScene(ReviewPath, OpenSceneMode.Single);
             }
@@ -39,6 +40,22 @@ namespace Zandea.Pueblo.Editor
             SessionState.SetFloat(Earliest, (float)(EditorApplication.timeSinceStartup + 3));
             SessionState.SetFloat(Deadline, (float)(EditorApplication.timeSinceStartup + 45));
             EditorApplication.isPlaying = true;
+        }
+
+        // Unity -batchmode -nographics -executeMethod Zandea.Pueblo.Editor.PuebloPlayValidation.RunBatch
+        public static void RunBatch()
+        {
+            SessionState.SetBool(Batch, true);
+            var definition = AssetDatabase.LoadAssetAtPath<BanditOutpostDefinition>(
+                "Assets/Zandea/Pueblo/PuebloSettlement.asset");
+            if (!definition) throw new InvalidOperationException("Pueblo definition is missing.");
+            for (int seed = 0; seed < 100; seed++)
+            {
+                var layout = OutpostLayout.Generate(definition, seed);
+                if (!layout.Validate(definition, out var issue))
+                    throw new InvalidOperationException("Pueblo layout seed " + seed + ": " + issue);
+            }
+            Begin();
         }
 
         static void Tick()
@@ -56,6 +73,12 @@ namespace Zandea.Pueblo.Editor
             try
             {
                 Check(poi.Members.Count == 6, "six hostile bandits inhabit the settlement");
+                Check(poi.Layout.structures.Any(p => p.kind == ReservationKind.Building &&
+                    p.asset.prefab.name == "Pueblo_domed_temple"), "domed temple anchors the settlement");
+                Check(poi.Layout.structures.Any(p => p.kind == ReservationKind.Tower &&
+                    p.asset.prefab.name == "Pueblo_watchtower_tall"), "new tower occupies lookout zone");
+                Check(poi.Layout.structures.Count(p => p.kind == ReservationKind.Shade &&
+                    p.asset.prefab.name == "Pueblo_Ramada_new") >= 3, "three new ramadas shade the settlement");
                 var walls = poi.Layout.structures.Where(p => p.kind == ReservationKind.Wall).ToArray();
                 Check(walls.Select(w => w.asset.prefab).Distinct().Count() == 3,
                     "all three perimeter wall forms are present");
@@ -65,7 +88,11 @@ namespace Zandea.Pueblo.Editor
                 var population = poi.GetComponent<OutpostPropPopulation>();
                 Check(population && population.Instances.Count >= 16, "contextual props populate settlement");
                 var props = population.Instances.Where(p => p).ToArray();
-                Check(props.Count(p => p.name.Contains("pot")) >= 12, "pots appear across ramadas and entrances");
+                Check(props.Count(p => p.name.Contains("pot") || p.name.Contains("jar")) >= 12,
+                    "pots and jars appear across ramadas and entrances");
+                foreach (var key in new[] { "earth_pot", "terracotta_pot", "round_jar", "tall_jar" })
+                    Check(props.Any(p => p.name.Contains(key)), "new pot variant " + key + " appears");
+                Check(props.Any(p => p.name.Contains("feeding_trough")), "feeding trough appears in storage");
                 Check(props.Count(p => p.name.Contains("basket")) >= 8, "wicker baskets appear in settlement");
                 Check(props.Any(p => p.name.Contains("barrel")) && props.Any(p => p.name.Contains("chest")) &&
                       props.Any(p => p.name.Contains("table")), "storage and social props appear");
@@ -83,8 +110,15 @@ namespace Zandea.Pueblo.Editor
                 if (SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.Null)
                     PuebloEditorRequest.CaptureReview(true);
                 File.AppendAllText(Report, "COMPLETE; Main streaming and headset feel still require checks.\n");
+                if (Application.isBatchMode)
+                    File.Copy(Report, "Tools/Pueblo/work/play-validation.txt", true);
                 SessionState.SetInt(Step, 0);
                 EditorApplication.isPlaying = false;
+                if (SessionState.GetBool(Batch, false))
+                {
+                    SessionState.SetBool(Batch, false);
+                    EditorApplication.delayCall += () => EditorApplication.Exit(0);
+                }
             }
             catch (Exception error) { Fail(error.ToString()); }
         }
@@ -98,8 +132,15 @@ namespace Zandea.Pueblo.Editor
         static void Fail(string reason)
         {
             File.AppendAllText(Report, "FAIL " + reason + "\n");
+            if (Application.isBatchMode)
+                File.Copy(Report, "Tools/Pueblo/work/play-validation.txt", true);
             SessionState.SetInt(Step, 0);
             EditorApplication.isPlaying = false;
+            if (SessionState.GetBool(Batch, false))
+            {
+                SessionState.SetBool(Batch, false);
+                EditorApplication.delayCall += () => EditorApplication.Exit(1);
+            }
         }
     }
 }
