@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using Unity.Profiling;
 
 namespace Zandea.FriendlyNPC
 {
@@ -37,6 +38,8 @@ namespace Zandea.FriendlyNPC
     // The choice canvas is anchored to one controller; no optical tracking is required.
     public sealed class PalmDialogueChoices : MonoBehaviour
     {
+        static readonly ProfilerMarker ShowChoicesMarker = new("Zandea.Dialogue.ShowChoices");
+        static readonly ProfilerMarker RevealNotebookMarker = new("Zandea.Dialogue.RevealNotebook");
         public Transform leftPalm, rightPalm;
         public XRDirectInteractor leftHand, rightHand;
         public GameObject panel;
@@ -102,6 +105,7 @@ namespace Zandea.FriendlyNPC
 
         public void Show(IReadOnlyList<DialogueResponse> options, Action<int> callback)
         {
+            using var sample = ShowChoicesMarker.Auto();
             Hide();
             selected = callback;
             if (options == null) return;
@@ -163,6 +167,7 @@ namespace Zandea.FriendlyNPC
 
         void SetVisible(XRDirectInteractor hand)
         {
+            using var sample = RevealNotebookMarker.Auto();
             if (activeHand == hand && visible == (hand != null) && (!panel || panel.activeSelf == visible)) return;
             FriendlyInputReservation.Set(activeHand, false);
             activeHand = hand;

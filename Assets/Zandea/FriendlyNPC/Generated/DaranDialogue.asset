@@ -61,7 +61,7 @@ MonoBehaviour:
     nextNodeId: 
     responses:
     - text: I'll look around.
-      nextNodeId:
+      nextNodeId: 
       action: 4
       conditionId: 
     - text: That's all for now.
@@ -300,5 +300,35 @@ MonoBehaviour:
       nextNodeId: farewell_001
       action: 0
       conditionId: 
+    generatedFingerprint: 
+    mouthEnvelope: []
+  - id: stock_warning_001
+    speakerId: merchant-daran
+    text: Don't walk off with my stock, traveler.
+    voiceOverride: {fileID: 11400000, guid: 614953ac996354b41b2b79b6b6a77617, type: 2}
+    audio: {fileID: 0}
+    expression: 2
+    emotionalDeliveryId: 
+    gestureId: 
+    conditionId: 
+    onEnter: 0
+    endOnComplete: 0
+    nextNodeId: 
+    responses: []
+    generatedFingerprint: 
+    mouthEnvelope: []
+  - id: stock_stolen_001
+    speakerId: merchant-daran
+    text: That's mine. Bring it back.
+    voiceOverride: {fileID: 11400000, guid: 614953ac996354b41b2b79b6b6a77617, type: 2}
+    audio: {fileID: 0}
+    expression: 2
+    emotionalDeliveryId: 
+    gestureId: 
+    conditionId: 
+    onEnter: 0
+    endOnComplete: 0
+    nextNodeId: 
+    responses: []
     generatedFingerprint: 
     mouthEnvelope: []

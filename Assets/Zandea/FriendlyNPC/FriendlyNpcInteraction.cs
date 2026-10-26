@@ -11,6 +11,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.AI;
 using Unity.XR.CoreUtils;
+using Unity.Profiling;
 
 namespace Zandea.FriendlyNPC
 {
@@ -46,12 +47,16 @@ namespace Zandea.FriendlyNPC
         public event Action<bool> TradingChanged;
         public event Action ConversationEnded;
         static readonly HashSet<FriendlyNpcInteraction> Available = new();
+        static readonly ProfilerMarker WaveSelectionMarker = new("Zandea.Dialogue.SelectWaveTarget");
+        static readonly ProfilerMarker BeginConversationMarker = new("Zandea.Dialogue.BeginConversation");
+        static readonly ProfilerMarker VoicePlaybackMarker = new("Zandea.Dialogue.StartVoice");
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetAvailable() => Available.Clear();
 
         public static bool TryBeginBestWave(Transform viewer)
         {
+            using var sample = WaveSelectionMarker.Auto();
             if (!viewer) return false;
             FriendlyNpcInteraction best = null;
             float bestDot = .57f;
@@ -95,6 +100,7 @@ namespace Zandea.FriendlyNPC
         bool greetedPlayer;
         bool farZoneSeen;
         bool invitationSpeaking;
+        bool theftHostilityPending;
         bool nearby;
         Transform cachedViewer;
         float nextViewerLookup;
@@ -172,6 +178,7 @@ namespace Zandea.FriendlyNPC
 
         public bool TryBegin(Transform viewer)
         {
+            using var sample = BeginConversationMarker.Auto();
             if (active || !viewer || !dialogue || !CanTalk() ||
                 PlanarDistance(viewer.position, transform.position) > browseDistance) return false;
             StopVoice();
@@ -242,6 +249,12 @@ namespace Zandea.FriendlyNPC
                     if (mouthAudio) mouthAudio.maxDistance = 10f;
                     if (subtitle) subtitle.gameObject.SetActive(false);
                     if (face) face.ResetExpression();
+                    if (theftHostilityPending)
+                    {
+                        theftHostilityPending = false;
+                        if (brain && (!health || health.State == NpcConsciousness.Conscious))
+                            brain.hostileToPlayer = true;
+                    }
                 }
                 if (!ambientSpeaking && inMarketRange && CanTalk() && Time.time >= nextAmbientCall)
                     TryAmbientCall();
@@ -299,10 +312,12 @@ namespace Zandea.FriendlyNPC
                 choices?.Hide();
                 bool theft = eventId == "stock_stolen_001";
                 bool warning = theft || eventId == "stock_warning_001";
+                var barkNode = dialogue ? dialogue.Find(eventId) : null;
                 if (face) face.SetExpression(warning ? ExpressionType.Angry : ExpressionType.Neutral);
-                barkEnd = Time.time + PlayVoiceEvent(eventId, null,
+                barkEnd = Time.time + PlayVoiceEvent(eventId, barkNode?.audio,
                     warning ? theft ? "That's mine. Bring it back." :
-                        "Don't walk off with my stock, traveler." : null);
+                        "Don't walk off with my stock, traveler." : barkNode?.text,
+                    barkNode?.mouthEnvelope);
                 barkSpeaking = true;
             }
             else if (current == null && !barkSpeaking && !string.IsNullOrEmpty(pendingContext))
@@ -427,13 +442,24 @@ namespace Zandea.FriendlyNPC
             if (!CanTalk()) return;
             string eventId = stolen ? "stock_stolen_001" : "stock_warning_001";
             if (active) { pendingBark = eventId; return; }
+            var node = dialogue ? dialogue.Find(eventId) : null;
             if (face) face.SetExpression(ExpressionType.Angry, .4f);
             var pose = GetComponent<MerchantHandshakePose>();
             if (pose) pose.PlayGesture("wave");
-            ambientEnd = Time.time + PlayVoiceEvent(eventId, null,
+            ambientEnd = Time.time + PlayVoiceEvent(eventId, node?.audio,
                 stolen ? "That's mine. Bring it back." :
-                    "Don't walk off with my stock, traveler.");
+                    "Don't walk off with my stock, traveler.", node?.mouthEnvelope);
             ambientSpeaking = true;
+        }
+
+        public void RespondToStockTheft(bool becomeHostile)
+        {
+            if (!CanTalk()) return;
+            // Cancel the pending exchange first, then let the accusation finish
+            // before handing control back to the existing combat AI.
+            EndConversation();
+            WarnAboutStock(true);
+            theftHostilityPending = becomeHostile;
         }
 
         void ScheduleAmbientCall()
@@ -468,6 +494,7 @@ namespace Zandea.FriendlyNPC
         float PlayVoiceEvent(string eventId, AudioClip fallbackClip, string fallbackText,
             float[] fallbackEnvelope = null)
         {
+            using var sample = VoicePlaybackMarker.Auto();
             AudioClip clip = fallbackClip;
             string spokenText = fallbackText;
             speakingEnvelope = fallbackEnvelope;

@@ -185,17 +185,26 @@ namespace Zandea.FriendlyNPC.Editor
             Assert.IsFalse(sword.GetComponent<Rigidbody>().isKinematic);
             Assert.AreEqual(vendor.vendorId, scrap.ownerId);
             Assert.Contains(scrap, new List<TradeItem>(counter.SoldStock));
-            Assert.IsFalse(scrap.gameObject.activeInHierarchy,
-                "Sold goods should leave the counter for merchant stock.");
+            Assert.IsTrue(scrap.gameObject.activeInHierarchy,
+                "Recently sold goods should be physically visible on the upper stock shelf.");
+            Assert.IsTrue(scrap.transform.IsChildOf(counter.soldStockDisplay));
+            Assert.IsTrue(scrap.IsFloatingForTrade,
+                "Shelf goods should stay stable until someone deliberately grabs them.");
             Assert.IsTrue(MerchantSessionState.Get(vendor.vendorId, vendor.startingCats)
                 .soldStockIds.Contains(scrap.InstanceId));
             Assert.IsFalse(counter.TryCommit(), "Repeated handshake must not recommit");
+
+            scrap.GetComponent<XRGrabInteractable>().selectEntered.Invoke(new SelectEnterEventArgs());
+            scrap.transform.position = new Vector3(2f, 1f, 0f);
+            var removedStockPosition = scrap.transform.position;
 
             var valuable = Item("Valuable loot", Definition("valuable", 100), "player", Vector3.right);
             counter.TryOffer(valuable);
             Assert.AreEqual(50, counter.NetCats);
             Assert.IsTrue(counter.Ready);
             Assert.IsTrue(counter.TryCommit());
+            Assert.AreEqual(removedStockPosition, scrap.transform.position,
+                "A shelf item already taken by the player must not teleport back during a later sale.");
             Assert.AreEqual(385, counter.MerchantCats);
             Assert.AreEqual(65, purse.Cats, "Payout must remain physical until collection");
             CurrencyPouch payout = null;
@@ -223,6 +232,8 @@ namespace Zandea.FriendlyNPC.Editor
             Assert.IsTrue(walkoff.IsStolen, "Stock carried beyond nine metres is marked stolen.");
             Assert.IsTrue(MerchantSessionState.Get(vendor.vendorId, vendor.startingCats)
                 .stolenStockIds.Contains(walkoff.InstanceId));
+            Assert.IsTrue(MerchantSessionState.Get(vendor.vendorId, vendor.startingCats)
+                .hostileForTheft, "The vendor's existing AI hostility must remember a confirmed theft.");
 
             var staff = Item("Long staff", Definition("staff", 20), vendor.vendorId,
                 new Vector3(-1.55f, 0, 0));

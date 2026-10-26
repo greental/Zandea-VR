@@ -20,6 +20,10 @@ namespace Zandea.FriendlyNPC
         public TMP_Text priceLabelPrefab;
         public CurrencyPouch payoutPouchPrefab;
         public Transform payoutPosition;
+        [Header("Sold stock display")]
+        public Transform soldStockDisplay;
+        [Range(1, 4)] public int visibleSoldStockLimit = 2;
+        public bool becomeHostileOnTheft = true;
         [SerializeField, Min(0)] int merchantCats;
         [SerializeField] int committedTransactions;
         readonly Dictionary<string, Offer> offers = new();
@@ -33,11 +37,13 @@ namespace Zandea.FriendlyNPC
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetLedgerGlyphs() => ledgerGlyphsReady = false;
         readonly List<TradeItem> soldStock = new();
+        readonly List<TradeItem> displayedSoldStock = new();
         readonly Dictionary<string, TradeItem> carriedStock = new();
         readonly HashSet<string> warnedStock = new();
         readonly List<string> finishedCarriedStock = new();
         Transform soldStorage;
         Material ledgerPaperMaterial;
+        Material soldShelfMaterial;
         public IReadOnlyList<TradeItem> SoldStock => soldStock;
         public event Action<TradeItem> StockStolen;
 
@@ -69,12 +75,16 @@ namespace Zandea.FriendlyNPC
             stockObject.transform.SetParent(transform, false);
             stockObject.SetActive(false);
             soldStorage = stockObject.transform;
+            if (!soldStockDisplay) BuildSoldStockDisplay();
         }
 
         void Start()
         {
-            if (!configuration || !payoutPouchPrefab || !payoutPosition) return;
+            if (!configuration) return;
             var state = MerchantSessionState.Get(configuration.vendorId, configuration.startingCats);
+            if (state.hostileForTheft && merchant && merchant.brain)
+                merchant.brain.hostileToPlayer = true;
+            if (!payoutPouchPrefab || !payoutPosition) return;
             foreach (var payout in state.outstandingPayouts)
             {
                 if (MerchantSessionState.IsLive(payout.Key)) continue;
@@ -108,6 +118,7 @@ namespace Zandea.FriendlyNPC
         void OnDestroy()
         {
             if (ledgerPaperMaterial) Destroy(ledgerPaperMaterial);
+            if (soldShelfMaterial) Destroy(soldShelfMaterial);
         }
 
         void Update()
@@ -125,7 +136,9 @@ namespace Zandea.FriendlyNPC
                 {
                     item.MarkStolen(configuration.vendorId);
                     MerchantSessionState.MarkStockStolen(configuration.vendorId, item.InstanceId);
-                    merchant.WarnAboutStock(true);
+                    if (becomeHostileOnTheft)
+                        MerchantSessionState.MarkVendorHostileForTheft(configuration.vendorId);
+                    merchant.RespondToStockTheft(becomeHostileOnTheft);
                     StockStolen?.Invoke(item);
                     finishedCarriedStock.Add(pair.Key);
                 }
@@ -147,6 +160,7 @@ namespace Zandea.FriendlyNPC
 
         void OnItemSelected(TradeItem item)
         {
+            if (item) displayedSoldStock.Remove(item);
             if (item && offers.Remove(item.InstanceId, out var old))
             { if (old.label) Destroy(old.label.gameObject); Recalculate(); }
             if (item && configuration && merchant && item.ownerId == configuration.vendorId &&
@@ -315,6 +329,50 @@ namespace Zandea.FriendlyNPC
             }
         }
 
+        void BuildSoldStockDisplay()
+        {
+            var display = new GameObject("Sold goods display");
+            display.transform.SetParent(transform, false);
+            display.transform.localPosition = new Vector3(0f, 1.25f, .63f);
+            soldStockDisplay = display.transform;
+            var board = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            board.name = "Upper stock shelf";
+            board.transform.SetParent(soldStockDisplay, false);
+            board.transform.localScale = new Vector3(1.55f, .07f, .35f);
+            var shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (!shader) shader = Shader.Find("Standard");
+            soldShelfMaterial = new Material(shader) { color = new Color(.32f, .2f, .12f) };
+            board.GetComponent<Renderer>().sharedMaterial = soldShelfMaterial;
+        }
+
+        void DisplayCommittedSale(TradeItem item)
+        {
+            if (!item) return;
+            soldStock.Add(item);
+            if (!soldStockDisplay)
+            {
+                item.transform.SetParent(soldStorage, true);
+                return;
+            }
+            displayedSoldStock.Add(item);
+            while (displayedSoldStock.Count > visibleSoldStockLimit)
+            {
+                var oldest = displayedSoldStock[0];
+                displayedSoldStock.RemoveAt(0);
+                if (!oldest) continue;
+                oldest.ReleaseTradeHold();
+                oldest.transform.SetParent(soldStorage, true);
+            }
+            for (int i = 0; i < displayedSoldStock.Count; i++)
+            {
+                var stock = displayedSoldStock[i];
+                if (!stock || stock.IsHeld) continue;
+                stock.transform.SetParent(soldStockDisplay, true);
+                float x = (i - (displayedSoldStock.Count - 1) * .5f) * .58f;
+                stock.HoldForTradeAt(soldStockDisplay.TransformPoint(new Vector3(x, .18f, 0f)));
+            }
+        }
+
         void RefreshLedger()
         {
             if (!ledgerText) return;
@@ -376,6 +434,7 @@ namespace Zandea.FriendlyNPC
             committing = true;
             CurrencyPouch payout = null;
             int oldMerchantCats = merchantCats;
+            int oldCommittedTransactions = committedTransactions;
             int oldPurseCats = paymentPurse ? paymentPurse.Cats : 0;
             var changed = new List<Offer>(offers.Count);
             try
@@ -404,9 +463,6 @@ namespace Zandea.FriendlyNPC
                 int payoutCats = Mathf.Max(0, NetCats);
                 string payoutId = payout ? payout.stableId : null;
                 committedTransactions++;
-                foreach (var offer in changed)
-                    if (offer.zone == sellArea && offer.item.TryGetComponent<XRGrabInteractable>(out var grab))
-                        grab.enabled = false;
                 if (payout) payout.gameObject.SetActive(true);
                 if (paymentPurse) paymentPurse.ReturnHomeWhenReleased();
                 Cancel();
@@ -421,8 +477,12 @@ namespace Zandea.FriendlyNPC
                     if (offer.zone == sellArea && offer.item)
                     {
                         offer.item.ReleaseTradeHold();
-                        soldStock.Add(offer.item);
-                        offer.item.transform.SetParent(soldStorage, true);
+                        try { DisplayCommittedSale(offer.item); }
+                        catch (Exception error)
+                        {
+                            Debug.LogError("Sold stock display failed: " + error.Message, this);
+                            offer.item.transform.SetParent(soldStorage, true);
+                        }
                     }
                 trading = merchant && merchant.IsTrading;
                 merchant?.PlayContextLine("trade_complete");
@@ -438,6 +498,7 @@ namespace Zandea.FriendlyNPC
                             offer.item.TryGetComponent<XRGrabInteractable>(out var grab)) grab.enabled = true;
                     }
                 merchantCats = oldMerchantCats;
+                committedTransactions = oldCommittedTransactions;
                 if (paymentPurse) paymentPurse.SetInitialBalance(oldPurseCats);
                 if (payout) Destroy(payout.gameObject);
                 Debug.LogError("Trade settlement failed and was rolled back: " + error.Message, this);

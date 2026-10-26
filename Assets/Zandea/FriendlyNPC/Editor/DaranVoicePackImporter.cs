@@ -46,6 +46,39 @@ namespace Zandea.FriendlyNPC.Editor
                 new[] { "market_call_03" })
         };
 
+        static readonly (string eventId, string subtitle, string file)[] OptionalTheftLines =
+        {
+            ("stock_warning_001", "Don't walk off with my stock, traveler.", "stock_warning_001.wav"),
+            ("stock_stolen_001", "That's mine. Bring it back.", "stock_stolen_001.wav")
+        };
+
+        [MenuItem("Zandea/Friendly NPC/Prepare Daran dialogue audio")]
+        public static void PreparePlayback()
+        {
+            if (new DriveInfo("D").AvailableFreeSpace < 20L * 1024 * 1024 * 1024)
+                throw new InvalidOperationException("Less than 20 GiB free on D:. Audio import stopped.");
+            foreach (var line in Lines)
+                foreach (string name in line.files)
+                    SetLowLatencyImport(Destination + "/" + name + ".mp3");
+            foreach (var line in OptionalTheftLines)
+                if (File.Exists(Destination + "/" + line.file))
+                    SetLowLatencyImport(Destination + "/" + line.file);
+            AssetDatabase.SaveAssets();
+        }
+
+        static void SetLowLatencyImport(string path)
+        {
+            var importer = AssetImporter.GetAtPath(path) as AudioImporter;
+            if (!importer) return;
+            var settings = importer.defaultSampleSettings;
+            if (settings.loadType == AudioClipLoadType.DecompressOnLoad &&
+                settings.preloadAudioData) return;
+            settings.loadType = AudioClipLoadType.DecompressOnLoad;
+            settings.preloadAudioData = true;
+            importer.defaultSampleSettings = settings;
+            importer.SaveAndReimport();
+        }
+
         [MenuItem("Zandea/Friendly NPC/Import Daran voice pack")]
         public static void Import()
         {
@@ -93,6 +126,19 @@ namespace Zandea.FriendlyNPC.Editor
                 }
                 bank.events.Add(voiceEvent);
             }
+            foreach (var line in OptionalTheftLines)
+            {
+                string path = Destination + "/" + line.file;
+                if (!File.Exists(path)) continue;
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+                var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+                if (!clip) throw new InvalidOperationException("Unity could not import " + path);
+                var envelope = DialogueVoiceGenerator.BakeEnvelope(path, clip);
+                bank.events.Add(new NpcVoiceEvent { eventId = line.eventId,
+                    takes = new List<NpcVoiceTake> { new() { clip = clip,
+                        subtitle = line.subtitle, mouthEnvelope = envelope } } });
+            }
+            PreparePlayback();
             bank.ambientEventIds.Clear();
             bank.ambientEventIds.AddRange(new[] { "market_call_01", "market_call_02", "market_call_03" });
             EditorUtility.SetDirty(bank);
@@ -142,7 +188,8 @@ namespace Zandea.FriendlyNPC.Editor
             }
             finally { PrefabUtility.UnloadPrefabContents(root); }
             AssetDatabase.SaveAssets();
-            Debug.Log("Imported 18 Daran MP3 takes, baked 30 Hz speech envelopes, and assigned voice bank.");
+            Debug.Log("Imported Daran recordings, baked 30 Hz mouth envelopes, and prepared low-latency playback. " +
+                "Theft lines are included only when their WAV files exist in " + Destination);
         }
 
         // Batch validation entry point; the live editor keeps its authored scene layout.

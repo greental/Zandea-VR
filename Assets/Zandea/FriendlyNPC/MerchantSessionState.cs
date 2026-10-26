@@ -12,6 +12,7 @@ namespace Zandea.FriendlyNPC
             public readonly HashSet<string> transferredSourceIds = new();
             public readonly HashSet<string> soldStockIds = new();
             public readonly HashSet<string> stolenStockIds = new();
+            public bool hostileForTheft;
             public readonly Dictionary<string, int> outstandingPayouts = new();
         }
 
@@ -78,6 +79,11 @@ namespace Zandea.FriendlyNPC
             var state = Get(vendorId, 0);
             state.stolenStockIds.Add(instanceId);
             state.transferredSourceIds.Add(instanceId);
+        }
+
+        public static void MarkVendorHostileForTheft(string vendorId)
+        {
+            if (!string.IsNullOrEmpty(vendorId)) Get(vendorId, 0).hostileForTheft = true;
         }
     }
 }

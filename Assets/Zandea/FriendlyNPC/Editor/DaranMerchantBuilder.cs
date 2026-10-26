@@ -185,7 +185,7 @@ namespace Zandea.FriendlyNPC.Editor
                             if (peak < .03f) missing.Add("silent mouth envelope: " + voiceEvent.eventId);
                         }
                     }
-                if (takes != 18) missing.Add("18 recorded voice takes");
+                if (takes < 18) missing.Add("at least 18 recorded voice takes");
                 if (npc.voiceBank.ambientEventIds.Count != 3) missing.Add("three market calls");
             }
             if (!counter || counter.merchant != npc || !counter.configuration) missing.Add("vendor binding");
@@ -229,6 +229,19 @@ namespace Zandea.FriendlyNPC.Editor
                 faults.Add("friendly merchant rig/brain");
             if (!npc || !npc.choices || !npc.conversationTarget || !npc.voiceBank)
                 faults.Add("conversation/voice/palm choices");
+            if (npc && npc.dialogue && (npc.dialogue.Find("stock_warning_001") == null ||
+                npc.dialogue.Find("stock_stolen_001") == null))
+                faults.Add("authored theft warning nodes");
+            if (npc && npc.voiceBank)
+                foreach (var voiceEvent in npc.voiceBank.events)
+                    foreach (var take in voiceEvent.takes)
+                    {
+                        if (!take.clip) continue;
+                        var path = AssetDatabase.GetAssetPath(take.clip);
+                        var importer = AssetImporter.GetAtPath(path) as AudioImporter;
+                        if (importer && importer.defaultSampleSettings.loadType != AudioClipLoadType.DecompressOnLoad)
+                        { faults.Add("dialogue first-play decode: " + path); break; }
+                    }
             if (npc && npc.choices && !npc.choices.leftHand)
                 faults.Add("tracked left notebook hand");
             if (!AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(
