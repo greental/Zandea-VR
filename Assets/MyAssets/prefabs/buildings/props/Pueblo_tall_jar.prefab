@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: 5478916469979610457}
   - component: {fileID: 5325095771751934325}
   - component: {fileID: 726284838536068376}
+  - component: {fileID: 3955252947668599223}
   m_Layer: 0
   m_Name: Pueblo_tall_jar
   m_TagString: Untagged
@@ -315,3 +316,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &3955252947668599223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5660121172713013316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 8455518905777118015, guid: b75a1f71e9ad7074e8dad75ad258eeb4, type: 3}

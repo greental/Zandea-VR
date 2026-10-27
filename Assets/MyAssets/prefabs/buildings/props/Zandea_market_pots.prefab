@@ -1,0 +1,474 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8890814825456637771
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3333427232388563289}
+  m_Layer: 0
+  m_Name: Zandea_market_pots
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3333427232388563289
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8890814825456637771}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1980532597377468342}
+  - {fileID: 6351156367537361326}
+  - {fileID: 6420506335402341950}
+  - {fileID: 6862745199929771565}
+  - {fileID: 5683774376797931906}
+  - {fileID: 474338359765495966}
+  - {fileID: 5967178926451727403}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &2373080639064751757
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3333427232388563289}
+    m_Modifications:
+    - target: {fileID: 2197360577533052072, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+      propertyPath: m_Name
+      value: Zandea_market_pots_pot02_c
+      objectReference: {fileID: 0}
+    - target: {fileID: 2773039231938219539, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.5002093
+      objectReference: {fileID: 0}
+    - target: {fileID: 2773039231938219539, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.0008828342
+      objectReference: {fileID: 0}
+    - target: {fileID: 2773039231938219539, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.0492616
+      objectReference: {fileID: 0}
+    - target: {fileID: 2773039231938219539, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2773039231938219539, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2773039231938219539, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2773039231938219539, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2773039231938219539, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2773039231938219539, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2773039231938219539, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+--- !u!4 &474338359765495966 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2773039231938219539, guid: eeb4b7e5ab8701e46b856a79eace5a54, type: 3}
+  m_PrefabInstance: {fileID: 2373080639064751757}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4354078196178746719
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3333427232388563289}
+    m_Modifications:
+    - target: {fileID: 6575637862687855491, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+      propertyPath: m_Name
+      value: Zandea_market_pots_pot01_b
+      objectReference: {fileID: 0}
+    - target: {fileID: 7228026841851210993, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.58811545
+      objectReference: {fileID: 0}
+    - target: {fileID: 7228026841851210993, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.000000014901161
+      objectReference: {fileID: 0}
+    - target: {fileID: 7228026841851210993, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.4547934
+      objectReference: {fileID: 0}
+    - target: {fileID: 7228026841851210993, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7228026841851210993, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7228026841851210993, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7228026841851210993, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7228026841851210993, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7228026841851210993, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7228026841851210993, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+--- !u!4 &6351156367537361326 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7228026841851210993, guid: b55fb6a3780eb494aafc25cf79ed9148, type: 3}
+  m_PrefabInstance: {fileID: 4354078196178746719}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &5697453459082944261
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3333427232388563289}
+    m_Modifications:
+    - target: {fileID: 140096552943720071, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.015865877
+      objectReference: {fileID: 0}
+    - target: {fileID: 140096552943720071, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.0016868934
+      objectReference: {fileID: 0}
+    - target: {fileID: 140096552943720071, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.23421809
+      objectReference: {fileID: 0}
+    - target: {fileID: 140096552943720071, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 140096552943720071, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 140096552943720071, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 140096552943720071, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 140096552943720071, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 140096552943720071, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 140096552943720071, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6132560894282952595, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+      propertyPath: m_Name
+      value: Zandea_market_pots_pot02_b
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+--- !u!4 &5683774376797931906 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 140096552943720071, guid: 49014f52f0e12df40bc2f7742899d3a8, type: 3}
+  m_PrefabInstance: {fileID: 5697453459082944261}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6993591892010041717
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3333427232388563289}
+    m_Modifications:
+    - target: {fileID: 4482036707731654488, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.053744234
+      objectReference: {fileID: 0}
+    - target: {fileID: 4482036707731654488, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.0019784272
+      objectReference: {fileID: 0}
+    - target: {fileID: 4482036707731654488, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.5841314
+      objectReference: {fileID: 0}
+    - target: {fileID: 4482036707731654488, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4482036707731654488, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4482036707731654488, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4482036707731654488, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4482036707731654488, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4482036707731654488, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4482036707731654488, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7443665929067848934, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+      propertyPath: m_Name
+      value: Zandea_market_pots_pot02_a
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+--- !u!4 &6862745199929771565 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4482036707731654488, guid: a84d9aa14cc0fee4887ec6951538706d, type: 3}
+  m_PrefabInstance: {fileID: 6993591892010041717}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8575880292565586515
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3333427232388563289}
+    m_Modifications:
+    - target: {fileID: 453672925029508189, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+      propertyPath: m_Name
+      value: Zandea_market_pots_pot01_a
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818220739582039525, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.110571876
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818220739582039525, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.00012819469
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818220739582039525, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.055772707
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818220739582039525, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818220739582039525, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818220739582039525, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818220739582039525, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818220739582039525, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818220739582039525, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7818220739582039525, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+--- !u!4 &1980532597377468342 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7818220739582039525, guid: 899e11aac6c339a43a1c456e10835cba, type: 3}
+  m_PrefabInstance: {fileID: 8575880292565586515}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8692287524244702269
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3333427232388563289}
+    m_Modifications:
+    - target: {fileID: 2430550776601866755, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.5439169
+      objectReference: {fileID: 0}
+    - target: {fileID: 2430550776601866755, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.0013498962
+      objectReference: {fileID: 0}
+    - target: {fileID: 2430550776601866755, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.6305333
+      objectReference: {fileID: 0}
+    - target: {fileID: 2430550776601866755, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2430550776601866755, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2430550776601866755, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2430550776601866755, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2430550776601866755, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2430550776601866755, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2430550776601866755, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2713816934230694647, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+      propertyPath: m_Name
+      value: Zandea_market_pots_pot01_c
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+--- !u!4 &6420506335402341950 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2430550776601866755, guid: b9a3968ab32e03f4f9ab7cbeeb5640b8, type: 3}
+  m_PrefabInstance: {fileID: 8692287524244702269}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &9000013720602968509
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3333427232388563289}
+    m_Modifications:
+    - target: {fileID: 3326424362054360470, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.4560777
+      objectReference: {fileID: 0}
+    - target: {fileID: 3326424362054360470, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.00037658215
+      objectReference: {fileID: 0}
+    - target: {fileID: 3326424362054360470, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.583342
+      objectReference: {fileID: 0}
+    - target: {fileID: 3326424362054360470, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3326424362054360470, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3326424362054360470, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3326424362054360470, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3326424362054360470, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3326424362054360470, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3326424362054360470, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7162667414477338516, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+      propertyPath: m_Name
+      value: Zandea_market_pots_pot02_d
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+--- !u!4 &5967178926451727403 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3326424362054360470, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
+  m_PrefabInstance: {fileID: 9000013720602968509}
+  m_PrefabAsset: {fileID: 0}

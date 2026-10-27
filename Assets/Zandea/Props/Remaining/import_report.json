@@ -1,0 +1,295 @@
+{
+  "modelCount": 32,
+  "partPrefabCount": 25,
+  "totalExportTriangles": 240483,
+  "models": [
+    {
+      "id": "blacksmith_equipment",
+      "sourceArchive": "asset-pack---blacksmith-equipment.zip",
+      "sourceTriangles": 37222,
+      "exportTriangles": 23994,
+      "looseVerticesRemoved": 0,
+      "materialCount": 11,
+      "partCount": 11
+    },
+    {
+      "id": "brass_pot",
+      "sourceArchive": "Breakable/brass_pot_01_4k.blend.zip",
+      "sourceTriangles": 3760,
+      "exportTriangles": 3760,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "brass_vase_02",
+      "sourceArchive": "Breakable/brass_vase_02_4k.blend.zip",
+      "sourceTriangles": 6890,
+      "exportTriangles": 6000,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "brass_vase_03",
+      "sourceArchive": "Breakable/brass_vase_03_4k.blend.zip",
+      "sourceTriangles": 2616,
+      "exportTriangles": 2616,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "brass_vase_04",
+      "sourceArchive": "Breakable/brass_vase_04_4k.blend.zip",
+      "sourceTriangles": 2760,
+      "exportTriangles": 2760,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "decorative_bowl",
+      "sourceArchive": "Breakable/decretive-medieval-bowl-free.zip",
+      "sourceTriangles": 1020,
+      "exportTriangles": 1020,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "decorative_plate",
+      "sourceArchive": "Breakable/decretive-medieval-plate-free.zip",
+      "sourceTriangles": 316,
+      "exportTriangles": 316,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "market_pots",
+      "sourceArchive": "Breakable/medieval-market-clay-pots.zip",
+      "sourceTriangles": 29380,
+      "exportTriangles": 11996,
+      "looseVerticesRemoved": 0,
+      "materialCount": 2,
+      "partCount": 7
+    },
+    {
+      "id": "planter_pot",
+      "sourceArchive": "Breakable/planter_pot_clay_4k.blend.zip",
+      "sourceTriangles": 3080,
+      "exportTriangles": 3080,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "small_clay_pottery",
+      "sourceArchive": "Breakable/small-clay-pottery-free.zip",
+      "sourceTriangles": 3147,
+      "exportTriangles": 3147,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "barrel_set",
+      "sourceArchive": "Breakable/wooden_barrels_01_4k.blend.zip",
+      "sourceTriangles": 33142,
+      "exportTriangles": 10678,
+      "looseVerticesRemoved": 0,
+      "materialCount": 3,
+      "partCount": 2
+    },
+    {
+      "id": "wooden_bucket_01",
+      "sourceArchive": "Breakable/wooden_bucket_01_4k.blend.zip",
+      "sourceTriangles": 5116,
+      "exportTriangles": 5116,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "wooden_bucket_02",
+      "sourceArchive": "Breakable/wooden_bucket_02_4k.blend.zip",
+      "sourceTriangles": 7252,
+      "exportTriangles": 4999,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "campfire_simple",
+      "sourceArchive": "campfire (1).zip",
+      "sourceTriangles": 1440,
+      "exportTriangles": 1440,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "campfire_tripod",
+      "sourceArchive": "campfire (2).zip",
+      "sourceTriangles": 61568,
+      "exportTriangles": 10196,
+      "looseVerticesRemoved": 0,
+      "materialCount": 5,
+      "partCount": 0
+    },
+    {
+      "id": "campfire_wood",
+      "sourceArchive": "campfire-wood-survival-warm-and-light.zip",
+      "sourceTriangles": 34080,
+      "exportTriangles": 9999,
+      "looseVerticesRemoved": 30,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "campfire_kit",
+      "sourceArchive": "campfire.zip",
+      "sourceTriangles": 19964,
+      "exportTriangles": 10094,
+      "looseVerticesRemoved": 0,
+      "materialCount": 2,
+      "partCount": 0
+    },
+    {
+      "id": "jail_cage",
+      "sourceArchive": "jail.zip",
+      "sourceTriangles": 7561,
+      "exportTriangles": 7561,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "money_bag",
+      "sourceArchive": "money-bag.zip",
+      "sourceTriangles": 3424,
+      "exportTriangles": 3424,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "old_sack",
+      "sourceArchive": "old_burlap_bag_photo_scan.zip",
+      "sourceTriangles": 4906,
+      "exportTriangles": 4906,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "old_well",
+      "sourceArchive": "old-well.zip",
+      "sourceTriangles": 74790,
+      "exportTriangles": 14000,
+      "looseVerticesRemoved": 0,
+      "materialCount": 7,
+      "partCount": 0
+    },
+    {
+      "id": "primitive_brazier",
+      "sourceArchive": "primitive-brazier-free.zip",
+      "sourceTriangles": 2420,
+      "exportTriangles": 2420,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "roadblock",
+      "sourceArchive": "roadblock.zip",
+      "sourceTriangles": 2102,
+      "exportTriangles": 2102,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 5
+    },
+    {
+      "id": "wooden_barricade",
+      "sourceArchive": "wooden-barricade-blood.zip",
+      "sourceTriangles": 348,
+      "exportTriangles": 348,
+      "looseVerticesRemoved": 0,
+      "materialCount": 2,
+      "partCount": 0
+    },
+    {
+      "id": "wooden_ladder",
+      "sourceArchive": "wooden-ladder.zip",
+      "sourceTriangles": 17288,
+      "exportTriangles": 7000,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "table_alternate",
+      "sourceArchive": "WoodenTable_02_4k.blend.zip",
+      "sourceTriangles": 1514,
+      "exportTriangles": 1514,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "statue_chicago",
+      "sourceArchive": "Statues/19435333-model-caea-university-of-chicago.zip",
+      "sourceTriangles": 1993168,
+      "exportTriangles": 13999,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "statue_bodhisattva_head",
+      "sourceArchive": "Statues/bodhisattva-head.zip",
+      "sourceTriangles": 4000884,
+      "exportTriangles": 16000,
+      "looseVerticesRemoved": 0,
+      "materialCount": 4,
+      "partCount": 0
+    },
+    {
+      "id": "statue_meditation",
+      "sourceArchive": "Statues/bodhisattva-in-meditation.zip",
+      "sourceTriangles": 338184,
+      "exportTriangles": 14000,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "statue_pakistan",
+      "sourceArchive": "Statues/bodhisattva-pakistan.zip",
+      "sourceTriangles": 1000016,
+      "exportTriangles": 14000,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "statue_guanyin",
+      "sourceArchive": "Statues/seated-bodhisattva-guanyin-12th-c-ce.zip",
+      "sourceTriangles": 199993,
+      "exportTriangles": 13999,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    },
+    {
+      "id": "statue_hansongsa",
+      "sourceArchive": "Statues/stone-seated-bodhisattva-from-hansongsa.zip",
+      "sourceTriangles": 245477,
+      "exportTriangles": 13999,
+      "looseVerticesRemoved": 0,
+      "materialCount": 1,
+      "partCount": 0
+    }
+  ]
+}

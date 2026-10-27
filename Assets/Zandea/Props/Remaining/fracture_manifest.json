@@ -1,0 +1,99 @@
+{
+  "items": [
+    {
+      "id": "Zandea_brass_pot",
+      "source": "Assets/Zandea/Props/Remaining/Models/brass_pot.fbx",
+      "meshContains": ""
+    },
+    {
+      "id": "Zandea_brass_vase_02",
+      "source": "Assets/Zandea/Props/Remaining/Models/brass_vase_02.fbx",
+      "meshContains": ""
+    },
+    {
+      "id": "Zandea_brass_vase_03",
+      "source": "Assets/Zandea/Props/Remaining/Models/brass_vase_03.fbx",
+      "meshContains": ""
+    },
+    {
+      "id": "Zandea_brass_vase_04",
+      "source": "Assets/Zandea/Props/Remaining/Models/brass_vase_04.fbx",
+      "meshContains": ""
+    },
+    {
+      "id": "Zandea_decorative_bowl",
+      "source": "Assets/Zandea/Props/Remaining/Models/decorative_bowl.fbx",
+      "meshContains": ""
+    },
+    {
+      "id": "Zandea_decorative_plate",
+      "source": "Assets/Zandea/Props/Remaining/Models/decorative_plate.fbx",
+      "meshContains": ""
+    },
+    {
+      "id": "Zandea_market_pots_pot01_a",
+      "source": "Assets/Zandea/Props/Remaining/Models/market_pots.fbx",
+      "meshContains": "Pot_01_010"
+    },
+    {
+      "id": "Zandea_market_pots_pot01_b",
+      "source": "Assets/Zandea/Props/Remaining/Models/market_pots.fbx",
+      "meshContains": "Pot_01_011"
+    },
+    {
+      "id": "Zandea_market_pots_pot01_c",
+      "source": "Assets/Zandea/Props/Remaining/Models/market_pots.fbx",
+      "meshContains": "Pot_01_012"
+    },
+    {
+      "id": "Zandea_market_pots_pot02_a",
+      "source": "Assets/Zandea/Props/Remaining/Models/market_pots.fbx",
+      "meshContains": "Pot_02_022"
+    },
+    {
+      "id": "Zandea_market_pots_pot02_b",
+      "source": "Assets/Zandea/Props/Remaining/Models/market_pots.fbx",
+      "meshContains": "Pot_02_024"
+    },
+    {
+      "id": "Zandea_market_pots_pot02_c",
+      "source": "Assets/Zandea/Props/Remaining/Models/market_pots.fbx",
+      "meshContains": "Pot_02_025"
+    },
+    {
+      "id": "Zandea_market_pots_pot02_d",
+      "source": "Assets/Zandea/Props/Remaining/Models/market_pots.fbx",
+      "meshContains": "Pot_02_026"
+    },
+    {
+      "id": "Zandea_planter_pot",
+      "source": "Assets/Zandea/Props/Remaining/Models/planter_pot.fbx",
+      "meshContains": ""
+    },
+    {
+      "id": "Zandea_small_clay_pottery",
+      "source": "Assets/Zandea/Props/Remaining/Models/small_clay_pottery.fbx",
+      "meshContains": ""
+    },
+    {
+      "id": "Pueblo_earth_pot",
+      "source": "Assets/Zandea/Pueblo/Models/earth_pot.fbx",
+      "meshContains": ""
+    },
+    {
+      "id": "Pueblo_round_jar",
+      "source": "Assets/Zandea/Pueblo/Models/round_jar.fbx",
+      "meshContains": ""
+    },
+    {
+      "id": "Pueblo_tall_jar",
+      "source": "Assets/Zandea/Pueblo/Models/tall_jar.fbx",
+      "meshContains": ""
+    },
+    {
+      "id": "Pueblo_terracotta_pot",
+      "source": "Assets/Zandea/Pueblo/Models/terracotta_pot.fbx",
+      "meshContains": ""
+    }
+  ]
+}

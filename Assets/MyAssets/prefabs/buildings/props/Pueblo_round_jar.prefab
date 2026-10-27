@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 754263005025968117}
   - component: {fileID: 7248435796828285940}
   - component: {fileID: 4043636717403367402}
+  - component: {fileID: 235174666032104642}
   m_Layer: 0
   m_Name: Pueblo_round_jar
   m_TagString: Untagged
@@ -226,6 +227,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &235174666032104642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3747378309794448764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 4101884390075597728, guid: 9a6c8ed1c129a9040b696aee114874fa, type: 3}
 --- !u!1 &4984835603950895496
 GameObject:
   m_ObjectHideFlags: 0

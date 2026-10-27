@@ -82,6 +82,7 @@ namespace Zandea.POI
                     authoredLayout = preview;
                     authoredRotation = preview.rotation;
                     AdoptAuthoredSite(preview.position);
+                    AuthoredVesselBreakage.Apply(preview);
                     CollectSceneAuthoringProps(preview);
                     authoredProps.AddRange(preview.GetComponentsInChildren<PhysicalProp>());
                     foreach (var prop in authoredProps)
@@ -395,7 +396,8 @@ namespace Zandea.POI
                     Vector3 delta=reference.center-renderer.bounds.center;
                     if(delta.sqrMagnitude>.0025f)renderer.transform.position+=delta;
                 }
-                group.RecalculateBounds();group.ForceLOD(-1);
+                group.RecalculateBounds();
+                if (group.enabled && group.gameObject.activeInHierarchy) group.ForceLOD(-1);
             }
         }
         void BuildNavigation()

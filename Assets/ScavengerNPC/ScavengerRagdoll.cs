@@ -40,6 +40,14 @@ namespace ScavengerNPC
         {
             agent = GetComponent<NavMeshAgent>();
             if (animator && animator.isHuman) hips = animator.GetBoneTransform(HumanBodyBones.Hips);
+            // Variant prefabs may serialize the old per-bone interactables. Awake
+            // runs before their OnEnable registration, so retire them here too.
+            foreach (var body in bones)
+            {
+                if (!body || body.transform == hips) continue;
+                var oldGrab = body.GetComponent<XRGrabInteractable>();
+                if (oldGrab) oldGrab.enabled = false;
+            }
             recoveryPositions = new Vector3[bones.Length];
             recoveryRotations = new Quaternion[bones.Length];
             foreach (var body in bones)
@@ -110,28 +118,47 @@ namespace ScavengerNPC
         {
             if (boneColliders == null) return;
             foreach (var grab in corpsePartGrabs) if (grab) { grab.colliders.Clear(); grab.enabled = false; }
+            // One body interactable owns the connected ragdoll. Separate grabs on
+            // ancestor bones claim the same child colliders in XR Interaction
+            // Toolkit, leaving limbs registered to the wrong interactable.
+            Rigidbody anchor = hips ? hips.GetComponent<Rigidbody>() : null;
+            if (!anchor)
+                foreach (var body in bones) if (body) { anchor = body; break; }
+            if (!anchor) return;
+            // Existing bandit variants can already carry per-bone grab components.
+            // Disable those as well, including ones this instance did not create.
+            foreach (var body in bones)
+            {
+                if (!body || body == anchor) continue;
+                var oldGrab = body.GetComponent<XRGrabInteractable>();
+                if (!oldGrab) continue;
+                oldGrab.enabled = false;
+                oldGrab.colliders.Clear();
+            }
+            var bodyGrab = anchor.GetComponent<XRGrabInteractable>();
+            if (!bodyGrab) bodyGrab = anchor.gameObject.AddComponent<XRGrabInteractable>();
+            if (!corpsePartGrabs.Contains(bodyGrab)) corpsePartGrabs.Add(bodyGrab);
+            bodyGrab.enabled = false;
+            bodyGrab.colliders.Clear();
             foreach (var shape in boneColliders)
             {
                 if (!shape || !shape.enabled || shape.isTrigger) continue;
-                var anchor = shape.attachedRigidbody;
-                if (!anchor) continue;
-                var grab = anchor.GetComponent<XRGrabInteractable>();
-                if (!grab) grab = anchor.gameObject.AddComponent<XRGrabInteractable>();
-                if (!corpsePartGrabs.Contains(grab)) corpsePartGrabs.Add(grab);
-                grab.movementType = XRBaseInteractable.MovementType.VelocityTracking;
-                grab.useDynamicAttach = true;
-                grab.selectMode = InteractableSelectMode.Single;
-                grab.throwOnDetach = false;
-                grab.attachEaseInTime=.12f;
-                grab.smoothPosition=true;grab.smoothRotation=true;
-                grab.smoothPositionAmount=6f;grab.smoothRotationAmount=6f;
-                if (!grab.colliders.Contains(shape)) grab.colliders.Add(shape);
-                grab.enabled = true;
-                var guard = anchor.GetComponent<HeldLootCollisionGuard>();
-                if (!guard) guard = anchor.gameObject.AddComponent<HeldLootCollisionGuard>();
-                guard.Bind(grab);
-                if (!CorpseGrab || anchor.transform == hips) CorpseGrab = grab;
+                bodyGrab.colliders.Add(shape);
             }
+            bodyGrab.movementType = XRBaseInteractable.MovementType.VelocityTracking;
+            bodyGrab.useDynamicAttach = true;
+            bodyGrab.selectMode = InteractableSelectMode.Multiple;
+            bodyGrab.throwOnDetach = false;
+            bodyGrab.attachEaseInTime = .12f;
+            bodyGrab.smoothPosition = true;
+            bodyGrab.smoothRotation = true;
+            bodyGrab.smoothPositionAmount = 6f;
+            bodyGrab.smoothRotationAmount = 6f;
+            bodyGrab.enabled = bodyGrab.colliders.Count > 0;
+            var guard = anchor.GetComponent<HeldLootCollisionGuard>();
+            if (!guard) guard = anchor.gameObject.AddComponent<HeldLootCollisionGuard>();
+            guard.Bind(bodyGrab);
+            CorpseGrab = bodyGrab;
         }
 
         public void ApplyImpact(Vector3 hitPoint, Vector3 impulse)

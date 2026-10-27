@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d41f7d5c583b62449bf7f2e60b006fc, type: 3}
+  m_Name: ZandeaVesselBreakage
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.VesselBreakageDefinition
+  authoredPuebloMeshes:
+  - sourceMesh: {fileID: 4450782204346696842, guid: f96bce699dde3194e9a2d3fa1df7b5f8, type: 3}
+    fracturedPrefab: {fileID: 6392165660309337712, guid: 92a0084458b160448a50dd915602a6ce, type: 3}
+  - sourceMesh: {fileID: -3060295177296127703, guid: 89cdf72085f245a468463b65c01ed8c6, type: 3}
+    fracturedPrefab: {fileID: 4101884390075597728, guid: 9a6c8ed1c129a9040b696aee114874fa, type: 3}
+  - sourceMesh: {fileID: 3958345535217462938, guid: 3d6cce7217e6808458684b826948befc, type: 3}
+    fracturedPrefab: {fileID: 8455518905777118015, guid: b75a1f71e9ad7074e8dad75ad258eeb4, type: 3}
+  - sourceMesh: {fileID: 3140868204115678239, guid: e5de946b92f2729448d83681143db8cb, type: 3}
+    fracturedPrefab: {fileID: 2048704615061776154, guid: 0115a389b34ca3d4981fe075f3b13ede, type: 3}

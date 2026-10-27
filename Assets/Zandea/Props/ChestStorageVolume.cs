@@ -55,13 +55,25 @@ namespace Zandea.Props
         Bounds CavityBounds()
         {
             var shapes = GetComponents<BoxCollider>();
-            if (shapes.Length == 0) return new Bounds(Vector3.up * .12f, new Vector3(.6f, .25f, .4f));
+            var fallback = new Bounds(Vector3.up * .12f, new Vector3(.6f, .25f, .4f));
+            if (shapes.Length == 0) return fallback;
             float minX=float.PositiveInfinity,maxX=float.NegativeInfinity,minZ=float.PositiveInfinity,maxZ=float.NegativeInfinity, bottom=float.PositiveInfinity, top=float.NegativeInfinity;
+            bool found = false;
             foreach(var shape in shapes) if(shape && !shape.isTrigger)
-            { var b=shape.bounds; minX=Mathf.Min(minX,b.min.x);maxX=Mathf.Max(maxX,b.max.x);minZ=Mathf.Min(minZ,b.min.z);maxZ=Mathf.Max(maxZ,b.max.z);bottom=Mathf.Min(bottom,b.min.y);top=Mathf.Max(top,b.max.y); }
-            Vector3 worldCenter=new((minX+maxX)*.5f,Mathf.Lerp(bottom,top,.58f),(minZ+maxZ)*.5f);
-            Vector3 worldSize=new(Mathf.Max(.3f,(maxX-minX)*.72f),Mathf.Max(.18f,(top-bottom)*.45f),Mathf.Max(.25f,(maxZ-minZ)*.62f));
-            return new Bounds(transform.InverseTransformPoint(worldCenter), new Vector3(worldSize.x/Mathf.Max(.001f,transform.lossyScale.x),worldSize.y/Mathf.Max(.001f,transform.lossyScale.y),worldSize.z/Mathf.Max(.001f,transform.lossyScale.z)));
+            {
+                // Collider.bounds is empty while a streamed prefab is inactive during Awake.
+                // All chest wall colliders are on this root, so use their local geometry.
+                var center = shape.center; var extents = shape.size * .5f;
+                if (!float.IsFinite(center.x) || !float.IsFinite(center.y) || !float.IsFinite(center.z) ||
+                    !float.IsFinite(extents.x) || !float.IsFinite(extents.y) || !float.IsFinite(extents.z)) continue;
+                minX=Mathf.Min(minX,center.x-extents.x);maxX=Mathf.Max(maxX,center.x+extents.x);
+                minZ=Mathf.Min(minZ,center.z-extents.z);maxZ=Mathf.Max(maxZ,center.z+extents.z);
+                bottom=Mathf.Min(bottom,center.y-extents.y);top=Mathf.Max(top,center.y+extents.y);
+                found = true;
+            }
+            if (!found) return fallback;
+            return new Bounds(new Vector3((minX+maxX)*.5f,Mathf.Lerp(bottom,top,.58f),(minZ+maxZ)*.5f),
+                new Vector3(Mathf.Max(.3f,(maxX-minX)*.72f),Mathf.Max(.18f,(top-bottom)*.45f),Mathf.Max(.25f,(maxZ-minZ)*.62f)));
         }
         static GameObject CreateIndicator(BoxCollider box)
         {

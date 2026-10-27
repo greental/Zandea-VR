@@ -8,6 +8,7 @@ namespace KenshiVR.MeleeCombat
 {
     // Uses the existing NpcItemInstance identity and NpcWorldItem marker. The list is
     // authoritative; presented GameObjects can be recreated without rerolling contents.
+    [DefaultExecutionOrder(-100)]
     public sealed class PropContainer : MonoBehaviour
     {
         public NpcItemDefinition[] initialContents;
@@ -28,16 +29,19 @@ namespace KenshiVR.MeleeCombat
         {
             breakable = GetComponent<BreakableProp>();
             if (breakable) breakable.Broken += OnBroken;
-            // A grabbable crate must not claim its hinged lid's collider in XRI.
-            var rootGrab = GetComponent<XRGrabInteractable>();
-            if (rootGrab && GetComponentInChildren<PropHingedLid>(true))
-            {
-                rootGrab.colliders.Clear();
-                foreach (var shape in GetComponents<Collider>()) rootGrab.colliders.Add(shape);
-            }
+            RestrictRootGrabColliders();
             EnsureVisibleLid();
             if (GetComponentInChildren<PropHingedLid>(true) && !GetComponent<ChestStorageVolume>())
                 gameObject.AddComponent<ChestStorageVolume>();
+        }
+        void OnEnable() => RestrictRootGrabColliders();
+        void RestrictRootGrabColliders()
+        {
+            // XRI otherwise collects child colliders and registers the lid twice.
+            var rootGrab = GetComponent<XRGrabInteractable>();
+            if (!rootGrab) return;
+            rootGrab.colliders.Clear();
+            foreach (var shape in GetComponents<Collider>()) rootGrab.colliders.Add(shape);
         }
         void EnsureVisibleLid()
         {

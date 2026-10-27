@@ -8,6 +8,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
+using VRKoombar.WeaponsStaging.Contracts;
 using Zandea.POI;
 using Zandea.Props;
 
@@ -93,8 +94,25 @@ namespace Zandea.Pueblo.Editor
                         terrain.transform.position.y - poi.Center.y) < .5f,
                         "stamped Main terrain and collider support the Pueblo center");
                     var props = poi.GetComponent<OutpostPropPopulation>();
-                    Check(props && props.Instances.Count >= 16,
-                        "Main Pueblo populates pots, baskets, and storage props");
+                    // Authored Main layouts keep their hand-placed PhysicalProp instances
+                    // and intentionally skip procedural OutpostPropPopulation.Create().
+                    var authoredLayout = poi.transform.Find("Layout Preview");
+                    int authoredPropCount = authoredLayout
+                        ? authoredLayout.GetComponentsInChildren<PhysicalProp>(true).Length : 0;
+                    int proceduralPropCount = props ? props.Instances.Count : 0;
+                    File.AppendAllText(Report, "Props authored=" + authoredPropCount +
+                        " procedural=" + proceduralPropCount + "\n");
+                    Check(authoredPropCount >= 16 || proceduralPropCount >= 16,
+                        "Main Pueblo has populated pots, baskets, and storage props");
+                    var authoredPot = authoredLayout
+                        ? authoredLayout.GetComponentsInChildren<BreakableProp>(true).FirstOrDefault(p =>
+                            p.fracturedPrefab && p.name.IndexOf("pot", StringComparison.OrdinalIgnoreCase) >= 0)
+                        : null;
+                    Check(authoredPot, "Main Pueblo has a breakable authored pot");
+                    var potHit = new DamagePacket { BaseDamage = 20f, WeaponId = "validation-melee",
+                        HitPointWorld = authoredPot.transform.position, HitNormalWorld = Vector3.up };
+                    authoredPot.ApplyDamage(in potHit);
+                    Check(authoredPot.IsBroken, "authored pot breaks from existing damage contract");
                     var path = new NavMeshPath();
                     Check(NavMesh.SamplePosition(poi.GatePosition + poi.ApproachDirection * 5,
                         out var start, 3, NavMesh.AllAreas) &&
@@ -107,7 +125,9 @@ namespace Zandea.Pueblo.Editor
                     SessionState.SetInt(NpcId, dead.GetInstanceID());
                     dead.health.ForceDeath();
                     Check(dead.health.IsDead, "bandit death state is recorded");
-                    player.xrOrigin.position = poi.Center + Vector3.right * 2800 + Vector3.up * 1.7f;
+                    // Main keeps an 11x11 (121 tile) visible window. Travel beyond
+                    // that window so the POI site actually leaves active terrain.
+                    player.xrOrigin.position = poi.Center + Vector3.right * 7000 + Vector3.up * 1.7f;
                     File.AppendAllText(Report, "Depart target tile=" + poi.treadmill.WorldToTile(player.xrOrigin.position) +
                         " center=" + poi.treadmill.CenterTile + " treadmillEnabled=" + poi.treadmill.enabled +
                         " active=" + poi.treadmill.gameObject.activeInHierarchy +

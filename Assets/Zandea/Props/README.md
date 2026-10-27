@@ -1,5 +1,7 @@
 # Zandea Slice 8: physical outpost props
 
+The additional 32 distinct downloaded models, plus 25 placeable parts extracted from four source packs, are documented in `Remaining/README.md` and built separately through `Zandea/Props/Build Remaining Downloaded Prefabs`.
+
 The original downloaded archives remain in `C:/Users/green/Downloads/Props`. `Tools/Props/audit_archives.py` inventories them without altering the sources. Blender 4.5 was used to export selected models and authored fragment meshes. Export and texture scripts live in `Tools/Props`; no geometry is generated during gameplay.
 
 ## Selected asset pass

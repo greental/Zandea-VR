@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 513845300819395732}
   - component: {fileID: 2637298347466486015}
   - component: {fileID: 3747190252265864990}
+  - component: {fileID: 6050098694300396937}
   m_Layer: 0
   m_Name: Pueblo_terracotta_pot
   m_TagString: Untagged
@@ -226,6 +227,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &6050098694300396937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2565391972842030191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 2048704615061776154, guid: 0115a389b34ca3d4981fe075f3b13ede, type: 3}
 --- !u!1 &4389745381724023872
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,329 @@
+{
+  "items": [
+    {
+      "key": "blacksmith_equipment",
+      "kind": "static",
+      "sizeMeters": 4.0,
+      "category": "furniture",
+      "parts": [
+        {
+          "meshContains": "Anvil_Anvil",
+          "id": "anvil",
+          "kind": "static"
+        },
+        {
+          "meshContains": "Bellows_Bellows",
+          "id": "bellows",
+          "kind": "static"
+        },
+        {
+          "meshContains": "Clamps_and",
+          "id": "clamps",
+          "kind": "static"
+        },
+        {
+          "meshContains": "Forge_Forge",
+          "id": "forge",
+          "kind": "static"
+        },
+        {
+          "meshContains": "Grindstone_Grindstone",
+          "id": "grindstone",
+          "kind": "static"
+        },
+        {
+          "meshContains": "Hammers___Small",
+          "id": "hammers",
+          "kind": "static"
+        },
+        {
+          "meshContains": "Knivs_and",
+          "id": "knives",
+          "kind": "static"
+        },
+        {
+          "meshContains": "Large_Tools",
+          "id": "large_tools",
+          "kind": "static"
+        },
+        {
+          "meshContains": "Pins_and",
+          "id": "pins",
+          "kind": "static"
+        },
+        {
+          "meshContains": "Quench_Trough",
+          "id": "quench_trough",
+          "kind": "static"
+        },
+        {
+          "meshContains": "Workbench_Workbench",
+          "id": "workbench",
+          "kind": "static"
+        }
+      ]
+    },
+    {
+      "key": "brass_pot",
+      "kind": "physical",
+      "sizeMeters": 0.65,
+      "category": "vessel"
+    },
+    {
+      "key": "brass_vase_02",
+      "kind": "physical",
+      "sizeMeters": 0.75,
+      "category": "vessel"
+    },
+    {
+      "key": "brass_vase_03",
+      "kind": "physical",
+      "sizeMeters": 0.75,
+      "category": "vessel"
+    },
+    {
+      "key": "brass_vase_04",
+      "kind": "physical",
+      "sizeMeters": 0.75,
+      "category": "vessel"
+    },
+    {
+      "key": "decorative_bowl",
+      "kind": "physical",
+      "sizeMeters": 0.38,
+      "category": "vessel"
+    },
+    {
+      "key": "decorative_plate",
+      "kind": "physical",
+      "sizeMeters": 0.4,
+      "category": "vessel"
+    },
+    {
+      "key": "market_pots",
+      "kind": "static",
+      "sizeMeters": 1.8,
+      "category": "vessel",
+      "parts": [
+        {
+          "meshContains": "Pot_01_010",
+          "id": "pot01_a",
+          "kind": "physical"
+        },
+        {
+          "meshContains": "Pot_01_011",
+          "id": "pot01_b",
+          "kind": "physical"
+        },
+        {
+          "meshContains": "Pot_01_012",
+          "id": "pot01_c",
+          "kind": "physical"
+        },
+        {
+          "meshContains": "Pot_02_022",
+          "id": "pot02_a",
+          "kind": "physical"
+        },
+        {
+          "meshContains": "Pot_02_024",
+          "id": "pot02_b",
+          "kind": "physical"
+        },
+        {
+          "meshContains": "Pot_02_025",
+          "id": "pot02_c",
+          "kind": "physical"
+        },
+        {
+          "meshContains": "Pot_02_026",
+          "id": "pot02_d",
+          "kind": "physical"
+        }
+      ]
+    },
+    {
+      "key": "planter_pot",
+      "kind": "physical",
+      "sizeMeters": 0.75,
+      "category": "vessel"
+    },
+    {
+      "key": "small_clay_pottery",
+      "kind": "physical",
+      "sizeMeters": 0.45,
+      "category": "vessel"
+    },
+    {
+      "key": "barrel_set",
+      "kind": "static",
+      "sizeMeters": 2.3,
+      "category": "storage",
+      "parts": [
+        {
+          "meshContains": "barrel01",
+          "id": "barrel01",
+          "kind": "physical"
+        },
+        {
+          "meshContains": "barrel02",
+          "id": "barrel02",
+          "kind": "physical"
+        }
+      ]
+    },
+    {
+      "key": "wooden_bucket_01",
+      "kind": "physical",
+      "sizeMeters": 0.55,
+      "category": "vessel"
+    },
+    {
+      "key": "wooden_bucket_02",
+      "kind": "physical",
+      "sizeMeters": 0.55,
+      "category": "vessel"
+    },
+    {
+      "key": "campfire_simple",
+      "kind": "static",
+      "sizeMeters": 2.0,
+      "category": "campfire"
+    },
+    {
+      "key": "campfire_tripod",
+      "kind": "static",
+      "sizeMeters": 2.4,
+      "category": "campfire"
+    },
+    {
+      "key": "campfire_wood",
+      "kind": "static",
+      "sizeMeters": 1.8,
+      "category": "campfire"
+    },
+    {
+      "key": "campfire_kit",
+      "kind": "static",
+      "sizeMeters": 2.2,
+      "category": "campfire"
+    },
+    {
+      "key": "jail_cage",
+      "kind": "static",
+      "sizeMeters": 4.0,
+      "category": "barrier"
+    },
+    {
+      "key": "money_bag",
+      "kind": "physical",
+      "sizeMeters": 0.45,
+      "category": "storage"
+    },
+    {
+      "key": "old_sack",
+      "kind": "physical",
+      "sizeMeters": 0.85,
+      "category": "storage"
+    },
+    {
+      "key": "old_well",
+      "kind": "static",
+      "sizeMeters": 4.0,
+      "category": "furniture"
+    },
+    {
+      "key": "primitive_brazier",
+      "kind": "static",
+      "sizeMeters": 1.4,
+      "category": "campfire"
+    },
+    {
+      "key": "roadblock",
+      "kind": "static",
+      "sizeMeters": 2.5,
+      "category": "barrier",
+      "parts": [
+        {
+          "meshContains": "roadblock_001",
+          "id": "section01",
+          "kind": "static"
+        },
+        {
+          "meshContains": "roadblock_002",
+          "id": "section02",
+          "kind": "static"
+        },
+        {
+          "meshContains": "roadblock_003",
+          "id": "section03",
+          "kind": "static"
+        },
+        {
+          "meshContains": "roadblock_004",
+          "id": "section04",
+          "kind": "static"
+        },
+        {
+          "meshContains": "roadblock_005",
+          "id": "section05",
+          "kind": "static"
+        }
+      ]
+    },
+    {
+      "key": "wooden_barricade",
+      "kind": "static",
+      "sizeMeters": 2.5,
+      "category": "barrier"
+    },
+    {
+      "key": "wooden_ladder",
+      "kind": "static",
+      "sizeMeters": 3.2,
+      "category": "furniture"
+    },
+    {
+      "key": "table_alternate",
+      "kind": "static",
+      "sizeMeters": 1.5,
+      "category": "furniture"
+    },
+    {
+      "key": "statue_chicago",
+      "kind": "static",
+      "sizeMeters": 2.2,
+      "category": "statue"
+    },
+    {
+      "key": "statue_bodhisattva_head",
+      "kind": "static",
+      "sizeMeters": 1.8,
+      "category": "statue"
+    },
+    {
+      "key": "statue_meditation",
+      "kind": "static",
+      "sizeMeters": 2.2,
+      "category": "statue"
+    },
+    {
+      "key": "statue_pakistan",
+      "kind": "static",
+      "sizeMeters": 2.2,
+      "category": "statue"
+    },
+    {
+      "key": "statue_guanyin",
+      "kind": "static",
+      "sizeMeters": 2.2,
+      "category": "statue"
+    },
+    {
+      "key": "statue_hansongsa",
+      "kind": "static",
+      "sizeMeters": 2.2,
+      "category": "statue"
+    }
+  ]
+}

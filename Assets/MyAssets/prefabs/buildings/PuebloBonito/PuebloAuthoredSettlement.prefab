@@ -2809,6 +2809,7 @@ GameObject:
   - component: {fileID: 5817085991699963663}
   - component: {fileID: 4518033163523412800}
   - component: {fileID: 306404193596548}
+  - component: {fileID: 2225679945008919291}
   m_Layer: 0
   m_Name: Preview 5 - Pueblo_round_jar
   m_TagString: Untagged
@@ -3022,6 +3023,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &2225679945008919291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1132739142777452264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 4101884390075597728, guid: 9a6c8ed1c129a9040b696aee114874fa, type: 3}
 --- !u!1 &1174989131771597654
 GameObject:
   m_ObjectHideFlags: 0
@@ -5815,6 +5833,7 @@ GameObject:
   - component: {fileID: 7047542631703664711}
   - component: {fileID: 6717984236143096853}
   - component: {fileID: 5732460120772542413}
+  - component: {fileID: 3516819715209529136}
   m_Layer: 0
   m_Name: Preview 15 - Pueblo_tall_jar
   m_TagString: Untagged
@@ -6028,6 +6047,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &3516819715209529136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2503513672016638857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 8455518905777118015, guid: b75a1f71e9ad7074e8dad75ad258eeb4, type: 3}
 --- !u!1 &2532014682161493774
 GameObject:
   m_ObjectHideFlags: 0
@@ -6286,6 +6322,7 @@ GameObject:
   - component: {fileID: 3548525285936622772}
   - component: {fileID: 8585051674362547705}
   - component: {fileID: 7070621622015619036}
+  - component: {fileID: 6401121156095302471}
   m_Layer: 0
   m_Name: Preview 26 - Pueblo_earth_pot (1)
   m_TagString: Untagged
@@ -6499,6 +6536,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &6401121156095302471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2690361127216480638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 6392165660309337712, guid: 92a0084458b160448a50dd915602a6ce, type: 3}
 --- !u!1 &2781908661442449642
 GameObject:
   m_ObjectHideFlags: 0
@@ -6601,6 +6655,7 @@ GameObject:
   - component: {fileID: 3490146760049244332}
   - component: {fileID: 3817883191935190516}
   - component: {fileID: 3634483729607256840}
+  - component: {fileID: 4297272999340269080}
   m_Layer: 0
   m_Name: Preview 17 - Pueblo_earth_pot
   m_TagString: Untagged
@@ -6814,6 +6869,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &4297272999340269080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2785646547265181127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 6392165660309337712, guid: 92a0084458b160448a50dd915602a6ce, type: 3}
 --- !u!1 &2790461517441548541
 GameObject:
   m_ObjectHideFlags: 0
@@ -6891,6 +6963,7 @@ GameObject:
   - component: {fileID: 7942918411322002541}
   - component: {fileID: 2009272352266038759}
   - component: {fileID: 3784885370999889576}
+  - component: {fileID: 4712575523112106833}
   m_Layer: 0
   m_Name: Preview 22 - Pueblo_tall_jar
   m_TagString: Untagged
@@ -7104,6 +7177,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &4712575523112106833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2842597410299018570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 8455518905777118015, guid: b75a1f71e9ad7074e8dad75ad258eeb4, type: 3}
 --- !u!1 &2890963213770210220
 GameObject:
   m_ObjectHideFlags: 0
@@ -7761,6 +7851,7 @@ GameObject:
   - component: {fileID: 7550966132038141068}
   - component: {fileID: 8158110079118486439}
   - component: {fileID: 272539177603085281}
+  - component: {fileID: 2840524306386802286}
   m_Layer: 0
   m_Name: Preview 10 - Pueblo_earth_pot
   m_TagString: Untagged
@@ -7974,6 +8065,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &2840524306386802286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3230443887426489918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 6392165660309337712, guid: 92a0084458b160448a50dd915602a6ce, type: 3}
 --- !u!1 &3367388974368514889
 GameObject:
   m_ObjectHideFlags: 0
@@ -8220,6 +8328,7 @@ GameObject:
   - component: {fileID: 4482415238244545872}
   - component: {fileID: 6406990208173157119}
   - component: {fileID: 1646360678477093998}
+  - component: {fileID: 6816973637676808626}
   m_Layer: 0
   m_Name: Preview 21 - Pueblo_round_jar
   m_TagString: Untagged
@@ -8433,6 +8542,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &6816973637676808626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3422607356938049968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 4101884390075597728, guid: 9a6c8ed1c129a9040b696aee114874fa, type: 3}
 --- !u!1 &3429346036902759330
 GameObject:
   m_ObjectHideFlags: 0
@@ -9015,6 +9141,7 @@ GameObject:
   - component: {fileID: 2285531664365695087}
   - component: {fileID: 2701550338050178066}
   - component: {fileID: 3706577937072081207}
+  - component: {fileID: 356797414413079102}
   m_Layer: 0
   m_Name: Preview 6 - Pueblo_tall_jar (1)
   m_TagString: Untagged
@@ -9228,6 +9355,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &356797414413079102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3784912775172177465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 8455518905777118015, guid: b75a1f71e9ad7074e8dad75ad258eeb4, type: 3}
 --- !u!1 &3786223078847319872
 GameObject:
   m_ObjectHideFlags: 0
@@ -11089,6 +11233,7 @@ GameObject:
   - component: {fileID: 4373837959724634817}
   - component: {fileID: 536203417042952763}
   - component: {fileID: 1429912846739021064}
+  - component: {fileID: 4160722063798259215}
   m_Layer: 0
   m_Name: Preview 1 - Pueblo_earth_pot
   m_TagString: Untagged
@@ -11302,6 +11447,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &4160722063798259215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4524592996243272472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 6392165660309337712, guid: 92a0084458b160448a50dd915602a6ce, type: 3}
 --- !u!1 &4531255520767071180
 GameObject:
   m_ObjectHideFlags: 0
@@ -15482,6 +15644,7 @@ GameObject:
   - component: {fileID: 8018777111232421113}
   - component: {fileID: 6728604409305897480}
   - component: {fileID: 3346195509871751029}
+  - component: {fileID: 8027424201661774975}
   m_Layer: 0
   m_Name: Preview 5 - Pueblo_round_jar (1)
   m_TagString: Untagged
@@ -15695,6 +15858,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &8027424201661774975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6395988530696536096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 4101884390075597728, guid: 9a6c8ed1c129a9040b696aee114874fa, type: 3}
 --- !u!1 &6399182206207483115
 GameObject:
   m_ObjectHideFlags: 0
@@ -15708,6 +15888,7 @@ GameObject:
   - component: {fileID: 3852173016940348136}
   - component: {fileID: 2727154787153329109}
   - component: {fileID: 8610221597021830825}
+  - component: {fileID: 5829256338549523193}
   m_Layer: 0
   m_Name: Preview 27 - Pueblo_terracotta_pot
   m_TagString: Untagged
@@ -15921,6 +16102,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &5829256338549523193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6399182206207483115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 2048704615061776154, guid: 0115a389b34ca3d4981fe075f3b13ede, type: 3}
 --- !u!1 &6460551594551052540
 GameObject:
   m_ObjectHideFlags: 0
@@ -16222,6 +16420,7 @@ GameObject:
   - component: {fileID: 8401083090352220393}
   - component: {fileID: 4391129736571463874}
   - component: {fileID: 3390185010572465446}
+  - component: {fileID: 769337311169089596}
   m_Layer: 0
   m_Name: Preview 11 - Pueblo_terracotta_pot
   m_TagString: Untagged
@@ -16435,6 +16634,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &769337311169089596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6707708569266504251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 2048704615061776154, guid: 0115a389b34ca3d4981fe075f3b13ede, type: 3}
 --- !u!1 &6728497334228659264
 GameObject:
   m_ObjectHideFlags: 0
@@ -16448,6 +16664,7 @@ GameObject:
   - component: {fileID: 2009327865894955921}
   - component: {fileID: 2147816866462397489}
   - component: {fileID: 8606626065810106194}
+  - component: {fileID: 1417504375513602863}
   m_Layer: 0
   m_Name: Preview 26 - Pueblo_earth_pot
   m_TagString: Untagged
@@ -16661,6 +16878,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &1417504375513602863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6728497334228659264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 6392165660309337712, guid: 92a0084458b160448a50dd915602a6ce, type: 3}
 --- !u!1 &6743402030222137577
 GameObject:
   m_ObjectHideFlags: 0
@@ -17794,6 +18028,7 @@ GameObject:
   - component: {fileID: 5717580789492349053}
   - component: {fileID: 4193183330826893863}
   - component: {fileID: 7511160706933491639}
+  - component: {fileID: 2740003888392072947}
   m_Layer: 0
   m_Name: Preview 20 - Pueblo_terracotta_pot
   m_TagString: Untagged
@@ -18007,6 +18242,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &2740003888392072947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7423126896164503359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 2048704615061776154, guid: 0115a389b34ca3d4981fe075f3b13ede, type: 3}
 --- !u!1 &7442919961427779328
 GameObject:
   m_ObjectHideFlags: 0
@@ -19384,6 +19636,7 @@ GameObject:
   - component: {fileID: 5169006048513762077}
   - component: {fileID: 7288259724400327673}
   - component: {fileID: 2879414824329935278}
+  - component: {fileID: 2301966145632292721}
   m_Layer: 0
   m_Name: Preview 34 - Pueblo_round_jar
   m_TagString: Untagged
@@ -19597,6 +19850,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &2301966145632292721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8022933985156983917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 4101884390075597728, guid: 9a6c8ed1c129a9040b696aee114874fa, type: 3}
 --- !u!1 &8031147691943252545
 GameObject:
   m_ObjectHideFlags: 0
@@ -19722,6 +19992,7 @@ GameObject:
   - component: {fileID: 3297763025138565523}
   - component: {fileID: 1965176809459997322}
   - component: {fileID: 9076132699594154350}
+  - component: {fileID: 5091569555526705612}
   m_Layer: 0
   m_Name: Preview 6 - Pueblo_tall_jar
   m_TagString: Untagged
@@ -19935,6 +20206,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &5091569555526705612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8033182669984773350}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 8455518905777118015, guid: b75a1f71e9ad7074e8dad75ad258eeb4, type: 3}
 --- !u!1 &8039063142839940823
 GameObject:
   m_ObjectHideFlags: 0
@@ -20277,6 +20565,7 @@ GameObject:
   - component: {fileID: 7181409838884891523}
   - component: {fileID: 1467044345935939167}
   - component: {fileID: 9057145816126568612}
+  - component: {fileID: 4629914550213082931}
   m_Layer: 0
   m_Name: Preview 2 - Pueblo_terracotta_pot
   m_TagString: Untagged
@@ -20490,6 +20779,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &4629914550213082931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8085773784446162614}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 2048704615061776154, guid: 0115a389b34ca3d4981fe075f3b13ede, type: 3}
 --- !u!1 &8132061408244778443
 GameObject:
   m_ObjectHideFlags: 0
@@ -22969,6 +23275,7 @@ GameObject:
   - component: {fileID: 7811567833790550121}
   - component: {fileID: 4086257033199376436}
   - component: {fileID: 148647446097438051}
+  - component: {fileID: 2571026545017721400}
   m_Layer: 0
   m_Name: Preview 12 - Pueblo_round_jar
   m_TagString: Untagged
@@ -23182,6 +23489,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.PhysicalProp
   stableId: 
+--- !u!114 &2571026545017721400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8883076286144908506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a748de1e41e130442a0cbfdc8bfdaae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Props.BreakableProp
+  minimumImpactSpeed: 2.5
+  collisionEnergyThreshold: 7
+  meleeDamageThreshold: 4
+  requireWeaponDamage: 0
+  fracturedPrefab: {fileID: 4101884390075597728, guid: 9a6c8ed1c129a9040b696aee114874fa, type: 3}
 --- !u!1 &9013484100900037293
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,139 @@
+{
+  "vesselCount": 19,
+  "maximumDebrisTriangles": 8000,
+  "vessels": [
+    {
+      "id": "Pueblo_earth_pot",
+      "shards": 8,
+      "sourceTriangles": 12000,
+      "debrisTriangles": 7998,
+      "sourceBoundaryEdges": 2882
+    },
+    {
+      "id": "Pueblo_round_jar",
+      "shards": 8,
+      "sourceTriangles": 12000,
+      "debrisTriangles": 7996,
+      "sourceBoundaryEdges": 3462
+    },
+    {
+      "id": "Pueblo_tall_jar",
+      "shards": 8,
+      "sourceTriangles": 11999,
+      "debrisTriangles": 8000,
+      "sourceBoundaryEdges": 4609
+    },
+    {
+      "id": "Pueblo_terracotta_pot",
+      "shards": 8,
+      "sourceTriangles": 12000,
+      "debrisTriangles": 7998,
+      "sourceBoundaryEdges": 2421
+    },
+    {
+      "id": "Zandea_brass_pot",
+      "shards": 8,
+      "sourceTriangles": 3760,
+      "debrisTriangles": 7025,
+      "sourceBoundaryEdges": 0
+    },
+    {
+      "id": "Zandea_brass_vase_02",
+      "shards": 8,
+      "sourceTriangles": 6000,
+      "debrisTriangles": 7998,
+      "sourceBoundaryEdges": 40
+    },
+    {
+      "id": "Zandea_brass_vase_03",
+      "shards": 8,
+      "sourceTriangles": 2616,
+      "debrisTriangles": 7994,
+      "sourceBoundaryEdges": 24
+    },
+    {
+      "id": "Zandea_brass_vase_04",
+      "shards": 8,
+      "sourceTriangles": 2760,
+      "debrisTriangles": 6988,
+      "sourceBoundaryEdges": 38
+    },
+    {
+      "id": "Zandea_decorative_bowl",
+      "shards": 8,
+      "sourceTriangles": 1020,
+      "debrisTriangles": 2392,
+      "sourceBoundaryEdges": 0
+    },
+    {
+      "id": "Zandea_decorative_plate",
+      "shards": 8,
+      "sourceTriangles": 316,
+      "debrisTriangles": 1050,
+      "sourceBoundaryEdges": 0
+    },
+    {
+      "id": "Zandea_market_pots_pot01_a",
+      "shards": 8,
+      "sourceTriangles": 1622,
+      "debrisTriangles": 7172,
+      "sourceBoundaryEdges": 112
+    },
+    {
+      "id": "Zandea_market_pots_pot01_b",
+      "shards": 8,
+      "sourceTriangles": 1622,
+      "debrisTriangles": 6762,
+      "sourceBoundaryEdges": 112
+    },
+    {
+      "id": "Zandea_market_pots_pot01_c",
+      "shards": 8,
+      "sourceTriangles": 1622,
+      "debrisTriangles": 6726,
+      "sourceBoundaryEdges": 112
+    },
+    {
+      "id": "Zandea_market_pots_pot02_a",
+      "shards": 8,
+      "sourceTriangles": 1782,
+      "debrisTriangles": 6764,
+      "sourceBoundaryEdges": 112
+    },
+    {
+      "id": "Zandea_market_pots_pot02_b",
+      "shards": 8,
+      "sourceTriangles": 1782,
+      "debrisTriangles": 7224,
+      "sourceBoundaryEdges": 112
+    },
+    {
+      "id": "Zandea_market_pots_pot02_c",
+      "shards": 8,
+      "sourceTriangles": 1783,
+      "debrisTriangles": 6628,
+      "sourceBoundaryEdges": 99
+    },
+    {
+      "id": "Zandea_market_pots_pot02_d",
+      "shards": 8,
+      "sourceTriangles": 1783,
+      "debrisTriangles": 6424,
+      "sourceBoundaryEdges": 99
+    },
+    {
+      "id": "Zandea_planter_pot",
+      "shards": 8,
+      "sourceTriangles": 3080,
+      "debrisTriangles": 4498,
+      "sourceBoundaryEdges": 0
+    },
+    {
+      "id": "Zandea_small_clay_pottery",
+      "shards": 8,
+      "sourceTriangles": 3147,
+      "debrisTriangles": 7999,
+      "sourceBoundaryEdges": 1157
+    }
+  ]
+}

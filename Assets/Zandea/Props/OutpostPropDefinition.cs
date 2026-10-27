@@ -8,6 +8,8 @@ namespace Zandea.Props
         public GameObject ceramicPot, woodenStool, chest, barrel, weaponRack;
         public GameObject crate, sack, table, statue;
         public GameObject wickerBasket;
+        [Tooltip("Imported scenery and physical props available for authored POI placement.")]
+        public RemainingPropCatalog additionalProps;
         [Tooltip("Optional deterministic pot mix. Empty uses ceramicPot only.")]
         public GameObject[] ceramicPotVariants;
         [Tooltip("Optional grounded props for the settlement storage area.")]

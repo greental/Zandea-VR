@@ -1,0 +1,237 @@
+[
+  {
+    "key": "blacksmith_equipment",
+    "archive": "asset-pack---blacksmith-equipment.zip",
+    "kind": "static",
+    "sizeMeters": 4.0,
+    "triangleBudget": 24000
+  },
+  {
+    "key": "brass_pot",
+    "archive": "Breakable/brass_pot_01_4k.blend.zip",
+    "kind": "physical",
+    "sizeMeters": 0.65,
+    "triangleBudget": 6000
+  },
+  {
+    "key": "brass_vase_02",
+    "archive": "Breakable/brass_vase_02_4k.blend.zip",
+    "kind": "physical",
+    "sizeMeters": 0.75,
+    "triangleBudget": 6000
+  },
+  {
+    "key": "brass_vase_03",
+    "archive": "Breakable/brass_vase_03_4k.blend.zip",
+    "kind": "physical",
+    "sizeMeters": 0.75,
+    "triangleBudget": 6000
+  },
+  {
+    "key": "brass_vase_04",
+    "archive": "Breakable/brass_vase_04_4k.blend.zip",
+    "kind": "physical",
+    "sizeMeters": 0.75,
+    "triangleBudget": 6000
+  },
+  {
+    "key": "decorative_bowl",
+    "archive": "Breakable/decretive-medieval-bowl-free.zip",
+    "kind": "physical",
+    "sizeMeters": 0.38,
+    "triangleBudget": 5000
+  },
+  {
+    "key": "decorative_plate",
+    "archive": "Breakable/decretive-medieval-plate-free.zip",
+    "kind": "physical",
+    "sizeMeters": 0.4,
+    "triangleBudget": 5000
+  },
+  {
+    "key": "market_pots",
+    "archive": "Breakable/medieval-market-clay-pots.zip",
+    "kind": "static",
+    "sizeMeters": 1.8,
+    "triangleBudget": 12000
+  },
+  {
+    "key": "planter_pot",
+    "archive": "Breakable/planter_pot_clay_4k.blend.zip",
+    "kind": "physical",
+    "sizeMeters": 0.75,
+    "triangleBudget": 6000
+  },
+  {
+    "key": "small_clay_pottery",
+    "archive": "Breakable/small-clay-pottery-free.zip",
+    "kind": "physical",
+    "sizeMeters": 0.45,
+    "triangleBudget": 5000
+  },
+  {
+    "key": "barrel_set",
+    "archive": "Breakable/wooden_barrels_01_4k.blend.zip",
+    "kind": "static",
+    "sizeMeters": 2.3,
+    "triangleBudget": 10000
+  },
+  {
+    "key": "wooden_bucket_01",
+    "archive": "Breakable/wooden_bucket_01_4k.blend.zip",
+    "kind": "physical",
+    "sizeMeters": 0.55,
+    "triangleBudget": 5000
+  },
+  {
+    "key": "wooden_bucket_02",
+    "archive": "Breakable/wooden_bucket_02_4k.blend.zip",
+    "kind": "physical",
+    "sizeMeters": 0.55,
+    "triangleBudget": 5000
+  },
+  {
+    "key": "campfire_simple",
+    "archive": "campfire (1).zip",
+    "kind": "static",
+    "sizeMeters": 2.0,
+    "triangleBudget": 10000
+  },
+  {
+    "key": "campfire_tripod",
+    "archive": "campfire (2).zip",
+    "kind": "static",
+    "sizeMeters": 2.4,
+    "triangleBudget": 10000
+  },
+  {
+    "key": "campfire_wood",
+    "archive": "campfire-wood-survival-warm-and-light.zip",
+    "kind": "static",
+    "sizeMeters": 1.8,
+    "triangleBudget": 10000
+  },
+  {
+    "key": "campfire_kit",
+    "archive": "campfire.zip",
+    "kind": "static",
+    "sizeMeters": 2.2,
+    "triangleBudget": 10000
+  },
+  {
+    "key": "jail_cage",
+    "archive": "jail.zip",
+    "kind": "static",
+    "sizeMeters": 4.0,
+    "triangleBudget": 14000
+  },
+  {
+    "key": "money_bag",
+    "archive": "money-bag.zip",
+    "kind": "physical",
+    "sizeMeters": 0.45,
+    "triangleBudget": 5000
+  },
+  {
+    "key": "old_sack",
+    "archive": "old_burlap_bag_photo_scan.zip",
+    "kind": "physical",
+    "sizeMeters": 0.85,
+    "triangleBudget": 6000
+  },
+  {
+    "key": "old_well",
+    "archive": "old-well.zip",
+    "kind": "static",
+    "sizeMeters": 4.0,
+    "triangleBudget": 14000,
+    "materialTextureOverrides": [
+      "stones_albedo.jpg",
+      "roof_albedo.jpg",
+      "wood_albedo.jpg",
+      "handle_albedo.jpg",
+      "rope_albedo.jpg",
+      "basket_albedo.jpg",
+      "water_albedo.jpg"
+    ]
+  },
+  {
+    "key": "primitive_brazier",
+    "archive": "primitive-brazier-free.zip",
+    "kind": "static",
+    "sizeMeters": 1.4,
+    "triangleBudget": 8000
+  },
+  {
+    "key": "roadblock",
+    "archive": "roadblock.zip",
+    "kind": "static",
+    "sizeMeters": 2.5,
+    "triangleBudget": 8000
+  },
+  {
+    "key": "wooden_barricade",
+    "archive": "wooden-barricade-blood.zip",
+    "kind": "static",
+    "sizeMeters": 2.5,
+    "triangleBudget": 8000
+  },
+  {
+    "key": "wooden_ladder",
+    "archive": "wooden-ladder.zip",
+    "kind": "static",
+    "sizeMeters": 3.2,
+    "triangleBudget": 7000
+  },
+  {
+    "key": "table_alternate",
+    "archive": "WoodenTable_02_4k.blend.zip",
+    "kind": "static",
+    "sizeMeters": 1.5,
+    "triangleBudget": 7000
+  },
+  {
+    "key": "statue_chicago",
+    "archive": "Statues/19435333-model-caea-university-of-chicago.zip",
+    "kind": "static",
+    "sizeMeters": 2.2,
+    "triangleBudget": 14000
+  },
+  {
+    "key": "statue_bodhisattva_head",
+    "archive": "Statues/bodhisattva-head.zip",
+    "kind": "static",
+    "sizeMeters": 1.8,
+    "triangleBudget": 16000,
+    "rotateYDegrees": 90
+  },
+  {
+    "key": "statue_meditation",
+    "archive": "Statues/bodhisattva-in-meditation.zip",
+    "kind": "static",
+    "sizeMeters": 2.2,
+    "triangleBudget": 14000,
+    "rotateYDegrees": -90
+  },
+  {
+    "key": "statue_pakistan",
+    "archive": "Statues/bodhisattva-pakistan.zip",
+    "kind": "static",
+    "sizeMeters": 2.2,
+    "triangleBudget": 14000
+  },
+  {
+    "key": "statue_guanyin",
+    "archive": "Statues/seated-bodhisattva-guanyin-12th-c-ce.zip",
+    "kind": "static",
+    "sizeMeters": 2.2,
+    "triangleBudget": 14000
+  },
+  {
+    "key": "statue_hansongsa",
+    "archive": "Statues/stone-seated-bodhisattva-from-hansongsa.zip",
+    "kind": "static",
+    "sizeMeters": 2.2,
+    "triangleBudget": 14000
+  }
+]
