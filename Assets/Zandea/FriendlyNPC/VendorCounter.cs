@@ -11,6 +11,7 @@ namespace Zandea.FriendlyNPC
     public sealed class VendorCounter : MonoBehaviour
     {
         public FriendlyNpcInteraction merchant;
+        public CurrencyDefinition currency;
         public VendorConfiguration configuration;
         public TradeZone buyArea, sellArea, paymentSpot;
         public HandshakeTarget handshake;
@@ -59,11 +60,41 @@ namespace Zandea.FriendlyNPC
             public TMP_Text label;
         }
 
+        public string Format(int amount) => currency ? currency.Format(amount) : CurrencyDefinition.FormatZeks(amount);
+        public bool TryContractPayout(string contractId, int amount)
+        {
+            if (amount <= 0 || merchantCats < amount || !payoutPouchPrefab || !payoutPosition || !configuration) return false;
+            string id = "contract-" + contractId;
+            var state = MerchantSessionState.Get(configuration.vendorId, configuration.startingCats);
+            if (state.outstandingPayouts.ContainsKey(id) || MerchantSessionState.IsLive(id)) return false;
+            var pouch = Instantiate(payoutPouchPrefab, payoutPosition.position, payoutPosition.rotation, transform);
+            pouch.gameObject.SetActive(false);
+            pouch.AssignStableId(id);
+            pouch.SetInitialBalance(amount);
+            merchantCats -= amount;
+            state.cats = merchantCats;
+            state.outstandingPayouts[id] = amount;
+            pouch.gameObject.SetActive(true);
+            return true;
+        }
+        public bool TryContractDebtPayment(int amount)
+        {
+            if (amount <= 0 || !configuration || !paymentPurse || !paymentPurse.personal ||
+                paymentPurse.Grab.isSelected || !paymentSpot || !paymentSpot.Contains(paymentPurse) ||
+                !paymentPurse.CanDebit(amount) || merchantCats > int.MaxValue - amount) return false;
+            if (!paymentPurse.TryDebit(amount)) return false;
+            merchantCats += amount;
+            MerchantSessionState.Get(configuration.vendorId, configuration.startingCats).cats = merchantCats;
+            paymentPurse.ReturnHomeWhenReleased();
+            paymentPurse = null;
+            return true;
+        }
         public int MerchantCats => merchantCats;
         public int CommittedTransactions => committedTransactions;
         public int NetCats { get; private set; }
         public bool Ready => ready;
         public bool Trading => trading;
+        public bool AcceptingContractPayment => merchant && merchant.contract && merchant.contract.HasDebt;
 
         void Awake()
         {
@@ -215,7 +246,7 @@ namespace Zandea.FriendlyNPC
             {
                 offer.label = Instantiate(priceLabelPrefab, item.transform.position + Vector3.up * .22f,
                     Quaternion.identity, item.transform);
-                offer.label.text = (buying ? "−" : "+") + price + " cats";
+                offer.label.text = (buying ? "−" : "+") + Format(price);
                 offer.label.fontSize = Mathf.Max(offer.label.fontSize, 4.3f);
                 offer.label.rectTransform.sizeDelta = new Vector2(8f, 1.7f);
                 var parentScale = item.transform.lossyScale;
@@ -271,11 +302,14 @@ namespace Zandea.FriendlyNPC
 
         void OnPurseReleased(CurrencyPouch pouch)
         {
-            if (!trading || !pouch || !pouch.personal || pouch.Grab.isSelected || !paymentSpot ||
-                !paymentSpot.Contains(pouch.transform.position)) return;
+            if (!trading && !AcceptingContractPayment || !pouch || !pouch.personal || pouch.Grab.isSelected || !paymentSpot ||
+                !paymentSpot.Contains(pouch)) return;
             paymentPurse = pouch;
-            Recalculate();
-            if (NetCats < 0 && !ready) merchant?.PlayContextLine("insufficient_funds_001");
+            if (trading)
+            {
+                Recalculate();
+                if (NetCats < 0 && !ready) merchant?.PlayContextLine("insufficient_funds_001");
+            }
         }
         public void TryPresentPurse(CurrencyPouch pouch) => OnPurseReleased(pouch);
 
@@ -312,14 +346,14 @@ namespace Zandea.FriendlyNPC
                 if (NetCats < 0)
                 {
                     int due = -NetCats;
-                    netLabel.text = !paymentPurse ? "Pay " + due + " cats\nPlace purse on spot" :
-                        !paymentPurse.CanDebit(due) ? "Pay " + due + " cats\nPurse has " + paymentPurse.Cats :
-                        "Pay " + due + " cats\nGrip offered hand";
+                    netLabel.text = !paymentPurse ? "Pay " + Format(due) + "\nPlace purse on spot" :
+                        !paymentPurse.CanDebit(due) ? "Pay " + Format(due) + "\nPurse has " + paymentPurse.Cats :
+                        "Pay " + Format(due) + "\nGrip offered hand";
                     netLabel.color = new Color(1f, .4f, .36f);
                 }
                 else
                 {
-                    netLabel.text = NetCats > 0 ? "Receive " + net + " cats\nGrip offered hand" :
+                    netLabel.text = NetCats > 0 ? "Receive " + Format(NetCats) + "\nGrip offered hand" :
                         "Even exchange\nGrip offered hand";
                     netLabel.color = new Color(.45f, 1f, .55f);
                 }
@@ -426,13 +460,13 @@ namespace Zandea.FriendlyNPC
                 bool selling = offer.zone == sellArea;
                 ledgerBuffer.Append(selling ? "+ " : "- ")
                     .Append(offer.item && offer.item.definition ? offer.item.definition.name : "Goods")
-                    .Append("  ").Append(offer.quote).Append(" cats\n");
+                    .Append("  ").Append(offer.quote).Append(" ").Append(currency ? currency.pluralName : "Zeks").Append("\n");
             }
             ledgerBuffer.Append("Net: ");
             if (NetCats < 0) ledgerBuffer.Append("Pay ").Append(-NetCats);
             else if (NetCats > 0) ledgerBuffer.Append("Receive ").Append(NetCats);
             else ledgerBuffer.Append("Even");
-            if (NetCats != 0) ledgerBuffer.Append(" cats");
+            if (NetCats != 0) ledgerBuffer.Append(" ").Append(currency ? currency.pluralName : "Zeks");
             ledgerText.text = ledgerBuffer.ToString();
         }
 
@@ -458,7 +492,7 @@ namespace Zandea.FriendlyNPC
             if (net != NetCats)
             { reason = "Price changed"; return false; }
             if (net < 0 && (-net > int.MaxValue || !paymentPurse || !paymentPurse.personal || paymentPurse.Grab.isSelected ||
-                !paymentSpot || !paymentSpot.Contains(paymentPurse.transform.position) ||
+                !paymentSpot || !paymentSpot.Contains(paymentPurse) ||
                 !paymentPurse.CanDebit(checked((int)-net)) || merchantCats > int.MaxValue + net))
             { reason = "Player payment unavailable"; return false; }
             if (net > 0 && (merchantCats < net || !payoutPouchPrefab || !payoutPosition))

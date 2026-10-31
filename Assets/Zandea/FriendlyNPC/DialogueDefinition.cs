@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Zandea.FriendlyNPC
 {
-    public enum DialogueAction { None, BeginTrading, QuestHook, EndConversation, BrowseFreely }
+    public enum DialogueAction { None, BeginTrading, QuestHook, EndConversation, BrowseFreely, AcceptContract, SettleContract, AbandonContract }
 
     [Serializable]
     public sealed class DialogueResponse

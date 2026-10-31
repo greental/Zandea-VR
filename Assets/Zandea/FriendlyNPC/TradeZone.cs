@@ -45,7 +45,7 @@ namespace Zandea.FriendlyNPC
             if (!counter) return;
             if (this == counter.paymentSpot)
             {
-                if (!counter.Trading) return;
+                if (!counter.Trading && !counter.AcceptingContractPayment) return;
                 var pouch = other.GetComponentInParent<CurrencyPouch>();
                 if (pouch && !pouch.Grab.isSelected && attemptedPurses.Add(pouch))
                     counter.TryPresentPurse(pouch);
@@ -66,7 +66,7 @@ namespace Zandea.FriendlyNPC
                 counter?.ReleaseCaptureIfOutside(item, this);
             }
             var pouch = other.GetComponentInParent<CurrencyPouch>();
-            if (pouch && !Contains(pouch.transform.position)) attemptedPurses.Remove(pouch);
+            if (pouch && !Contains(pouch)) attemptedPurses.Remove(pouch);
         }
 
         void OnDestroy()
@@ -153,6 +153,17 @@ namespace Zandea.FriendlyNPC
 
         public bool Contains(TradeItem item) => item && box && box.enabled &&
             (Contains(item.transform.position) || item.Intersects(box.bounds));
+
+        // The purse is a physical object: its collider touching the payment
+        // spot is enough. Requiring its tiny pivot inside made valid releases
+        // near the edge look like failed payments in VR.
+        public bool Contains(CurrencyPouch pouch)
+        {
+            if (!pouch || !box || !box.enabled) return false;
+            if (Contains(pouch.transform.position)) return true;
+            var collider = pouch.GetComponent<Collider>();
+            return collider && collider.enabled && box.bounds.Intersects(collider.bounds);
+        }
 
         // Keep the pivot inside the visible holding volume. A long item's collider
         // may enter while its pivot is outside, which previously let it roll away.

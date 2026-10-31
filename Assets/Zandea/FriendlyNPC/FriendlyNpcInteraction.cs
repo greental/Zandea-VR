@@ -29,6 +29,7 @@ namespace Zandea.FriendlyNPC
         public DialogueDefinition dialogue;
         public NpcVoiceBank voiceBank;
         public MonoBehaviour conditionSource;
+        public Zandea.Missions.DaranContract contract;
         public AudioSource mouthAudio;
         public TMP_Text subtitle;
         public PalmDialogueChoices choices;
@@ -122,12 +123,12 @@ namespace Zandea.FriendlyNPC
             // chest grab target must not steal item or handshake selection.
             if (conversationTarget && !conversationTarget.GetComponent<HandshakeTarget>())
                 conversationTarget.enabled = false;
-            if (!choices) choices = FindFirstObjectByType<PalmDialogueChoices>();
             navAgent = GetComponent<NavMeshAgent>();
             home = transform.position;
             var origin = FindFirstObjectByType<XROrigin>();
             cachedViewer = origin && origin.Camera ? origin.Camera.transform :
                 Camera.main ? Camera.main.transform : null;
+            ResolveChoices(cachedViewer);
             if (mouthAudio)
             {
                 mouthAudio.spatialBlend = 1f;
@@ -181,6 +182,7 @@ namespace Zandea.FriendlyNPC
             using var sample = BeginConversationMarker.Auto();
             if (active || !viewer || !dialogue || !CanTalk() ||
                 PlanarDistance(viewer.position, transform.position) > browseDistance) return false;
+            ResolveChoices(viewer);
             StopVoice();
             ambientSpeaking = invitationSpeaking = false;
             playerHead = viewer;
@@ -218,6 +220,7 @@ namespace Zandea.FriendlyNPC
                 }
                 if (!viewer || closest > browseDistance)
                     return false;
+                ResolveChoices(viewer);
                 StopVoice();
                 ambientSpeaking = invitationSpeaking = false;
                 playerHead = viewer;
@@ -233,6 +236,21 @@ namespace Zandea.FriendlyNPC
 
         bool CanTalk() => (!health || health.State == NpcConsciousness.Conscious) &&
             (!brain || !brain.hostileToPlayer);
+
+        // A scene can retain an older, inactive V2 player as a review copy.
+        // Always drive the notebook belonging to the actual viewer, even if a
+        // serialized reference still points at that inactive player.
+        void ResolveChoices(Transform viewer)
+        {
+            var playerChoices = viewer ? viewer.root.GetComponentInChildren<PalmDialogueChoices>(true) : null;
+            if (playerChoices && playerChoices.isActiveAndEnabled)
+            {
+                if (choices && choices != playerChoices) choices.Hide();
+                choices = playerChoices;
+            }
+            else if (!choices || !choices.isActiveAndEnabled)
+                choices = FindFirstObjectByType<PalmDialogueChoices>();
+        }
 
         static float PlanarDistance(Vector3 a, Vector3 b) =>
             Vector3.ProjectOnPlane(a - b, Vector3.up).magnitude;
@@ -404,6 +422,8 @@ namespace Zandea.FriendlyNPC
         void ShowNode(DialogueNode node)
         {
             choices?.Hide();
+            if (node != null && contract)
+                node = dialogue.Find(contract.ResolveNodeId(node.id)) ?? node;
             if (node == null || !ConditionAllows(node.conditionId)) { EndConversation(); return; }
             current = node;
             if (face) face.SetExpression(node.expression,
@@ -416,6 +436,7 @@ namespace Zandea.FriendlyNPC
         }
 
         bool ConditionAllows(string conditionId) => string.IsNullOrEmpty(conditionId) ||
+            contract && contract.Evaluate(conditionId) ||
             conditionSource is IDialogueConditionSource source && source.Evaluate(conditionId);
 
         void SelectResponse(int index)
@@ -440,6 +461,9 @@ namespace Zandea.FriendlyNPC
                     TradingChanged?.Invoke(true);
                     break;
                 case DialogueAction.QuestHook: onQuestHook.Invoke(); break;
+                case DialogueAction.AcceptContract: contract?.Accept(); break;
+                case DialogueAction.SettleContract: contract?.Settle(); break;
+                case DialogueAction.AbandonContract: contract?.Abandon(); break;
                 case DialogueAction.EndConversation: EndConversation(); break;
                 case DialogueAction.BrowseFreely: break;
             }
@@ -450,6 +474,31 @@ namespace Zandea.FriendlyNPC
             if (!active || !dialogue) return;
             var node = dialogue.Find(nodeId);
             if (node != null) ShowNode(node);
+        }
+
+        // Mission state is updated before this optional presentation. Use the
+        // existing spatial voice, subtitles, face, and speech envelope.
+        public bool TrySpeakWorldLine(string nodeId, Vector3 eventPosition, float hearingRange)
+        {
+            if (active || ambientSpeaking || !CanTalk() || !dialogue ||
+                mouthAudio && mouthAudio.isPlaying ||
+                PlanarDistance(transform.position, eventPosition) > hearingRange) return false;
+            if (!cachedViewer)
+            {
+                var origin = FindFirstObjectByType<XROrigin>();
+                cachedViewer = origin && origin.Camera ? origin.Camera.transform :
+                    Camera.main ? Camera.main.transform : null;
+            }
+            if (!cachedViewer || PlanarDistance(transform.position, cachedViewer.position) > hearingRange)
+                return false;
+            var node = dialogue.Find(nodeId);
+            if (node == null) return false;
+            if (face) face.SetExpression(node.expression,
+                node.expression == ExpressionType.Angry ? .45f : .3f);
+            if (mouthAudio) mouthAudio.maxDistance = Mathf.Min(10f, hearingRange + 1f);
+            ambientEnd = Time.time + PlayVoiceEvent(node.id, node.audio, node.text, node.mouthEnvelope);
+            ambientSpeaking = true;
+            return true;
         }
 
         public void QueueContextLine(string nodeId)

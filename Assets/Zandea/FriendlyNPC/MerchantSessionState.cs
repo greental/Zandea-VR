@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,12 +19,14 @@ namespace Zandea.FriendlyNPC
 
         static readonly Dictionary<string, VendorState> Vendors = new();
         static readonly Dictionary<string, CurrencyPouch> LivePayouts = new();
+        public static event Action<string> PayoutCollected;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetForNewPlaySession()
         {
             Vendors.Clear();
             LivePayouts.Clear();
+            PayoutCollected = null;
         }
 
         public static VendorState Get(string vendorId, int startingCats)
@@ -69,8 +72,10 @@ namespace Zandea.FriendlyNPC
 
         public static void MarkPayoutCollected(string id)
         {
-            foreach (var state in Vendors.Values) state.outstandingPayouts.Remove(id);
+            bool collected = false;
+            foreach (var state in Vendors.Values) collected |= state.outstandingPayouts.Remove(id);
             LivePayouts.Remove(id);
+            if (collected) PayoutCollected?.Invoke(id);
         }
 
         public static void MarkStockStolen(string vendorId, string instanceId)

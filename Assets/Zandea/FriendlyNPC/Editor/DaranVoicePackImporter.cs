@@ -30,7 +30,7 @@ namespace Zandea.FriendlyNPC.Editor
             ("trade_offer_001", "Go on, have a look. Anything on the counter is for sale. Well, almost anything.",
                 new[] { "browse_01" }),
             ("sell_ack_001", "Let's see what you've brought me. Hmm, interesting.", new[] { "sell_01" }),
-            ("insufficient_funds_001", "You're short on cats, friend. Afraid good intentions don't pay the bills. Put something back.",
+            ("insufficient_funds_001", "You're short on Zeks, friend. Afraid good intentions don't pay the bills. Put something back.",
                 new[] { "insufficient_funds", "insufficient_funds_2" }),
             ("transaction_ready_001", "Fair enough. Come on, let's shake on it.",
                 new[] { "handshake_offer", "handshake_offer_2" }),
@@ -108,11 +108,16 @@ namespace Zandea.FriendlyNPC.Editor
                 bank = ScriptableObject.CreateInstance<NpcVoiceBank>();
                 AssetDatabase.CreateAsset(bank, BankPath);
             }
-            bank.events.Clear();
             foreach (var line in Lines)
             {
-                var voiceEvent = new NpcVoiceEvent { eventId = line.eventId,
-                    cooldownSeconds = line.eventId == "sell_ack_001" ? 12f : 0f };
+                var voiceEvent = bank.Find(line.eventId);
+                if (voiceEvent == null)
+                {
+                    voiceEvent = new NpcVoiceEvent { eventId = line.eventId };
+                    bank.events.Add(voiceEvent);
+                }
+                voiceEvent.cooldownSeconds = line.eventId == "sell_ack_001" ? 12f : 0f;
+                voiceEvent.takes.Clear();
                 foreach (string name in line.files)
                 {
                     string path = Destination + "/" + name + ".mp3";
@@ -124,7 +129,6 @@ namespace Zandea.FriendlyNPC.Editor
                         subtitle = TakeSubtitles.TryGetValue(name, out string subtitle) ? subtitle : line.subtitle,
                         mouthEnvelope = envelope });
                 }
-                bank.events.Add(voiceEvent);
             }
             foreach (var line in OptionalTheftLines)
             {
@@ -134,9 +138,15 @@ namespace Zandea.FriendlyNPC.Editor
                 var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
                 if (!clip) throw new InvalidOperationException("Unity could not import " + path);
                 var envelope = DialogueVoiceGenerator.BakeEnvelope(path, clip);
-                bank.events.Add(new NpcVoiceEvent { eventId = line.eventId,
-                    takes = new List<NpcVoiceTake> { new() { clip = clip,
-                        subtitle = line.subtitle, mouthEnvelope = envelope } } });
+                var voiceEvent = bank.Find(line.eventId);
+                if (voiceEvent == null)
+                {
+                    voiceEvent = new NpcVoiceEvent { eventId = line.eventId };
+                    bank.events.Add(voiceEvent);
+                }
+                voiceEvent.takes.Clear();
+                voiceEvent.takes.Add(new NpcVoiceTake { clip = clip,
+                    subtitle = line.subtitle, mouthEnvelope = envelope });
             }
             PreparePlayback();
             bank.ambientEventIds.Clear();
