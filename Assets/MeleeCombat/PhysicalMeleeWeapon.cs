@@ -656,6 +656,8 @@ namespace KenshiVR.MeleeCombat
             {
                 var knockout = ownerRoot.GetComponentInChildren<Zandea.Opening.PlayerKnockout>();
                 if (knockout && knockout.State != Zandea.Opening.PlayerConsciousness.Conscious) return;
+                var restraints = ownerRoot.GetComponentInChildren<Zandea.Opening.Capture.PlayerWristRestraints>();
+                if (restraints && restraints.IsRestrained) return;
             }
             if (equipmentItem && equipmentItem.currentSlot) return;
             if (droppedByNpc) return;

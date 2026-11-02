@@ -127,7 +127,7 @@ namespace ScavengerNPC
             }
             LastDamageBlocked = blocked;
             LastDamageTaken = taken;
-            Current = Mathf.Max(0f, Current - taken);
+            Current = Mathf.Max(packet.Intent == DamageIntent.Nonlethal ? 1f : 0f, Current - taken);
             if (Current <= 0f) { Die(packet.HitPointWorld, ImpactDirection(packet) * 4f); return; }
             if (enemy) enemy.Alert(packet.Source ? packet.Source.transform : null);
             if (IsUnconscious)

@@ -124,7 +124,9 @@ namespace KenshiVR.MeleeCombat
                 DamageType = DamageType.Kinetic,
                 PhysicalImpact = weapon.strikeType == PhysicalMeleeWeapon.StrikeType.Blunt ? PhysicalImpactKind.Blunt : PhysicalImpactKind.Sharp,
                 HitPointWorld = point, HitNormalWorld = normal,
-                Source = gameObject, WeaponId = weapon.name, Timestamp = Time.time
+                Source = gameObject, WeaponId = weapon.name, Timestamp = Time.time,
+                Intent = GetComponent<Zandea.Opening.Combat.NonlethalAttackProfile>()?.AppliesTo(weapon) == true
+                    ? DamageIntent.Nonlethal : DamageIntent.Lethal
             };
             if (enemy) enemy.ApplyDamage(packet); else player.ApplyDamage(packet);
             if (weapon.strikeType != PhysicalMeleeWeapon.StrikeType.Blunt &&

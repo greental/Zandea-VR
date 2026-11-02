@@ -10,6 +10,8 @@ namespace VRKoombar.WeaponsStaging.Contracts
         Missile
     }
     public enum PhysicalImpactKind { Unspecified, Unarmed, Blunt, Sharp }
+    // Default value preserves existing lethal combat for every older packet initializer.
+    public enum DamageIntent { Lethal, Nonlethal }
 
     public enum ShieldArc
     {
@@ -54,6 +56,7 @@ namespace VRKoombar.WeaponsStaging.Contracts
     {
         public DamageType DamageType;
         public PhysicalImpactKind PhysicalImpact;
+        public DamageIntent Intent;
         public float BaseDamage;
         public float HeatAmount;
         public Vector3 HitPointWorld;

@@ -30,6 +30,11 @@ namespace ScavengerNPC
         public event System.Action onDirectHit;
         public float Current { get; private set; }
         public bool IsDead => Current <= 0;
+        [Header("Nonlethal subdual")]
+        [Min(1f)] public float knockoutTrauma = 45f;
+        [Min(0f)] public float minimumSubdualHit = 1f;
+        [Min(0f)] public float bluntSubdualMultiplier = 1f;
+        public float Trauma { get; private set; }
         ContinuousMoveProvider moveProvider;
         JumpProvider jumpProvider;
         bool restoreMove, restoreJump;
@@ -50,6 +55,7 @@ namespace ScavengerNPC
         public void Restore()
         {
             Current = Mathf.Max(1, maxHealth);
+            Trauma = 0f;
             var wounds = GetComponent<KenshiVR.Bandaging.PlayerWounds>();
             if (wounds) wounds.ClearWounds();
             hitFlash = 0;
@@ -74,8 +80,23 @@ namespace ScavengerNPC
                     break;
                 }
             float before = Current;
-            Current = Mathf.Max(0, Current - packet.BaseDamage * multiplier *
-                CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>()));
+            float taken = packet.BaseDamage * multiplier *
+                CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>());
+            bool nonlethal = packet.Intent == DamageIntent.Nonlethal;
+            Current = Mathf.Max(nonlethal ? 1f : 0f, Current - taken);
+            if (nonlethal)
+            {
+                if (taken >= minimumSubdualHit)
+                    Trauma += taken * (packet.PhysicalImpact == PhysicalImpactKind.Blunt ? bluntSubdualMultiplier : 1f);
+                if (Trauma >= knockoutTrauma || Current <= 1f)
+                {
+                    var knockout = GetComponentInParent<Zandea.Opening.PlayerKnockout>();
+                    if (!knockout) knockout = GetComponentInChildren<Zandea.Opening.PlayerKnockout>(true);
+                    if (!knockout) knockout = gameObject.AddComponent<Zandea.Opening.PlayerKnockout>();
+                    knockout.health = this;
+                    knockout.RequestKnockout(packet.WeaponId);
+                }
+            }
             if (packet.DamageType == DamageType.Kinetic && Current > 0)
             {
                 var wounds = GetComponent<KenshiVR.Bandaging.PlayerWounds>();

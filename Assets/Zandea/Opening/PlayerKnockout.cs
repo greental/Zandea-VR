@@ -59,6 +59,15 @@ namespace Zandea.Opening
             return true;
         }
 
+        public void HoldUnconscious()
+        {
+            if (State == PlayerConsciousness.KnockoutStarting || State == PlayerConsciousness.Unconscious)
+            {
+                indefinite = true;
+                wakeAt = float.PositiveInfinity;
+            }
+        }
+
         void Update()
         {
             if (health && health.IsDead) return;
