@@ -23,6 +23,8 @@ namespace Zandea.POI
         public bool siteSelected;
         public bool drawGizmos = true;
         public bool stream = true;
+        [Tooltip("Moves authored structures relative to the stamped terrain without moving the site or terrain stamp.")]
+        public float authoredLayoutVerticalOffset;
         public OutpostLayout Layout { get; private set; }
         public IReadOnlyList<StarvingBandit> Members => members;
         public bool IsLoaded => structures;
@@ -148,6 +150,8 @@ namespace Zandea.POI
             {
                 if (sceneRoot == gameObject) continue;
                 string name = sceneRoot.name;
+                if (poiId.StartsWith("zandea.pueblo.", StringComparison.Ordinal) &&
+                    sceneRoot.GetComponent<BanditGroup>()) continue;
                 if (!(name.StartsWith("Adobe") || name.StartsWith("GateSide") ||
                       sceneRoot.GetComponent<BanditGroup>() ||
                       name.StartsWith("pot") || name.StartsWith("sack") || name.StartsWith("barrel") ||
@@ -292,7 +296,21 @@ namespace Zandea.POI
         void Load()
         {
             structures = authoredLayout ? authoredLayout.gameObject : InstantiateStructures("Bandit Outpost Structures");
-            structures.transform.SetPositionAndRotation(Center, Rotation);
+            structures.transform.SetPositionAndRotation(Center + Vector3.up * authoredLayoutVerticalOffset, Rotation);
+            var allAuthoredBandits = authoredLayout ? authoredLayout.GetComponentsInChildren<StarvingBandit>(true) : Array.Empty<StarvingBandit>();
+            var editableBandits = authoredLayout ? authoredLayout.Find("Editable Bandit Groups") : null;
+            // Inactive hostiles must not block a friendly settlement's load.
+            var authoredBandits = poiId.StartsWith("zandea.pueblo.", StringComparison.Ordinal) ||
+                definition.residentBandits == 0 ? Array.Empty<StarvingBandit>() :
+                editableBandits ? editableBandits.GetComponentsInChildren<StarvingBandit>(true) : allAuthoredBandits;
+            // The structure colliders must be active for the bake, but agents
+            // cannot register until that navigation has been added.
+            foreach (var npc in allAuthoredBandits)
+                if (npc && npc.agent) npc.agent.enabled = false;
+            if (editableBandits)
+                foreach (var npc in allAuthoredBandits)
+                    if (npc && !npc.GetComponent<Zandea.FriendlyNPC.FriendlyNpcInteraction>() &&
+                        Array.IndexOf(authoredBandits, npc) < 0) npc.gameObject.SetActive(false);
             RepairLodAlignment(structures);
             foreach (var lid in structures.GetComponentsInChildren<Zandea.Props.PropHingedLid>(true)) lid.gameObject.SetActive(true);
             foreach (var stair in structures.GetComponentsInChildren<Transform>(true))
@@ -313,13 +331,60 @@ namespace Zandea.POI
             if (!hasAuthoredProps) propPopulation.Load(this);
             Physics.SyncTransforms();
             BuildNavigation();
+            // Friendly residents such as Daran share the StarvingBandit rig,
+            // but they are not members of the editable hostile encounter. The
+            // encounter filter above must not hide them, and their agents need
+            // restoring after the temporary navigation-bake disable.
+            foreach (var npc in allAuthoredBandits)
+            {
+                if (!npc || !npc.gameObject.activeSelf ||
+                    !npc.GetComponent<Zandea.FriendlyNPC.FriendlyNpcInteraction>()) continue;
+                if (!npc.agent || npc.health && (npc.health.IsDead || npc.health.IsUnconscious)) continue;
+                var friendlyFilter = new NavMeshQueryFilter
+                    { agentTypeID = npc.agent.agentTypeID, areaMask = NavMesh.AllAreas };
+                if (NavMesh.SamplePosition(npc.transform.position, out var post, 3f, friendlyFilter))
+                {
+                    npc.transform.position = post.position;
+                    npc.agent.enabled = true;
+                    if (!npc.agent.Warp(post.position))
+                        Debug.LogWarning("Friendly resident could not attach to settlement navigation: " + npc.name, npc);
+                }
+                else Debug.LogWarning("Friendly resident has no nearby settlement navigation: " + npc.name, npc);
+            }
+            foreach (var npc in authoredBandits)
+            {
+                if (!npc || !npc.agent || npc.health && (npc.health.IsDead || npc.health.IsUnconscious)) continue;
+                var authoredFilter = new NavMeshQueryFilter { agentTypeID = npc.agent.agentTypeID, areaMask = NavMesh.AllAreas };
+                if (!NavMesh.SamplePosition(npc.transform.position, out var ground, 8f, authoredFilter) ||
+                    Vector2.Distance(new Vector2(ground.position.x, ground.position.z),
+                        new Vector2(npc.transform.position.x, npc.transform.position.z)) > 2f)
+                    throw new InvalidOperationException("Authored bandit is not on reachable settlement navigation: " + npc.name);
+                npc.transform.position = ground.position;
+                npc.agent.enabled = true;
+                if (!npc.agent.Warp(ground.position))
+                    throw new InvalidOperationException("Could not place authored bandit on settlement navigation: " + npc.name);
+            }
             foreach (var stair in structures.GetComponentsInChildren<OutpostStairRamp>(true))
                 stair.ConnectNavigation();
             if (definition.residentBandits == 0) return;
-            if (authoredLayout && authoredLayout.GetComponentsInChildren<StarvingBandit>(true).Length > 0)
+            if (authoredBandits.Length > 0)
             {
+                var authored = authoredBandits;
+                if (editableBandits && authored.Length != 6)
+                    throw new InvalidOperationException("Editable Pueblo encounter needs six bandits; found " + authored.Length);
                 members.Clear();
-                members.AddRange(authoredLayout.GetComponentsInChildren<StarvingBandit>(true));
+                members.AddRange(authored);
+                foreach (var npc in members)
+                {
+                    if (!npc || !npc.agent || !npc.agent.enabled ||
+                        npc.health && (npc.health.IsDead || npc.health.IsUnconscious)) continue;
+                    var authoredFilter = new NavMeshQueryFilter { agentTypeID = npc.agent.agentTypeID, areaMask = NavMesh.AllAreas };
+                    if (!NavMesh.SamplePosition(npc.transform.position, out var ground, 8f, authoredFilter) ||
+                        Vector2.Distance(new Vector2(ground.position.x, ground.position.z),
+                            new Vector2(npc.transform.position.x, npc.transform.position.z)) > 2f ||
+                        !npc.agent.Warp(ground.position))
+                        throw new InvalidOperationException("Authored bandit is not on reachable settlement navigation: " + npc.name);
+                }
                 return;
             }
             // Validate the complete encounter before allowing any NPC Awake/Start.
@@ -440,6 +505,15 @@ namespace Zandea.POI
                 shiftedAgents[npc] = npc.transform.position;
                 npc.agent.enabled = false;
             }
+            if (authoredLayout)
+                foreach (var friendly in authoredLayout.GetComponentsInChildren<Zandea.FriendlyNPC.FriendlyNpcInteraction>(true))
+                {
+                    var npc = friendly.GetComponent<StarvingBandit>();
+                    if (!npc || !npc.agent || !npc.agent.enabled || !npc.gameObject.activeInHierarchy ||
+                        npc.health && (npc.health.IsDead || npc.health.IsUnconscious)) continue;
+                    shiftedAgents[npc] = npc.transform.position;
+                    npc.agent.enabled = false;
+                }
         }
         void Unload()
         {

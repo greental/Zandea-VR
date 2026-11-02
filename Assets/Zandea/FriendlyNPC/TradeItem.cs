@@ -63,7 +63,7 @@ namespace Zandea.FriendlyNPC
 
         void OnDestroy()
         {
-            if (LiveIds.TryGetValue(persistentInstanceId, out var current) && current == this)
+            if (!string.IsNullOrEmpty(persistentInstanceId) && LiveIds.TryGetValue(persistentInstanceId, out var current) && current == this)
                 LiveIds.Remove(persistentInstanceId);
         }
 
@@ -192,7 +192,7 @@ namespace Zandea.FriendlyNPC
         public void AssignPersistentIdentity(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return;
-            if (LiveIds.TryGetValue(persistentInstanceId, out var current) && current == this)
+            if (!string.IsNullOrEmpty(persistentInstanceId) && LiveIds.TryGetValue(persistentInstanceId, out var current) && current == this)
                 LiveIds.Remove(persistentInstanceId);
             persistentInstanceId = id;
             if (Application.isPlaying)

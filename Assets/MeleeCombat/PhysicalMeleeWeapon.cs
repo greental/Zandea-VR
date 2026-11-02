@@ -90,6 +90,10 @@ namespace KenshiVR.MeleeCombat
         [Tooltip("Local direction perpendicular to a cutting edge. Used only for sever checks.")]
         public Vector3 bladeEdgeLocalAxis = Vector3.right;
         public Transform grip;
+        [Header("Combat reach")]
+        [Tooltip("Grip-to-striking-tip reach baked into this prefab in the editor, in metres.")]
+        [Min(.1f)] public float combatReachMeters = .8f;
+        public float CombatReach => combatReachMeters > 0f ? combatReachMeters : .8f;
         public Transform npcGripTarget;
         public Transform ownerRoot;
         [Min(.01f)] public float mass = 1.4f;
@@ -135,6 +139,7 @@ namespace KenshiVR.MeleeCombat
         bool deferCollisionRestore;
         bool oldTrackPosition, oldTrackRotation;
         bool droppedByNpc;
+        float lastPlayerPickupAt = -100f;
         Vector3 previousNpcBodyPosition;
         Quaternion previousNpcBodyRotation;
         bool hasPreviousNpcBodyPose;
@@ -255,6 +260,7 @@ namespace KenshiVR.MeleeCombat
             foreach (var actor in hand.transform.GetComponentsInParent<MonoBehaviour>())
                 if (actor is IDisarmCombatant) { Owner = actor; break; }
             State = HoldState.HeldByPlayer;
+            lastPlayerPickupAt = Time.time;
             selectedGrip = leftHand ? (leftGrip ? leftGrip : grip) : (rightGrip ? rightGrip : grip);
             if (!selectedGrip) selectedGrip = transform;
             selectedGripOffset = Quaternion.Euler(leftHand ? leftGripEuler : rightGripEuler);
@@ -388,7 +394,7 @@ namespace KenshiVR.MeleeCombat
             selectedGrip = useMeshContactShape ? grip : null;
             if (grab) grab.enabled = false;
             body.linearVelocity = Vector3.zero; body.angularVelocity = Vector3.zero;
-            body.isKinematic = useMeshContactShape; body.useGravity = false;
+            body.isKinematic = false; body.useGravity = false;
             if (selectedGrip)
             {
                 var localPosition = transform.InverseTransformPoint(selectedGrip.position);
@@ -397,13 +403,7 @@ namespace KenshiVR.MeleeCombat
                 transform.SetPositionAndRotation(target.position - rotation * localPosition, rotation);
             }
             else transform.SetPositionAndRotation(target.position, target.rotation);
-            if (useMeshContactShape)
-            {
-                FollowPose = target;
-                hasPreviousNpcBodyPose = false;
-                IgnoreOwner(true);
-            }
-            else Attach(target);
+            Attach(target);
             return true;
         }
         public void Drop()
@@ -516,15 +516,6 @@ namespace KenshiVR.MeleeCombat
         Transform FollowPose { get; set; }
         void FixedUpdate()
         {
-            if (State == HoldState.HeldByNpc && useMeshContactShape)
-            {
-                previousNpcBodyPosition = body.position;
-                previousNpcBodyRotation = body.rotation;
-                hasPreviousNpcBodyPose = true;
-                positionErrorMeters = selectedGrip && FollowPose ?
-                    Vector3.Distance(selectedGrip.position, FollowPose.position) : 0f;
-                return;
-            }
             if (!FollowPose || !targetBody) return;
             if (State == HoldState.HeldByPlayer && ownerRoot)
             {
@@ -720,6 +711,11 @@ namespace KenshiVR.MeleeCombat
             if (damage < .5f) return;
             var receiver = other.GetComponentInParent<IDamageable>();
             if (receiver == null) return;
+            var merchantVictim = other.GetComponentInParent<Zandea.FriendlyNPC.FriendlyNpcInteraction>();
+            if (merchantVictim && State == HoldState.World) return;
+            if (merchantVictim && State == HoldState.HeldByPlayer &&
+                !merchantVictim.AcceptDeliberateWeaponStrike(
+                    speed, impulse, Time.time - lastPlayerPickupAt)) return;
             var defendingBandit = other.GetComponentInParent<StarvingBandit>();
             // Bandits can brush past allied weapons on patrol. Deliberate
             // strike-only ally damage can be added with attack phase gating later.

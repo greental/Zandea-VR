@@ -139,6 +139,7 @@ GameObject:
   - component: {fileID: 8480622159504853468}
   - component: {fileID: 2580902120617791746}
   - component: {fileID: 1113473118161025277}
+  - component: {fileID: -3794587089637463626}
   m_Layer: 0
   m_Name: bandit_scrap_spear
   m_TagString: Untagged
@@ -252,6 +253,7 @@ MonoBehaviour:
   strikeType: 2
   bladeEdgeLocalAxis: {x: 1, y: 0, z: 0}
   grip: {fileID: 2243370416774932271}
+  combatReachMeters: 1.86
   npcGripTarget: {fileID: 0}
   ownerRoot: {fileID: 0}
   mass: 3.5
@@ -440,6 +442,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.VRInventoryItem
   CanStoreInBackpack: 1
   InventoryAnchor: {fileID: 0}
+--- !u!114 &-3794587089637463626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4952503099691932828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93f89ba4625a8b1498515ed3d055db9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.FriendlyNPC.TradeItem
+  definition: {fileID: 11400000, guid: edf404342043a3b45be072b9e54ccc34, type: 2}
+  ownerId: player
+  stolen: 0
+  stolenFromVendorId: 
+  persistentInstanceId: 
 --- !u!1001 &6203780092373729386
 PrefabInstance:
   m_ObjectHideFlags: 0

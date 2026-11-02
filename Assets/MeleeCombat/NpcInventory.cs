@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using KenshiVR.CharacterCreator;
@@ -17,6 +18,7 @@ namespace KenshiVR.MeleeCombat
         public event Action<NpcItemInstance> Changed;
         bool initializing;
         static readonly Dictionary<AppearanceItemDefinition, NpcItemDefinition> wearableDefinitions = new();
+        static NpcWearableCatalog wearableCatalog;
 
         void Awake()
         {
@@ -63,14 +65,13 @@ namespace KenshiVR.MeleeCombat
             }
             if (!wearableDefinitions.TryGetValue(visual, out var definition) || !definition)
             {
-                definition = ScriptableObject.CreateInstance<NpcItemDefinition>();
-                definition.name = visual.name + " loot";
-                definition.itemId = "appearance/" + visual.name;
-                definition.displayName = visual.name;
-                definition.category = NpcItemCategory.Clothing;
-                definition.defaultSlot = slot;
-                definition.equippedAppearance = visual;
-                definition.flattenAxis = GarmentFlattenAxis.None;
+                if (!wearableCatalog) wearableCatalog = Resources.Load<NpcWearableCatalog>("ZandeaNpcWearables");
+                definition = wearableCatalog ? wearableCatalog.Find(visual) : null;
+                if (!definition)
+                {
+                    Debug.LogError("No tradeable NPC item definition for " + visual.name, this);
+                    return;
+                }
                 wearableDefinitions[visual] = definition;
             }
             if (current != null) current.SetDefinition(definition);
@@ -81,7 +82,13 @@ namespace KenshiVR.MeleeCombat
                 current.SetLocation(this, slot, null, null);
             }
         }
-        void Start() => SyncClothing();
+        IEnumerator Start()
+        {
+            // Pooled/streamed bandits can enable cosmetics before their inventory
+            // and appearance data are restored. Rebuild once after activation.
+            yield return null;
+            SyncClothing();
+        }
         void OnEnable() { if (generated) SyncClothing(); }
         void SyncClothing()
         {

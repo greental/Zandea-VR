@@ -122,11 +122,14 @@ namespace JunkerEquipment
             {
                 var shape = pickupHits[i];
                 if (!shape) continue;
-                var weapon = shape.GetComponentInParent<PhysicalMeleeWeapon>();
-                var loot = shape.GetComponentInParent<NpcWorldItem>();
-                var clothing = shape.GetComponentInParent<NpcClothingLoot>();
-                var equipment = shape.GetComponentInParent<JunkerEquipmentItem>();
-                var grab = weapon ? weapon.Grab : equipment ? equipment.Grab : shape.GetComponentInParent<XRGrabInteractable>();
+                // Resolve the interactable first. A stored garment is parented beneath
+                // the backpack, so a parent search for equipment finds the backpack
+                // and incorrectly rejects the garment as mounted equipment.
+                var grab = shape.GetComponentInParent<XRGrabInteractable>();
+                var weapon = grab ? grab.GetComponent<PhysicalMeleeWeapon>() : null;
+                var loot = grab ? grab.GetComponent<NpcWorldItem>() : null;
+                var clothing = grab ? grab.GetComponentInParent<NpcClothingLoot>() : null;
+                var equipment = grab ? grab.GetComponent<JunkerEquipmentItem>() : null;
                 bool secondWeaponHand = weapon && weapon.State == PhysicalMeleeWeapon.HoldState.HeldByPlayer &&
                     weapon.secondaryGrip && grab && grab.selectMode == UnityEngine.XR.Interaction.Toolkit.Interactables.InteractableSelectMode.Multiple;
                 if (weapon && weapon.State != PhysicalMeleeWeapon.HoldState.World && !secondWeaponHand) continue;

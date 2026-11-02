@@ -64,9 +64,8 @@ namespace KenshiVR.MeleeCombat
                 LeaveStance(); State = HandState.Idle; return;
             }
             bool grip = (glove.input.gripValue.action?.ReadValue<float>() ?? 0f) > .7f;
-            bool trigger = (glove.input.triggerValue.action?.ReadValue<float>() ?? 0f) > .7f;
             bool holding = interactor.hasSelection || interactor.isPerformingManualInteraction;
-            if (holding || !grip || !trigger)
+            if (holding || !grip)
             {
                 LeaveStance();
                 State = holding ? HandState.Holding : grip ? HandState.Grabbing : HandState.Idle;

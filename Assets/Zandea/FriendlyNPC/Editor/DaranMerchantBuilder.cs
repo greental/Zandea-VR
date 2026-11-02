@@ -312,8 +312,8 @@ namespace Zandea.FriendlyNPC.Editor
             farewell.endOnComplete = true;
             definition.nodes = new List<DialogueNode> {
                 greeting, trade, work, place, complete, farewell,
-                Node("insufficient_funds_001", "You're short on cats, friend. Afraid good intentions don't pay the bills. Put something back.", ExpressionType.Angry),
-                Node("merchant_lacks_funds_001", "I'd buy it, if I had the cats to spare.", ExpressionType.Sad),
+                Node("insufficient_funds_001", "You're short on Zeks, friend. Afraid good intentions don't pay the bills. Put something back.", ExpressionType.Angry),
+                Node("merchant_lacks_funds_001", "I'd buy it, if I had the Zeks to spare.", ExpressionType.Sad),
                 Node("item_rejected_001", "That won't fetch anything here.", ExpressionType.Angry),
                 Node("transaction_ready_001", "Fair enough. Come on, let's shake on it.", ExpressionType.Happy),
                 Node("trade_cancelled_001", "Changed your mind? Happens more than you'd think.")
@@ -579,7 +579,7 @@ namespace Zandea.FriendlyNPC.Editor
             return null;
         }
 
-        static PalmDialogueChoices BuildPalmChoices(GameObject player)
+        public static PalmDialogueChoices BuildPalmChoices(GameObject player)
         {
             var root = new GameObject("Palm dialogue");
             root.transform.SetParent(player.transform, false);

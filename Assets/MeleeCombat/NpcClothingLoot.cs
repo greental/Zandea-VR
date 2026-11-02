@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using Zandea.FriendlyNPC;
 
 namespace KenshiVR.MeleeCombat
 {
@@ -161,8 +162,18 @@ namespace KenshiVR.MeleeCombat
         }
         void Cancel(Handle handle)
         {
+            var hand = handle.hand;
             handle.hand = null;
-            if (handle.grab && handle.grab.isSelected && handle.grab.interactionManager)
+            // End the manual grab through the interactor so its manual target is
+            // cleared along with the selection. CancelInteractableSelection alone
+            // leaves EndManualInteraction sending a second Select Exit next frame.
+            bool selectedByHand = false;
+            if (hand && handle.grab)
+                foreach (var selected in hand.interactablesSelected)
+                    if (ReferenceEquals(selected, handle.grab)) { selectedByHand = true; break; }
+            if (selectedByHand && hand.isPerformingManualInteraction)
+                hand.EndManualInteraction();
+            else if (handle.grab && handle.grab.isSelected && handle.grab.interactionManager)
                 handle.grab.interactionManager.CancelInteractableSelection((IXRSelectInteractable)handle.grab);
         }
         void Complete(Handle handle)
@@ -180,8 +191,14 @@ namespace KenshiVR.MeleeCombat
             // child transforms. Applying the worn renderer scale again magnifies items
             // such as scarf_wrap_b by several dozen times.
             if (!physical) return;
+            var trade = physical.GetComponent<TradeItem>();
+            if (!trade) trade = physical.AddComponent<TradeItem>();
+            trade.definition = definition;
+            trade.ownerId = "player";
             if (!inventory.Drop(handle.item, position, rotation, physical))
             { Destroy(physical); return; }
+            // Release while the pull handle is still selected and active.
+            Cancel(handle);
             handle.complete = true;
             if (handle.worn) handle.worn.gameObject.SetActive(false);
             if(handle.item.Definition.equippedAppearance&&handle.item.Definition.equippedAppearance.slot==AppearanceSlot.Headwear)

@@ -22,13 +22,23 @@ public sealed class ArmedBanditReview : MonoBehaviour
     bool walking = true;
     int focus = -1;
     float priorTimeScale;
+    Transform[] practiceTargets;
 
     void Start()
     {
         priorTimeScale = Time.timeScale;
-        foreach (var bandit in bandits)
+        practiceTargets = new Transform[bandits.Length];
+        for (int i = 0; i < bandits.Length; i++)
         {
+            var bandit = bandits[i];
             if (!bandit) continue;
+            var marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            marker.name = bandit.name + " strike target";
+            marker.transform.position = bandit.transform.position + bandit.transform.forward * 1.75f + Vector3.up * 1.15f;
+            marker.transform.localScale = Vector3.one * .18f;
+            marker.GetComponent<Collider>().enabled = false;
+            practiceTargets[i] = marker.transform;
+            bandit.target = marker.transform;
             bandit.enabled = false;
             if (bandit.agent) bandit.agent.enabled = false;
             var driver = bandit.GetComponentInChildren<BanditMocapNpcDriver>();
@@ -39,7 +49,12 @@ public sealed class ArmedBanditReview : MonoBehaviour
         FrameCamera();
     }
 
-    void OnDisable() { Time.timeScale = priorTimeScale; }
+    void OnDisable()
+    {
+        Time.timeScale = priorTimeScale;
+        if (practiceTargets != null)
+            foreach (var marker in practiceTargets) if (marker) Destroy(marker.gameObject);
+    }
 
     void Update()
     {
@@ -75,12 +90,15 @@ public sealed class ArmedBanditReview : MonoBehaviour
             if (!text) continue;
             var clip = CurrentClip(bandits[i]);
             string shortClip = clip.Replace("standing melee attack ", "").Replace("BoStaff_", "");
-            var driver = bandits[i].GetComponentInChildren<BanditMocapNpcDriver>();
-            if (attacking && driver && driver.usePresentedTwoHandStrikes)
-                shortClip = "forward side strike";
             text.text = bandits[i].name.Replace("StarvingBandit_", "") + "\n" +
                 (attacking ? "Attack " + (direction + 1) + ": " + shortClip :
                  walking ? "Walking guard" : "Standing guard");
+        }
+        if (focus >= 0 && focus < bandits.Length && bandits[focus] && bandits[focus].target)
+        {
+            var actor = bandits[focus];
+            Debug.DrawLine(actor.VisibleStrikeTipPosition, actor.StrikeTargetPoint(),
+                Vector3.Distance(actor.VisibleStrikeTipPosition, actor.StrikeTargetPoint()) < .3f ? Color.green : Color.red);
         }
     }
 
@@ -135,7 +153,18 @@ public sealed class ArmedBanditReview : MonoBehaviour
         GUILayout.Label((attacking ? "Attack " + (direction + 1) + " / 8" : walking ? "Walking guard" : "Standing guard") +
             (paused ? "  PAUSED" : ""));
         if (focus >= 0 && focus < bandits.Length && bandits[focus])
-            GUILayout.Label("Playing: " + CurrentClip(bandits[focus]));
+        {
+            var actor = bandits[focus];
+            var grip = actor.GetComponentInChildren<MocapStaffPreview>(true);
+            GUILayout.Label("Playing: " + CurrentClip(actor));
+            if (actor.staff && grip)
+            {
+                float gap = actor.staff.grip && actor.staff.npcGripTarget ?
+                    Vector3.Distance(actor.staff.grip.position, actor.staff.npcGripTarget.position) : 0f;
+                GUILayout.Label($"Grip gap: {gap:F3} m  Strike miss: {grip.StrikeTargetError:F3} m");
+            }
+        }
+        GUILayout.Label("Yellow line: physical grip gap. Red/green: tip to target.");
         GUILayout.BeginHorizontal();
         if (GUILayout.Button(paused ? "Resume" : "Pause")) { paused = !paused; Time.timeScale = paused ? 0f : priorTimeScale; }
         if (GUILayout.Button(autoCycle ? "Auto: on" : "Auto: off")) autoCycle = !autoCycle;

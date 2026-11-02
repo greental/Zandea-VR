@@ -45,6 +45,7 @@ namespace Zandea.FriendlyNPC
         public Vector2 wanderPauseSeconds = new(4f, 9f);
         [Header("Ambient market calls")]
         public Vector2 ambientCallIntervalSeconds = new(45f, 120f);
+        [Min(0f)] public float customerCallAfterDepartureSeconds = 30f;
         public event Action<bool> TradingChanged;
         public event Action ConversationEnded;
         static readonly HashSet<FriendlyNpcInteraction> Available = new();
@@ -100,9 +101,13 @@ namespace Zandea.FriendlyNPC
         bool wasHostile;
         bool greetedPlayer;
         bool farZoneSeen;
+        bool wasInsideMerchantArea;
+        float nextMarketCallAllowedAt;
         bool invitationSpeaking;
         bool theftHostilityPending;
         bool nearby;
+        float nextWeaponWarning;
+        float warnedWeaponStrikeAt = -100f;
         Transform cachedViewer;
         float nextViewerLookup;
         NavMeshAgent navAgent;
@@ -112,6 +117,38 @@ namespace Zandea.FriendlyNPC
         public bool IsConversing => active;
         public bool IsTrading => active && trading;
         public bool IsAttending => active || nearby;
+
+        // A shopkeeper only takes damage after a second deliberate strike.
+        // Grabbing stock or brushing the handshake hand cannot injure him.
+        public bool AcceptDeliberateWeaponStrike(float speed, float impulse, float secondsSincePickup)
+        {
+            if (brain && brain.hostileToPlayer) return true;
+            if (secondsSincePickup < 1.5f || speed < 3.5f || impulse < 2f)
+            {
+                ShowWeaponWarning();
+                return false;
+            }
+            if (Time.time - warnedWeaponStrikeAt <= 5f) return true;
+            warnedWeaponStrikeAt = Time.time;
+            ShowWeaponWarning();
+            return false;
+        }
+
+        void ShowWeaponWarning()
+        {
+            if (Time.time >= nextWeaponWarning)
+            {
+                nextWeaponWarning = Time.time + 2f;
+                if (face) face.SetExpression(ExpressionType.Angry, .5f);
+                if (subtitle)
+                {
+                    subtitle.text = "What are you doing?";
+                    subtitle.gameObject.SetActive(true);
+                    ambientEnd = Time.time + 2f;
+                    ambientSpeaking = true;
+                }
+            }
+        }
 
         void Awake()
         {
@@ -279,17 +316,21 @@ namespace Zandea.FriendlyNPC
                 }
                 float distance = cachedViewer ? PlanarDistance(cachedViewer.position, transform.position) : float.MaxValue;
                 nearby = CanTalk() && distance <= invitationDistance;
+                bool insideMerchantArea = distance <= invitationDistance;
+                if (wasInsideMerchantArea && !insideMerchantArea)
+                    nextMarketCallAllowedAt = Time.time + customerCallAfterDepartureSeconds;
+                wasInsideMerchantArea = insideMerchantArea;
                 playerHead = nearby ? cachedViewer : null;
                 if (talkCue && talkCue.activeSelf) talkCue.SetActive(false);
                 if (distance > invitationDistance + 1f) greetedPlayer = false;
                 bool inMarketRange = distance > invitationDistance && distance <= marketCallDistance;
                 if (inMarketRange && !farZoneSeen && Time.time - lastMarketCallAt > 20f)
-                    nextAmbientCall = Time.time;
+                    nextAmbientCall = Mathf.Max(Time.time, nextMarketCallAllowedAt);
                 farZoneSeen = inMarketRange;
                 if (nearby && distance > browseDistance && !greetedPlayer)
                 {
                     greetedPlayer = true;
-                    InviteNearby();
+                    if (!contract || !contract.SuppressMarketCalls) InviteNearby();
                 }
                 if (nearby)
                 {
@@ -313,7 +354,9 @@ namespace Zandea.FriendlyNPC
                             brain.hostileToPlayer = true;
                     }
                 }
-                if (!ambientSpeaking && inMarketRange && CanTalk() && Time.time >= nextAmbientCall)
+                if (!ambientSpeaking && inMarketRange && CanTalk() &&
+                    (!contract || !contract.SuppressMarketCalls) &&
+                    Time.time >= nextAmbientCall && Time.time >= nextMarketCallAllowedAt)
                     TryAmbientCall();
             }
             if (!active && navAgent && navAgent.enabled && navAgent.isOnNavMesh && wanderRadius > 0f && Time.time >= nextWander)
@@ -358,7 +401,20 @@ namespace Zandea.FriendlyNPC
                 if (finished.endOnComplete) { EndConversation(); return; }
                 availableResponses.Clear();
                 foreach (var response in finished.responses)
-                    if (response != null && ConditionAllows(response.conditionId)) availableResponses.Add(response);
+                    if (response != null && ConditionAllows(response.conditionId))
+                    {
+                        // Responses live in a shared ScriptableObject. Copy the
+                        // one work choice so its wording can follow this player's
+                        // contract without mutating the authored dialogue.
+                        if (contract && response.nextNodeId == "work_001" &&
+                            contract.WorkNodeId != "daran_job_offer")
+                            availableResponses.Add(new DialogueResponse {
+                                text = "About that job you gave me...",
+                                nextNodeId = response.nextNodeId,
+                                action = response.action,
+                                conditionId = response.conditionId });
+                        else availableResponses.Add(response);
+                    }
                 if (availableResponses.Count > 0) choices?.Show(availableResponses, SelectResponse);
                 else if (!string.IsNullOrEmpty(finished.nextNodeId)) ShowNode(dialogue.Find(finished.nextNodeId));
             }

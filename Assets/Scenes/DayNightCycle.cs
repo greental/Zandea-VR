@@ -18,6 +18,8 @@ public sealed class DayNightCycle : MonoBehaviour
     [Range(0f, 1f)] public float starBrightness = 0.9f;
     [Range(0.5f, 5f)] public float sunDiameterDegrees = 1.5f;
     [Range(2f, 18f)] public float moonDiameterDegrees = 11f;
+    [Min(0f)] public float moonlightIntensity = 0.35f;
+    public Color moonlightColor = new Color(0.62f, 0.72f, 1f);
     public Color daySky = new Color(0.33f, 0.57f, 0.87f);
     public Color nightSky = new Color(0.006f, 0.012f, 0.04f);
 
@@ -26,6 +28,7 @@ public sealed class DayNightCycle : MonoBehaviour
     Material previousSky;
     float previousAmbientIntensity;
     Light previousSun;
+    Light moonlight;
 
     public float NormalizedTime => Mathf.Repeat(timeOfDay, 24f) / 24f;
 
@@ -53,6 +56,11 @@ public sealed class DayNightCycle : MonoBehaviour
         sky = new Material(shader) { name = "Runtime Day Night Sky", hideFlags = HideFlags.DontSave };
         RenderSettings.skybox = sky;
         RenderSettings.sun = sun;
+        var moonObject = new GameObject("Moonlight (runtime)");
+        moonObject.transform.SetParent(transform, false);
+        moonlight = moonObject.AddComponent<Light>();
+        moonlight.type = LightType.Directional;
+        moonlight.shadows = LightShadows.None;
         Apply();
     }
 
@@ -82,6 +90,18 @@ public sealed class DayNightCycle : MonoBehaviour
         sun.intensity = daylightIntensity * daylight;
         sun.color = Color.Lerp(new Color(1f, 0.52f, 0.30f), Color.white, Mathf.InverseLerp(0f, 0.55f, altitude));
         RenderSettings.ambientIntensity = Mathf.Lerp(nightAmbientIntensity, 1f, daylight);
+        if (moonlight != null)
+        {
+            Vector3 moonUp = Mathf.Abs(sunDirection.y) > 0.95f ? Vector3.forward : Vector3.up;
+            moonlight.transform.rotation = Quaternion.LookRotation(sunDirection, moonUp);
+            moonlight.color = moonlightColor;
+            moonlight.intensity = moonlightIntensity * (1f - daylight)
+                * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0f, 0.16f, -altitude));
+            moonlight.enabled = moonlight.intensity > 0.001f;
+        }
+        // URP uses RenderSettings.sun to pick the main directional light.
+        RenderSettings.sun = moonlight != null && moonlight.enabled && moonlight.intensity > sun.intensity
+            ? moonlight : sun;
         if (sky == null) return;
         sky.SetVector("_SunDirection", sunDirection);
         sky.SetVector("_MoonDirection", -sunDirection);
@@ -95,10 +115,20 @@ public sealed class DayNightCycle : MonoBehaviour
 
     void OnDisable()
     {
+        bool ownsSky = sky != null && RenderSettings.skybox == sky;
+        if (ownsSky)
+        {
+            RenderSettings.skybox = previousSky;
+            RenderSettings.sun = previousSun;
+            RenderSettings.ambientIntensity = previousAmbientIntensity;
+        }
+        if (moonlight != null)
+        {
+            if (Application.isPlaying) Destroy(moonlight.gameObject);
+            else DestroyImmediate(moonlight.gameObject);
+            moonlight = null;
+        }
         if (sky == null) return;
-        if (sky != null && RenderSettings.skybox == sky) RenderSettings.skybox = previousSky;
-        if (RenderSettings.sun == sun) RenderSettings.sun = previousSun;
-        RenderSettings.ambientIntensity = previousAmbientIntensity;
         if (sky != null)
         {
             if (Application.isPlaying) Destroy(sky);

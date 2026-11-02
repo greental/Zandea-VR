@@ -98,16 +98,55 @@ namespace Zandea.Missions.Editor
             var pois=Object.FindObjectsByType<Zandea.POI.BanditOutpost>(FindObjectsInactive.Include,FindObjectsSortMode.None);
             Transform layout=null;foreach(var poi in pois)if(poi.poiId=="zandea.pueblo.settlement.1")layout=poi.transform.Find("Layout Preview");
             if(!layout)throw new System.InvalidOperationException("Pueblo layout missing.");
-            var npc=FindInLayout<FriendlyNpcInteraction>(layout);var counter=FindInLayout<VendorCounter>(layout);
-            var contract=FindInLayout<DaranContract>(layout);var zone=FindInLayout<ContractDeliveryZone>(layout);
+            FriendlyNpcInteraction npc=null;
+            foreach(var candidate in layout.GetComponentsInChildren<FriendlyNpcInteraction>(true))
+                if(candidate.npcId=="merchant-daran" && candidate.gameObject.activeSelf) { npc=candidate; break; }
+            var counter=FindInLayout<VendorCounter>(layout);
+            var contract=npc ? npc.GetComponent<DaranContract>() : null;var zone=FindInLayout<ContractDeliveryZone>(layout);
             if(!npc || !counter || !contract || !zone || !npc.dialogue || !npc.choices || !counter.handshake || !counter.currency || !contract.definition || contract.barrels==null || contract.barrels.Length!=3)
                 throw new System.InvalidOperationException("Daran contract wiring incomplete.");
+            if(counter.merchant!=npc || counter.handshake.counter!=counter || npc.contract!=contract)
+                throw new System.InvalidOperationException("Active Daran is not wired to his contract and trading counter.");
             var ids=new HashSet<string>();
             foreach(var barrel in contract.barrels)
                 if(!barrel || barrel.definition!=contract.definition || !ids.Add(barrel.objectId) || !barrel.GetComponent<Zandea.Props.BreakableProp>() || !barrel.GetComponent<CarryWeight>())
                     throw new System.InvalidOperationException("Contract barrel missing identity, breakage, or weight.");
             if(npc.dialogue.Find("work_offer")==null || npc.dialogue.Find("work_ready")==null)throw new System.InvalidOperationException("Contract dialogue missing.");
             Debug.Log("PASS Main Pueblo Daran merchant and three barrel contract references.");
+        }
+        [MenuItem("Zandea/Missions/Repair Main contract barrel assignments")]
+        public static void RepairMainContractBarrels()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                throw new System.InvalidOperationException("Exit Play Mode before repairing contract barrels.");
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if (scene.path != "Assets/Main.unity")
+                throw new System.InvalidOperationException("Open Assets/Main.unity first.");
+            var contract = Object.FindObjectsByType<DaranContract>(FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+            DaranContract target = null;
+            foreach (var candidate in contract)
+                if (candidate.definition && candidate.definition.missionId == "daran-honest-work-v1")
+                    { target = candidate; break; }
+            if (!target || target.barrels == null || target.barrels.Length != 3)
+                throw new System.InvalidOperationException("Main has no three-barrel Daran contract.");
+            for (int i = 0; i < target.barrels.Length; i++)
+            {
+                var barrel = target.barrels[i];
+                if (!barrel) throw new System.InvalidOperationException("Assigned barrel " + (i + 1) + " is missing.");
+                barrel.definition = target.definition;
+                barrel.objectId = "daran-honest-work-barrel-" + (i + 1);
+                if (!barrel.GetComponent<Zandea.Props.BreakableProp>())
+                    throw new System.InvalidOperationException("Assigned barrel " + (i + 1) + " lacks the existing breakable component.");
+                var weight = barrel.GetComponent<CarryWeight>();
+                if (!weight) weight = barrel.gameObject.AddComponent<CarryWeight>();
+                weight.effectiveWeight = 20f;
+                EditorUtility.SetDirty(barrel);
+                EditorUtility.SetDirty(weight);
+            }
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            ValidateMain();
         }
         static T FindInLayout<T>(Transform layout) where T:Component => layout.GetComponentInChildren<T>(true);
         public static void EnsureDialogue(DialogueDefinition d)

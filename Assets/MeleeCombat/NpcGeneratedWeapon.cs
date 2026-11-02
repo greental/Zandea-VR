@@ -1,6 +1,7 @@
 using ScavengerNPC;
 using UnityEngine;
 using UnityEngine.AI;
+using Zandea.FriendlyNPC;
 
 namespace KenshiVR.MeleeCombat
 {
@@ -82,8 +83,20 @@ namespace KenshiVR.MeleeCombat
         {
             if (instance) { if (bind) BindWeapon(); return true; }
             if (!weaponPrefab || !gripTarget) return false;
+            if (!weaponItem)
+            {
+                var catalog = Resources.Load<NpcWearableCatalog>("ZandeaNpcWearables");
+                if (catalog) weaponItem = catalog.FindWeapon(weaponPrefab.name);
+            }
             instance = Instantiate(weaponPrefab, gripTarget.position, gripTarget.rotation);
             instance.name = weaponPrefab.name;
+            if (weaponItem)
+            {
+                var trade = instance.GetComponent<TradeItem>();
+                if (!trade) trade = instance.gameObject.AddComponent<TradeItem>();
+                trade.definition = weaponItem;
+                trade.ownerId = "player";
+            }
             if (!instance.TryEquipNpc(this, gripTarget))
             {
                 Destroy(instance.gameObject);
@@ -171,6 +184,7 @@ namespace KenshiVR.MeleeCombat
                 (health && health.State != NpcConsciousness.Conscious)) return;
             if (bandit && bandit.target && Vector3.Distance(transform.position, bandit.target.position) < safeEnemyDistance)
             { Abandon(); return; }
+            if (!agent) agent = GetComponent<NavMeshAgent>();
             if (!agent || !agent.enabled || !agent.isOnNavMesh) { Abandon(); return; }
             if (candidate)
             {

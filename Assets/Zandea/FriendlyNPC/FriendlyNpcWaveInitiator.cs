@@ -9,6 +9,8 @@ namespace Zandea.FriendlyNPC
         [Min(.06f)] public float minimumSwing = .12f;
         [Min(.3f)] public float waveWindowSeconds = 1.5f;
         [Min(.3f)] public float cooldownSeconds = 1.8f;
+        [Tooltip("Yaw correction for the authored palm visual, clockwise when viewed from above.")]
+        public float palmFacingYawDegrees = 270f;
         Transform viewer, leftPalm, rightPalm;
         XRDirectInteractor leftHand, rightHand;
         readonly WaveState left = new(), right = new();
@@ -44,22 +46,23 @@ namespace Zandea.FriendlyNPC
                 nextAcceptedAt = Time.time + cooldownSeconds;
         }
 
-        public static bool PalmFacesTarget(Transform palm, Vector3 targetDirection)
+        public static bool PalmFacesTarget(Transform palm, Vector3 targetDirection,
+            float yawDegrees = 270f)
         {
-            return palm && Vector3.Dot(-palm.up, targetDirection.normalized) > .35f;
+            return palm && Vector3.Dot(Quaternion.Euler(0f, yawDegrees, 0f) * -palm.up,
+                targetDirection.normalized) > .35f;
         }
 
         bool Sample(XRDirectInteractor hand, Transform palm, WaveState state)
         {
             if (!hand || !hand.gameObject.activeInHierarchy || hand.hasSelection ||
-                hand.isPerformingManualInteraction || FriendlyInputReservation.IsReserved(hand) ||
-                !PalmFacesTarget(palm ? palm : hand.transform, viewer.forward))
+                hand.isPerformingManualInteraction || FriendlyInputReservation.IsReserved(hand))
             { state.Reset(); return false; }
             Vector3 local = viewer.InverseTransformPoint(hand.transform.position);
             // A deliberate wave is in view near shoulder height, with a sideways
             // out-and-back motion. Player locomotion alone is cancelled in head space.
-            if (local.z < .12f || local.z > .9f || local.y > -.03f || local.y < -.75f ||
-                Mathf.Abs(local.x) > .85f)
+            if (local.z < -.12f || local.z > 1.05f || local.y > .08f || local.y < -.9f ||
+                Mathf.Abs(local.x) > 1.05f)
             { state.Reset(); return false; }
             if (!state.initialized)
             {
@@ -80,7 +83,9 @@ namespace Zandea.FriendlyNPC
             state.reversals++;
             state.direction = direction;
             state.swingStartX = local.x;
-            return state.reversals >= 2;
+            // One complete sideways change of direction is a wave. Each hand
+            // has its own state, so either controller can initiate dialogue.
+            return state.reversals >= 1;
         }
     }
 }

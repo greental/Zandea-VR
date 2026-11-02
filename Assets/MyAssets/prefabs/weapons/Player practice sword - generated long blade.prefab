@@ -47,6 +47,7 @@ GameObject:
   - component: {fileID: 1457914462307869088}
   - component: {fileID: 7204208054339568393}
   - component: {fileID: 696949283609770141}
+  - component: {fileID: -4100461334501125702}
   m_Layer: 0
   m_Name: Player practice sword - generated long blade
   m_TagString: Untagged
@@ -274,7 +275,7 @@ MonoBehaviour:
   secondaryRightGrip: {fileID: 3669236701310167843}
   secondaryLeftGrip: {fileID: 1607577206354493738}
   npcPickupRoll: 180
-  rightGripEuler: {x: 0, y: 0, z: 0}
+  rightGripEuler: {x: 0, y: 90, z: 0}
   rightGripPosition: {x: 0, y: 0, z: 0}
   leftGripEuler: {x: 0, y: 0, z: 0}
   leftGripPosition: {x: 0, y: 0, z: 0}
@@ -290,6 +291,7 @@ MonoBehaviour:
   strikeType: 1
   bladeEdgeLocalAxis: {x: 1, y: 0, z: 0}
   grip: {fileID: 9034146178989404606}
+  combatReachMeters: 0.832
   npcGripTarget: {fileID: 0}
   ownerRoot: {fileID: 0}
   mass: 1.4
@@ -364,6 +366,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.VRInventoryItem
   CanStoreInBackpack: 1
   InventoryAnchor: {fileID: 0}
+--- !u!114 &-4100461334501125702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2041516720199629192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93f89ba4625a8b1498515ed3d055db9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.FriendlyNPC.TradeItem
+  definition: {fileID: 0}
+  ownerId: player
+  stolen: 0
+  stolenFromVendorId: 
+  persistentInstanceId: 
 --- !u!1 &5655434478425894698
 GameObject:
   m_ObjectHideFlags: 0

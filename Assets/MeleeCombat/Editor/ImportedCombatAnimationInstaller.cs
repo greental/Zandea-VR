@@ -6,16 +6,28 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
+[InitializeOnLoad]
 public static class ImportedCombatAnimationInstaller
 {
+    const string Request = "Temp/ImportedCombatAnimationInstaller.request";
+    static ImportedCombatAnimationInstaller() { EditorApplication.update += Tick; }
+    static void Tick()
+    {
+        if (!File.Exists(Request) || EditorApplication.isCompiling || EditorApplication.isUpdating ||
+            EditorApplication.isPlayingOrWillChangePlaymode) return;
+        try { File.Delete(Request); }
+        catch (IOException) { return; }
+        Install();
+    }
     const string Variants = "Assets/MeleeCombat/MocapTest/GeneratedVariants";
     const string Axe = "Assets/MeleeCombat/ImportedAnimations/ProMeleeAxePack/";
     const string Sword = "Assets/MeleeCombat/ImportedAnimations/GreatSword/";
+    const string HumanRun = "Assets/Kevin Iglesias/Human Animations/Animations/Male/Movement/Run/";
     static readonly string[] OneHandAttacks = {
-        "standing melee attack downward", "standing melee attack downward",
-        "standing melee attack backhand", "standing melee attack backhand",
-        "standing melee attack backhand", "standing melee attack downward",
-        "standing melee attack downward", "standing melee attack backhand"
+        "standing melee attack downward", "standing melee attack horizontal",
+        "standing melee attack backhand", "standing melee attack horizontal",
+        "standing melee attack downward", "standing melee attack horizontal",
+        "standing melee attack backhand", "standing melee attack horizontal"
     };
 
     static AnimationClip Clip(string folder, string name)
@@ -60,13 +72,18 @@ public static class ImportedCombatAnimationInstaller
                 AnimationClip[] attackClips;
                 if (twoHands)
                 {
-                    var slash = Clip(Sword, "Great Sword Slash");
-                    attackClips = Enumerable.Repeat(slash, 8).ToArray();
+                    // The imported great-sword pack supplies only one slash.
+                    // Reuse the project's eight authored humanoid two-hand
+                    // motions so each direction has a distinct body action.
+                    attackClips = BoStaffDirectionalClipBuilder.Names
+                        .Select(BoStaffDirectionalClipBuilder.Load).ToArray();
                     twoHand++;
                 }
                 else
                 {
-                    attackClips = OneHandAttacks.Select(n => Clip(Axe, n)).ToArray();
+                    attackClips = name.EndsWith("_Axe") ?
+                        BoStaffDirectionalClipBuilder.Names.Select(BoStaffDirectionalClipBuilder.Load).ToArray() :
+                        OneHandAttacks.Select(n => Clip(Axe, n)).ToArray();
                     oneHand++;
                     // These clips were authored for a right-hand axe. Mirror the
                     // left-hand HookSword's animation, while keeping its IK grip.
@@ -75,8 +92,7 @@ public static class ImportedCombatAnimationInstaller
                     {
                         var children = tree.children;
                         children[0].motion = Clip(Axe, "standing idle");
-                        children[1].motion = Clip(Axe, name.EndsWith("_Axe") ?
-                            "standing walk forward" : "standing run forward");
+                        children[1].motion = Clip(HumanRun, "HumanM@Run01_Forward");
                         children[3].motion = Clip(Axe, "standing walk right");
                         children[5].motion = Clip(Axe, "standing walk back");
                         children[7].motion = Clip(Axe, "standing walk left");
@@ -88,10 +104,10 @@ public static class ImportedCombatAnimationInstaller
                     var state = machine.states.Select(s => s.state).FirstOrDefault(s => s.name == "AttackDirection" + i)
                         ?? machine.AddState("AttackDirection" + i);
                     state.motion = attackClips[i];
-                    state.mirror = leftHand || (twoHands && i >= 4);
+                    state.mirror = !twoHands && leftHand;
                     // One combat event scores one strike. Long imported combos made
                     // the NPC swing several times while registering only one hit.
-                    float duration = Mathf.Clamp(attackClips[i].length, .8f, 1.7f);
+                    float duration = 1.7f;
                     state.speed = attackClips[i].length / duration;
                     // Brain phase time and Animator state length stay synchronized.
                     brain.attacks[i].windupSeconds = duration * .24f;
@@ -114,7 +130,7 @@ public static class ImportedCombatAnimationInstaller
                 driver.useImportedCombatReactions = true;
                 grip.mirrorDirectionalPreview = leftHand;
                 grip.directionalPreviewClips = leftHand ? attackClips : Array.Empty<AnimationClip>();
-                if (!twoHands)
+                if (!twoHands && grip.staff)
                 {
                     // Fast single-hand swings can outrun the physical grip target
                     // between fixed physics steps. Keep a small compliant joint.

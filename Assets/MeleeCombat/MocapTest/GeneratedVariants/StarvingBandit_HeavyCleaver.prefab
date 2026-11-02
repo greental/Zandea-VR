@@ -2247,7 +2247,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3334770185368330992}
   - component: {fileID: 5752251367242317695}
-  - component: {fileID: 2773524224040980876}
   - component: {fileID: 5321574628701535634}
   - component: {fileID: 5154216472059524831}
   - component: {fileID: 2445370299526531606}
@@ -2306,21 +2305,6 @@ CapsuleCollider:
   m_Height: 1.75
   m_Direction: 1
   m_Center: {x: 0, y: 0.875, z: 0}
-$10
-  m_AgentTypeID: 0
-  m_Radius: 0.28
-  m_Speed: 3.5
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 1.3
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 1.75
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
 --- !u!114 &5321574628701535634
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2386,7 +2370,7 @@ MonoBehaviour:
   positiveStrikingTip: {fileID: 0}
   negativeStrikingTip: {fileID: 0}
   health: {fileID: 5321574628701535634}
-  agent: {fileID: 2773524224040980876}
+  agent: {fileID: 0}
   guardAuthoringMode: 0
   detectRange: 12
   attackRange: 1.5
@@ -2395,9 +2379,11 @@ MonoBehaviour:
   chasseSpeed: 0.85
   minimumFightDistance: 1.65
   preferredFightDistance: 2.15
+  referenceWeaponReach: 0.8
+  weaponReachSpacingWeight: 1
   spacingRetreatSpeed: 2.1
   postAttackRetreatSeconds: 1.5
-  dodgeIncomingNpcAttacks: 0
+  dodgeIncomingNpcAttacks: 1
   dodgeChance: 0.55
   dodgeDistance: 1.2
   dodgeCooldown: 2
@@ -2405,6 +2391,7 @@ MonoBehaviour:
   blockChance: 0.8
   parryIncomingNpcAttacks: 1
   parryChance: 0.7
+  defensiveOnly: 0
   cycleAttackDirections: 0
   firstAttackDirection: 0
   initialAttackDelay: 0
@@ -4104,6 +4091,9 @@ MonoBehaviour:
   logChanges: 0
   generated: 0
   items: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &927609923695793304
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4151,7 +4141,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcGeneratedWeapon
   weaponPrefab: {fileID: 3124248824727656836, guid: 4ef8e75d013074b4aad3754e6100fa88, type: 3}
   gripTarget: {fileID: 2262985618505791964}
-  weaponPoseTarget: {fileID: 2262985618505791964}
+  weaponPoseTarget: {fileID: 2193711601145603821}
   bandit: {fileID: 5154216472059524831}
   health: {fileID: 5321574628701535634}
   dropOnDestroy: 1
@@ -9836,6 +9826,14 @@ MonoBehaviour:
   - {fileID: -203655887218126122, guid: e333ba6a2e7d0024a89321d21d3d3b9a, type: 3}
   - {fileID: -203655887218126122, guid: 7a945914e5bad3648ab13f14ed1e3887, type: 3}
   - {fileID: -203655887218126122, guid: 6f551954f51b5c1428dbd31262a6a3d2, type: 3}
+  - {fileID: 7400000, guid: c64a83f0220760641806baaeadfbccdc, type: 2}
+  - {fileID: 7400000, guid: 84b9bc63cffc33646a3751c8d65cd3c1, type: 2}
+  - {fileID: 7400000, guid: f46c4196268db0f4f8bb114e0db20aa2, type: 2}
+  - {fileID: 7400000, guid: cf966a53aeac49d41845873909d424b4, type: 2}
+  - {fileID: 7400000, guid: e085cf81c36cba541a7f27e798babadb, type: 2}
+  - {fileID: 7400000, guid: 00f9740a1519f4e4abfcf413d21641fb, type: 2}
+  - {fileID: 7400000, guid: 99d1b080d3a15594eb1f9a0eda769ec6, type: 2}
+  - {fileID: 7400000, guid: 095f4cbacd9949145ac8a73eaeb11407, type: 2}
   mirrorDirectionalPreview: 0
   directionalPreviewClips: []
   animationIndex: 0
@@ -9937,7 +9935,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.BanditMocapNpcDriver
   brain: {fileID: 5154216472059524831}
-  agent: {fileID: 2773524224040980876}
+  agent: {fileID: 0}
   health: {fileID: 5321574628701535634}
   ragdoll: {fileID: 2445370299526531606}
   grip: {fileID: 4641520115286134348}
@@ -9945,8 +9943,8 @@ MonoBehaviour:
   useImportedCombatAttacks: 1
   useImportedCombatGuards: 1
   useImportedCombatReactions: 1
-  usePresentedTwoHandStrikes: 1
-  presentAxeHeadForward: 0
+  stabilizeAttackFeet: 0
+  presentLongBladeGuard: 0
   reviewLocomotionOverride: 0
   reviewLocomotion: {x: 0, y: 0}
   armedGuardRotations:

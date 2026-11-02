@@ -13,7 +13,7 @@ namespace KenshiVR.MeleeCombat
     {
         [Header("Spawn")]
         public StarvingBandit banditPrefab;
-        [Tooltip("Optional complete bandit prefabs with different weapons. Each must have StarvingBandit, NavMeshAgent and the same character rig.")]
+        [Tooltip("Optional complete bandit prefabs with different weapons. StarvingBandit creates a NavMeshAgent at runtime when needed.")]
         public StarvingBandit[] weaponVariants;
         [Min(1)] public int groupSize = 4;
         [Tooltip("Scene bandits spawned from the Inspector. When set, these are used instead of runtime clones.")]
@@ -30,6 +30,7 @@ namespace KenshiVR.MeleeCombat
         public AppearanceArchetype[] appearanceOptions;
         [Header("Wearable options (empty uses the chosen archetype)")]
         public AppearanceItemDefinition[] headwearOptions;
+        public AppearanceItemDefinition[] leaderHeadwearOptions;
         public AppearanceItemDefinition[] torsoOptions;
         public AppearanceItemDefinition[] legsOptions;
         public AppearanceItemDefinition[] outerArmorOptions;
@@ -58,6 +59,23 @@ namespace KenshiVR.MeleeCombat
         [Range(1f, 360f)] public float fieldOfView = 140f;
         public LayerMask sightMask = ~0;
         [Min(0f)] public float forgetAfterSeconds = 8f;
+        [Header("Group combat")]
+        [Min(1f)] public float surroundRadius = 2.1f;
+        [Range(0f, 180f)] public float surroundArcOffset = 25f;
+        [Min(0f)] public float attackSlotCooldown = .35f;
+        float nextAttackSlot;
+
+        public bool TryTakeAttackSlot(StarvingBandit candidate)
+        {
+            if (!candidate || Time.time < nextAttackSlot) return false;
+            foreach (var member in members)
+                if (member && member != candidate &&
+                    (member.state == StarvingBandit.State.Anticipate ||
+                     member.state == StarvingBandit.State.Strike ||
+                     member.state == StarvingBandit.State.FollowThrough)) return false;
+            nextAttackSlot = Time.time + attackSlotCooldown;
+            return true;
+        }
 
         readonly List<StarvingBandit> members = new List<StarvingBandit>();
         StarvingBandit leader;
@@ -85,6 +103,7 @@ namespace KenshiVR.MeleeCombat
                     var bandit = authoredMembers[i];
                     if (!bandit) continue;
                     bandit.groupControlled = true;
+                    bandit.guardAuthoringMode = false;
                     bandit.combatGroup = this;
                     bandit.groupWalkSpeed = patrolWalkSpeed;
                     bandit.groupDestination = bandit.transform.position;
@@ -117,6 +136,7 @@ namespace KenshiVR.MeleeCombat
                     var bandit = Instantiate(selectedPrefab, hit.position, transform.rotation);
                     bandit.name = i == 0 ? "Bandit Leader" : "Bandit Follower " + i;
                     bandit.groupControlled = true;
+                    bandit.guardAuthoringMode = false;
                     bandit.combatGroup = this;
                     bandit.groupWalkSpeed = patrolWalkSpeed;
                     bandit.groupDestination = hit.position;
@@ -124,7 +144,12 @@ namespace KenshiVR.MeleeCombat
                     members.Add(bandit);
                 }
             }
-            if (members.Count == 0) { enabled = false; return; }
+            if (members.Count == 0)
+            {
+                Debug.LogWarning("Bandit Group spawned no members on the NavMesh.", this);
+                enabled = false;
+                return;
+            }
             leader = members[0];
             waypoint = leader.transform.position;
             nextWaypoint = Time.time;
@@ -206,7 +231,9 @@ namespace KenshiVR.MeleeCombat
             appearance.Generate(appearance.seed);
             var cosmetics = appearance.cosmetics;
             if (!cosmetics) return;
-            cosmetics.headwear = headwearOptions != null && headwearOptions.Length > 0
+            cosmetics.headwear = index == 0 && leaderHeadwearOptions != null && leaderHeadwearOptions.Length > 0
+                ? leaderHeadwearOptions[headwearOffset % leaderHeadwearOptions.Length] :
+                headwearOptions != null && headwearOptions.Length > 0
                 ? headwearOptions[(headwearOffset + index) % headwearOptions.Length] : cosmetics.headwear;
             cosmetics.torso = PickItem(torsoOptions, cosmetics.torso);
             cosmetics.legs = PickItem(legsOptions, cosmetics.legs);
@@ -225,7 +252,7 @@ namespace KenshiVR.MeleeCombat
             {
                 var option = options[(start + i) % options.Length];
                 var generated = option ? option.GetComponent<NpcGeneratedWeapon>() : null;
-                if (option && option.GetComponent<NavMeshAgent>() &&
+                if (option &&
                     (option.staff || generated && generated.startEquipped && generated.weaponPrefab && generated.gripTarget))
                     return option;
             }
@@ -300,7 +327,12 @@ namespace KenshiVR.MeleeCombat
         void Update()
         {
             members.RemoveAll(member => !member);
-            if (members.Count == 0) { enabled = false; return; }
+            if (members.Count == 0)
+            {
+                Debug.LogWarning("Bandit Group lost all of its members.", this);
+                enabled = false;
+                return;
+            }
             if (!Alive(leader))
             {
                 leader = members.Find(Alive);
@@ -317,8 +349,27 @@ namespace KenshiVR.MeleeCombat
             }
             if (engaged)
             {
+                int liveCount = 0;
+                foreach (var member in members) if (Alive(member)) liveCount++;
+                int surroundSlot = 0;
+                Vector3 facing = Vector3.ProjectOnPlane(player.forward, Vector3.up);
+                if (facing.sqrMagnitude < .01f) facing = Vector3.forward;
                 foreach (var member in members)
-                    if (Alive(member)) { member.target = player; member.groupEngaged = true; }
+                {
+                    if (!Alive(member)) continue;
+                    member.target = player;
+                    member.groupEngaged = true;
+                    member.hasGroupCombatDestination = liveCount > 1;
+                    if (liveCount > 1)
+                    {
+                        float angle = surroundArcOffset + 360f * surroundSlot / liveCount;
+                        Vector3 radial = Quaternion.AngleAxis(angle, Vector3.up) * facing.normalized;
+                        Vector3 desired = player.position + radial * member.PreferredGroupCombatDistance(surroundRadius);
+                        member.groupCombatDestination = NavMesh.SamplePosition(desired, out var hit,
+                            navMeshSampleRadius, NavMesh.AllAreas) ? hit.position : desired;
+                    }
+                    surroundSlot++;
+                }
                 return;
             }
             if (Time.time >= nextWaypoint && Vector3.Distance(leader.transform.position, waypoint) <= waypointTolerance)
@@ -328,12 +379,14 @@ namespace KenshiVR.MeleeCombat
                     Mathf.Max(pauseBetweenWaypoints.x, pauseBetweenWaypoints.y));
             }
             leader.groupEngaged = false;
+            leader.hasGroupCombatDestination = false;
             leader.groupDestination = waypoint;
             int slot = 0;
             foreach (var member in members)
             {
                 if (!Alive(member) || member == leader) continue;
                 member.groupEngaged = false;
+                member.hasGroupCombatDestination = false;
                 slot++;
                 float angle = slot * 2.39996f;
                 Vector3 desired = leader.transform.position - leader.transform.forward * followDistance +

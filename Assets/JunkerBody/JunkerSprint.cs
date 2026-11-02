@@ -123,8 +123,9 @@ namespace JunkerBody
             bool moving = moveProvider.isActiveAndEnabled && left.magnitude > inputThreshold;
             if ((!moving && wasMoving) || IsCrouched) sprintLatched = false;
             if (moving && !IsCrouched && !IsStickClickReserved(true) && (sprintAction.action?.WasPressedThisFrame() ?? false)) sprintLatched = !sprintLatched;
-            IsSprinting = moving && sprintLatched && !IsCrouched;
-            moveProvider.moveSpeed = IsCrouched ? crouchSpeed : IsSprinting ? sprintSpeed : walkSpeed;
+            var encumbrance = GetComponent<Zandea.Missions.StrengthAndEncumbrance>();
+            IsSprinting = moving && sprintLatched && !IsCrouched && (!encumbrance || encumbrance.SpeedFactor > .7f);
+            moveProvider.moveSpeed = (IsCrouched ? crouchSpeed : IsSprinting ? sprintSpeed : walkSpeed) * (encumbrance ? encumbrance.SpeedFactor : 1f);
             // Measure only rig locomotion, never camera displacement from room-scale tracking.
             var displacement = Vector3.ProjectOnPlane(xrOrigin.position - previousPosition, xrOrigin.up);
             float speed = displacement.magnitude / Mathf.Max(Time.deltaTime, 0.0001f);

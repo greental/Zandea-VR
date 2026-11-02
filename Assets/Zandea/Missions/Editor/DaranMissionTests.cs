@@ -42,7 +42,7 @@ namespace Zandea.Missions.Editor
         }
 
         [Test]
-        public void MissionBranchWaitsForOutcomeSpeechBeforeSettlement()
+        public void MissionBranchSpeaksOutcomeAfterExplicitSettlementChoice()
         {
             var dialogue = AssetDatabase.LoadAssetAtPath<DialogueDefinition>(
                 "Assets/Zandea/FriendlyNPC/Generated/DaranDialogue.asset");

@@ -20,6 +20,11 @@ namespace Zandea.POI.Editor
             EditorGUILayout.HelpBox("Required: 4–5 buildings, 6 canopies, 6 existing bandits. Cyan = paths; magenta = future props. Preview uses a private terrain copy in the test scene; Main is stamped at runtime.", MessageType.Info);
             if (Application.isPlaying) return;
             var poi = (BanditOutpost)target;
+            if (poi.poiId == "zandea.pueblo.settlement.1" && poi.gameObject.scene.path == "Assets/Main.unity")
+            {
+                if (GUILayout.Button("Create or select editable Pueblo bandits"))
+                    Zandea.Pueblo.Editor.PuebloEditableBandits.CreateOrSelect(poi);
+            }
             if (GUILayout.Button("Regenerate preview with next seed"))
             {
                 Undo.RecordObject(poi, "Regenerate outpost"); poi.seed++;

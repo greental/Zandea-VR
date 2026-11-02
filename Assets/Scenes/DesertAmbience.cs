@@ -5,6 +5,31 @@ using UnityEngine.Rendering.Universal;
 /// <summary>Camera-local desert dust and daytime heat shimmer for large terrain scenes.</summary>
 public sealed class DesertAmbience : MonoBehaviour
 {
+    public enum Quality { Low, Medium, High, Ultra }
+    public enum Weather { Calm, Breeze, Windy, Sandstorm, MiddayHeat }
+    [Header("Atmosphere controls")]
+    public Quality quality = Quality.High;
+    public Weather preset = Weather.Breeze;
+    public bool enableSaltation = true, enableSurfaceSheets = true, enableSuspendedDust = true;
+    public bool enableHaze = true;
+    [Range(0f, 3f)] public float sandTransportDensity = 1f;
+    [Range(0f, 3f)] public float surfaceSheetCoverage = 1f;
+    [Range(0f, 3f)] public float airborneDustDensity = 1f;
+    [Range(0f, 3f)] public float atmosphericHaze = 1f;
+    [Range(0f, 2f)] public float heatIntensity = 1f;
+    [Range(0f, 2f)] public float mirageIntensity = 1f;
+    [Min(50f)] public float maximumVisibilityDistance = 1800f;
+    [Range(0.01f, 0.5f)] public float gustFrequency = 0.09f;
+    [Range(0f, 2f)] public float gustIntensity = 0.7f;
+    [Range(0.01f, 1f)] public float turbulenceScale = 0.08f;
+    [Range(0f, 1f)] public float inferiorMirage = 0.15f;
+    [Header("Localized crest pickup")]
+    [Range(1, 8)] public int maximumActivePatches = 4;
+    [Min(0.5f)] public float gustDuration = 3.5f;
+    [Min(1f)] public float gustInterval = 7f;
+    [Range(0f, 1f)] public float crestActivationChance = 0.45f;
+    [Range(0.1f, 3f)] public float minimumCrestRise = 0.18f;
+    [Range(0.5f, 5f)] public float patchRadius = 2.2f;
     [Header("Windblown sand")]
     [Min(0f)] public float dustParticlesPerSecond = 60f;
     [Min(0f)] public float windSpeed = 2.5f;
@@ -12,9 +37,7 @@ public sealed class DesertAmbience : MonoBehaviour
     public Color sandColor = new Color(0.79f, 0.66f, 0.45f, 0.42f);
     [Min(1f)] public float maxHeightAboveGround = 250f;
 
-    [Header("Sand spilling off terrain edges")]
-    [Min(0f)] public float edgeDustPerSecond = 48f;
-    [Min(0.5f)] public float minimumEdgeDrop = 2.5f;
+    [Header("Crest search")]
     [Range(15f, 100f)] public float edgeSearchRadius = 55f;
     [Range(4, 48)] public int edgeChecksPerScan = 28;
 
@@ -25,7 +48,8 @@ public sealed class DesertAmbience : MonoBehaviour
     Camera viewer;
     DayNightCycle cycle;
     ParticleSystem dust;
-    ParticleSystem edgeDust;
+    ParticleSystem grains;
+    ParticleSystem sheets;
     ParticleSystem heat;
     Material dustMaterial;
     Material heatMaterial;
@@ -33,9 +57,15 @@ public sealed class DesertAmbience : MonoBehaviour
     float nextPlacement;
     float nextTerrainRefresh;
     float nextEdgeScan;
+    float nextGust;
+    float gustEnd;
+    struct SandPatch { public Vector3 position; public float starts; public float expires; public float strength; }
+    readonly SandPatch[] patches = new SandPatch[8];
+    float previousFogDensity;
+    Color previousFogColor;
+    bool previousFogEnabled;
+    bool ownsFog;
     Terrain[] terrains;
-    readonly Vector3[] edgePoints = new Vector3[48];
-    readonly float[] edgeStrengths = new float[48];
 
     void OnEnable()
     {
@@ -59,8 +89,10 @@ public sealed class DesertAmbience : MonoBehaviour
         dustMaterial = new Material(dustShader) { name = "Runtime Desert Dust", hideFlags = HideFlags.DontSave };
         dust = CreateSystem("Windblown Sand", dustMaterial, 600);
         ConfigureDust(dust);
-        edgeDust = CreateSystem("Crest Sand Plumes", dustMaterial, 400);
-        ConfigureEdgeDust(edgeDust);
+        grains = CreateSystem("Saltating Grains", dustMaterial, 800);
+        ConfigureGrains(grains);
+        sheets = CreateSystem("Surface Sand Sheets", dustMaterial, 180);
+        ConfigureSheets(sheets);
 
         if (enableMirage && pipeline.supportsCameraOpaqueTexture && heatShader != null && heatShader.isSupported)
         {
@@ -73,8 +105,13 @@ public sealed class DesertAmbience : MonoBehaviour
 
         cycle = FindFirstObjectByType<DayNightCycle>();
         dust.Play();
-        edgeDust.Play();
+        grains.Play();
+        sheets.Play();
         if (heat != null) heat.Play();
+        previousFogEnabled = RenderSettings.fog;
+        previousFogDensity = RenderSettings.fogDensity;
+        previousFogColor = RenderSettings.fogColor;
+        ownsFog = !previousFogEnabled;
     }
 
     ParticleSystem CreateSystem(string systemName, Material material, int maximum)
@@ -88,6 +125,7 @@ public sealed class DesertAmbience : MonoBehaviour
         main.loop = true;
         main.duration = 10f;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.scalingMode = ParticleSystemScalingMode.Local;
         main.maxParticles = maximum;
         var renderer = system.GetComponent<ParticleSystemRenderer>();
         renderer.renderMode = ParticleSystemRenderMode.Billboard;
@@ -100,27 +138,54 @@ public sealed class DesertAmbience : MonoBehaviour
     void ConfigureDust(ParticleSystem system)
     {
         var main = system.main;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(3f, 6f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.12f, 0.32f);
+        main.startLifetime = new ParticleSystem.MinMaxCurve(1.2f, 2.2f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.055f, 0.12f);
         main.startSpeed = 0f;
         main.startColor = sandColor;
         var emission = system.emission;
-        emission.rateOverTime = dustParticlesPerSecond;
+        emission.rateOverTime = 0f;
         var shape = system.shape;
         shape.shapeType = ParticleSystemShapeType.Box;
-        shape.scale = new Vector3(26f, 1.6f, 26f);
+        shape.enabled = false;
         var velocity = system.velocityOverLifetime;
-        velocity.enabled = true;
-        velocity.space = ParticleSystemSimulationSpace.World;
-        Vector2 direction = windDirection.sqrMagnitude > 0.001f ? windDirection.normalized : Vector2.right;
-        velocity.x = new ParticleSystem.MinMaxCurve(direction.x * windSpeed, direction.x * windSpeed);
-        velocity.z = new ParticleSystem.MinMaxCurve(direction.y * windSpeed, direction.y * windSpeed);
-        velocity.y = new ParticleSystem.MinMaxCurve(-0.05f, 0.15f);
+        velocity.enabled = false;
         var noise = system.noise;
-        noise.enabled = true;
-        noise.strength = 0.18f;
-        noise.frequency = 0.55f;
-        noise.quality = ParticleSystemNoiseQuality.Low;
+        noise.enabled = false;
+        SetSoftLifetime(system);
+    }
+
+    void ConfigureGrains(ParticleSystem system)
+    {
+        var main = system.main;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.35f, 0.8f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.025f, 0.055f);
+        main.startSpeed = 0f;
+        main.gravityModifier = 0.3f;
+        var shape = system.shape;
+        shape.enabled = false;
+        var emission = system.emission;
+        emission.rateOverTime = 0f;
+        var renderer = system.GetComponent<ParticleSystemRenderer>();
+        renderer.renderMode = ParticleSystemRenderMode.Stretch;
+        renderer.lengthScale = 0.35f;
+        renderer.velocityScale = 0f;
+        SetSoftLifetime(system);
+    }
+
+    void ConfigureSheets(ParticleSystem system)
+    {
+        var main = system.main;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.3f, 0.6f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.18f, 0.34f);
+        main.startSpeed = 0f;
+        var shape = system.shape;
+        shape.enabled = false;
+        var emission = system.emission;
+        emission.rateOverTime = 0f;
+        var renderer = system.GetComponent<ParticleSystemRenderer>();
+        renderer.renderMode = ParticleSystemRenderMode.Stretch;
+        renderer.lengthScale = 1.25f;
+        renderer.velocityScale = 0f;
         SetSoftLifetime(system);
     }
 
@@ -143,29 +208,6 @@ public sealed class DesertAmbience : MonoBehaviour
         SetSoftLifetime(system);
     }
 
-    void ConfigureEdgeDust(ParticleSystem system)
-    {
-        var main = system.main;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(2f, 4f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.5f, 1.0f);
-        main.startSpeed = 0f;
-        main.startColor = sandColor;
-        var emission = system.emission;
-        emission.rateOverTime = 0f;
-        var shape = system.shape;
-        shape.enabled = false;
-        var noise = system.noise;
-        noise.enabled = true;
-        noise.strength = 0.3f;
-        noise.frequency = 0.65f;
-        noise.quality = ParticleSystemNoiseQuality.Low;
-        var renderer = system.GetComponent<ParticleSystemRenderer>();
-        renderer.renderMode = ParticleSystemRenderMode.Stretch;
-        renderer.lengthScale = 2.3f;
-        renderer.velocityScale = 0.16f;
-        SetSoftLifetime(system);
-    }
-
     static void SetSoftLifetime(ParticleSystem system)
     {
         var fade = new Gradient();
@@ -176,6 +218,11 @@ public sealed class DesertAmbience : MonoBehaviour
         var colors = system.colorOverLifetime;
         colors.enabled = true;
         colors.color = fade;
+        var size = system.sizeOverLifetime;
+        size.enabled = true;
+        size.size = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(
+            new Keyframe(0f, 0.35f), new Keyframe(0.2f, 1f),
+            new Keyframe(0.75f, 0.8f), new Keyframe(1f, 0f)));
     }
 
     void LateUpdate()
@@ -196,11 +243,13 @@ public sealed class DesertAmbience : MonoBehaviour
                     if (camera.enabled && camera.cameraType == CameraType.Game) { viewer = camera; break; }
             nextCameraSearch = Time.unscaledTime + 1f;
         }
-        if (viewer == null || !TryTerrainHeight(viewer.transform.position, out float groundY) ||
-            viewer.transform.position.y - groundY > maxHeightAboveGround)
+        if (viewer == null ||
+            (TryTerrainHeight(viewer.transform.position, out float groundY) &&
+             viewer.transform.position.y - groundY > maxHeightAboveGround))
         {
             var dustEmission = dust.emission;
             dustEmission.rateOverTime = 0f;
+            if (enableHaze && ownsFog) RenderSettings.fog = previousFogEnabled;
             if (heat != null)
             {
                 var heatEmission = heat.emission;
@@ -210,17 +259,45 @@ public sealed class DesertAmbience : MonoBehaviour
         }
 
         Vector3 viewerPosition = viewer.transform.position;
-        dust.transform.position = new Vector3(viewerPosition.x, GroundHeight(viewerPosition) + 0.8f, viewerPosition.z);
-        dust.transform.rotation = Quaternion.identity;
-        var sandEmission = dust.emission;
-        sandEmission.rateOverTime = dustParticlesPerSecond;
-
-        if (edgeDust != null && Time.time >= nextEdgeScan)
+        // World-space particles stay put when these renderers follow the viewer for reliable culling.
+        grains.transform.position = viewerPosition;
+        sheets.transform.position = viewerPosition;
+        dust.transform.position = viewerPosition;
+        float time = Time.time;
+        float gust = Mathf.PerlinNoise(time * gustFrequency, 11.3f);
+        float strength = Mathf.Max(0f, windSpeed * (0.6f + gustIntensity * gust));
+        Vector2 direction2 = windDirection.sqrMagnitude > 0.001f ? windDirection.normalized : Vector2.right;
+        Vector3 wind = new Vector3(direction2.x, 0f, direction2.y) * strength;
+        float density = quality == Quality.Low ? 0.35f : quality == Quality.Medium ? 0.65f : quality == Quality.Ultra ? 1.4f : 1f;
+        if (enableHaze && ownsFog)
         {
-            nextEdgeScan = Time.time + 0.25f;
-            EmitFromEdges(viewerPosition);
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.Exponential;
+            RenderSettings.fogColor = Color.Lerp(previousFogColor, sandColor, 0.45f);
+            RenderSettings.fogDensity = atmosphericHaze * airborneDustDensity * (0.00035f + strength / Mathf.Max(100f, maximumVisibilityDistance * 800f));
         }
-
+        if (Time.time >= nextGust)
+        {
+            gustEnd = Time.time + gustDuration;
+            nextGust = Time.time + Mathf.Max(gustDuration + 1f, gustInterval) * Random.Range(0.8f, 1.3f);
+        }
+        if (Time.time < gustEnd && Time.time >= nextEdgeScan)
+        {
+            nextEdgeScan = Time.time + 0.6f;
+            FindCrestPatches(viewerPosition, wind.normalized);
+        }
+        for (int i = 0; i < Mathf.Min(maximumActivePatches, patches.Length); i++)
+        {
+            SandPatch patch = patches[i];
+            if (patch.expires <= Time.time) continue;
+            float fade = Mathf.Min(1f, Mathf.Min((Time.time - patch.starts) / 0.45f,
+                (patch.expires - Time.time) / 0.75f));
+            float lod = Vector3.Distance(viewerPosition, patch.position) > 45f ? 0.7f : 1f;
+            float activity = density * patch.strength * fade * lod;
+            EmitTerrainLayer(grains, patch.position, wind, activity * sandTransportDensity * dustParticlesPerSecond, patchRadius, 0.025f, 0.65f, enableSaltation, true);
+            EmitTerrainLayer(sheets, patch.position, wind, activity * surfaceSheetCoverage * 65f, patchRadius, 0.035f, 0.72f, enableSurfaceSheets, false);
+            EmitTerrainLayer(dust, patch.position, wind * 0.55f, activity * airborneDustDensity * 18f, patchRadius, 0.2f, 0.24f, enableSuspendedDust, false);
+        }
         if (heat != null)
         {
             Vector3 forward = Vector3.ProjectOnPlane(viewer.transform.forward, Vector3.up).normalized;
@@ -235,51 +312,64 @@ public sealed class DesertAmbience : MonoBehaviour
         }
     }
 
-    void EmitFromEdges(Vector3 viewerPosition)
+    void EmitTerrainLayer(ParticleSystem system, Vector3 center, Vector3 wind, float rate,
+        float radius, float height, float alpha, bool enabledLayer, bool ballistic)
     {
-        if (edgeDustPerSecond <= 0f || terrains == null || terrains.Length == 0) return;
+        if (system == null || !enabledLayer || rate <= 0f) return;
+        int count = Mathf.Min(48, Mathf.FloorToInt(rate * 0.12f + Random.value));
+        for (int i = 0; i < count; i++)
+        {
+            Vector2 offset = Random.insideUnitCircle * radius;
+            Vector3 point = center + new Vector3(offset.x, 0f, offset.y);
+            if (!TryTerrainHeight(point, out float ground)) continue;
+            float coherent = Mathf.PerlinNoise(point.x * turbulenceScale + Time.time * gustFrequency,
+                point.z * turbulenceScale + 3.1f);
+            if (coherent < 0.32f) continue;
+            float edgeFade = Mathf.Clamp01((radius - offset.magnitude) / Mathf.Max(2f, radius * 0.3f));
+            var particle = new ParticleSystem.EmitParams();
+            particle.position = new Vector3(point.x, ground + height + (ballistic ? Random.Range(0f, 0.09f) : 0f), point.z);
+            Vector3 sideways = new Vector3(-wind.z, 0f, wind.x) * ((coherent - 0.5f) * 0.2f);
+            particle.velocity = wind * Random.Range(0.7f, 1.25f) + sideways +
+                Vector3.up * (ballistic ? Random.Range(0.15f, 0.4f) : 0f);
+            particle.startColor = new Color(sandColor.r, sandColor.g, sandColor.b, alpha * coherent * edgeFade);
+            system.Emit(particle, 1);
+        }
+    }
+
+    void FindCrestPatches(Vector3 viewerPosition, Vector3 wind)
+    {
+        if (terrains == null || terrains.Length == 0 || wind.sqrMagnitude < 0.01f) return;
         Vector3 forward = Vector3.ProjectOnPlane(viewer.transform.forward, Vector3.up).normalized;
         if (forward.sqrMagnitude < 0.01f) forward = Vector3.forward;
-        Vector2 wind2D = windDirection.sqrMagnitude > 0.001f ? windDirection.normalized : Vector2.right;
-        Vector3 wind = new Vector3(wind2D.x, 0f, wind2D.y);
-        Vector3 acrossWind = new Vector3(-wind.z, 0f, wind.x);
-        float threshold = Mathf.Max(0.5f, minimumEdgeDrop);
-        int found = 0;
-        int checks = Mathf.Clamp(edgeChecksPerScan, 4, edgePoints.Length);
-
+        int checks = Mathf.Clamp(edgeChecksPerScan, 4, 48);
         for (int i = 0; i < checks; i++)
         {
-            Vector3 direction = Quaternion.Euler(0f, Random.Range(-100f, 100f), 0f) * forward;
-            Vector3 point = viewerPosition + direction * Random.Range(10f, Mathf.Max(15f, edgeSearchRadius));
+            if (Random.value > crestActivationChance) continue;
+            Vector3 direction = Quaternion.Euler(0f, Random.Range(-85f, 85f), 0f) * forward;
+            Vector3 point = viewerPosition + direction * Random.Range(7f, Mathf.Max(25f, edgeSearchRadius * 1.25f));
             if (!TryTerrainHeight(point, out float crest) ||
-                !TryTerrainHeight(point - wind * 5f, out float upwind) ||
-                !TryTerrainHeight(point + wind * 7f, out float downwind)) continue;
-
-            float drop = upwind - downwind;
-            // Place plumes at the lip, where the wind crosses high ground into a drop.
-            if (drop < threshold || crest < downwind + drop * 0.55f ||
-                Mathf.Abs(crest - upwind) > drop * 0.55f) continue;
-            edgePoints[found] = new Vector3(point.x, crest + 0.35f, point.z);
-            edgeStrengths[found] = Mathf.Clamp01(drop / (threshold * 3f));
-            found++;
-        }
-
-        if (found == 0) return;
-        int totalParticles = Mathf.Clamp(Mathf.CeilToInt(edgeDustPerSecond * 0.25f), 1, 24);
-        for (int i = 0; i < totalParticles; i++)
-        {
-            int source = i % found;
-            var particle = new ParticleSystem.EmitParams();
-            particle.position = edgePoints[source] + acrossWind * Random.Range(-1.5f, 1.5f)
-                + wind * Random.Range(-0.4f, 0.6f);
-            particle.velocity = wind * (windSpeed * Random.Range(1.5f, 2.8f))
-                + Vector3.up * Random.Range(0.25f, 1.2f);
-            particle.startSize = Random.Range(0.55f, 1.0f) * (1f + edgeStrengths[source]);
-            particle.startLifetime = Random.Range(2f, 4f);
-            Color color = sandColor;
-            color.a = Mathf.Clamp01(color.a * (1.2f + edgeStrengths[source]));
-            particle.startColor = color;
-            edgeDust.Emit(particle, 1);
+                !TryTerrainHeight(point - wind * 3f, out float upwind) ||
+                !TryTerrainHeight(point + wind * 3f, out float downwind) ||
+                !TryTerrainHeight(point + Vector3.Cross(wind, Vector3.up) * 3f, out float across)) continue;
+            float rise = crest - (upwind + downwind + across) / 3f;
+            float leeDrop = crest - downwind;
+            // Exposed shoulders also shed sand; an exact local maximum is too rare to sample.
+            if (leeDrop < minimumCrestRise || rise < -minimumCrestRise * 0.5f) continue;
+            int slot = -1;
+            for (int j = 0; j < Mathf.Min(maximumActivePatches, patches.Length); j++)
+            {
+                if (patches[j].expires > Time.time &&
+                    Vector3.Distance(patches[j].position, point) < patchRadius * 3f) { slot = -2; break; }
+                if (slot < 0 && patches[j].expires <= Time.time) slot = j;
+            }
+            if (slot == -2 || slot < 0) continue;
+            patches[slot] = new SandPatch
+            {
+                position = new Vector3(point.x, crest, point.z),
+                starts = Time.time,
+                expires = Mathf.Min(gustEnd + 0.8f, Time.time + Random.Range(1.6f, 3.5f)),
+                strength = Mathf.Clamp(0.75f + Mathf.Max(rise, leeDrop) * 0.35f, 0.75f, 1.4f)
+            };
         }
     }
 
@@ -309,12 +399,20 @@ public sealed class DesertAmbience : MonoBehaviour
     void OnDisable()
     {
         if (dust != null) Destroy(dust.gameObject);
-        if (edgeDust != null) Destroy(edgeDust.gameObject);
+        if (grains != null) Destroy(grains.gameObject);
+        if (sheets != null) Destroy(sheets.gameObject);
         if (heat != null) Destroy(heat.gameObject);
         if (dustMaterial != null) Destroy(dustMaterial);
         if (heatMaterial != null) Destroy(heatMaterial);
         dust = null;
-        edgeDust = null;
+        grains = null;
+        sheets = null;
         heat = null;
+        if (ownsFog)
+        {
+            RenderSettings.fog = previousFogEnabled;
+            RenderSettings.fogDensity = previousFogDensity;
+            RenderSettings.fogColor = previousFogColor;
+        }
     }
 }

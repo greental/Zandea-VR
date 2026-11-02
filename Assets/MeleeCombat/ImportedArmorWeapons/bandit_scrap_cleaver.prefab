@@ -216,6 +216,7 @@ MonoBehaviour:
   strikeType: 1
   bladeEdgeLocalAxis: {x: 1, y: 0, z: 0}
   grip: {fileID: 1619660989617829786}
+  combatReachMeters: 0.818999946
   npcGripTarget: {fileID: 0}
   ownerRoot: {fileID: 0}
   mass: 2.4

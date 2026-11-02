@@ -5,3 +5,7 @@ The rigged model is `Art/Thornmaw_Rigged.fbx`. It contains a Generic eight-leg s
 `Thornmaw.prefab` is built by `Zandea/Thornmaw/Build Rigged Prefab` after Unity imports the FBX. The `Thornmaw.controller` plays Walk by default and `ThornmawHunter` sets `IsRunning` during pursuit. The hunter roams on ground colliders without a NavMesh, looks for visible `IDamageable` targets, ignores all other `ThornmawHunter` instances, and applies a timed melee bite. Walk and run are the only authored clips; the bite uses a timed hit rather than a separate bite clip.
 
 `ThornmawWorldSpawn` installs itself in the `Main` scene and reads `Resources/Wildlife/ThornmawSpawnSettings.asset` to spawn up to two hunters on live desert terrain. `Zandea/Thornmaw/Update Hunter Behavior` upgrades the prefab and creates the settings asset if they are missing. Patrol, sight, speed, health, and bite values are editable on the prefab.
+
+## Settlement spawn exclusion
+
+Main wildlife spawn attempts now reject points inside walled settlements and the configurable 20 m area beyond their walls. The shared `WildlifeSettlementExclusion` checks authored settlement wall footprints and streamed `BanditOutpost` footprints. Strud checks every group member; Thornmaw checks the final terrain hit. This affects new spawns, not wildlife already roaming into a settlement.

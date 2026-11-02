@@ -11,3 +11,9 @@
 - Unity `Library/`, project `Temp/`, and download caches can be regenerated, but first check whether Unity is running, inspect the exact target and size, and verify the resolved absolute path. Never delete a live project's `Library/` or `Temp/`.
 - If a cleanup command is blocked by policy, stop. Do not retry through another shell or tool. Give the user the exact cache path and size for manual cleanup.
 - A low-space cleanup should start with owned temporary output and known download caches. Do not empty the Recycle Bin or remove other applications' data without the user's explicit direction.
+
+# Scene promotion and prefab versions
+
+- When work is authored or tested in a feature scene, finish and validate it there, then ask the project owner whether to promote that specific setup to `Assets/Main.unity`. Do not silently assume a feature-scene change reaches Main. An explicit request to integrate it into Main is approval for that integration.
+- Before changing a shared Player, bandit, NPC, or other feature prefab, preserve the previous working version as a separate `V1` prefab with its own Unity `.meta` GUID. Make changes in a separate `V2` prefab and point only the intended test scene or integration at V2. Do not overwrite or repurpose V1 while V2 is being evaluated.
+- Promote V2 into the established main prefab or replace V1 only after the project owner says they are happy with it and explicitly asks to merge. Preserve references and verify the target scene after promotion.

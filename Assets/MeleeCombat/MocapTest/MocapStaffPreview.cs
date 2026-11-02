@@ -44,9 +44,10 @@ namespace KenshiVR.MeleeCombat
         public Quaternion rightHandFromStaff = Quaternion.identity, leftHandFromStaff = Quaternion.identity;
         [Serializable] public struct FingerPose { public Transform bone; public Quaternion rotation; }
         [HideInInspector] public int armedFingerPoseVersion;
-        [NonSerialized] public float runtimePoseOverrideWeight;
-        [NonSerialized] public Vector3 runtimePoseOverridePosition;
-        [NonSerialized] public Quaternion runtimePoseOverrideRotation = Quaternion.identity;
+        [NonSerialized] public Vector3 runtimeStrikeTargetWorld;
+        [NonSerialized] public Vector3 runtimeStrikeTipLocal;
+        [NonSerialized] public float runtimeStrikeAimWeight;
+        public float StrikeTargetError { get; private set; }
         public FingerPose[] fingers = Array.Empty<FingerPose>();
         public bool applySavedFingerPose = true;
         public bool showTrajectory = true, tracePositiveTip = true;
@@ -125,6 +126,14 @@ namespace KenshiVR.MeleeCombat
         void LateUpdate()
         {
             if (!Application.isPlaying) return;
+            // Gameplay's BanditMocapNpcDriver owns this Animator. The manual
+            // preview graph is only for isolated clip inspection.
+            var driver = GetComponent<BanditMocapNpcDriver>();
+            if (driver && driver.enabled)
+            {
+                if (graph.IsValid()) ReleaseGraph();
+                return;
+            }
             var clip = CurrentClip;
             if (playing && clip && clip.length > 0) normalizedTime = Mathf.Repeat(normalizedTime + Time.deltaTime * playbackSpeed / clip.length, 1f);
             Sample();
@@ -162,21 +171,34 @@ namespace KenshiVR.MeleeCombat
             var leftAnimated = leftHand.position;
             var rightBend = rightLower.position - rightUpper.position;
             var leftBend = leftLower.position - leftUpper.position;
+            Vector3 primaryGrip = staff.grip ? staff.transform.InverseTransformPoint(staff.grip.position) :
+                (primaryHandIsLeft ? leftGripLocal : rightGripLocal);
+            Vector3 actualRightGrip = primaryHandIsLeft ? rightGripLocal : primaryGrip;
+            Vector3 actualLeftGrip = primaryHandIsLeft ? primaryGrip : leftGripLocal;
+            // The physical follow target must name the same point on the rigid
+            // weapon as the held grip. Otherwise the yellow diagnostic line is
+            // a real offset, even when the rendered hands look attached.
+            if (staff.grip && staff.npcGripTarget && desiredStaff &&
+                staff.npcGripTarget.parent == desiredStaff)
+            {
+                staff.npcGripTarget.localPosition = primaryGrip;
+                staff.npcGripTarget.localRotation = Quaternion.Inverse(staff.transform.rotation) * staff.grip.rotation;
+            }
             Quaternion rotation;
             Vector3 position;
             if (attachment == Attachment.PrimaryHand)
             {
                 var primary = primaryHandIsLeft ? leftHand : rightHand;
                 rotation = primary.rotation * Quaternion.Inverse(primaryHandIsLeft ? leftHandFromStaff : rightHandFromStaff);
-                position = primary.position - rotation * (primaryHandIsLeft ? leftGripLocal : rightGripLocal);
+                position = primary.position - rotation * primaryGrip;
             }
             else
             {
                 // Fit one rigid weapon to the two animated wrists while preserving palm geometry.
                 var baseRotation = Quaternion.Slerp(rightHand.rotation * Quaternion.Inverse(rightHandFromStaff),
                     leftHand.rotation * Quaternion.Inverse(leftHandFromStaff), .5f);
-                rotation = Quaternion.FromToRotation(baseRotation * (leftGripLocal - rightGripLocal), leftAnimated - rightAnimated) * baseRotation;
-                position = (rightAnimated + leftAnimated) * .5f - rotation * ((rightGripLocal + leftGripLocal) * .5f);
+                rotation = Quaternion.FromToRotation(baseRotation * (actualLeftGrip - actualRightGrip), leftAnimated - rightAnimated) * baseRotation;
+                position = (rightAnimated + leftAnimated) * .5f - rotation * ((actualRightGrip + actualLeftGrip) * .5f);
             }
             // A defensive guard can shift the rigid weapon target. The same IK
             // solve then brings the hand to its actual grip on that target.
@@ -199,28 +221,43 @@ namespace KenshiVR.MeleeCombat
                 var interceptRotation = Quaternion.FromToRotation(shaft, axis) * rotation;
                 rotation = Quaternion.Slerp(rotation, interceptRotation, Mathf.Clamp01(runtimeWeaponAxisWeight));
             }
-            if (runtimePoseOverrideWeight > 0f)
+            if (runtimeStrikeAimWeight > 0f && !secondaryPhysicalWeapon)
             {
-                float weight = Mathf.Clamp01(runtimePoseOverrideWeight);
-                position = Vector3.Lerp(position, runtimePoseOverridePosition, weight);
-                rotation = Quaternion.Slerp(rotation, runtimePoseOverrideRotation, weight);
+                // Preserve the animated hand-led swing, adding only a bounded
+                // wrist aim near impact. The rigid weapon and both IK hands share
+                // this one pose, so the blade cannot drift away from the grip.
+                Vector3 wrist = position + rotation * primaryGrip;
+                Vector3 tip = position + rotation * runtimeStrikeTipLocal;
+                Vector3 current = tip - wrist;
+                Vector3 wanted = runtimeStrikeTargetWorld - wrist;
+                if (current.sqrMagnitude > .01f && wanted.sqrMagnitude > .01f)
+                {
+                    Quaternion correction = Quaternion.FromToRotation(current, wanted);
+                    rotation = Quaternion.RotateTowards(rotation, correction * rotation,
+                        90f * Mathf.Clamp01(runtimeStrikeAimWeight));
+                    position = wrist - rotation * primaryGrip;
+                    Vector3 remaining = runtimeStrikeTargetWorld - (position + rotation * runtimeStrikeTipLocal);
+                    position += Vector3.ClampMagnitude(remaining * Mathf.Clamp01(runtimeStrikeAimWeight), .35f);
+                }
             }
             var original = position;
             // Same reach projection used by BanditRigMotion. Never stretch arm bones.
             for (int i = 0; i < 12; i++)
             {
                 if (secondaryHandGrips || primaryHandIsLeft)
-                    Constrain(ref position, rotation * leftGripLocal, leftUpper, leftLower, leftHand);
+                    Constrain(ref position, rotation * actualLeftGrip, leftUpper, leftLower, leftHand);
                 if (secondaryHandGrips || !primaryHandIsLeft)
-                    Constrain(ref position, rotation * rightGripLocal, rightUpper, rightLower, rightHand);
+                    Constrain(ref position, rotation * actualRightGrip, rightUpper, rightLower, rightHand);
             }
             ReachCorrection = Vector3.Distance(original, position);
             if (desiredStaff) desiredStaff.SetPositionAndRotation(position, rotation);
-            if (driveVisualStaff && (!Application.isPlaying || staff.State == PhysicalMeleeWeapon.HoldState.HeldByNpc))
+            if (driveVisualStaff && !Application.isPlaying)
                 staff.transform.SetPositionAndRotation(position, rotation);
             var actual = staff.transform;
-            var leftTarget = actual.TransformPoint(leftGripLocal);
-            var rightTarget = actual.TransformPoint(rightGripLocal);
+            StrikeTargetError = runtimeStrikeAimWeight > 0f && !secondaryPhysicalWeapon ?
+                Vector3.Distance(actual.TransformPoint(runtimeStrikeTipLocal), runtimeStrikeTargetWorld) : 0f;
+            var leftTarget = actual.TransformPoint(actualLeftGrip);
+            var rightTarget = actual.TransformPoint(actualRightGrip);
             LeftCorrection = secondaryHandGrips || primaryHandIsLeft ? Vector3.Distance(leftAnimated, leftTarget) : 0;
             RightCorrection = secondaryHandGrips || !primaryHandIsLeft ? Vector3.Distance(rightAnimated, rightTarget) : 0;
             // Reuse the existing solver with the animated elbow plane, preserving torso/shoulders.
@@ -243,7 +280,34 @@ namespace KenshiVR.MeleeCombat
             if (secondaryVisualWeapon && rightHand)
             {
                 var secondaryRotation = rightHand.rotation * secondaryWeaponFromRightHand;
-                if (secondaryWeaponTarget) secondaryWeaponTarget.SetPositionAndRotation(rightHand.position, secondaryRotation);
+                var secondaryPosition = rightHand.position;
+                Vector3 saberTipLocal = Vector3.zero;
+                Vector3 saberOpposite = Vector3.zero;
+                bool hasSaberTip = secondaryPhysicalWeapon &&
+                    StaffAxisCalibration.TryMeasure(secondaryVisualWeapon, out saberTipLocal, out saberOpposite);
+                if (hasSaberTip && saberOpposite.sqrMagnitude > saberTipLocal.sqrMagnitude)
+                    saberTipLocal = saberOpposite;
+                if (hasSaberTip && runtimeStrikeAimWeight > 0f)
+                {
+                    // The right hand carries the saber; the left hand and shield
+                    // must not be rotated toward the strike target.
+                    Vector3 current = secondaryRotation * saberTipLocal;
+                    Vector3 wanted = runtimeStrikeTargetWorld - secondaryPosition;
+                    if (current.sqrMagnitude > .01f && wanted.sqrMagnitude > .01f)
+                    {
+                        var correction = Quaternion.FromToRotation(current, wanted);
+                        secondaryRotation = Quaternion.RotateTowards(secondaryRotation,
+                            correction * secondaryRotation, 90f * Mathf.Clamp01(runtimeStrikeAimWeight));
+                        var remaining = runtimeStrikeTargetWorld -
+                            (secondaryPosition + secondaryRotation * saberTipLocal);
+                        secondaryPosition += Vector3.ClampMagnitude(
+                            remaining * Mathf.Clamp01(runtimeStrikeAimWeight), .25f);
+                    }
+                }
+                if (secondaryWeaponTarget) secondaryWeaponTarget.SetPositionAndRotation(secondaryPosition, secondaryRotation);
+                if (hasSaberTip && runtimeStrikeAimWeight > 0f)
+                    StrikeTargetError = Vector3.Distance(
+                        secondaryVisualWeapon.TransformPoint(saberTipLocal), runtimeStrikeTargetWorld);
                 if (Application.isPlaying && secondaryPhysicalWeapon && secondaryPhysicalWeapon.enabled && !driveVisualStaff)
                 {
                     if (secondaryPhysicalWeapon.State == PhysicalMeleeWeapon.HoldState.HeldByNpc)
@@ -253,7 +317,13 @@ namespace KenshiVR.MeleeCombat
                         RightGripError = Vector3.Distance(rightHand.position, secondaryVisualWeapon.position);
                     }
                 }
-                else secondaryVisualWeapon.SetPositionAndRotation(rightHand.position, secondaryRotation);
+                else
+                {
+                    secondaryVisualWeapon.SetPositionAndRotation(secondaryPosition, secondaryRotation);
+                    ScavengerPose.Solve(rightUpper, rightLower, rightHand, secondaryPosition, rightBend);
+                    rightHand.rotation = secondaryRotation * Quaternion.Inverse(secondaryWeaponFromRightHand);
+                    RightGripError = Vector3.Distance(rightHand.position, secondaryPosition);
+                }
             }
             if (normalizedTime < previousTime) trailCount = 0;
             if (Mathf.Abs(normalizedTime - previousTime) > .0001f)

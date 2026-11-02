@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: bandit_scrap_spear
   displayName: bandit_scrap_spear
   category: 0
-  valueCats: 0
+  valueCats: 220
   weight: 3.5
   worldPrefab: {fileID: 4952503099691932828, guid: 4067b62c7820bf04792812858dd3614b, type: 3}
   equippedAppearance: {fileID: 0}

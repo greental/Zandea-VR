@@ -17,7 +17,7 @@ MonoBehaviour:
   category: 1
   valueCats: 8
   weight: 0.4
-  worldPrefab: {fileID: 9159283384442411905, guid: f4256f59f0074c549b19e841023fc1da, type: 3}
+  worldPrefab: {fileID: 9159283384442411905, guid: bf43690139eda6b44bc0b424a5157f8f, type: 3}
   equippedAppearance: {fileID: 11400000, guid: 4c104a26d78a7f24e87678b8c8bc6a40, type: 2}
   icon: {fileID: 0}
   defaultSlot: 2

@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
-using UnityEngine.InputSystem;
 using TMPro;
 
 namespace Zandea.FriendlyNPC
@@ -16,19 +15,14 @@ namespace Zandea.FriendlyNPC
         bool used;
         XRDirectInteractor hovering;
         PalmDialogueChoices hands;
-        InputAction leftGrip, rightGrip;
         GameObject cue;
         bool leftReserved, rightReserved;
-        [Min(.15f)] public float gripRadius = .36f;
+        [Min(.15f)] public float gripRadius = .42f;
         public bool IsArmed => armed;
         void Awake()
         {
-            gripRadius = Mathf.Max(gripRadius, .36f);
+            gripRadius = Mathf.Max(gripRadius, .42f);
             interactable = GetComponent<XRSimpleInteractable>();
-            leftGrip = new InputAction("Merchant handshake left grip", InputActionType.Button,
-                "<XRController>{LeftHand}/gripPressed");
-            rightGrip = new InputAction("Merchant handshake right grip", InputActionType.Button,
-                "<XRController>{RightHand}/gripPressed");
             if (!Application.isPlaying) return;
             cue = new GameObject("Handshake cue");
             cue.transform.SetParent(transform, false);
@@ -47,7 +41,6 @@ namespace Zandea.FriendlyNPC
             interactable.hoverExited.AddListener(OnHoverExit);
             interactable.selectEntered.AddListener(OnGrip);
             interactable.enabled = armed;
-            leftGrip?.Enable(); rightGrip?.Enable();
         }
         void OnDisable()
         {
@@ -56,30 +49,38 @@ namespace Zandea.FriendlyNPC
             interactable.hoverEntered.RemoveListener(OnHover);
             interactable.hoverExited.RemoveListener(OnHoverExit);
             interactable.selectEntered.RemoveListener(OnGrip);
-            leftGrip?.Disable(); rightGrip?.Disable();
             ClearHandReservations();
         }
-        void OnDestroy() { leftGrip?.Dispose(); rightGrip?.Dispose(); }
 
         void Update()
         {
+            if (counter && (!counter.Trading || !counter.Ready) &&
+                armed != counter.MissionHandshakeAvailable)
+                Arm(counter.MissionHandshakeAvailable);
             if (!armed || used) return;
-            if (!hands) hands = FindFirstObjectByType<PalmDialogueChoices>();
+            if (!hands) hands = counter && counter.merchant && counter.merchant.choices &&
+                counter.merchant.choices.isActiveAndEnabled
+                ? counter.merchant.choices : FindFirstObjectByType<PalmDialogueChoices>();
             if (!hands) return;
-            CheckHand(hands.leftHand, leftGrip, ref leftReserved);
-            if (!used) CheckHand(hands.rightHand, rightGrip, ref rightReserved);
+            CheckHand(hands.leftHand, ref leftReserved);
+            if (!used) CheckHand(hands.rightHand, ref rightReserved);
         }
 
-        void CheckHand(XRDirectInteractor hand, InputAction grip, ref bool reserved)
+        void CheckHand(XRDirectInteractor hand, ref bool reserved)
         {
             if (!hand) return;
             bool close = (hand.transform.position - transform.position).sqrMagnitude <= gripRadius * gripRadius;
-            if (close != reserved)
+            bool reserve = close && !hand.hasSelection;
+            if (reserve != reserved)
             {
-                FriendlyInputReservation.Set(hand, close);
-                reserved = close;
+                // Near the offered hand, keep counter stock from taking the
+                // select press. The proximity path below owns this handshake.
+                FriendlyInputReservation.Set(hand, reserve, true);
+                reserved = reserve;
             }
-            if (!close || hand.hasSelection || grip == null || !grip.WasPressedThisFrame()) return;
+            if (!close || hand.hasSelection ||
+                !hand.selectInput.ReadWasPerformedThisFrame() &&
+                !hand.logicalSelectState.wasPerformedThisFrame) return;
             Confirm();
         }
 
@@ -108,7 +109,7 @@ namespace Zandea.FriendlyNPC
         void OnHover(HoverEnterEventArgs args)
         {
             if (armed && args.interactorObject is XRDirectInteractor hand)
-            { hovering = hand; FriendlyInputReservation.Set(hand, true); }
+            { hovering = hand; FriendlyInputReservation.Set(hand, true, true); }
         }
         void OnHoverExit(HoverExitEventArgs args)
         {
@@ -131,7 +132,10 @@ namespace Zandea.FriendlyNPC
         {
             if (!armed || used) return;
             used = true;
-            if (!counter || !counter.TryCommit()) used = false;
+            bool committed = counter && counter.TryCommit();
+            // An uncollected contract pouch can be presented again, using its
+            // stable ID. Only the first settlement creates or debits money.
+            used = committed && !counter.MissionHandshakeAvailable;
         }
     }
 }

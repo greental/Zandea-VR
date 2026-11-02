@@ -139,6 +139,7 @@ GameObject:
   - component: {fileID: 1709318268912952087}
   - component: {fileID: 4555988611135893883}
   - component: {fileID: 2102926538372705506}
+  - component: {fileID: -1435919610908238385}
   m_Layer: 0
   m_Name: bandit_scrap_cleaver
   m_TagString: Untagged
@@ -253,6 +254,7 @@ MonoBehaviour:
   strikeType: 1
   bladeEdgeLocalAxis: {x: 1, y: 0, z: 0}
   grip: {fileID: 1619660989617829786}
+  combatReachMeters: 0.81899995
   npcGripTarget: {fileID: 0}
   ownerRoot: {fileID: 0}
   mass: 2.4
@@ -441,6 +443,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.VRInventoryItem
   CanStoreInBackpack: 1
   InventoryAnchor: {fileID: 0}
+--- !u!114 &-1435919610908238385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8110503260084702684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93f89ba4625a8b1498515ed3d055db9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.FriendlyNPC.TradeItem
+  definition: {fileID: 11400000, guid: 7c8d7620b6e11c149a55d1f474cdb4c7, type: 2}
+  ownerId: player
+  stolen: 0
+  stolenFromVendorId: 
+  persistentInstanceId: 
 --- !u!1 &8802574074165046155
 GameObject:
   m_ObjectHideFlags: 0

@@ -93,7 +93,8 @@ public static class BanditGroupPlayValidation
                 .Any(item => item.slot == AppearanceSlot.Headwear && item.gameObject.activeInHierarchy &&
                     item.GetComponentsInChildren<Renderer>(true).Any(renderer => renderer.enabled && !renderer.forceRenderingOff))))
                 throw new Exception("At least one editable member has no rendered headgear");
-            var leader = members.FirstOrDefault(member => member.name == "Bandit Leader");
+            var leader = authored ? group.authoredMembers.FirstOrDefault(member => member) :
+                members.FirstOrDefault(member => member.name == "Bandit Leader");
             if (!leader) throw new Exception("No bandit leader spawned");
             foreach (var member in members)
                 if (member != leader && Vector3.Distance(member.groupDestination, leader.transform.position) > group.followDistance * 4f)
@@ -111,6 +112,9 @@ public static class BanditGroupPlayValidation
                 throw new Exception("Leader and followers did not engage the nearby player together: " +
                     string.Join(", ", members.Select(member => member.name + " engaged=" +
                         member.groupEngaged + " target=" + (member.target ? member.target.name : "none"))));
+            if (members.Length > 1 && (members.Any(member => !member.hasGroupCombatDestination) ||
+                members.Select(member => member.groupCombatDestination).Distinct().Count() != members.Length))
+                throw new Exception("Engaged bandits did not receive distinct surround positions");
             if (phase == 2)
             {
                 phase = 3;

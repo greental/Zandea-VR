@@ -15,6 +15,7 @@ namespace KenshiVR.MeleeCombat
         int scoredAttack = -1;
         readonly RaycastHit[] sweepHits = new RaycastHit[24];
         Vector3 previousPositiveTip, previousNegativeTip;
+        PhysicalMeleeWeapon previousWeapon;
         bool tipHistoryValid;
         public Vector3 LastContactPoint { get; private set; }
         public int ContactHits { get; private set; }
@@ -28,11 +29,24 @@ namespace KenshiVR.MeleeCombat
                 tipHistoryValid = false;
                 return;
             }
-            brain.GetTipLocals(out var positiveLocal, out var negativeLocal);
-            var weapon = brain.staff;
+            var grip = brain.GetComponentInChildren<MocapStaffPreview>(true);
+            var weapon = grip && grip.secondaryPhysicalWeapon &&
+                grip.secondaryPhysicalWeapon.State == PhysicalMeleeWeapon.HoldState.HeldByNpc
+                ? grip.secondaryPhysicalWeapon : brain.staff;
+            Vector3 positiveLocal, negativeLocal;
+            if (weapon != brain.staff)
+            {
+                if (!StaffAxisCalibration.TryMeasure(weapon.transform, out positiveLocal, out negativeLocal))
+                {
+                    tipHistoryValid = false;
+                    return;
+                }
+            }
+            else brain.GetTipLocals(out positiveLocal, out negativeLocal);
             Vector3 positive = weapon.transform.TransformPoint(positiveLocal);
             Vector3 negative = weapon.transform.TransformPoint(negativeLocal);
-            if (tipHistoryValid && brain.state == StarvingBandit.State.Strike && scoredAttack != brain.AttackSequence)
+            if (tipHistoryValid && previousWeapon == weapon &&
+                brain.state == StarvingBandit.State.Strike && scoredAttack != brain.AttackSequence)
             {
                 // Kinematic animated weapons can cross a moving target between two
                 // physics contacts. Sweep the actual authored tip paths for this
@@ -43,6 +57,7 @@ namespace KenshiVR.MeleeCombat
             }
             previousPositiveTip = positive;
             previousNegativeTip = negative;
+            previousWeapon = weapon;
             tipHistoryValid = true;
         }
 

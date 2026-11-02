@@ -45,6 +45,8 @@ namespace KenshiVR.MeleeCombat
         }
         void EnsureVisibleLid()
         {
+            // Breakable barrels hold loot but have no hinged lid.
+            if (GetComponent<BreakableProp>()) return;
             var lid = GetComponentInChildren<PropHingedLid>(true);
             if (lid)
             {

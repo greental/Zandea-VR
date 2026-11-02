@@ -101,6 +101,8 @@ namespace KenshiVR.MeleeCombat
 
         void Released(SelectExitEventArgs args)
         {
+            if (!IsWorn && rollCollider && rollCollider.enabled && flatCollider && flatCollider.enabled)
+                rollCollider.enabled = false;
             if (!args.isCanceled) StartCoroutine(TryDressAfterRelease(++releaseSerial));
         }
 
@@ -141,13 +143,23 @@ namespace KenshiVR.MeleeCombat
                 if (flatCollider) flatCollider.enabled = false;
                 // Keep an easy-to-reach invisible pull volume on the visible worn item.
                 // The previous 2 cm cylinder was effectively impossible to find in VR.
-                roll.transform.localPosition = Appearance.slot switch
+                Vector3 gripOffset = Appearance.slot switch
                 {
                     AppearanceSlot.Headwear => new Vector3(0f, .06f, .10f),
                     AppearanceSlot.Legs => new Vector3(0f, .02f, .16f),
                     _ => new Vector3(0f, 0f, .18f)
                 };
-                roll.transform.localScale = new Vector3(.14f, .12f, .14f);
+                // Creator skeletons may be imported at 0.01 scale. Keep the pull
+                // volume at a usable world size after parenting it to a bone.
+                Vector3 worldScale = transform.lossyScale;
+                roll.transform.localPosition = new Vector3(
+                    gripOffset.x / Mathf.Max(.001f, Mathf.Abs(worldScale.x)),
+                    gripOffset.y / Mathf.Max(.001f, Mathf.Abs(worldScale.y)),
+                    gripOffset.z / Mathf.Max(.001f, Mathf.Abs(worldScale.z)));
+                roll.transform.localScale = new Vector3(
+                    .14f / Mathf.Max(.001f, Mathf.Abs(worldScale.x)),
+                    .12f / Mathf.Max(.001f, Mathf.Abs(worldScale.y)),
+                    .14f / Mathf.Max(.001f, Mathf.Abs(worldScale.z)));
                 rollRenderer.enabled = false;
                 rollCollider.enabled = true;
                 return;
@@ -160,7 +172,9 @@ namespace KenshiVR.MeleeCombat
             body.useGravity = originalGravity;
             roll.transform.localPosition = rollPosition;
             roll.transform.localScale = rollScale;
-            rollCollider.enabled = false;
+            // Keep the pull collider available until XRI finishes the current
+            // selection; disabling it during selectEntered can drop the item.
+            rollCollider.enabled = grab && grab.isSelected;
             if (flatCollider) flatCollider.enabled = true;
             foreach (var visual in flatRenderers) if (visual) visual.forceRenderingOff = false;
         }

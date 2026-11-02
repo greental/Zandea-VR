@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.POI.BanditOutpostDefinition
   seed: 1862
   buildingCount: 5
-  residentBandits: 6
+  residentBandits: 0
   useAllBuildingVariants: 1
   useAllShadeVariants: 1
   dimensions: {x: 88, y: 80}

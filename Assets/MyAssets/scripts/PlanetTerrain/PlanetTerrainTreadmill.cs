@@ -597,6 +597,7 @@ namespace MyAssets.PlanetTerrain
         private PlanetTileCoord centerTile;
         private bool initialized;
         private MyAssets.Planet.FloatingOriginPosition tileFrameOrigin;
+        private bool tileFrameHeightExplicitlySet;
 
         public void OnOriginShift(Vector3 shift)
         {
@@ -637,6 +638,7 @@ namespace MyAssets.PlanetTerrain
                 (double)flatWorldOrigin.x - (double)startingCenter.x * tileSizeMeters,
                 flatWorldOrigin.y,
                 (double)flatWorldOrigin.z - (double)startingCenter.z * tileSizeMeters);
+            tileFrameHeightExplicitlySet = true;
             PlanetTileCoord currentCenter = WorldToTile(flatWorldOrigin);
 
             if (!initialized || tiles.Count != VisibleTileWindowSize * VisibleTileWindowSize)
@@ -687,8 +689,25 @@ namespace MyAssets.PlanetTerrain
                 return;
             }
 
+            AdoptSavedTileHeightOnStart();
             centerTile = WorldToTile(target.position);
             InitializeGrid(centerTile);
+        }
+
+        private void AdoptSavedTileHeightOnStart()
+        {
+            if (tileFrameHeightExplicitlySet) return;
+
+            // Authored scene tiles may be far from Y=0. Keep their saved world height
+            // when the treadmill first assigns/recycles tiles in a standalone scene.
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                Transform child = transform.GetChild(i);
+                if (!child.name.StartsWith(AuthoredTileNamePrefix, StringComparison.Ordinal) ||
+                    child.GetComponent<Terrain>() == null) continue;
+                tileFrameOrigin.y = child.position.y - tileVerticalOffsetMeters;
+                return;
+            }
         }
 
         private void Update()
@@ -1002,6 +1021,7 @@ namespace MyAssets.PlanetTerrain
         /// </summary>
         public void SetTileFrameBaseY(float worldY)
         {
+            tileFrameHeightExplicitlySet = true;
             if (Math.Abs(tileFrameOrigin.y - worldY) < 0.001d)
                 return;
 

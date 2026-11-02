@@ -1,5 +1,6 @@
 using JunkerEquipment;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 namespace Zandea.FriendlyNPC
 {
@@ -24,6 +25,11 @@ namespace Zandea.FriendlyNPC
 
         void Start()
         {
+            // Holstered pouches use trigger colliders. Both direct hands must
+            // include triggers in their proximity query to grab the purse.
+            var playerRoot = transform.root;
+            foreach (var direct in playerRoot.GetComponentsInChildren<XRDirectInteractor>(true))
+                direct.physicsTriggerInteraction = QueryTriggerInteraction.Collide;
             var purse = CurrencyPouch.PersonalInstance;
             if (!purse && personalPursePrefab) purse = Instantiate(personalPursePrefab);
             if (!purse || !purse.personal || !coinPurseAnchor) return;

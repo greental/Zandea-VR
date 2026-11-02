@@ -556,9 +556,11 @@ MonoBehaviour:
   chasseSpeed: 0.85
   minimumFightDistance: 1.65
   preferredFightDistance: 2.15
+  referenceWeaponReach: 0.8
+  weaponReachSpacingWeight: 1
   spacingRetreatSpeed: 2.1
   postAttackRetreatSeconds: 1.5
-  dodgeIncomingNpcAttacks: 0
+  dodgeIncomingNpcAttacks: 1
   dodgeChance: 0.55
   dodgeDistance: 1.2
   dodgeCooldown: 2
@@ -566,6 +568,7 @@ MonoBehaviour:
   blockChance: 0.8
   parryIncomingNpcAttacks: 1
   parryChance: 0.7
+  defensiveOnly: 0
   cycleAttackDirections: 0
   firstAttackDirection: 0
   initialAttackDelay: 0
@@ -2265,6 +2268,9 @@ MonoBehaviour:
   logChanges: 0
   generated: 0
   items: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &909377614942433645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2312,7 +2318,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcGeneratedWeapon
   weaponPrefab: {fileID: 2936855437618426015, guid: 4655b49724ea9f14fb326d43455ade41, type: 3}
   gripTarget: {fileID: 8637544756339033684}
-  weaponPoseTarget: {fileID: 8637544756339033684}
+  weaponPoseTarget: {fileID: 8876548797539149990}
   bandit: {fileID: 1761164650813247814}
   health: {fileID: 7404165254573169211}
   dropOnDestroy: 1
@@ -6386,8 +6392,8 @@ MonoBehaviour:
   useImportedCombatAttacks: 1
   useImportedCombatGuards: 1
   useImportedCombatReactions: 1
-  usePresentedTwoHandStrikes: 0
-  presentAxeHeadForward: 0
+  stabilizeAttackFeet: 0
+  presentLongBladeGuard: 0
   reviewLocomotionOverride: 0
   reviewLocomotion: {x: 0, y: 0}
   armedGuardRotations:

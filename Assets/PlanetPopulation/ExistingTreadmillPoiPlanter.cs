@@ -45,6 +45,9 @@ namespace MyAssets.PlanetTerrain
         [Min(20f)] public float activationDistance = 600f;
         [Min(30f)] public float deactivationDistance = 800f;
         public OutpostFactionTheme faction;
+        [Header("Optional modular building shells")]
+        public bool generateModularBuildings;
+        public ModularBuildingCatalog modularBuildingCatalog;
         public List<Site> sites = new List<Site>();
         [HideInInspector] public bool terrainPrepared;
 
@@ -215,6 +218,8 @@ namespace MyAssets.PlanetTerrain
             var preview = transform.Find("Scavenger POIs (Scene Preview)");
             int siteIndex = sites.IndexOf(site);
             bool authored = preview && siteIndex >= 0 && siteIndex < preview.childCount;
+            if (authored && generateModularBuildings)
+                Debug.LogWarning($"POI {site.seed} uses an authored scene-preview layout; modular replacement currently applies only to procedural building slots.", this);
             GameObject root = authored
                 ? Instantiate(preview.GetChild(siteIndex).gameObject, center, Quaternion.identity, transform)
                 : new GameObject("Scavenger POI " + site.seed);
@@ -227,6 +232,21 @@ namespace MyAssets.PlanetTerrain
                     if (!placement.prefab) continue;
                     Vector3 position = center + new Vector3(placement.offset.x, 0, placement.offset.y);
                     position.y = Ground(position);
+                    bool buildingSlot = faction && ((Array.IndexOf(faction.smallBuildings ?? Array.Empty<GameObject>(), placement.prefab) >= 0) ||
+                        (Array.IndexOf(faction.mediumBuildings ?? Array.Empty<GameObject>(), placement.prefab) >= 0) ||
+                        (Array.IndexOf(faction.largeBuildings ?? Array.Empty<GameObject>(), placement.prefab) >= 0));
+                    if (buildingSlot && generateModularBuildings && modularBuildingCatalog)
+                    {
+                        var plot = new ModularBuildingGenerator.Plot { center = position, maximumWidth = 16, maximumDepth = 16,
+                            roadPosition = center, seed = unchecked(site.seed ^ Mathf.RoundToInt(placement.offset.x * 37 + placement.offset.y * 101)) };
+                        if (ModularBuildingGenerator.TryPlan(plot, modularBuildingCatalog,
+                            p => TryGround(p, out float h) ? (float?)h : null, out var blueprint, out string warning))
+                        {
+                            if (ModularBuildingGenerator.Instantiate(blueprint, modularBuildingCatalog, plot.seed, root.transform)) continue;
+                            warning = "Roof module axes, scale metadata, or selected prefab are invalid.";
+                        }
+                        Debug.LogWarning($"Modular building at POI {site.seed}: {warning} Existing prefab retained.", this);
+                    }
                     var instance = Instantiate(placement.prefab, position,
                         Quaternion.Euler(0, placement.yaw, 0), root.transform);
                     if (placement.vehicle) LiftVehicleToGround(instance, position.y);

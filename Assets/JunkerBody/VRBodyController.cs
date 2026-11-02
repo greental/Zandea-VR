@@ -183,18 +183,20 @@ namespace JunkerBody
         void TrackArm(Limb arm, Transform source, XRHandTrackingEvents optical, Transform wrist,
             Transform gripTarget, bool meleeGrip, Vector3 releasePosition, Quaternion releaseRotation, float releaseBlend)
         {
+            // Roll around the controller forward axis before aligning the model wrist.
+            Quaternion palmRoll = Quaternion.AngleAxis(arm == rightArm ? -90f : 90f, Vector3.forward);
             // Applied to this frame's unmodified animation pose. RestorePose removes the
             // adjustment before the next Animator evaluation, so lengths never accumulate.
             arm.lower.localPosition *= armLengthMultiplier;
             arm.tip.localPosition *= armLengthMultiplier;
             bool useOptical = optical && optical.isActiveAndEnabled && optical.handIsTracked && wrist;
             if (gripTarget) arm.target.SetPositionAndRotation(gripTarget.position,
-                (meleeGrip ? gripTarget.rotation : source.rotation) * Quaternion.Euler(arm.wristRotationOffset));
+                (meleeGrip ? gripTarget.rotation : source.rotation) * palmRoll * Quaternion.Euler(arm.wristRotationOffset));
             else if (useOptical) arm.target.SetPositionAndRotation(wrist.position, wrist.rotation * Quaternion.Euler(opticalWristRotationOffset));
-            else arm.target.SetPositionAndRotation(source.TransformPoint(arm.wristPositionOffset), source.rotation * Quaternion.Euler(arm.wristRotationOffset));
+            else arm.target.SetPositionAndRotation(source.TransformPoint(arm.wristPositionOffset), source.rotation * palmRoll * Quaternion.Euler(arm.wristRotationOffset));
             if (!meleeGrip && releaseBlend > 0)
                 arm.target.SetPositionAndRotation(Vector3.Lerp(arm.target.position, releasePosition, releaseBlend),
-                    Quaternion.Slerp(arm.target.rotation, releaseRotation * Quaternion.Euler(arm.wristRotationOffset), releaseBlend));
+                    Quaternion.Slerp(arm.target.rotation, releaseRotation * palmRoll * Quaternion.Euler(arm.wristRotationOffset), releaseBlend));
             arm.hint.position = chest.position + avatarRoot.rotation * arm.hintOffset;
             SolveTwoBone(arm.upper, arm.lower, arm.tip, arm.target.position, arm.hint.position);
             arm.tip.rotation = arm.target.rotation;

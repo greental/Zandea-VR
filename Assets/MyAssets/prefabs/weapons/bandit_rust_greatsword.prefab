@@ -201,6 +201,7 @@ GameObject:
   - component: {fileID: 1348227905919195387}
   - component: {fileID: 7934212728992837996}
   - component: {fileID: 2952286618454734381}
+  - component: {fileID: 8212268924655929880}
   m_Layer: 0
   m_Name: bandit_rust_greatsword
   m_TagString: Untagged
@@ -317,6 +318,7 @@ MonoBehaviour:
   strikeType: 1
   bladeEdgeLocalAxis: {x: 1, y: 0, z: 0}
   grip: {fileID: 831581294793343260}
+  combatReachMeters: 1.2099998
   npcGripTarget: {fileID: 0}
   ownerRoot: {fileID: 0}
   mass: 2.4
@@ -505,6 +507,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.VRInventoryItem
   CanStoreInBackpack: 1
   InventoryAnchor: {fileID: 0}
+--- !u!114 &8212268924655929880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5442016423810961629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93f89ba4625a8b1498515ed3d055db9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.FriendlyNPC.TradeItem
+  definition: {fileID: 11400000, guid: e2745ae5ce4f16c40a8d782e89f562b7, type: 2}
+  ownerId: player
+  stolen: 0
+  stolenFromVendorId: 
+  persistentInstanceId: 
 --- !u!1 &7996400967478317543
 GameObject:
   m_ObjectHideFlags: 0

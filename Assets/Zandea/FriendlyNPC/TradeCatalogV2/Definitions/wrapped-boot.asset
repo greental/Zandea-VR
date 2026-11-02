@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1566ac53a863471d953f3a735729bb27, type: 3}
+  m_Name: wrapped-boot
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcItemDefinition
+  itemId: wrapped-boot
+  displayName: wrapped boot
+  category: 1
+  valueCats: 30
+  weight: 1
+  worldPrefab: {fileID: 3880639908873174667, guid: 6b3b6f520495af24aa0a42a2e9ccedf0, type: 3}
+  equippedAppearance: {fileID: 11400000, guid: 96fb6e5a03ebc0a42ab99406b689a1c5, type: 2}
+  icon: {fileID: 0}
+  defaultSlot: 0
+  flattenAxis: 3
+  flattenFactor: 0.15
+  minimumThickness: 0.012
+  lootEuler: {x: 0, y: 0, z: 0}
+  gripOffset: {x: 0, y: 0, z: 0}
+  preferCachedLoot: 1
+  lootBakeVersion: 2

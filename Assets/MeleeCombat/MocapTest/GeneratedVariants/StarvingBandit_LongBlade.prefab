@@ -3252,7 +3252,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8255514050549787419}
   - component: {fileID: 4881695992576021762}
-  - component: {fileID: 6223961196661418673}
   - component: {fileID: 3179085826583606632}
   - component: {fileID: 1339077101233565510}
   - component: {fileID: 4480563847047257676}
@@ -3311,21 +3310,6 @@ CapsuleCollider:
   m_Height: 1.75
   m_Direction: 1
   m_Center: {x: 0, y: 0.875, z: 0}
-$10
-  m_AgentTypeID: 0
-  m_Radius: 0.28
-  m_Speed: 3.5
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 1.3
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 1.75
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
 --- !u!114 &3179085826583606632
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3391,7 +3375,7 @@ MonoBehaviour:
   positiveStrikingTip: {fileID: 0}
   negativeStrikingTip: {fileID: 0}
   health: {fileID: 3179085826583606632}
-  agent: {fileID: 6223961196661418673}
+  agent: {fileID: 0}
   guardAuthoringMode: 0
   detectRange: 12
   attackRange: 1.5
@@ -3400,9 +3384,11 @@ MonoBehaviour:
   chasseSpeed: 0.85
   minimumFightDistance: 1.65
   preferredFightDistance: 2.15
+  referenceWeaponReach: 0.8
+  weaponReachSpacingWeight: 1
   spacingRetreatSpeed: 2.1
   postAttackRetreatSeconds: 1.5
-  dodgeIncomingNpcAttacks: 0
+  dodgeIncomingNpcAttacks: 1
   dodgeChance: 0.55
   dodgeDistance: 1.2
   dodgeCooldown: 2
@@ -3410,6 +3396,7 @@ MonoBehaviour:
   blockChance: 0.8
   parryIncomingNpcAttacks: 1
   parryChance: 0.7
+  defensiveOnly: 0
   cycleAttackDirections: 0
   firstAttackDirection: 0
   initialAttackDelay: 0
@@ -3423,7 +3410,7 @@ MonoBehaviour:
     windupEuler: {x: -25, y: -0, z: -0}
     impactEuler: {x: 14, y: 0, z: 0}
     followEuler: {x: 18, y: 0, z: 0}
-    useNegativeTip: 0
+    useNegativeTip: 1
     windupTipLocal: {x: -0.12365888, y: 2.5576332, z: 0.3998335}
     tipControlA: {x: -0.09274416, y: 2.400725, z: 0.59987515}
     impactTipLocal: {x: 0, y: 1.45, z: 1.3199999}
@@ -3605,7 +3592,7 @@ MonoBehaviour:
     windupEuler: {x: -17.67767, y: -14.142136, z: -5.656854}
     impactEuler: {x: 9.899495, y: 10.606602, z: 5.656854}
     followEuler: {x: 12.7279215, y: 12.7279215, z: 7.7781744}
-    useNegativeTip: 0
+    useNegativeTip: 1
     windupTipLocal: {x: -0.823524, y: 2.2649908, z: 0.45813546}
     tipControlA: {x: -0.68835366, y: 2.1460958, z: 0.6436016}
     impactTipLocal: {x: 0, y: 1.45, z: 1.3199999}
@@ -3787,7 +3774,7 @@ MonoBehaviour:
     windupEuler: {x: 0.0000010927847, y: -20, z: -8}
     impactEuler: {x: -0.0000006119594, y: 15, z: 8}
     followEuler: {x: -0.000000786805, y: 18, z: 11}
-    useNegativeTip: 0
+    useNegativeTip: 1
     windupTipLocal: {x: -1.1061696, y: 1.5509837, z: 0.5986054}
     tipControlA: {x: -0.9296272, y: 1.5257378, z: 0.74895406}
     impactTipLocal: {x: 0, y: 1.45, z: 1.3199999}
@@ -3969,7 +3956,7 @@ MonoBehaviour:
     windupEuler: {x: 17.67767, y: -14.142136, z: -5.656854}
     impactEuler: {x: -9.899495, y: 10.606602, z: 5.656854}
     followEuler: {x: -12.7279215, y: 12.7279215, z: 7.7781744}
-    useNegativeTip: 0
+    useNegativeTip: 1
     windupTipLocal: {x: -0.79961973, y: 0.86088073, z: 0.7316036}
     tipControlA: {x: -0.6704255, y: 0.9233078, z: 0.8487027}
     impactTipLocal: {x: 0, y: 1.45, z: 1.3199999}
@@ -4151,7 +4138,7 @@ MonoBehaviour:
     windupEuler: {x: 25, y: 0.0000017484556, z: 0.0000006993822}
     impactEuler: {x: -14, y: -0.0000013113416, z: -0.0000006993822}
     followEuler: {x: -18, y: -0.00000157361, z: -0.0000009616506}
-    useNegativeTip: 0
+    useNegativeTip: 1
     windupTipLocal: {x: -0.1236588, y: 0.5906866, z: 0.7828094}
     tipControlA: {x: -0.09274409, y: 0.685515, z: 0.887107}
     impactTipLocal: {x: 0, y: 1.45, z: 1.3199999}
@@ -4333,7 +4320,7 @@ MonoBehaviour:
     windupEuler: {x: 17.677671, y: 14.142134, z: 5.6568537}
     impactEuler: {x: -9.899496, y: -10.606601, z: -5.6568537}
     followEuler: {x: -12.727922, y: -12.727921, z: -7.778174}
-    useNegativeTip: 0
+    useNegativeTip: 1
     windupTipLocal: {x: 0.5523019, y: 0.8608807, z: 0.7316036}
     tipControlA: {x: 0.48493707, y: 0.92330766, z: 0.8487027}
     impactTipLocal: {x: 0, y: 1.45, z: 1.3199999}
@@ -4515,7 +4502,7 @@ MonoBehaviour:
     windupEuler: {x: -0.00000029812202, y: 20, z: 8}
     impactEuler: {x: 0.00000016694833, y: -15, z: -8}
     followEuler: {x: 0.00000021464786, y: -18, z: -11}
-    useNegativeTip: 0
+    useNegativeTip: 1
     windupTipLocal: {x: 0.85885185, y: 1.5509837, z: 0.5986054}
     tipControlA: {x: 0.7441389, y: 1.5257378, z: 0.74895406}
     impactTipLocal: {x: 0, y: 1.45, z: 1.3199999}
@@ -4697,7 +4684,7 @@ MonoBehaviour:
     windupEuler: {x: -17.677666, y: 14.142138, z: 5.656855}
     impactEuler: {x: 9.899493, y: -10.606604, z: -5.656855}
     followEuler: {x: 12.72792, y: -12.727924, z: -7.778176}
-    useNegativeTip: 0
+    useNegativeTip: 1
     windupTipLocal: {x: 0.5762063, y: 2.2649908, z: 0.4581355}
     tipControlA: {x: 0.50286543, y: 2.1460958, z: 0.64360166}
     impactTipLocal: {x: 0, y: 1.45, z: 1.3199999}
@@ -5109,6 +5096,9 @@ MonoBehaviour:
   logChanges: 0
   generated: 0
   items: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &506302096272237428
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5156,7 +5146,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcGeneratedWeapon
   weaponPrefab: {fileID: 870029670078347745, guid: e344b4cbd90f9e84e97afb7e89e3f1ec, type: 3}
   gripTarget: {fileID: 7826574269039190461}
-  weaponPoseTarget: {fileID: 7826574269039190461}
+  weaponPoseTarget: {fileID: 8090091791175956052}
   bandit: {fileID: 1339077101233565510}
   health: {fileID: 3179085826583606632}
   dropOnDestroy: 1
@@ -10994,6 +10984,14 @@ MonoBehaviour:
   - {fileID: -203655887218126122, guid: e333ba6a2e7d0024a89321d21d3d3b9a, type: 3}
   - {fileID: -203655887218126122, guid: 7a945914e5bad3648ab13f14ed1e3887, type: 3}
   - {fileID: -203655887218126122, guid: 6f551954f51b5c1428dbd31262a6a3d2, type: 3}
+  - {fileID: 7400000, guid: c64a83f0220760641806baaeadfbccdc, type: 2}
+  - {fileID: 7400000, guid: 84b9bc63cffc33646a3751c8d65cd3c1, type: 2}
+  - {fileID: 7400000, guid: f46c4196268db0f4f8bb114e0db20aa2, type: 2}
+  - {fileID: 7400000, guid: cf966a53aeac49d41845873909d424b4, type: 2}
+  - {fileID: 7400000, guid: e085cf81c36cba541a7f27e798babadb, type: 2}
+  - {fileID: 7400000, guid: 00f9740a1519f4e4abfcf413d21641fb, type: 2}
+  - {fileID: 7400000, guid: 99d1b080d3a15594eb1f9a0eda769ec6, type: 2}
+  - {fileID: 7400000, guid: 095f4cbacd9949145ac8a73eaeb11407, type: 2}
   mirrorDirectionalPreview: 0
   directionalPreviewClips: []
   animationIndex: 0
@@ -11095,7 +11093,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.BanditMocapNpcDriver
   brain: {fileID: 1339077101233565510}
-  agent: {fileID: 6223961196661418673}
+  agent: {fileID: 0}
   health: {fileID: 3179085826583606632}
   ragdoll: {fileID: 4480563847047257676}
   grip: {fileID: 7684712359935936750}
@@ -11103,8 +11101,8 @@ MonoBehaviour:
   useImportedCombatAttacks: 1
   useImportedCombatGuards: 1
   useImportedCombatReactions: 1
-  usePresentedTwoHandStrikes: 1
-  presentAxeHeadForward: 0
+  stabilizeAttackFeet: 0
+  presentLongBladeGuard: 1
   reviewLocomotionOverride: 0
   reviewLocomotion: {x: 0, y: 0}
   armedGuardRotations:

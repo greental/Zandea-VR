@@ -40,7 +40,9 @@ namespace KenshiVR.CharacterCreator
                 return false;
             var slot = loot.Appearance.slot;
             var anchor = Anchor(slot);
-            if (!anchor || worn.ContainsKey(slot)) return false;
+            // The cosmetics component can already have clothing from the player
+            // prefab or another equip path, even when this dictionary is empty.
+            if (!anchor || worn.ContainsKey(slot) || Get(slot)) return false;
             // Long skirts are naturally released below the pelvis. Measure to the
             // closest point on their physical collider rather than their import pivot.
             var shape = loot.GetComponent<Collider>();

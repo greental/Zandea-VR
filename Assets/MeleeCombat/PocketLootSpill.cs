@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using Zandea.FriendlyNPC;
 
 namespace KenshiVR.MeleeCombat
 {
@@ -43,6 +44,16 @@ namespace KenshiVR.MeleeCombat
         static GameObject MakeBundle(NpcItemDefinition item, int count, Vector3 position)
         {
             var category = item.category;
+            if (category == NpcItemCategory.Currency && item.worldPrefab &&
+                item.worldPrefab.TryGetComponent<CurrencyPouch>(out _))
+            {
+                var pouch = UnityEngine.Object.Instantiate(item.worldPrefab, position,
+                    Quaternion.identity);
+                pouch.name = item.displayName + " pouch";
+                pouch.GetComponent<CurrencyPouch>().SetInitialBalance(
+                    Mathf.Max(0, count * item.valueCats));
+                return pouch;
+            }
             var shape = category == NpcItemCategory.Currency || category == NpcItemCategory.Consumable ? PrimitiveType.Sphere : PrimitiveType.Cube;
             var go = GameObject.CreatePrimitive(shape);
             go.name = item.displayName + (count > 1 ? " x" + count : "");

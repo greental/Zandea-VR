@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using Zandea.FriendlyNPC;
@@ -12,11 +13,35 @@ namespace Zandea.Missions
         public VendorCounter counter;
         public ContractBarrel[] barrels;
         public bool HasDebt => definition && Session.debt > 0;
+        public bool SuppressMarketCalls => definition &&
+            (Session.state == MissionState.Accepted || Session.state == MissionState.InProgress ||
+             Session.state == MissionState.ReadyToTurnIn || Session.debt > 0 ||
+             Session.state == MissionState.Completed && !string.IsNullOrEmpty(Session.payoutId) &&
+             MerchantSessionState.Get(definition.giverId, 0).outstandingPayouts.ContainsKey(Session.payoutId));
+        public int DebtAmount => definition ? Session.debt : 0;
+        public bool CanHandshakeSettle => definition &&
+            (Session.state == MissionState.ReadyToTurnIn && Session.Terminal ||
+             Session.debt > 0 ||
+             Session.state == MissionState.Completed && !string.IsNullOrEmpty(Session.payoutId) &&
+             MerchantSessionState.Get(definition.giverId, 0).outstandingPayouts.ContainsKey(Session.payoutId));
         public string WorkNodeId => SelectWorkNode(false);
+
+        public bool TryHandshakeSettle()
+        {
+            if (!CanHandshakeSettle || !counter) return false;
+            if (Session.state == MissionState.Completed)
+                return counter.TryPresentContractPayout(definition.missionId);
+            Settle();
+            if (Session.debt > 0) return false; // Place the purse on the marked payment spot.
+            return Session.state == MissionState.Completed &&
+                (string.IsNullOrEmpty(Session.payoutId) ||
+                 counter.TryPresentContractPayout(definition.missionId));
+        }
 
         TransportMissionSession Session => MissionSessions.Get(definition.missionId);
         FriendlyNpcInteraction npc;
         string settlementLineId;
+        string pendingSettlementLineId;
         float nextEncouragement;
         float nextCaution;
 
@@ -25,6 +50,25 @@ namespace Zandea.Missions
             npc = GetComponent<FriendlyNpcInteraction>();
             if (npc) npc.contract = this;
             if (!counter) counter = FindFirstObjectByType<VendorCounter>();
+            RebindBarrels();
+        }
+
+        void RebindBarrels()
+        {
+            if (!definition || barrels != null && barrels.Length == definition.barrelCount &&
+                barrels.All(b => b && b.definition == definition && !string.IsNullOrEmpty(b.objectId))) return;
+            // Unity can lose scene references from an added component on a
+            // nested prefab instance. The stable IDs remain on the actual
+            // physical barrels, so resolve only within this settlement root.
+            var found = FindObjectsByType<ContractBarrel>(FindObjectsInactive.Include,
+                    FindObjectsSortMode.None)
+                .Where(b => b.definition == definition && !string.IsNullOrEmpty(b.objectId) &&
+                    b.transform.root == transform.root)
+                .OrderBy(b => b.objectId, System.StringComparer.Ordinal).ToArray();
+            if (found.Length == definition.barrelCount &&
+                found.Select(b => b.objectId).Distinct().Count() == found.Length)
+                barrels = found;
+            else Debug.LogError("Could not rebind the contract's physical barrels by stable ID.", this);
         }
 
         void OnEnable()
@@ -61,16 +105,35 @@ namespace Zandea.Missions
             switch (requested)
             {
                 case "work_001": return SelectWorkNode(true);
-                case "work_result": return OutcomeNodeId;
+                case "work_result":
+                    // Commit the account as soon as the player explicitly
+                    // chooses to settle. Walking away during Daran's outcome
+                    // line must not suppress the physical payout.
+                    Settle();
+                    pendingSettlementLineId = settlementLineId;
+                    return OutcomeNodeId;
                 case "work_settlement":
+                    if (!string.IsNullOrEmpty(pendingSettlementLineId))
+                    {
+                        var result = pendingSettlementLineId;
+                        pendingSettlementLineId = null;
+                        return result;
+                    }
+                    settlementLineId = null;
+                    Settle();
+                    return settlementLineId ??
+                        (HasDebt ? "daran_job_debt_request" : "daran_job_payment_complete");
                 case "work_debt_result":
                     settlementLineId = null;
                     Settle();
                     return settlementLineId ??
                     (HasDebt ? "daran_job_debt_request" : "daran_job_payment_complete");
                 case "daran_job_accept":
-                    return Session.state == MissionState.Accepted || Session.state == MissionState.InProgress
-                        ? requested : SelectWorkNode(false);
+                case "work_accept":
+                    // The response already performed AcceptContract. Always
+                    // play its acknowledgement; progress is evaluated on the
+                    // next conversation instead of replacing this line.
+                    return requested;
                 case "daran_job_payment_complete":
                     Session.paymentCompleteSpoken = true;
                     return requested;
@@ -106,7 +169,11 @@ namespace Zandea.Missions
                 {
                     bool awaitingCollection = MerchantSessionState.Get(definition.giverId, 0)
                         .outstandingPayouts.ContainsKey(session.payoutId);
-                    if (awaitingCollection) return "daran_job_payout";
+                    if (awaitingCollection)
+                    {
+                        if (acknowledge && counter) counter.TryPresentContractPayout(definition.missionId);
+                        return "daran_job_payout";
+                    }
                     if (!session.paymentCompleteSpoken)
                     {
                         if (acknowledge) session.paymentCompleteSpoken = true;
@@ -174,6 +241,8 @@ namespace Zandea.Missions
         public void Accept()
         {
             if (!definition || Session.state != MissionState.Available) return;
+            RebindBarrels();
+            if (barrels == null) return;
             foreach (var barrel in barrels)
                 if (barrel && barrel.definition == definition && !string.IsNullOrEmpty(barrel.objectId))
                     Session.barrels[barrel.objectId] = TransportState.AwaitingPickup;
@@ -213,6 +282,7 @@ namespace Zandea.Missions
                     settlementLineId = CurrencyPouch.PersonalInstance &&
                         !CurrencyPouch.PersonalInstance.CanDebit(session.debt)
                             ? "daran_job_insufficient_funds" : "daran_job_debt_request";
+                counter.RefreshContractCues();
                 return;
             }
             if (session.state != MissionState.ReadyToTurnIn || !session.Terminal) return;
@@ -240,6 +310,7 @@ namespace Zandea.Missions
             }
             Debug.Log("Delivered: " + session.Delivered + ", broken: " + session.Broken +
                 ", total: " + CurrencyDefinition.FormatZeks(net));
+            counter.RefreshContractCues();
         }
     }
 }

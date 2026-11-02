@@ -42,8 +42,13 @@ Shader "KenshiVR/DesertDust"
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 float2 p = input.uv * 2.0 - 1.0;
-                float softEdge = 1.0 - smoothstep(0.18, 1.0, dot(p, p));
-                return half4(input.color.rgb, input.color.a * softEdge);
+                float2 warped = p + 0.09 * float2(
+                    sin(p.y * 13.0 + p.x * 7.0),
+                    sin(p.x * 11.0 - p.y * 5.0));
+                float radius = length(warped);
+                float fleck = 1.0 - smoothstep(0.28, 0.74, radius);
+                float grain = 0.8 + 0.2 * sin(p.x * 19.0 + p.y * 23.0);
+                return half4(input.color.rgb, input.color.a * fleck * grain);
             }
             ENDHLSL
         }

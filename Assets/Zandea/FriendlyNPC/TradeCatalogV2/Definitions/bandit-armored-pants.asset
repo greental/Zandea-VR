@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1566ac53a863471d953f3a735729bb27, type: 3}
+  m_Name: bandit-armored-pants
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcItemDefinition
+  itemId: bandit-armored-pants
+  displayName: bandit armored pants
+  category: 1
+  valueCats: 110
+  weight: 1
+  worldPrefab: {fileID: 5469427688536108292, guid: 618fa50e388f32b4db0f1ec253c93dea, type: 3}
+  equippedAppearance: {fileID: 11400000, guid: bc2054522867f5246b26ce9e9ae92fd5, type: 2}
+  icon: {fileID: 0}
+  defaultSlot: 3
+  flattenAxis: 3
+  flattenFactor: 0.15
+  minimumThickness: 0.012
+  lootEuler: {x: 0, y: 0, z: 0}
+  gripOffset: {x: 0, y: 0, z: 0}
+  preferCachedLoot: 0
+  lootBakeVersion: 2

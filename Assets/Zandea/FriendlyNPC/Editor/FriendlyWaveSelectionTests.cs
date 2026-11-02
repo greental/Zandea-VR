@@ -44,9 +44,10 @@ namespace Zandea.FriendlyNPC.Editor
         {
             var palm = new GameObject("Palm");
             palm.transform.rotation = Quaternion.LookRotation(Vector3.up, Vector3.back);
-            Assert.IsTrue(FriendlyNpcWaveInitiator.PalmFacesTarget(palm.transform, Vector3.forward));
-            palm.transform.rotation = Quaternion.LookRotation(Vector3.up, Vector3.forward);
+            Assert.IsTrue(FriendlyNpcWaveInitiator.PalmFacesTarget(palm.transform, Vector3.left));
             Assert.IsFalse(FriendlyNpcWaveInitiator.PalmFacesTarget(palm.transform, Vector3.forward));
+            palm.transform.rotation = Quaternion.LookRotation(Vector3.up, Vector3.forward);
+            Assert.IsFalse(FriendlyNpcWaveInitiator.PalmFacesTarget(palm.transform, Vector3.left));
             Object.DestroyImmediate(palm);
         }
 

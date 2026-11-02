@@ -92,6 +92,10 @@ namespace KenshiVR.CharacterCreator
             if (definition && currentItems.Count > 0 && !(refreshFromInspector && definition.skinned) &&
                 currentItems.TrueForAll(existing => existing && existing.definition == definition))
             {
+                // Streamed NPC prefabs may retain an inactive fitted appearance.
+                // Reusing the matching object must also make it visible again.
+                foreach (var existing in currentItems)
+                    if (!existing.gameObject.activeSelf) existing.gameObject.SetActive(true);
                 // A clothing prefab can contain duplicate bone names. Repair old
                 // rigid accessories that were attached to one of those copies.
                 if (!definition.skinned)

@@ -9,6 +9,7 @@ namespace Zandea.Wildlife
     {
         readonly RaycastHit[] hits = new RaycastHit[32];
         public int maximumHunters = 2;
+        [Min(0f)] public float settlementOutsideWallMargin = WildlifeSettlementExclusion.DefaultOutsideWallMargin;
         public Vector2 spawnDistance = new Vector2(30f, 55f);
         public Vector2 intervalSeconds = new Vector2(95f, 160f);
 
@@ -61,7 +62,7 @@ namespace Zandea.Wildlife
                         nearest = hits[i].distance;
                         ground = hits[i].point;
                     }
-                if (nearest == float.PositiveInfinity) continue;
+                if (nearest == float.PositiveInfinity || WildlifeSettlementExclusion.IsExcluded(ground, settlementOutsideWallMargin)) continue;
                 Instantiate(prefab, ground + Vector3.up * prefab.bodyHeight,
                     Quaternion.LookRotation(-forward, Vector3.up)).name = "Thornmaw wildlife";
                 return;

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1566ac53a863471d953f3a735729bb27, type: 3}
+  m_Name: bandit-rib-outfit
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcItemDefinition
+  itemId: bandit-rib-outfit
+  displayName: bandit rib outfit
+  category: 1
+  valueCats: 60
+  weight: 1
+  worldPrefab: {fileID: 8883300896466328674, guid: e4577d739ab1bcc42903cce7bff91f6a, type: 3}
+  equippedAppearance: {fileID: 11400000, guid: 9a14a04a03576fa42b0d4fc72c4167d1, type: 2}
+  icon: {fileID: 0}
+  defaultSlot: 2
+  flattenAxis: 3
+  flattenFactor: 0.15
+  minimumThickness: 0.012
+  lootEuler: {x: 0, y: 0, z: 0}
+  gripOffset: {x: 0, y: 0, z: 0}
+  preferCachedLoot: 0
+  lootBakeVersion: 2

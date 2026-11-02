@@ -25,6 +25,22 @@ public static class ArmedBanditPass
         if (command == "refresh") { AssetDatabase.Refresh(); return; }
         try { Run(); } catch (Exception e) { File.WriteAllText(Result, e.ToString()); Debug.LogException(e); }
     }
+    static float AlignGeneratedHilt(string variant, Transform model, Transform weapon, MocapStaffPreview grip)
+    {
+        var filter = model.GetComponentInChildren<MeshFilter>();
+        if (!filter || !filter.sharedMesh) throw new Exception("Missing blade mesh: " + variant);
+        var bounds = filter.sharedMesh.bounds;
+        bool vertical = variant == "BroadCleaver";
+        var hilt = bounds.center;
+        if (vertical) hilt.y = bounds.max.y - bounds.size.y * .15f;
+        else hilt.x = bounds.max.x - bounds.size.x * .15f;
+        Vector3 wrist = grip.primaryHandIsLeft ? grip.leftGripLocal : grip.rightGripLocal;
+        Vector3 delta = weapon.TransformPoint(wrist) - filter.transform.TransformPoint(hilt);
+        model.position += delta;
+        if (Vector3.Distance(filter.transform.TransformPoint(hilt), weapon.TransformPoint(wrist)) > .002f)
+            throw new Exception("Blade hilt did not meet wrist: " + variant);
+        return delta.magnitude;
+    }
     [MenuItem("Zandea/Melee Combat/Apply armed bandit grip and contact pass")]
     public static void Run()
     {
@@ -84,9 +100,9 @@ public static class ArmedBanditPass
             grip.fingers = fingers;
             grip.armedFingerPoseVersion = 1;
         }
-        if (grip.staff) ReorientGeneratedWeapon(root.name, grip);
-        driver.presentAxeHeadForward = root.name.EndsWith("_Axe");
-        driver.usePresentedTwoHandStrikes = grip.secondaryHandGrips && driver.useImportedCombatAttacks;
+        if (grip.staff) ReorientGeneratedWeapon(root.name, grip, grip.staff.transform);
+        driver.stabilizeAttackFeet = root.name.EndsWith("_SpikedMace");
+        driver.presentLongBladeGuard = root.name.EndsWith("_LongBlade");
         var combatController = grip.GetComponent<Animator>().runtimeAnimatorController as AnimatorController;
         if (combatController && driver.useDirectionalStaffAttacks)
         {
@@ -99,62 +115,8 @@ public static class ArmedBanditPass
             states["AttackDirection5"].speed = states["AttackDirection6"].speed;
             EditorUtility.SetDirty(combatController);
         }
-        if (!grip.secondaryHandGrips && driver.useImportedCombatAttacks)
-        {
-            var controller = grip.GetComponent<Animator>().runtimeAnimatorController as AnimatorController;
-            if (controller)
-            {
-                var states = controller.layers[0].stateMachine.states.Select(s => s.state).ToDictionary(s => s.name);
-                int[] source = { 0, 0, 4, 4, 4, 0, 0, 4 };
-                var clips = new AnimationClip[8];
-                for (int i = 0; i < 8; i++) clips[i] = states["AttackDirection" + source[i]].motion as AnimationClip;
-                for (int i = 0; i < 8; i++)
-                {
-                    var state = states["AttackDirection" + i];
-                    state.motion = clips[i];
-                    float duration = Mathf.Clamp(clips[i].length, .8f, 1.7f);
-                    state.speed = clips[i].length / duration;
-                    brain.attacks[i].windupSeconds = duration * .24f;
-                    brain.attacks[i].strikeSeconds = duration * .36f;
-                    brain.attacks[i].followSeconds = duration * .18f;
-                    brain.attacks[i].recoverySeconds = duration * .22f;
-                }
-                EditorUtility.SetDirty(controller);
-                if (root.name.EndsWith("_Axe"))
-                {
-                    var tree = states["Locomotion"].motion as BlendTree;
-                    var walk = AssetDatabase.LoadAllAssetsAtPath(
-                        "Assets/MeleeCombat/ImportedAnimations/ProMeleeAxePack/standing walk forward.fbx")
-                        .OfType<AnimationClip>().FirstOrDefault(c => !c.name.StartsWith("__preview__"));
-                    if (tree && walk)
-                    {
-                        var children = tree.children;
-                        children[1].motion = walk;
-                        tree.children = children;
-                        EditorUtility.SetDirty(tree);
-                    }
-                }
-            }
-        }
-        else if (grip.secondaryHandGrips && driver.useImportedCombatAttacks && combatController)
-        {
-            var states = combatController.layers[0].stateMachine.states.Select(s => s.state).ToDictionary(s => s.name);
-            var slash = states["AttackDirection1"].motion as AnimationClip;
-            if (!slash) throw new Exception("Missing two-hand side strike for " + root.name);
-            float duration = Mathf.Clamp(slash.length, .8f, 1.7f);
-            for (int i = 0; i < 8; i++)
-            {
-                var state = states["AttackDirection" + i];
-                state.motion = slash;
-                state.mirror = i >= 4;
-                state.speed = slash.length / duration;
-                brain.attacks[i].windupSeconds = duration * .24f;
-                brain.attacks[i].strikeSeconds = duration * .36f;
-                brain.attacks[i].followSeconds = duration * .18f;
-                brain.attacks[i].recoverySeconds = duration * .22f;
-            }
-            EditorUtility.SetDirty(combatController);
-        }
+        // Clip selection belongs to ImportedCombatAnimationInstaller. This grip
+        // pass must not replace its locomotion or directional attack states.
         var animator = grip.GetComponent<Animator>();
         var clip = grip.animations.FirstOrDefault(c => c && c.name.Contains(grip.secondaryHandGrips ?
             (root.name.Contains("BoStaff") || root.name.Contains("PoleBlade") ? "CombatIdlePolearm" : "CombatIdle2H") : "CombatIdle1H"));
@@ -207,9 +169,22 @@ public static class ArmedBanditPass
             try
             {
                 var weapon = weaponRoot.GetComponent<PhysicalMeleeWeapon>();
+                ReorientGeneratedWeapon(root.name, grip, weapon.transform);
                 FitWeapon(weapon);
                 var wrist = grip.primaryHandIsLeft ? grip.leftGripLocal : grip.rightGripLocal;
                 var wristRotation = grip.primaryHandIsLeft ? grip.leftHandFromStaff : grip.rightHandFromStaff;
+                if (root.name is "StarvingBandit_ShortSaber" or "StarvingBandit_CurvedCleaver" or
+                    "StarvingBandit_HookSword" or "StarvingBandit_BroadCleaver" or "StarvingBandit_LongBlade")
+                {
+                    var positive = weapon.transform.Find("PositiveStrikingTip");
+                    var negative = weapon.transform.Find("NegativeStrikingTip");
+                    if (!positive || !negative) throw new Exception("Missing blade tips: " + root.name);
+                    bool useNegativeBladeTip =
+                        (negative.localPosition - wrist).sqrMagnitude >
+                        (positive.localPosition - wrist).sqrMagnitude;
+                    for (int attack = 0; attack < brain.attacks.Length; attack++)
+                        brain.attacks[attack].useNegativeTip = useNegativeBladeTip;
+                }
                 weapon.grip = Marker(weapon.transform, "NPC held grip", wrist);
                 weapon.grip.localRotation = wristRotation;
                 PrefabUtility.SaveAsPrefabAsset(weaponRoot, path);
@@ -238,18 +213,22 @@ public static class ArmedBanditPass
             FitWeapon(saber);
         }
     }
-    static void ReorientGeneratedWeapon(string variantName, MocapStaffPreview grip)
+    static void ReorientGeneratedWeapon(string variantName, MocapStaffPreview grip, Transform weapon)
     {
+        var model = weapon.Cast<Transform>().FirstOrDefault(t => t.name.StartsWith("Generated "));
+        if (variantName == "StarvingBandit_BroadCleaver")
+        {
+            if (!model) throw new Exception("Generated model missing for " + variantName);
+            AlignGeneratedHilt("BroadCleaver", model, weapon, grip);
+            return;
+        }
         Vector3 axis = variantName switch {
-            "StarvingBandit_CurvedCleaver" or "StarvingBandit_HeavyCleaver" or
-            "StarvingBandit_HookSword" or "StarvingBandit_ShortSaber" or
-            "StarvingBandit_SawCleaver" => Vector3.right,
-            "StarvingBandit_BroadCleaver" => Vector3.down,
+            "StarvingBandit_ShortSaber" or "StarvingBandit_CurvedCleaver" or
+            "StarvingBandit_HookSword" => Vector3.right,
             "StarvingBandit_LongBlade" => Vector3.up,
             _ => Vector3.zero
         };
         if (axis == Vector3.zero) return;
-        var model = grip.staff.transform.Cast<Transform>().FirstOrDefault(t => t.name.StartsWith("Generated "));
         if (!model) throw new Exception("Generated model missing for " + variantName);
         var bounds = new Bounds();
         bool hasPoint = false;
@@ -267,7 +246,9 @@ public static class ArmedBanditPass
         float span = Mathf.Abs(axis.x) > .5f ? bounds.size.x : bounds.size.y;
         float fraction = grip.secondaryHandGrips ? .26f : .15f;
         var sourceGrip = bounds.center;
-        float along = axis.x < -.5f ? bounds.max.x - span * fraction :
+        bool hiltAtMaximum = variantName is "StarvingBandit_ShortSaber" or
+            "StarvingBandit_CurvedCleaver" or "StarvingBandit_HookSword";
+        float along = axis.x < -.5f || hiltAtMaximum ? bounds.max.x - span * fraction :
             axis.x > .5f ? bounds.min.x + span * fraction :
             axis.y < -.5f ? bounds.max.y - span * fraction : bounds.min.y + span * fraction;
         if (Mathf.Abs(axis.x) > .5f) sourceGrip.x = along; else sourceGrip.y = along;
@@ -275,10 +256,19 @@ public static class ArmedBanditPass
         var direction = grip.primaryHandIsLeft ? grip.leftGripLocal - grip.rightGripLocal :
             grip.rightGripLocal - grip.leftGripLocal;
         var rotation = Quaternion.FromToRotation(axis, direction.normalized);
-        if (variantName == "StarvingBandit_LongBlade")
-            rotation = Quaternion.AngleAxis(180f, direction.normalized) * rotation;
+        if (variantName is "StarvingBandit_ShortSaber" or "StarvingBandit_HookSword" or
+            "StarvingBandit_CurvedCleaver" or "StarvingBandit_LongBlade")
+            rotation = Quaternion.AngleAxis(180f, Vector3.up) * rotation;
         model.localRotation = rotation;
         model.localPosition = primary - rotation * Vector3.Scale(sourceGrip, model.localScale);
+        // Weapon prefabs have a nonzero root transform. Resolve the grip in
+        // world space after rotation so the selected hilt point truly meets the wrist.
+        model.position += weapon.TransformPoint(primary) - model.TransformPoint(sourceGrip);
+        if (Vector3.Distance(model.TransformPoint(sourceGrip), weapon.TransformPoint(primary)) > .002f)
+            throw new Exception("Weapon model grip did not align: " + variantName);
+        if (variantName is "StarvingBandit_ShortSaber" or "StarvingBandit_CurvedCleaver" or
+            "StarvingBandit_HookSword")
+            AlignGeneratedHilt(variantName.Substring("StarvingBandit_".Length), model, weapon, grip);
     }
     public static void FitWeapon(PhysicalMeleeWeapon weapon)
     {

@@ -15,9 +15,16 @@ MonoBehaviour:
   itemId: scrap-metal
   displayName: Scrap Metal
   category: 4
-  valueCats: 12
+  valueCats: 64
   weight: 0.6
   worldPrefab: {fileID: 0}
   equippedAppearance: {fileID: 0}
   icon: {fileID: 0}
   defaultSlot: 0
+  flattenAxis: 3
+  flattenFactor: 0.15
+  minimumThickness: 0.012
+  lootEuler: {x: 0, y: 0, z: 0}
+  gripOffset: {x: 0, y: 0, z: 0}
+  preferCachedLoot: 0
+  lootBakeVersion: 0

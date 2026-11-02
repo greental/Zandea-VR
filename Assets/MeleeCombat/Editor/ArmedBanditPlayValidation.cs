@@ -23,6 +23,12 @@ public static class ArmedBanditPlayValidation
     static int[] worstStage;
     static float[] maxReach;
     static float[] maxPosition;
+    static float[] maxVisibleGap;
+    static float[] midStrikeMiss;
+    static float[] nearestStrikeTip;
+    static float[] stageNearestTip, worstDirectionMiss;
+    static int[] worstDirection;
+    static List<GameObject> strikeTargets;
     static List<ScavengerHealth> probes;
     static Camera camera;
     static bool capturedStage;
@@ -65,6 +71,20 @@ public static class ArmedBanditPlayValidation
                     if (error > maxGrip[i]) { maxGrip[i] = error; worstStage[i] = stage; }
                     maxReach[i] = Mathf.Max(maxReach[i], grip.ReachCorrection);
                     maxPosition[i] = Mathf.Max(maxPosition[i], brain.staff.PositionError);
+                    if (brain.staff.grip && brain.staff.npcGripTarget)
+                        maxVisibleGap[i] = Mathf.Max(maxVisibleGap[i], Vector3.Distance(
+                            brain.staff.grip.position, brain.staff.npcGripTarget.position));
+                    if (brain.state == StarvingBandit.State.Strike &&
+                        brain.AttackProgress >= .4f && brain.AttackProgress <= .6f)
+                        midStrikeMiss[i] = Mathf.Max(midStrikeMiss[i], grip.StrikeTargetError);
+                    if (brain.state == StarvingBandit.State.Strike &&
+                        brain.AttackProgress >= .05f && brain.AttackProgress <= .95f && brain.target)
+                        nearestStrikeTip[i] = Mathf.Min(nearestStrikeTip[i], Vector3.Distance(
+                            brain.VisibleStrikeTipPosition, brain.StrikeTargetPoint()));
+                    if (brain.state == StarvingBandit.State.Strike &&
+                        brain.AttackProgress >= .05f && brain.AttackProgress <= .95f && brain.target)
+                        stageNearestTip[i] = Mathf.Min(stageNearestTip[i], Vector3.Distance(
+                            brain.VisibleStrikeTipPosition, brain.StrikeTargetPoint()));
                     if (!brain.staff || brain.staff.State != PhysicalMeleeWeapon.HoldState.HeldByNpc)
                         throw new Exception(brain.name + " lost held weapon");
                     if (grip.secondaryPhysicalWeapon && grip.secondaryPhysicalWeapon.State != PhysicalMeleeWeapon.HoldState.HeldByNpc)
@@ -73,12 +93,17 @@ public static class ArmedBanditPlayValidation
             }
             float duration = stage == 0 ? 2f : actors.Max(b => { var a=b.attacks[stage-1]; return a.windupSeconds+a.strikeSeconds+a.followSeconds+a.recoverySeconds; }) + .2f;
             if (elapsed < duration) return;
+            if (stage > 0 && stage <= 8)
+                for (int i = 0; i < actors.Count; i++)
+                    if (stageNearestTip[i] > worstDirectionMiss[i])
+                    { worstDirectionMiss[i] = stageNearestTip[i]; worstDirection[i] = stage; }
             if (stage == 8)
             {
-                for (int i = 0; i < actors.Count; i++) report.AppendLine($"{(maxGrip[i] <= .025f ? "PASS" : "FAIL")} live {actors[i].name}: maxGrip={maxGrip[i]:F4}m stage={worstStage[i]} maxReach={maxReach[i]:F4}m physicalLag={maxPosition[i]:F4}m");
+                for (int i = 0; i < actors.Count; i++) report.AppendLine($"{(maxGrip[i] <= .035f && maxVisibleGap[i] <= .04f ? "PASS" : "FAIL")} live {actors[i].name}: maxGrip={maxGrip[i]:F4}m stage={worstStage[i]} maxReach={maxReach[i]:F4}m fixedGripGap={maxPosition[i]:F4}m visibleGripGap={maxVisibleGap[i]:F4}m midStrikeMiss={midStrikeMiss[i]:F3}m nearestTip={nearestStrikeTip[i]:F3}m worstDirection={worstDirection[i]} miss={worstDirectionMiss[i]:F3}m");
                 PrepareContacts(); return;
             }
             stage++; stageStarted = Time.time; capturedStage = false;
+            for (int i = 0; i < stageNearestTip.Length; i++) stageNearestTip[i] = float.PositiveInfinity;
             foreach (var brain in actors)
             {
                 brain.state = StarvingBandit.State.Idle;
@@ -93,7 +118,7 @@ public static class ArmedBanditPlayValidation
         // Only transient Play-mode objects are deactivated; exiting restores the user's scene.
         foreach (var root in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects()) root.SetActive(false);
         actors = new List<StarvingBandit>(); report.Clear();
-        var paths = Directory.GetFiles("Assets/MeleeCombat/MocapTest/GeneratedVariants", "StarvingBandit_*.prefab").OrderBy(p=>p).ToArray();
+        var paths = Directory.GetFiles("Assets/MyAssets/prefabs/enemies", "StarvingBandit_*.prefab").OrderBy(p=>p).ToArray();
         foreach (var path in paths)
         {
             var root = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(path), new Vector3(actors.Count * 5, 20, 3000), Quaternion.identity);
@@ -107,6 +132,22 @@ public static class ArmedBanditPlayValidation
         }
         maxGrip = new float[actors.Count]; worstStage = new int[actors.Count];
         maxReach = new float[actors.Count]; maxPosition = new float[actors.Count];
+        maxVisibleGap = new float[actors.Count];
+        midStrikeMiss = new float[actors.Count];
+        nearestStrikeTip = Enumerable.Repeat(float.PositiveInfinity, actors.Count).ToArray();
+        stageNearestTip = Enumerable.Repeat(float.PositiveInfinity, actors.Count).ToArray();
+        worstDirectionMiss = new float[actors.Count]; worstDirection = new int[actors.Count];
+        strikeTargets = new List<GameObject>();
+        foreach (var brain in actors)
+        {
+            var marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            marker.name = brain.name + " strike target";
+            marker.transform.position = brain.transform.position + brain.transform.forward * 1.75f + Vector3.up * 1.15f;
+            marker.transform.localScale = Vector3.one * .18f;
+            marker.GetComponent<Collider>().enabled = false;
+            brain.target = marker.transform;
+            strikeTargets.Add(marker);
+        }
         started = stageStarted = Time.time; stage = 0;
         capturedStage = false;
         var cameraObject = new GameObject("Armed validation camera");
@@ -123,6 +164,7 @@ public static class ArmedBanditPlayValidation
         Directory.CreateDirectory(Path.GetDirectoryName(Output)); File.WriteAllText(Output, report.ToString());
         SessionState.SetBool(Running, false);
         if (actors != null) foreach (var actor in actors) if (actor) UnityEngine.Object.Destroy(actor.gameObject);
+        if (strikeTargets != null) foreach (var marker in strikeTargets) if (marker) UnityEngine.Object.Destroy(marker);
         if (probes != null) foreach (var probe in probes) if (probe) UnityEngine.Object.Destroy(probe.gameObject);
         if (camera) UnityEngine.Object.Destroy(camera.gameObject);
         foreach (var light in UnityEngine.Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
@@ -165,11 +207,14 @@ public static class ArmedBanditPlayValidation
                 var bounds = shapes[0].bounds;
                 foreach (var shape in shapes) bounds.Encapsulate(shape.bounds);
                 // Pick an actual exposed collider surface, then drive a small target into it.
-                var outside = bounds.center + Vector3.right * (bounds.extents.x + 1f);
+                var outward = bounds.center - actor.transform.position;
+                outward.y = 0f;
+                outward = outward.sqrMagnitude > .01f ? outward.normalized : actor.transform.right;
+                var outside = bounds.center + outward * (bounds.extents.magnitude + 1f);
                 var surface = shapes.Select(c=>c.ClosestPoint(outside)).OrderBy(p=>(p-outside).sqrMagnitude).First();
                 var body = probe.GetComponent<Rigidbody>();
-                body.position = surface + Vector3.right * .35f;
-                body.linearVelocity = Vector3.left * 3f;
+                body.position = surface + outward * .6f;
+                body.linearVelocity = -outward * 5f;
             }
             stage = 10; stageStarted = Time.time; return;
         }

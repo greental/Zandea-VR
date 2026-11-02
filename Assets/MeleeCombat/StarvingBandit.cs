@@ -70,6 +70,8 @@ namespace KenshiVR.MeleeCombat
         [NonSerialized] public BanditGroup combatGroup;
         [NonSerialized] public bool groupEngaged;
         [NonSerialized] public Vector3 groupDestination;
+        [NonSerialized] public Vector3 groupCombatDestination;
+        [NonSerialized] public bool hasGroupCombatDestination;
         [NonSerialized] public float groupWalkSpeed = 1.5f;
         [Header("Guard pose authoring")] public bool guardAuthoringMode;
         public float detectRange = 12f, attackRange = 1.5f;
@@ -77,6 +79,27 @@ namespace KenshiVR.MeleeCombat
         [Header("Combat spacing")]
         [Min(.1f)] public float minimumFightDistance = 1.65f;
         [Min(.1f)] public float preferredFightDistance = 2.15f;
+        [Tooltip("Weapon grip-to-tip reach that the authored attack distances were tuned for.")]
+        [Min(.1f)] public float referenceWeaponReach = .8f;
+        [Range(0f, 2f)] public float weaponReachSpacingWeight = 1f;
+        public float WeaponReachOffset => staff ?
+            (staff.CombatReach - referenceWeaponReach) * weaponReachSpacingWeight : 0f;
+        public float EffectiveMinimumFightDistance => Mathf.Max(.7f, minimumFightDistance + WeaponReachOffset);
+        public float EffectivePreferredFightDistance => Mathf.Max(EffectiveMinimumFightDistance + .1f,
+            preferredFightDistance + WeaponReachOffset);
+        public float PreferredGroupCombatDistance(float referenceRadius)
+        {
+            float farthestAttack = attackRange + WeaponReachOffset;
+            if (attacks != null)
+                foreach (var attack in attacks)
+                    if (attack != null) farthestAttack = Mathf.Max(farthestAttack,
+                        attack.comfortableRange + WeaponReachOffset + attack.maximumApproachStep);
+            float maximum = Mathf.Max(.8f, farthestAttack - .04f);
+            float minimum = Mathf.Min(maximum, EffectiveMinimumFightDistance + .05f);
+            return Mathf.Clamp(referenceRadius + WeaponReachOffset, minimum, maximum);
+        }
+        float ComfortableRange(StaffAttackDefinition attack) =>
+            Mathf.Max(.6f, attack.comfortableRange + WeaponReachOffset);
         [Min(.1f)] public float spacingRetreatSpeed = 2.1f;
         [Min(.1f)] public float postAttackRetreatSeconds = 1.5f;
         [Header("Mocap evasive movement")]
@@ -90,6 +113,8 @@ namespace KenshiVR.MeleeCombat
         [Header("Two-hand visual parry")]
         public bool parryIncomingNpcAttacks;
         [Range(0, 1)] public float parryChance = .7f;
+        [Tooltip("For authored defense drills: hold position and respond without starting attacks.")]
+        public bool defensiveOnly;
         [Header("Arena attack showcase")]
         public bool cycleAttackDirections;
         [Range(0, 7)] public int firstAttackDirection;
@@ -123,11 +148,15 @@ namespace KenshiVR.MeleeCombat
             lastWeaponParry = Time.time;
             combatAudio?.PlayParry();
         }
-        public bool DeflectsDamageFrom(PhysicalMeleeWeapon incoming) =>
-            incoming && incoming == parriedWeapon && Time.time - lastWeaponParry < .3f;
+        // A defensive animation never grants invulnerability. The attacking collider
+        // must actually be stopped by the defender's physical weapon.
+        public bool DeflectsDamageFrom(PhysicalMeleeWeapon incoming) => false;
         Vector3 dodgeDestination;
         bool threatWasAttacking;
         bool threatWasStriking;
+        bool playerWeaponThreat;
+        float nextPlayerThreatSense;
+        readonly Collider[] nearbyThreatColliders = new Collider[24];
         bool spacingRetreat;
         float plannedStep, appliedStep;
         Vector3 previewRootPosition;
@@ -137,7 +166,9 @@ namespace KenshiVR.MeleeCombat
         Vector3 guardLocalPosition;
         Quaternion guardLocalRotation;
         BanditRigMotion rigMotion;
+        BanditMocapNpcDriver mocapDriver;
         Rigidbody staffBody;
+        float defaultStoppingDistance;
         GameObject previewDummy;
         Material previewDummyMaterial;
         Vector3 desiredStaffPosition, desiredTipPosition;
@@ -152,6 +183,21 @@ namespace KenshiVR.MeleeCombat
         public Quaternion DesiredStaffRotation => desiredStaffRotation;
         public Vector3 DesiredTipPosition => desiredTipPosition;
         public Vector3 ActualTipPosition => staff ? staff.transform.TransformPoint(StrikingTipLocal(attacks != null && attacks.Length > attackIndex && attacks[attackIndex].useNegativeTip)) : Vector3.zero;
+        public Vector3 VisibleStrikeTipPosition
+        {
+            get
+            {
+                var gripPreview = GetComponentInChildren<MocapStaffPreview>();
+                if (gripPreview && gripPreview.secondaryPhysicalWeapon &&
+                    StaffAxisCalibration.TryMeasure(gripPreview.secondaryPhysicalWeapon.transform,
+                        out var saberTip, out var saberOpposite))
+                {
+                    if (saberOpposite.sqrMagnitude > saberTip.sqrMagnitude) saberTip = saberOpposite;
+                    return gripPreview.secondaryPhysicalWeapon.transform.TransformPoint(saberTip);
+                }
+                return ActualTipPosition;
+            }
+        }
         public float CurrentOrientationError => hasDesiredPose && staff ? Quaternion.Angle(desiredStaffRotation, staff.transform.rotation) : 0f;
         public void GetTipLocals(out Vector3 positive, out Vector3 negative)
         {
@@ -207,7 +253,7 @@ namespace KenshiVR.MeleeCombat
         public float ReachCorrectionAngle { get; private set; }
         public string ReachCorrectionReason { get; private set; } = "None";
         public float CurrentTipError => hasDesiredPose ? Vector3.Distance(desiredTipPosition, ActualTipPosition) : 0f;
-        public float RequiredApproachDistance => attacks != null && attacks.Length > attackIndex ? Mathf.Max(0, rangeToTarget - attacks[attackIndex].comfortableRange) : 0;
+        public float RequiredApproachDistance => attacks != null && attacks.Length > attackIndex ? Mathf.Max(0, rangeToTarget - ComfortableRange(attacks[attackIndex])) : 0;
         public float PlannedApproachStep => plannedStep;
         // Imported clips are displaced by BanditMocapNpcDriver after Animator evaluation.
         public bool useAnimatedAttackDisplacement;
@@ -347,8 +393,14 @@ namespace KenshiVR.MeleeCombat
             if (!combatAudio) combatAudio = gameObject.AddComponent<BanditCombatAudio>();
             combatAudio.Initialize(this);
             if (!agent) agent = GetComponent<NavMeshAgent>();
-            if (agent) agent.updateRotation = false;
+            if (!agent) agent = gameObject.AddComponent<NavMeshAgent>();
+            if (agent)
+            {
+                agent.updateRotation = false;
+                defaultStoppingDistance = agent.stoppingDistance;
+            }
             rigMotion = GetComponent<BanditRigMotion>();
+            mocapDriver = GetComponentInChildren<BanditMocapNpcDriver>(true);
             if (staff)
             {
                 staff.Blocked += OnBlocked; staffBody = staff.GetComponent<Rigidbody>();
@@ -521,9 +573,10 @@ namespace KenshiVR.MeleeCombat
                 nextAttack = Mathf.Max(nextAttack, Time.time + .2f);
             }
             var opponent = target.GetComponentInParent<StarvingBandit>();
-            bool threatAttacking = opponent && opponent != this &&
+            bool playerThreat = !opponent && IncomingPlayerWeapon();
+            bool threatAttacking = playerThreat || opponent && opponent != this &&
                 (opponent.state == State.Anticipate || opponent.state == State.Strike);
-            bool threatStriking = opponent && opponent != this && opponent.state == State.Strike;
+            bool threatStriking = playerThreat || opponent && opponent != this && opponent.state == State.Strike;
             bool newStrike = threatStriking && !threatWasStriking;
             threatWasStriking = threatStriking;
             bool newThreat = threatAttacking && !threatWasAttacking;
@@ -568,7 +621,7 @@ namespace KenshiVR.MeleeCombat
             }
             if (state == State.Retreat)
             {
-                float desiredRange = spacingRetreat ? preferredFightDistance : preferredFightDistance + .4f;
+                float desiredRange = spacingRetreat ? EffectivePreferredFightDistance : EffectivePreferredFightDistance + .4f;
                 if (Time.time < until && rangeToTarget < desiredRange)
                 {
                     Vector3 away = direction.sqrMagnitude > .0001f ? -direction.normalized : -transform.forward;
@@ -583,7 +636,7 @@ namespace KenshiVR.MeleeCombat
             if (Time.time < until) { Move(false); ReturnToGuard(); return; }
             if (health && health.Current < health.maxHealth * .25f && UnityEngine.Random.value < .003f)
             { state = State.Retreat; spacingRetreat = false; until = Time.time + 1.3f; Move(true, transform.position - direction.normalized * 2f); return; }
-            if (rangeToTarget < minimumFightDistance)
+            if (rangeToTarget < EffectiveMinimumFightDistance)
             {
                 state = State.Retreat;
                 spacingRetreat = true;
@@ -592,19 +645,45 @@ namespace KenshiVR.MeleeCombat
                 ReturnToGuard();
                 return;
             }
-            float widestRange = attackRange;
-            for (int i = 0; i < attacks.Length; i++) widestRange = Mathf.Max(widestRange, attacks[i].comfortableRange + attacks[i].maximumApproachStep);
-            if (rangeToTarget > widestRange) { state = State.Approach; Move(true, target.position); ReturnToGuard(); return; }
+            float widestRange = attackRange + WeaponReachOffset;
+            for (int i = 0; i < attacks.Length; i++) widestRange = Mathf.Max(widestRange, ComfortableRange(attacks[i]) + attacks[i].maximumApproachStep);
+            Vector3 approach = hasGroupCombatDestination ? groupCombatDestination : target.position;
+            float slotDistance = hasGroupCombatDestination ? Vector3.Distance(
+                Vector3.ProjectOnPlane(approach - transform.position, Vector3.up), Vector3.zero) : 0f;
+            if (rangeToTarget > widestRange || slotDistance > .85f)
+            { state = State.Approach; Move(true, approach); ReturnToGuard(); return; }
             Move(false); state = State.Circle; ReturnToGuard();
-            if (Time.time >= nextAttack)
+            if (!defensiveOnly && Time.time >= nextAttack)
             {
                 int chosen = cycleAttackDirections ? nextShowcaseDirection : ChooseAttackIndex();
                 var candidate = attacks[chosen];
-                if (rangeToTarget > candidate.comfortableRange + candidate.maximumApproachStep)
-                { state = State.Approach; Move(true, target.position); return; }
+                if (rangeToTarget > ComfortableRange(candidate) + candidate.maximumApproachStep)
+                { state = State.Approach; Move(true, approach); return; }
+                if (groupControlled && combatGroup && !combatGroup.TryTakeAttackSlot(this)) return;
                 StartAttack(chosen);
                 if (cycleAttackDirections) nextShowcaseDirection = (nextShowcaseDirection + 1) & 7;
             }
+        }
+        bool IncomingPlayerWeapon()
+        {
+            if (Time.time < nextPlayerThreatSense) return playerWeaponThreat;
+            nextPlayerThreatSense = Time.time + .06f;
+            playerWeaponThreat = false;
+            if (!target || !target.GetComponentInParent<ScavengerPlayerHealth>()) return false;
+            int count = Physics.OverlapSphereNonAlloc(transform.position + Vector3.up * 1.1f,
+                2.2f, nearbyThreatColliders, ~0, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < count; i++)
+            {
+                var weapon = nearbyThreatColliders[i].GetComponentInParent<PhysicalMeleeWeapon>();
+                if (!weapon || weapon.State != PhysicalMeleeWeapon.HoldState.HeldByPlayer ||
+                    !weapon.ownerRoot || weapon.ownerRoot != target.root) continue;
+                var body = weapon.GetComponent<Rigidbody>();
+                if (!body || body.GetPointVelocity(transform.position + Vector3.up * 1.1f).sqrMagnitude < 1.5f)
+                    continue;
+                playerWeaponThreat = true;
+                break;
+            }
+            return playerWeaponThreat;
         }
         bool IsAttacking() => state == State.Anticipate || state == State.Strike || state == State.FollowThrough || state == State.Recover;
         int ChooseAttackIndex()
@@ -621,16 +700,27 @@ namespace KenshiVR.MeleeCombat
             }
             return chosen;
         }
-        float ImpactReachError(int index) => target && attacks[index] != null ?
-            Vector3.Distance(transform.TransformPoint(attacks[index].impactTipLocal),
-                target.position + Vector3.up * 1.1f) : 0f;
+        float ImpactReachError(int index)
+        {
+            if (!target || attacks[index] == null) return 0f;
+            return Vector3.Distance(transform.TransformPoint(attacks[index].impactTipLocal), StrikeTargetPoint());
+        }
+        public Vector3 StrikeTargetPoint()
+        {
+            if (!target) return transform.position + Vector3.up * 1.1f;
+            var shape = target.GetComponent<Collider>();
+            if (shape) return shape.enabled ? shape.bounds.center : target.position;
+            // Group targets can be an HMD; NPC targets are usually foot roots.
+            float targetHeight = target.position.y - transform.position.y;
+            return target.position + Vector3.up * (targetHeight > .7f ? -.3f : 1.1f);
+        }
         void StartAttack(int index)
         {
             AttackSequence++;
             attackIndex = Mathf.Clamp(index, 0, 7);
             var toTarget = target ? Vector3.ProjectOnPlane(target.position - transform.position, Vector3.up) : transform.forward;
             frozenAimYaw = toTarget.sqrMagnitude > .001f ? Mathf.Clamp(Vector3.SignedAngle(transform.forward, toTarget, Vector3.up), -maximumAimYaw, maximumAimYaw) : 0;
-            plannedStep = Mathf.Clamp(rangeToTarget - attacks[attackIndex].comfortableRange, 0, attacks[attackIndex].maximumApproachStep);
+            plannedStep = Mathf.Clamp(rangeToTarget - ComfortableRange(attacks[attackIndex]), 0, attacks[attackIndex].maximumApproachStep);
             appliedStep = 0;
             CurrentPhase = AttackPhase.Windup; AttackProgress = 0; state = State.Anticipate;
             until = Time.time + PhaseDuration(attacks[attackIndex], AttackPhase.Windup);
@@ -673,6 +763,7 @@ namespace KenshiVR.MeleeCombat
         void ReturnToGuard()
         {
             hasDesiredPose = false;
+            if (mocapDriver && mocapDriver.enabled && !previewEnabled) return;
             if (!guardCaptured || !weaponGoal) return;
             float blend = 1f - Mathf.Exp(-Time.deltaTime * 7f);
             weaponGoal.localPosition = Vector3.Lerp(weaponGoal.localPosition, guardLocalPosition, blend);
@@ -680,6 +771,11 @@ namespace KenshiVR.MeleeCombat
         }
         void ApplyAttackPose(AttackPhase phase, float progress)
         {
+            // The mocap driver fits the actual weapon to animated hands after the
+            // Animator runs. Moving its goal here would give the same rigid weapon
+            // two independent pose owners in one frame.
+            if (mocapDriver && mocapDriver.enabled && !previewEnabled)
+            { hasDesiredPose = false; return; }
             if (!guardCaptured || !weaponGoal) return;
             GetTipLocals(out var positive, out var negative);
             EvaluatePose(attacks[attackIndex], phase, progress, guardLocalPosition, guardLocalRotation,
@@ -870,7 +966,7 @@ namespace KenshiVR.MeleeCombat
             if (!previewActive) { previewBodyWasKinematic = staffBody.isKinematic; previewActive = true; staffBody.isKinematic = true; previewRootPosition = transform.position; }
             attackIndex = Mathf.Clamp(previewDirection, 0, 7);
             rangeToTarget = previewTargetLocal.z;
-            plannedStep = Mathf.Clamp(rangeToTarget - attacks[attackIndex].comfortableRange, 0, attacks[attackIndex].maximumApproachStep);
+            plannedStep = Mathf.Clamp(rangeToTarget - ComfortableRange(attacks[attackIndex]), 0, attacks[attackIndex].maximumApproachStep);
             float fraction = previewPhase == AttackPhase.Windup ? .15f * Mathf.SmoothStep(0, 1, previewProgress) :
                 previewPhase == AttackPhase.Strike ? Mathf.Lerp(.15f, 1f, Mathf.SmoothStep(0, 1, previewProgress)) : 1f;
             if (previewApplyRootStep) transform.position = previewRootPosition + transform.forward * plannedStep * fraction;
@@ -931,6 +1027,7 @@ namespace KenshiVR.MeleeCombat
             agent.isStopped = !moving;
             if (moving)
             {
+                agent.stoppingDistance = hasGroupCombatDestination ? .05f : defaultStoppingDistance;
                 agent.speed = state == State.Retreat ? (spacingRetreat ? spacingRetreatSpeed : runSpeed) :
                     state == State.Dodge || rangeToTarget > runUntilRange ? runSpeed : chasseSpeed;
                 destination.y = transform.position.y; agent.SetDestination(destination);
@@ -1002,9 +1099,9 @@ namespace KenshiVR.MeleeCombat
             if (showRangeGizmos)
             {
                 Vector3 center = transform.position + Vector3.up * .025f;
-                Gizmos.color = Color.green; Gizmos.DrawWireSphere(center, a.comfortableRange);
-                Gizmos.color = Color.yellow; Gizmos.DrawWireSphere(center, a.comfortableRange + a.maximumApproachStep);
-                Gizmos.color = Color.red; Gizmos.DrawLine(center, center + transform.forward * Mathf.Max(0, previewTargetLocal.z - a.comfortableRange));
+                Gizmos.color = Color.green; Gizmos.DrawWireSphere(center, ComfortableRange(a));
+                Gizmos.color = Color.yellow; Gizmos.DrawWireSphere(center, ComfortableRange(a) + a.maximumApproachStep);
+                Gizmos.color = Color.red; Gizmos.DrawLine(center, center + transform.forward * Mathf.Max(0, previewTargetLocal.z - ComfortableRange(a)));
                 Gizmos.DrawWireSphere(transform.TransformPoint(previewTargetLocal + new Vector3(0, 0, -.18f)), .09f);
             }
         }

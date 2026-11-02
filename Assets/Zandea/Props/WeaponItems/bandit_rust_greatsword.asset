@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: bandit_rust_greatsword
   displayName: bandit_rust_greatsword
   category: 0
-  valueCats: 0
+  valueCats: 120
   weight: 2.4
   worldPrefab: {fileID: 5442016423810961629, guid: e57ed5195dd808b4dbc78d042950d98a, type: 3}
   equippedAppearance: {fileID: 0}

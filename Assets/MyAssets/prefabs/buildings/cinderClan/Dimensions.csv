@@ -1,0 +1,65 @@
+Source,Prefab,Category,Width,Height,Depth,Triangles
+"Gemini_Generated_Image_3qjco43qjco43qjc","Gemini_Generated_Image_3qjco43qjco43qjc",Prop,3.00,1.77,2.73,40000
+"Gemini_Generated_Image_5oo5555oo5555oo5","Gemini_Generated_Image_5oo5555oo5555oo5",Prop,3.00,2.61,0.85,40000
+"Gemini_Generated_Image_bn3dmxbn3dmxbn3d","Gemini_Generated_Image_bn3dmxbn3dmxbn3d",Prop,3.00,2.89,2.74,40000
+"Gemini_Generated_Image_gyyxfzgyyxfzgyyx","Gemini_Generated_Image_gyyxfzgyyxfzgyyx",Prop,3.00,5.38,1.38,40000
+"Gemini_Generated_Image_hiik3mhiik3mhiik","Gemini_Generated_Image_hiik3mhiik3mhiik",Prop,3.00,1.68,3.00,40000
+"Gemini_Generated_Image_i7g0lvi7g0lvi7g0","Gemini_Generated_Image_i7g0lvi7g0lvi7g0",Prop,2.18,1.11,3.00,40000
+"Gemini_Generated_Image_jzexb7jzexb7jzex","Gemini_Generated_Image_jzexb7jzexb7jzex",Prop,3.00,2.07,0.84,40000
+"Gemini_Generated_Image_kcusdmkcusdmkcus","Gemini_Generated_Image_kcusdmkcusdmkcus",Prop,2.19,1.12,3.00,40000
+"Gemini_Generated_Image_lndbcblndbcblndb","Gemini_Generated_Image_lndbcblndbcblndb",Prop,3.00,7.30,2.80,40000
+"Gemini_Generated_Image_medvqbmedvqbmedv","Gemini_Generated_Image_medvqbmedvqbmedv",Prop,3.00,3.09,2.96,40000
+"Gemini_Generated_Image_os4zf7os4zf7os4z","Gemini_Generated_Image_os4zf7os4zf7os4z",Prop,3.00,1.10,1.11,40000
+"Gemini_Generated_Image_pi2a5api2a5api2a","Gemini_Generated_Image_pi2a5api2a5api2a",Prop,3.00,2.89,2.70,40000
+"Gemini_Generated_Image_pqctrqpqctrqpqct","Gemini_Generated_Image_pqctrqpqctrqpqct",Prop,2.86,3.35,3.00,40000
+"Gemini_Generated_Image_si4hsxsi4hsxsi4h","Gemini_Generated_Image_si4hsxsi4hsxsi4h",Prop,3.00,2.00,0.85,40000
+"Gemini_Generated_Image_wfkxtowfkxtowfkx","Gemini_Generated_Image_wfkxtowfkxtowfkx",Prop,3.00,5.11,1.38,40000
+"Gemini_Generated_Image_wqrvqrwqrvqrwqrv","Gemini_Generated_Image_wqrvqrwqrvqrwqrv",Prop,2.42,4.47,3.00,40000
+"Gemini_Generated_Image_xszumvxszumvxszu","Gemini_Generated_Image_xszumvxszumvxszu",Prop,3.00,3.00,0.73,40000
+"Gemini_Generated_Image_z9yj8fz9yj8fz9yj","Gemini_Generated_Image_z9yj8fz9yj8fz9yj",Prop,3.00,1.94,0.24,40000
+"half_wall_frame_b","half_wall_frame_b",Wall,6.00,5.81,2.27,40000
+"half_wall_frame_c","half_wall_frame_c",Wall,6.00,5.71,1.25,40000
+"Statue","Statue",Prop,3.00,8.75,2.50,40000
+"wall_b","wall_b",Wall,6.00,2.71,0.97,40000
+"wall_door","wall_door",Gate,8.00,3.26,1.53,40000
+"wall_door_a","wall_door_a",Gate,8.00,3.57,1.81,40000
+"wall_door_c","wall_door_c",Gate,8.00,3.25,1.44,40000
+"wall_frame_b","wall_frame_b",Wall,6.00,2.58,1.15,40000
+"wall_frame_windows_c","wall_frame_windows_c",Wall,6.00,2.52,1.06,40000
+"wall_windows_b","wall_windows_b",Wall,6.00,2.43,0.94,40000
+"באר אבן עגולה עתיקה","באר_אבן_עגולה_עתיקה",Prop,3.00,1.21,3.00,40000
+"בית גותי מאבן עם חומה מקושתת","בית_גותי_מאבן_עם_חומה_מקושתת",Wall,6.00,3.41,3.42,40000
+"גג אבן חרוטי דו־קומתי עם צריח","גג_אבן_חרוטי_דו_קומתי_עם_צריח",Tower,13.92,12.00,13.88,40000
+"גג צפחה עתיק עם צריחים וקורות עץ","גג_צפחה_עתיק_עם_צריחים_וקורות_עץ",Tower,23.62,12.00,15.30,40000
+"גרם מדרגות אבן כפול על בסיס לבנים גבוה","גרם_מדרגות_אבן_כפול_על_בסיס_לבנים_גבוה",Stairs,2.65,3.87,6.00,40000
+"גשר אבן ימי־ביניימי עם קשתות","גשר_אבן_ימי_ביניימי_עם_קשתות",Prop,3.00,0.62,0.77,40000
+"דלת עץ גותית עתיקה עם פרזול ברזל","דלת_עץ_גותית_עתיקה_עם_פרזול_ברזל",Gate,8.00,13.15,1.89,40000
+"הריסות מגדל אבן גותי עגול","הריסות_מגדל_אבן_גותי_עגול",Tower,30.07,12.00,29.96,40000
+"חלון צר בקיר אבנים אפור","חלון_צר_בקיר_אבנים_אפור",Wall,6.00,2.45,1.09,40000
+"יסוד קיר אבן עם שביל מרוצף","יסוד_קיר_אבן_עם_שביל_מרוצף",Wall,6.00,1.60,1.14,40000
+"מבנה גג גמלון כפרי עתיק","מבנה_גג_גמלון_כפרי_עתיק",Building,8.01,5.28,10.00,40000
+"מבנה גג רעפים כהה ומיושן","מבנה_גג_רעפים_כהה_ומיושן",Building,10.00,4.30,5.66,40000
+"מגדל גותי מאבן עם גג רעפים","מגדל_גותי_מאבן_עם_גג_רעפים",Tower,4.88,12.00,5.94,40000
+"מגדל שמירה מימי הביניים מאבן","מגדל_שמירה_מימי_הביניים_מאבן",Tower,4.96,12.00,4.78,40000
+"מודול קיר פינתי מאבן ועץ","מודול_קיר_פינתי_מאבן_ועץ",Wall,6.00,6.01,5.99,40000
+"סככת שוק מעץ עם בד מרופט","סככת_שוק_מעץ_עם_בד_מרופט",Canopy,8.00,2.99,2.43,40000
+"עמוד גותי מעוטר באבן עתיקה","עמוד_גותי_מעוטר_באבן_עתיקה",Column,1.14,4.00,1.05,40000
+"פתח גותי מחודד בקיר אבן עתיק","פתח_גותי_מחודד_בקיר_אבן_עתיק",Gate,8.00,3.24,1.39,40000
+"פתח קשת גותית בקיר אבן","פתח_קשת_גותית_בקיר_אבן",Gate,8.00,7.66,3.06,40000
+"צריח גותי עתיק מאבן מעוטרת","צריח_גותי_עתיק_מאבן_מעוטרת",Tower,2.31,12.00,2.74,40000
+"קטע גג גמלוני עם רעפים כהים","קטע_גג_גמלוני_עם_רעפים_כהים",Building,7.33,5.44,10.00,40000
+"קטע קיר אבן אפור מחוספס","קטע_קיר_אבן_אפור_מחוספס",Wall,6.00,2.45,1.17,40000
+"קטע קיר אבן כהה עם חלון узarrow","קטע_קיר_אבן_כהה_עם_חלון_узarrow",Wall,6.00,5.74,1.83,40000
+"קטע קיר מבצר אבן מימי הביניים","קטע_קיר_מבצר_אבן_מימי_הביניים",Wall,6.00,6.00,5.38,40000
+"קיר אבן אפורה עם פתח מקושת","קיר_אבן_אפורה_עם_פתח_מקושת",Gate,8.00,4.01,0.63,40000
+"קיר אבן כהה עם שני חלונות צרים","קיר_אבן_כהה_עם_שני_חלונות_צרים",Wall,6.00,2.56,1.01,40000
+"קיר אבן כפרי עם חלונות צרים","קיר_אבן_כפרי_עם_חלונות_צרים",Wall,6.00,3.03,3.46,40000
+"קיר אבן ממוסגר בעץ מיושן","קיר_אבן_ממוסגר_בעץ_מיושן",Wall,6.00,5.60,1.78,40000
+"קיר אבן עם חלון קטן וקורות עץ","קיר_אבן_עם_חלון_קטן_וקורות_עץ",Wall,6.00,3.00,1.00,40000
+"קיר אבן עתיק ומכוסה טחב","קיר_אבן_עתיק_ומכוסה_טחב",Wall,6.00,2.44,1.14,40000
+"קיר אבנים אפורות וקורות עץ","קיר_אבנים_אפורות_וקורות_עץ",Wall,6.00,3.23,0.45,40000
+"קיר גמלון מאבן כהה ועץ מיושן","קיר_גמלון_מאבן_כהה_ועץ_מיושן",Wall,6.00,3.76,5.80,40000
+"קשת גותית מעוטרת באבן אפורה","קשת_גותית_מעוטרת_באבן_אפורה",Prop,3.00,1.19,0.47,40000
+"קשת תמיכה גותית מאבן עתיקה","קשת_תמיכה_גותית_מאבן_עתיקה",Prop,3.00,3.01,0.51,40000
+"שער גותי מאבן עם קישוטי עלים","שער_גותי_מאבן_עם_קישוטי_עלים",Gate,8.00,11.53,1.63,40000
+"תושבת עץ בצורת Y","תושבת_עץ_בצורת_Y",Column,3.56,4.00,0.69,40000

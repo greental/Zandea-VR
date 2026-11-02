@@ -13041,6 +13041,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.PhysicalMeleeWeapon
   strikeType: 0
   grip: {fileID: 7834508886545953378}
+  combatReachMeters: 1.36825037
   npcGripTarget: {fileID: 1202741912580995946}
   ownerRoot: {fileID: 3879740315911679165}
   mass: 2.1

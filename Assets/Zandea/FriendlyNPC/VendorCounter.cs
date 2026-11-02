@@ -48,6 +48,8 @@ namespace Zandea.FriendlyNPC
         Transform soldStorage;
         Material ledgerPaperMaterial;
         Material soldShelfMaterial;
+        Material payoutTrayMaterial;
+        TMP_Text paymentCue, payoutCue;
         public IReadOnlyList<TradeItem> SoldStock => soldStock;
         public event Action<TradeItem> StockStolen;
 
@@ -75,17 +77,52 @@ namespace Zandea.FriendlyNPC
             state.cats = merchantCats;
             state.outstandingPayouts[id] = amount;
             pouch.gameObject.SetActive(true);
+            TryPresentContractPayout(contractId);
+            return true;
+        }
+        public bool TryPresentContractPayout(string contractId)
+        {
+            if (!configuration || !payoutPouchPrefab || !payoutPosition) return false;
+            string id = "contract-" + contractId;
+            var state = MerchantSessionState.Get(configuration.vendorId, configuration.startingCats);
+            if (!state.outstandingPayouts.TryGetValue(id, out int amount) || amount <= 0) return false;
+            CurrencyPouch pouch = null;
+            foreach (var candidate in FindObjectsByType<CurrencyPouch>(FindObjectsInactive.Include,
+                         FindObjectsSortMode.None))
+                if (candidate && candidate.stableId == id && !candidate.personal)
+                { pouch = candidate; break; }
+            if (!pouch)
+            {
+                pouch = Instantiate(payoutPouchPrefab, payoutPosition.position,
+                    payoutPosition.rotation, transform);
+                pouch.AssignStableId(id);
+                pouch.SetInitialBalance(amount);
+            }
+            if (pouch.Cats != amount) return false;
+            if (!pouch.Grab.isSelected)
+            {
+                pouch.transform.SetParent(transform, true);
+                pouch.transform.SetPositionAndRotation(payoutPosition.position, payoutPosition.rotation);
+                var body = pouch.GetComponent<Rigidbody>();
+                if (body && !body.isKinematic)
+                { body.linearVelocity = Vector3.zero; body.angularVelocity = Vector3.zero; }
+            }
+            RefreshMoneyCues();
             return true;
         }
         public bool TryContractDebtPayment(int amount)
         {
-            if (amount <= 0 || !configuration || !paymentPurse || !paymentPurse.personal ||
-                paymentPurse.Grab.isSelected || !paymentSpot || !paymentSpot.Contains(paymentPurse) ||
-                !paymentPurse.CanDebit(amount) || merchantCats > int.MaxValue - amount) return false;
-            if (!paymentPurse.TryDebit(amount)) return false;
+            // The zone callback may not have run yet when the player selects
+            // "I'll pay now". The explicit dialogue choice plus a released
+            // purse physically on the spot are the authority for payment.
+            var purse = paymentPurse ? paymentPurse : CurrencyPouch.PersonalInstance;
+            if (amount <= 0 || !configuration || !purse || !purse.personal ||
+                purse.Grab.isSelected || !paymentSpot || !paymentSpot.Contains(purse) ||
+                !purse.CanDebit(amount) || merchantCats > int.MaxValue - amount) return false;
+            if (!purse.TryDebit(amount)) return false;
             merchantCats += amount;
             MerchantSessionState.Get(configuration.vendorId, configuration.startingCats).cats = merchantCats;
-            paymentPurse.ReturnHomeWhenReleased();
+            purse.ReturnHomeWhenReleased();
             paymentPurse = null;
             return true;
         }
@@ -94,6 +131,8 @@ namespace Zandea.FriendlyNPC
         public int NetCats { get; private set; }
         public bool Ready => ready;
         public bool Trading => trading;
+        public bool MissionHandshakeAvailable => merchant && merchant.contract &&
+            merchant.contract.CanHandshakeSettle;
         public bool AcceptingContractPayment => merchant && merchant.contract && merchant.contract.HasDebt;
 
         void Awake()
@@ -110,6 +149,7 @@ namespace Zandea.FriendlyNPC
             stockObject.SetActive(false);
             soldStorage = stockObject.transform;
             if (!soldStockDisplay) BuildSoldStockDisplay();
+            BuildMoneyCues();
         }
 
         void Start()
@@ -154,10 +194,12 @@ namespace Zandea.FriendlyNPC
         {
             if (ledgerPaperMaterial) Destroy(ledgerPaperMaterial);
             if (soldShelfMaterial) Destroy(soldShelfMaterial);
+            if (payoutTrayMaterial) Destroy(payoutTrayMaterial);
         }
 
         void Update()
         {
+            RefreshMoneyCues();
             if (capturedItems.Count > 0)
             {
                 escapedItems.Clear();
@@ -402,6 +444,77 @@ namespace Zandea.FriendlyNPC
             }
         }
 
+        void BuildMoneyCues()
+        {
+            if (!payoutPosition || !paymentSpot) return;
+            // Keep the physical payout on an obvious shelf on the player's
+            // side, clear of the buy/sell volumes. The tray supports the
+            // Rigidbody rather than hiding the pouch inside the counter.
+            if (payoutPosition.parent == transform &&
+                Mathf.Abs(payoutPosition.localPosition.z) < .1f)
+                payoutPosition.localPosition = new Vector3(0f, 1.16f, .38f);
+            var tray = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            tray.name = "Payout tray";
+            tray.transform.SetParent(transform, false);
+            tray.transform.localPosition = new Vector3(0f, .96f, .38f);
+            tray.transform.localScale = new Vector3(.36f, .04f, .34f);
+            var shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (!shader) shader = Shader.Find("Standard");
+            payoutTrayMaterial = new Material(shader) { color = new Color(.36f, .24f, .12f) };
+            tray.GetComponent<Renderer>().sharedMaterial = payoutTrayMaterial;
+            paymentCue = BuildMoneyCue("Payment cue", paymentSpot.transform.position +
+                Vector3.up * .2f, new Color(1f, .77f, .42f));
+            payoutCue = BuildMoneyCue("Payout cue", payoutPosition.position +
+                Vector3.up * .12f, new Color(.75f, 1f, .65f));
+            RefreshMoneyCues();
+        }
+
+        TMP_Text BuildMoneyCue(string label, Vector3 worldPosition, Color color)
+        {
+            var go = new GameObject(label);
+            go.transform.SetParent(transform, false);
+            go.transform.localPosition = transform.InverseTransformPoint(worldPosition);
+            go.transform.localScale = Vector3.one * .04f;
+            var text = go.AddComponent<TextMeshPro>();
+            text.fontSize = 3f;
+            text.alignment = TextAlignmentOptions.Center;
+            text.color = color;
+            text.rectTransform.sizeDelta = new Vector2(12f, 4f);
+            go.AddComponent<BillboardLabel>();
+            text.enabled = false;
+            return text;
+        }
+
+        void RefreshMoneyCues()
+        {
+            if (!paymentCue || !payoutCue) return;
+            int due = merchant && merchant.contract ? merchant.contract.DebtAmount : 0;
+            if (trading && NetCats < 0) due = Mathf.Max(due, -NetCats);
+            paymentCue.enabled = due > 0;
+            if (due > 0)
+            {
+                string label = "PAY HERE\nPlace purse\n" + Format(due);
+                if (paymentCue.text != label) paymentCue.text = label;
+            }
+            int payout = 0;
+            if (configuration && merchant && merchant.contract && merchant.contract.definition)
+            {
+                string id = "contract-" + merchant.contract.definition.missionId;
+                MerchantSessionState.Get(configuration.vendorId, configuration.startingCats)
+                    .outstandingPayouts.TryGetValue(id, out payout);
+            }
+            bool readyJob = merchant && merchant.contract && merchant.contract.CanHandshakeSettle;
+            payoutCue.enabled = payout > 0 || readyJob || trading && ready && NetCats > 0;
+            if (payoutCue.enabled)
+            {
+                string label = payout > 0 ? "COLLECT HERE\n" + Format(payout) :
+                    readyJob ? "SETTLE JOB\nGrip Daran's hand" :
+                    "PAYOUT HERE\n" + Format(NetCats);
+                if (payoutCue.text != label) payoutCue.text = label;
+            }
+        }
+        public void RefreshContractCues() => RefreshMoneyCues();
+
         void BuildSoldStockDisplay()
         {
             var display = new GameObject("Sold goods display");
@@ -503,6 +616,8 @@ namespace Zandea.FriendlyNPC
         // The sole settlement path. All operations are local, prevalidated, and rolled back on error.
         public bool TryCommit()
         {
+            if (MissionHandshakeAvailable && (!trading || !ready))
+                return merchant.contract.TryHandshakeSettle();
             if (committing || !ready || !Validate(out _)) { Recalculate(); return false; }
             committing = true;
             CurrencyPouch payout = null;

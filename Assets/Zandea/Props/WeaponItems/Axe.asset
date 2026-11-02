@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: bo-staff
   displayName: Axe
   category: 0
-  valueCats: 0
+  valueCats: 80
   weight: 2.1
   worldPrefab: {fileID: 6247905453786691852, guid: 7fa9f8c679ed51840a39b18238ccf50e, type: 3}
   equippedAppearance: {fileID: 0}

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1566ac53a863471d953f3a735729bb27, type: 3}
+  m_Name: bandit-rust-gauntlet
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.NpcItemDefinition
+  itemId: bandit-rust-gauntlet
+  displayName: bandit rust gauntlet
+  category: 1
+  valueCats: 60
+  weight: 1
+  worldPrefab: {fileID: 2387761112558535871, guid: 2c1e4a8747a671b47a65f186efb2d468, type: 3}
+  equippedAppearance: {fileID: 11400000, guid: ebff5b8b682880e4bbe33533785b43f0, type: 2}
+  icon: {fileID: 0}
+  defaultSlot: 0
+  flattenAxis: 3
+  flattenFactor: 0.15
+  minimumThickness: 0.012
+  lootEuler: {x: 0, y: 0, z: 0}
+  gripOffset: {x: 0, y: 0, z: 0}
+  preferCachedLoot: 1
+  lootBakeVersion: 2

@@ -165,7 +165,9 @@ namespace Zandea.FriendlyNPC
             if (merchant.brain && merchant.brain.hostileToPlayer) return;
 
             float dt = Time.deltaTime;
-            bool offeringHand = handshake && handshake.IsArmed && merchant.IsTrading;
+            // The counter owns readiness. Dialogue can close before the player
+            // reaches for the offered hand, so conversation state is not a gate.
+            bool offeringHand = handshake && handshake.IsArmed;
             float targetStep = offeringHand ? handshakeStep : 0f;
             float nextStep = Mathf.MoveTowards(forwardStep, targetStep, dt * .55f);
             float stepDelta = nextStep - forwardStep;

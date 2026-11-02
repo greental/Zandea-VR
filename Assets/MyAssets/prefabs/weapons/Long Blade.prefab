@@ -168,16 +168,16 @@ GameObject:
   - component: {fileID: 1126879258939959787}
   - component: {fileID: 7139057680559463761}
   - component: {fileID: 5487621013042829858}
-  - component: {fileID: 7183861648618144489}
-  - component: {fileID: 7109623511783100567}
-  - component: {fileID: 1186736106397221471}
-  - component: {fileID: 5644105912326785369}
-  - component: {fileID: 4310885532401899410}
-  - component: {fileID: 7714213435048298822}
-  - component: {fileID: 8959861189190506840}
-  - component: {fileID: 2501184079827272450}
-  - component: {fileID: 8174221141952460094}
-  - component: {fileID: 6108450107934766347}
+  - component: {fileID: 3954677298529798709}
+  - component: {fileID: 8793247980598880983}
+  - component: {fileID: 1868300455522062967}
+  - component: {fileID: 6698710109165884097}
+  - component: {fileID: 3167261136573150298}
+  - component: {fileID: 7242844571881305608}
+  - component: {fileID: 566747038286998696}
+  - component: {fileID: 5541300422507950402}
+  - component: {fileID: 7031477549097131941}
+  - component: {fileID: 7040804487242174453}
   m_Layer: 0
   m_Name: tmp8zf7ljlf.ply
   m_TagString: Untagged
@@ -256,7 +256,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &7183861648618144489
+--- !u!64 &3954677298529798709
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -277,8 +277,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: ce00c7664d2b20b42839aa7049527cea, type: 2}
---- !u!64 &7109623511783100567
+  m_Mesh: {fileID: 4300000, guid: 0463ef0de7081c9489e77e5a2d3100c2, type: 2}
+--- !u!64 &8793247980598880983
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -299,8 +299,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 9cbecd3cd8494ba4cacdd058a93d5a95, type: 2}
---- !u!64 &1186736106397221471
+  m_Mesh: {fileID: 4300000, guid: 93eef87b67fffd44a982377a4f91d71a, type: 2}
+--- !u!64 &1868300455522062967
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -321,8 +321,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: d5c1c0ee2484b2e46aee51aaf9386f66, type: 2}
---- !u!64 &5644105912326785369
+  m_Mesh: {fileID: 4300000, guid: 32936257c8be42c4c824cceaeec73aca, type: 2}
+--- !u!64 &6698710109165884097
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -343,8 +343,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 50286d31d961c2148aabe2bffd2c82d8, type: 2}
---- !u!64 &4310885532401899410
+  m_Mesh: {fileID: 4300000, guid: 10788dd609915bd4f989c5324d274c6e, type: 2}
+--- !u!64 &3167261136573150298
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -365,8 +365,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 6fcba30aa1d113546b080616cc17a002, type: 2}
---- !u!64 &7714213435048298822
+  m_Mesh: {fileID: 4300000, guid: 0292c144ff2a9a94b944fad91bfdf9ec, type: 2}
+--- !u!64 &7242844571881305608
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -387,8 +387,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 653cbb5b38030e54eafa1f2d4adaf1fb, type: 2}
---- !u!64 &8959861189190506840
+  m_Mesh: {fileID: 4300000, guid: 6ec103edf10ee274da5df80a9ae508e5, type: 2}
+--- !u!64 &566747038286998696
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -409,8 +409,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 2d61d31e69af6cd4dafc8a1cd5bbd4c5, type: 2}
---- !u!64 &2501184079827272450
+  m_Mesh: {fileID: 4300000, guid: 1fec7a3590034d0468db089ecca36cb2, type: 2}
+--- !u!64 &5541300422507950402
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -431,8 +431,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 93bcd14a495cc874c8a1ccdaef564a20, type: 2}
---- !u!64 &8174221141952460094
+  m_Mesh: {fileID: 4300000, guid: bc6dc3a85ee5269459dea8ec2b693421, type: 2}
+--- !u!64 &7031477549097131941
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -453,8 +453,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 4af872623e9f3f04f9599988b92760fa, type: 2}
---- !u!64 &6108450107934766347
+  m_Mesh: {fileID: 4300000, guid: ea01c3352a05b884d8621a60b135020d, type: 2}
+--- !u!64 &7040804487242174453
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -475,7 +475,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 0064325eb5edfac47a3031de84f52d33, type: 2}
+  m_Mesh: {fileID: 4300000, guid: a91d73889ddea304b9ff7fa288815ae5, type: 2}
 --- !u!1 &3420477925325296601
 GameObject:
   m_ObjectHideFlags: 0
@@ -563,7 +563,7 @@ Transform:
   m_GameObject: {fileID: 4240120609062539182}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.4246199, y: -0.8562918, z: 0.72525376}
+  m_LocalPosition: {x: 0.18158081, y: 0.22572064, z: 0.25062844}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -593,8 +593,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4366621969712349762}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7484381, y: 0, z: -0.56313145, w: 0.3503189}
-  m_LocalPosition: {x: 0.16079372, y: -0.35176837, z: 0.24979913}
+  m_LocalRotation: {x: -0.5631315, y: 0.3503189, z: -0.7484381, w: -0.000000015312926}
+  m_LocalPosition: {x: -0.10023688, y: -0.35176843, z: -0.16692561}
   m_LocalScale: {x: 0.7649651, y: 0.7649651, z: 0.7649651}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -688,7 +688,7 @@ Transform:
   m_GameObject: {fileID: 4974234394286399971}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.12102394, y: 0.22572061, z: -0.16775492}
+  m_LocalPosition: {x: -0.36406305, y: -0.8562919, z: -0.64238024}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -742,6 +742,7 @@ GameObject:
   - component: {fileID: 2765211138327532441}
   - component: {fileID: 1665754161651991593}
   - component: {fileID: 478577608235798298}
+  - component: {fileID: 8120564943304074010}
   m_Layer: 0
   m_Name: Long Blade
   m_TagString: Untagged
@@ -864,6 +865,7 @@ MonoBehaviour:
   strikeType: 0
   bladeEdgeLocalAxis: {x: 1, y: 0, z: 0}
   grip: {fileID: 4542287891886135468}
+  combatReachMeters: 1.1100001
   npcGripTarget: {fileID: 0}
   ownerRoot: {fileID: 0}
   mass: 2.1
@@ -894,7 +896,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable
   m_InteractionManager: {fileID: 0}
-  m_Colliders: []
+  m_Colliders:
+  - {fileID: 3954677298529798709}
+  - {fileID: 8793247980598880983}
+  - {fileID: 1868300455522062967}
+  - {fileID: 6698710109165884097}
+  - {fileID: 3167261136573150298}
+  - {fileID: 7242844571881305608}
+  - {fileID: 566747038286998696}
+  - {fileID: 5541300422507950402}
+  - {fileID: 7031477549097131941}
+  - {fileID: 7040804487242174453}
   m_InteractionLayers:
     m_Bits: 1
   m_DistanceCalculationMode: 1
@@ -1052,6 +1064,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.VRInventoryItem
   CanStoreInBackpack: 1
   InventoryAnchor: {fileID: 0}
+--- !u!114 &8120564943304074010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5485556309266088655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93f89ba4625a8b1498515ed3d055db9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.FriendlyNPC.TradeItem
+  definition: {fileID: 0}
+  ownerId: player
+  stolen: 0
+  stolenFromVendorId: 
+  persistentInstanceId: 
 --- !u!1 &5973535916227161831
 GameObject:
   m_ObjectHideFlags: 0

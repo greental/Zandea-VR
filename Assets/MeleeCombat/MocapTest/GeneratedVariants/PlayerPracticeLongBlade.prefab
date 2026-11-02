@@ -264,6 +264,7 @@ MonoBehaviour:
   leftGripEuler: {x: 0, y: 0, z: 0}
   strikeType: 1
   grip: {fileID: 3192015291374802462}
+  combatReachMeters: 0.9
   npcGripTarget: {fileID: 0}
   ownerRoot: {fileID: 0}
   mass: 1.4

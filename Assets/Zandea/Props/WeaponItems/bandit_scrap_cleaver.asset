@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: bandit_scrap_cleaver
   displayName: bandit_scrap_cleaver
   category: 0
-  valueCats: 0
+  valueCats: 300
   weight: 2.4
   worldPrefab: {fileID: 8110503260084702684, guid: 062e91f2dfb864049a5eebc095598f21, type: 3}
   equippedAppearance: {fileID: 0}

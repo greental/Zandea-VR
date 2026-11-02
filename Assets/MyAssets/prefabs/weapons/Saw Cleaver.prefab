@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 420388966373628785}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.11201559, y: 0.20741417, z: -0.15129282}
+  m_LocalPosition: {x: -0.11201557, y: 0.20741422, z: -0.15129276}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -211,7 +211,7 @@ Transform:
   m_GameObject: {fileID: 3983379044228769677}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.4657518, y: -0.85096735, z: 0.56084967}
+  m_LocalPosition: {x: 0.46575174, y: -0.8509673, z: 0.56084967}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -354,16 +354,16 @@ GameObject:
   - component: {fileID: 863602353921808415}
   - component: {fileID: 809941765647106872}
   - component: {fileID: 8412401974984250926}
-  - component: {fileID: 7064840815131671536}
-  - component: {fileID: 5692056858507762201}
-  - component: {fileID: 3226691475905178014}
-  - component: {fileID: 767479993700605731}
-  - component: {fileID: 9007051454552357003}
-  - component: {fileID: 2975993135359188144}
-  - component: {fileID: 3504090919536228575}
-  - component: {fileID: 8677395140832521990}
-  - component: {fileID: 6439332790915528442}
-  - component: {fileID: 8293946374222358770}
+  - component: {fileID: 7672302675826681282}
+  - component: {fileID: 4604302918322786757}
+  - component: {fileID: 3297042384629403995}
+  - component: {fileID: 63872030229405733}
+  - component: {fileID: 5628297210460294703}
+  - component: {fileID: 4098750993823516257}
+  - component: {fileID: 214702055843749799}
+  - component: {fileID: 7983360022065399378}
+  - component: {fileID: 2440475275042114862}
+  - component: {fileID: 2760582040231423472}
   m_Layer: 0
   m_Name: tmpbh5lqnan.ply
   m_TagString: Untagged
@@ -442,7 +442,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &7064840815131671536
+--- !u!64 &7672302675826681282
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -463,8 +463,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 6933430e4ec92af408119370fb1466dc, type: 2}
---- !u!64 &5692056858507762201
+  m_Mesh: {fileID: 4300000, guid: 484a3e9cfc0591e41b52692adabe1a44, type: 2}
+--- !u!64 &4604302918322786757
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -485,8 +485,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: abfdd29e8b95c8a4f83571d1df7c7963, type: 2}
---- !u!64 &3226691475905178014
+  m_Mesh: {fileID: 4300000, guid: ef360309151c3c04aa48302de1b76ea9, type: 2}
+--- !u!64 &3297042384629403995
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -507,8 +507,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 6553e60705c015841b20450bd60222e7, type: 2}
---- !u!64 &767479993700605731
+  m_Mesh: {fileID: 4300000, guid: 5f126b5a2af12b04584f84204bdb4824, type: 2}
+--- !u!64 &63872030229405733
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -529,8 +529,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 2a67d61d78afc874c8d04a9deb838eda, type: 2}
---- !u!64 &9007051454552357003
+  m_Mesh: {fileID: 4300000, guid: e5361fc27424f6b4eae4be771df70f68, type: 2}
+--- !u!64 &5628297210460294703
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -551,8 +551,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 8cad9c4c007ee0e448ae0e5af1bb9310, type: 2}
---- !u!64 &2975993135359188144
+  m_Mesh: {fileID: 4300000, guid: ca9a065a058d1194eb2b446c9ebcf601, type: 2}
+--- !u!64 &4098750993823516257
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -573,8 +573,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 95ad3aab6af416849b66db1f89f2756e, type: 2}
---- !u!64 &3504090919536228575
+  m_Mesh: {fileID: 4300000, guid: e3cb6dc1922a5b5449f6708c5c397d0b, type: 2}
+--- !u!64 &214702055843749799
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -595,8 +595,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: df5cd4ab1def41141acbc970e7af96b8, type: 2}
---- !u!64 &8677395140832521990
+  m_Mesh: {fileID: 4300000, guid: cf1d4221481a88f43933648b56d75a81, type: 2}
+--- !u!64 &7983360022065399378
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -617,8 +617,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: a21844ba49258584e8ec620cf6988ce0, type: 2}
---- !u!64 &6439332790915528442
+  m_Mesh: {fileID: 4300000, guid: 29865dca50d942945bbf60fe45c2dd16, type: 2}
+--- !u!64 &2440475275042114862
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -639,8 +639,8 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: b9a0093123615ac47ac3713ad3be0512, type: 2}
---- !u!64 &8293946374222358770
+  m_Mesh: {fileID: 4300000, guid: 3a565cd85b616ef4bbe9c0cf766bdc80, type: 2}
+--- !u!64 &2760582040231423472
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -661,7 +661,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: c9019ed010a10294296dccf8783489e1, type: 2}
+  m_Mesh: {fileID: 4300000, guid: a65392ade14ea0945adbc3845e9a09a8, type: 2}
 --- !u!1 &6166721372369564547
 GameObject:
   m_ObjectHideFlags: 0
@@ -803,6 +803,7 @@ GameObject:
   - component: {fileID: 3254943827670014932}
   - component: {fileID: 5861963721947543918}
   - component: {fileID: 477521660370290128}
+  - component: {fileID: -3034808128204302578}
   m_Layer: 0
   m_Name: Saw Cleaver
   m_TagString: Untagged
@@ -925,6 +926,7 @@ MonoBehaviour:
   strikeType: 0
   bladeEdgeLocalAxis: {x: 1, y: 0, z: 0}
   grip: {fileID: 8311945961202510039}
+  combatReachMeters: 1.0360001
   npcGripTarget: {fileID: 0}
   ownerRoot: {fileID: 0}
   mass: 2.1
@@ -955,7 +957,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable
   m_InteractionManager: {fileID: 0}
-  m_Colliders: []
+  m_Colliders:
+  - {fileID: 7672302675826681282}
+  - {fileID: 4604302918322786757}
+  - {fileID: 3297042384629403995}
+  - {fileID: 63872030229405733}
+  - {fileID: 5628297210460294703}
+  - {fileID: 4098750993823516257}
+  - {fileID: 214702055843749799}
+  - {fileID: 7983360022065399378}
+  - {fileID: 2440475275042114862}
+  - {fileID: 2760582040231423472}
   m_InteractionLayers:
     m_Bits: 1
   m_DistanceCalculationMode: 1
@@ -1113,6 +1125,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JunkerEquipment.VRInventoryItem
   CanStoreInBackpack: 1
   InventoryAnchor: {fileID: 0}
+--- !u!114 &-3034808128204302578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8558052118696062878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93f89ba4625a8b1498515ed3d055db9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.FriendlyNPC.TradeItem
+  definition: {fileID: 0}
+  ownerId: player
+  stolen: 0
+  stolenFromVendorId: 
+  persistentInstanceId: 
 --- !u!1 &8878510519073384514
 GameObject:
   m_ObjectHideFlags: 0

@@ -1328,6 +1328,61 @@ Terrain:
   m_EnableHeightmapRayTracing: 1
   m_EnableTreesAndDetailsRayTracing: 0
   m_TreeMotionVectorModeOverride: 3
+--- !u!1 &204000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 204000002}
+  - component: {fileID: 204000003}
+  m_Layer: 0
+  m_Name: Desert Ambience
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &204000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 204000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &204000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 204000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d32bdb50736243198c2de25a32781c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dustParticlesPerSecond: 60
+  windSpeed: 2.5
+  windDirection: {x: 1, y: 0.35}
+  sandColor: {r: 0.79, g: 0.66, b: 0.45, a: 0.42}
+  maxHeightAboveGround: 250
+  edgeDustPerSecond: 48
+  minimumEdgeDrop: 2.5
+  edgeSearchRadius: 55
+  edgeChecksPerScan: 28
+  heatPatchesPerSecond: 4
+  enableMirage: 1
 --- !u!1 &203844586
 GameObject:
   m_ObjectHideFlags: 0
@@ -1368,6 +1423,8 @@ MonoBehaviour:
   starBrightness: 0.9
   sunDiameterDegrees: 1.5
   moonDiameterDegrees: 11
+  moonlightIntensity: 0.35
+  moonlightColor: {r: 0.62, g: 0.72, b: 1, a: 1}
   daySky: {r: 0.33, g: 0.57, b: 0.87, a: 1}
   nightSky: {r: 0.006, g: 0.012, b: 0.04, a: 1}
 --- !u!114 &203844587
@@ -12608,3 +12665,4 @@ SceneRoots:
   - {fileID: 1802282219}
   - {fileID: 1428762258}
   - {fileID: 1966279379}
+  - {fileID: 204000002}
