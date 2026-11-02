@@ -5,6 +5,7 @@ Audited 2 November 2026. This is an implementation map, not a gameplay change. T
 ## Scene and boot reality
 
 - `ProjectSettings/EditorBuildSettings.asset` has one enabled scene: `Assets/Scenes/KenshiVR_Starter.unity`. It does **not** list `Assets/Main.unity`. The latter is the established authored world scene used by Pueblo, POI, and combat editor utilities. A standalone build will currently boot Starter, so opening integration into Main alone would not make it the build start.
+- Project owner confirmed on 2 November 2026 that `Assets/Main.unity` is the intended game scene. Build entry still needs a deliberate change during production integration; Slice 01 leaves it untouched.
 - `Assets/MeleeCombat/RandomBanditEncounterDirector.cs` installs its encounter only when the active scene name is `Main`. Other world spawners use the same name check. The opening needs an explicit scene entry decision before production integration.
 - Existing feature scenes include `Assets/Scenes/MeleeCombat/ThreeBanditVrParry.unity`, `BanditSurroundTest.unity`, and `BanditParryProof.unity`. Use a new `Assets/Scenes/Zandea/OpeningCaptureTest.unity` for Slice 01, then ask before promotion to Main. Reuse referenced prefabs; do not copy or overwrite them.
 
