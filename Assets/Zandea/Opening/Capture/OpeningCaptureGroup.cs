@@ -23,6 +23,8 @@ namespace Zandea.Opening.Capture
         public CaptureGroupState State { get; private set; }
         public StarvingBandit Captor { get; private set; }
         public bool ComplianceHeld { get; private set; }
+        public static OpeningCaptureGroup Active { get; private set; }
+        [Range(1f, 3f)] public float surprisePunchMultiplier = 1.8f;
         public event Action CaptureStarted, CaptorInReach, BindingStarted, EscortStarted, CombatStarted;
         public event Action<StarvingBandit> CaptorChanged;
         public event Action<string> CaptureInterrupted;
@@ -34,6 +36,7 @@ namespace Zandea.Opening.Capture
         string pendingReason;
         Vector3 surrenderPoint;
         PlayerMartialHand[] playerHands;
+        bool surpriseConsumed;
 
         void Awake()
         {
@@ -68,11 +71,23 @@ namespace Zandea.Opening.Capture
                 member.target = prisoner.hmd ? prisoner.hmd : prisoner.transform;
             }
             State = CaptureGroupState.CaptorApproach;
+            Active = this;
+            surpriseConsumed = false;
             surrenderPoint = prisoner.transform.position;
             approachNotified = false;
             CaptureStarted?.Invoke();
             return true;
         }
+
+        public float ConsumeSurprisePunch(StarvingBandit target)
+        {
+            if (surpriseConsumed || !target || target != Captor ||
+                State != CaptureGroupState.CaptorApproach && State != CaptureGroupState.Binding && State != CaptureGroupState.Escort)
+                return 1f;
+            surpriseConsumed = true;
+            return surprisePunchMultiplier;
+        }
+
 
         public void MarkBindingStarted()
         {
@@ -219,6 +234,7 @@ namespace Zandea.Opening.Capture
 
         void OnDisable()
         {
+            if (Active == this) Active = null;
             if (State == CaptureGroupState.CaptorApproach || State == CaptureGroupState.Binding || State == CaptureGroupState.Escort)
                 RestoreCombatControl();
         }

@@ -130,9 +130,21 @@ namespace ScavengerNPC
             }
             LastDamageBlocked = blocked;
             LastDamageTaken = taken;
+            float healthBefore = Current;
+            float traumaBefore = Trauma;
+            bool wasConscious = State == NpcConsciousness.Conscious;
+            bool wasHostile = bandit && bandit.target;
             Current = Mathf.Max(packet.Intent == DamageIntent.Nonlethal ? 1f : 0f, Current - taken);
-            if (Current <= 0f) { Die(packet.HitPointWorld, ImpactDirection(packet) * 4f); return; }
+            if (Current <= 0f)
+            {
+                Die(packet.HitPointWorld, ImpactDirection(packet) * 4f);
+                CharacterCombatProgression.RecordHit(packet, transform, healthBefore, 0f, blocked, false,
+                    false, false, wasConscious, wasHostile);
+                onDamaged.Invoke();
+                return;
+            }
             if (enemy) enemy.Alert(packet.Source ? packet.Source.transform : null);
+            bool staggered = false;
             if (IsUnconscious)
             {
                 wakeTime = Mathf.Max(wakeTime, Time.time + additionalDamageDelay + knockoutDuration * taken / maxHealth);
@@ -153,9 +165,17 @@ namespace ScavengerNPC
                     float chance = blocked ? 0f : HeadKnockoutChance(packet, taken);
                     if (ragdoll && chance > 0f && UnityEngine.Random.value < chance)
                         KnockOut(packet.HitPointWorld, ImpactDirection(packet), shortKnockoutDuration);
-                    else if (pose) pose.PlayHitReaction(packet.HitNormalWorld, taken);
+                    else if (pose)
+                    {
+                        pose.PlayHitReaction(packet.HitNormalWorld, taken);
+                        staggered = true;
+                    }
                 }
             }
+            staggered |= wasConscious && State == NpcConsciousness.Conscious && martial && martial.IsUnarmed;
+            CharacterCombatProgression.RecordHit(packet, transform, healthBefore - Current, Trauma - traumaBefore,
+                blocked, false, staggered,
+                wasConscious && IsUnconscious, wasConscious, wasHostile);
             onDamaged.Invoke();
         }
 

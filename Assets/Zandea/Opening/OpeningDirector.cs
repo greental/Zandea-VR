@@ -36,6 +36,9 @@ namespace Zandea.Opening
         public CharacterAttributeProfile kaelProfile;
         public CharacterAttributeProfile ordinarySlaverProfile;
         public CharacterAttributeProfile leaderProfile;
+        public bool persistPlayerProgress = true;
+        [Min(0f)] public float openingStaffBaseDamage = 11.5f;
+        [Min(0f)] public float slaverUnarmedTraumaMultiplier = 1.5f;
         public OpeningTitlePresentation presentation;
         public Transform encounterCenter;
         [Min(0f)] public float awakeningSeconds = 2f;
@@ -69,6 +72,10 @@ namespace Zandea.Opening
                 var attributes = player.GetComponent<CharacterAttributes>();
                 if (!attributes) attributes = player.gameObject.AddComponent<CharacterAttributes>();
                 attributes.ApplyProfile(kaelProfile);
+                var progress = player.GetComponent<CharacterCombatProgression>();
+                if (!progress) progress = player.gameObject.AddComponent<CharacterCombatProgression>();
+                progress.attributes = attributes;
+                progress.persistentCharacterId = persistPlayerProgress ? "kael" : null;
             }
             if (slavers == null) return;
             for (int i = 0; i < slavers.Length; i++)
@@ -78,6 +85,13 @@ namespace Zandea.Opening
                 var attributes = slavers[i].GetComponent<CharacterAttributes>();
                 if (!attributes) attributes = slavers[i].gameObject.AddComponent<CharacterAttributes>();
                 attributes.ApplyProfile(profile);
+                var progress = slavers[i].GetComponent<CharacterCombatProgression>();
+                if (!progress) progress = slavers[i].gameObject.AddComponent<CharacterCombatProgression>();
+                progress.attributes = attributes;
+                progress.progressionEnabled = false;
+                var staffStrike = slavers[i].GetComponent<BanditDuelStrikeDamage>();
+                if (staffStrike) staffStrike.damage = openingStaffBaseDamage;
+                if (slavers[i].health) slavers[i].health.unarmedTraumaMultiplier = slaverUnarmedTraumaMultiplier;
             }
         }
 
@@ -130,6 +144,8 @@ namespace Zandea.Opening
         {
             if (Outcome.HasValue || Phase == OpeningPhase.Dormant || Phase == OpeningPhase.Completed) return false;
             Outcome = outcome;
+            if (playerHealth && !playerHealth.IsDead && outcome != OpeningOutcome.Aborted)
+                CharacterCombatProgression.Find(player.transform)?.RecordEncounterSurvived();
             Phase = OpeningPhase.Resolving;
             GateTransitionActions();
             Debug.Log("OPENING_RESOLVED " + outcome, this);

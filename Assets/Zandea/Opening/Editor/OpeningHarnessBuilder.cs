@@ -129,6 +129,7 @@ namespace Zandea.Opening.Editor
             director.kaelProfile = AssetDatabase.LoadAssetAtPath<CharacterAttributeProfile>(KaelProfilePath);
             director.ordinarySlaverProfile = AssetDatabase.LoadAssetAtPath<CharacterAttributeProfile>(OrdinaryProfilePath);
             director.leaderProfile = AssetDatabase.LoadAssetAtPath<CharacterAttributeProfile>(LeaderProfilePath);
+            director.persistPlayerProgress = !includeDiagnostics;
             if (!director.kaelProfile || !director.ordinarySlaverProfile || !director.leaderProfile)
                 throw new InvalidOperationException("Opening character attribute profiles are missing.");
             director.ApplyOpeningProfiles();

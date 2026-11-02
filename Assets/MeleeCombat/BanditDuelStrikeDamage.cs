@@ -115,7 +115,16 @@ namespace KenshiVR.MeleeCombat
                 player != brain.target.GetComponentInParent<ScavengerPlayerHealth>()) return false;
             var defender = enemy ? enemy.GetComponent<StarvingBandit>() : null;
             if (defender && (defender.state == StarvingBandit.State.Dodge || defender.DeflectsDamageFrom(weapon))) return false;
-            if (player && PracticeSwordGuard.BlocksRecentStrike(weapon)) return false;
+            if (player && PracticeSwordGuard.BlocksRecentStrike(weapon))
+            {
+                scoredAttack = brain.AttackSequence;
+                CharacterCombatProgression.RecordHit(new DamagePacket {
+                    BaseDamage = damage, DamageType = DamageType.Kinetic,
+                    PhysicalImpact = PhysicalImpactKind.Blunt, Source = gameObject,
+                    WeaponId = weapon.name, HitPointWorld = point, Timestamp = Time.time
+                }, player.transform, 0f, 0f, true, true, false, false, true, true);
+                return false;
+            }
             scoredAttack = brain.AttackSequence;
             LastContactPoint = point;
             ContactHits++;

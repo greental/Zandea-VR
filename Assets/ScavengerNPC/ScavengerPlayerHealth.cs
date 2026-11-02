@@ -68,10 +68,13 @@ namespace ScavengerNPC
         {
             if (Current <= 0 || packet.BaseDamage <= 0 || float.IsNaN(packet.BaseDamage)) return;
             float multiplier = 1f;
+            bool blocked = false, parried = false;
             if (packet.Source)
                 foreach (var hand in GetComponentsInChildren<PlayerMartialHand>(true))
                 {
                     if (!hand.TryDefend(packet.HitPointWorld, packet.Source.transform.position, out bool parry)) continue;
+                    parried = parry;
+                    blocked = true;
                     multiplier = parry ? .1f : .35f;
                     if (parry)
                     {
@@ -81,6 +84,10 @@ namespace ScavengerNPC
                     break;
                 }
             float before = Current;
+            float traumaBefore = Trauma;
+            var priorKnockout = GetComponentInParent<Zandea.Opening.PlayerKnockout>();
+            if (!priorKnockout) priorKnockout = GetComponentInChildren<Zandea.Opening.PlayerKnockout>(true);
+            bool wasConscious = !priorKnockout || priorKnockout.State == Zandea.Opening.PlayerConsciousness.Conscious;
             var attributes = GetComponent<CharacterAttributes>();
             if (!attributes) attributes = GetComponentInChildren<CharacterAttributes>(true);
             float taken = packet.BaseDamage * multiplier * CharacterCombatMath.DamageTaken(attributes);
@@ -106,6 +113,12 @@ namespace ScavengerNPC
                     packet.PhysicalImpact == PhysicalImpactKind.Sharp || packet.PhysicalImpact == PhysicalImpactKind.Unspecified);
             }
             hitFlash = 1;
+            var knockoutState = GetComponentInParent<Zandea.Opening.PlayerKnockout>();
+            if (!knockoutState) knockoutState = GetComponentInChildren<Zandea.Opening.PlayerKnockout>(true);
+            CharacterCombatProgression.RecordHit(packet, transform, before - Current, Trauma - traumaBefore,
+                blocked, parried, false, wasConscious && knockoutState &&
+                knockoutState.State == Zandea.Opening.PlayerConsciousness.KnockoutStarting,
+                before > 0f && wasConscious, true);
             onDirectHit?.Invoke();
             onDamaged.Invoke();
             if (Current <= 0)

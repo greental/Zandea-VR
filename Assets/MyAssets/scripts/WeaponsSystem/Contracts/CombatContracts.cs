@@ -64,6 +64,7 @@ namespace VRKoombar.WeaponsStaging.Contracts
         public GameObject Source;
         public string WeaponId;
         public float Timestamp;
+        public bool SurpriseAttack;
     }
 
     public interface IDamageable

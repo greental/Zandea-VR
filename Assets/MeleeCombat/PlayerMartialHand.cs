@@ -117,7 +117,15 @@ namespace KenshiVR.MeleeCombat
                 if (speed >= minimumSpeed && Vector3.Distance(strikeStart, current) >= minimumTravel)
                 {
                     State = HandState.ActivePunch;
+                    CharacterCombatProgression.RecordPunchAttempt(body.transform);
                     TryPunch(previous, current, speed);
+                    if (ready)
+                    {
+                        ready = false;
+                        recoveryUntil = Time.time + punchCooldown;
+                        quietSeconds = 0f;
+                        State = HandState.Recovery;
+                    }
                 }
                 else State = HandState.MartialStance;
             }
@@ -140,10 +148,14 @@ namespace KenshiVR.MeleeCombat
                 if (Vector3.Distance(contact, center) > fistRadius + .02f) continue;
                 float damage = Mathf.Clamp(4f + (speed - minimumSpeed) * 3.5f, 4f, 16f);
                 damage *= CharacterCombatMath.UnarmedDamage(body.GetComponent<CharacterAttributes>(), martialArtsDamageScale);
+                var capture = Zandea.Opening.Capture.OpeningCaptureGroup.Active;
+                float surprise = capture ? capture.ConsumeSurprisePunch(shape.GetComponentInParent<StarvingBandit>()) : 1f;
+                damage *= surprise;
                 target.ApplyDamage(new DamagePacket {
                     BaseDamage = damage, DamageType = DamageType.Kinetic, PhysicalImpact = PhysicalImpactKind.Unarmed, HitPointWorld = contact,
                     HitNormalWorld = (contact - from).normalized, Source = body.gameObject,
-                    WeaponId = left ? "left fist" : "right fist", Timestamp = Time.time
+                    WeaponId = left ? "left fist" : "right fist", Timestamp = Time.time,
+                    SurpriseAttack = surprise > 1f
                 });
                 var martial = shape.GetComponentInParent<NpcMartialArts>();
                 if (martial) martial.ReceiveStrikeStagger(Mathf.Clamp(speed / 3f, .8f, 1.5f));

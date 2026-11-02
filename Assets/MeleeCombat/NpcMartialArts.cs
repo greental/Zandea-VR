@@ -83,13 +83,14 @@ namespace KenshiVR.MeleeCombat
         void OnDamaged()
         {
             if (!IsUnarmed) return;
+            float staggerScale = CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>());
             activeStrike = null;
             scored.Clear();
-            staggerUntil = Time.time + .35f;
+            staggerUntil = Time.time + .35f * staggerScale;
             staggerStart = Time.time;
             staggerDirection = brain.target ?
                 Vector3.ProjectOnPlane(transform.position - brain.target.position, Vector3.up).normalized : -transform.forward;
-            staggerDistanceLeft = .45f;
+            staggerDistanceLeft = .45f * staggerScale;
             if (!hitSpine && animator && animator.isHuman)
                 hitSpine = animator.GetBoneTransform(HumanBodyBones.Spine);
             nextAttack = Mathf.Max(nextAttack, staggerUntil);
@@ -101,8 +102,9 @@ namespace KenshiVR.MeleeCombat
         {
             if (!IsUnarmed) return;
             OnDamaged();
-            staggerUntil = Mathf.Max(staggerUntil, Time.time + .2f * strength);
-            staggerDistanceLeft = Mathf.Max(staggerDistanceLeft, .45f * strength);
+            float staggerScale = CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>());
+            staggerUntil = Mathf.Max(staggerUntil, Time.time + .2f * strength * staggerScale);
+            staggerDistanceLeft = Mathf.Max(staggerDistanceLeft, .45f * strength * staggerScale);
         }
 
         void Update()
@@ -203,6 +205,8 @@ namespace KenshiVR.MeleeCombat
             if (index < 0) return;
             lastStrike = index;
             activeStrike = profile.strikes[index];
+            if (activeStrike.limb == HumanBodyBones.LeftHand || activeStrike.limb == HumanBodyBones.RightHand)
+                CharacterCombatProgression.RecordPunchAttempt(transform);
             limb = animator.GetBoneTransform(activeStrike.limb);
             if (!limb) { activeStrike = null; return; }
             previousLimb = limb.position;
