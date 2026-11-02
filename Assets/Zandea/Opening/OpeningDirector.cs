@@ -147,6 +147,7 @@ namespace Zandea.Opening
             if (playerHealth && !playerHealth.IsDead && outcome != OpeningOutcome.Aborted)
                 CharacterCombatProgression.Find(player.transform)?.RecordEncounterSurvived();
             Phase = OpeningPhase.Resolving;
+            if (ultimatum && ultimatum.IsDemanding) ultimatum.ResetDemand();
             GateTransitionActions();
             Debug.Log("OPENING_RESOLVED " + outcome, this);
             Resolved?.Invoke(outcome);

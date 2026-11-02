@@ -79,6 +79,15 @@ namespace Zandea.Opening.Capture
             return true;
         }
 
+        // Reuse the ordinary approach/binding flow after a nonlethal combat knockout.
+        public bool BeginCaptureOfUnconsciousPrisoner()
+        {
+            if (State == CaptureGroupState.Combat || State == CaptureGroupState.Aborted)
+                State = CaptureGroupState.Idle;
+            SetCompliance(true);
+            return BeginCapture();
+        }
+
         public float ConsumeSurprisePunch(StarvingBandit target)
         {
             if (surpriseConsumed || !target || target != Captor ||

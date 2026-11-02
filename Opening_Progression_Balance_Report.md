@@ -2,7 +2,7 @@
 
 ## Implementation state
 
-Slices 2–5 are implemented in the existing `DamagePacket` → health receiver pipeline. This report records the Slice 6 design targets and the checks still requiring Unity and a headset. No Unity or headset result is asserted here.
+Slices 2–5 are implemented in the existing `DamagePacket` → health receiver pipeline. Slice 6 has automated scene/profile, formula, and save/load checks in an isolated Unity project. In-headset balance remains to be measured.
 
 ## Starting profiles
 
@@ -21,16 +21,21 @@ The opening director applies these profile assets to its existing player and thr
 - A one-time fake-surrender punch against the current captor receives a configurable 1.8 multiplier. A strong surprise punch followed by a strong ordinary punch can exceed the captor's trauma threshold, while weaker or blocked strikes may not. The first strike is marked as a surprise in recent-hit diagnostics.
 - XP is awarded from resolved meaningful hits. The default total award cap is 25 XP per 120-second window across attributes. The next point costs `30 + 6 × current attribute value` XP. This prevents a few punches from leveling Kael into an experienced fighter.
 
-These are calculations from configured formulas, **not measured combat results**.
+The isolated Unity validation measured these configured formulas: `OPENING_BALANCE_CALC` reported punch `15.02`, ordinary-slaver trauma threshold `52.50`, staff `12.32`, and Kael trauma threshold `36.00` in both scenes. These are **formula results**, not physical headset strikes.
 
-## Unity automated checks to run after implementation
+## Unity automated results
 
-1. Compile scripts and load `Assets/Main.unity` and `Assets/Scenes/Zandea/OpeningCaptureTest.unity`.
-2. Confirm the player and three slaver profiles, one `CharacterAttributes` and one `CharacterCombatProgression` per character, and unchanged V2 prefab defaults.
-3. Exercise the authoritative health receivers with unarmed and Bo Staff packets. Record raw, actual health and trauma damage, block/parry state, XP and knockout state for each hit.
-4. Confirm one punch attempt and one landed hit per swing, one staff hit per attack, bounded recent history, and a single knockout transition.
-5. Save, reload, compare attributes, XP and lifetime totals; confirm recent debug hits are not restored.
-6. Re-run opening navigation, surrender, capture, escort, disarm, weapon physics, gore and knockout validations.
+- `OPENING_PROGRESSION_VALIDATION_PASS`: both scenes have the intended profiles and exactly one attribute/progression component per opening character after repeated setup; the unrelated unified NPC prefab retains its original profile. A temporary Kael-style save/load round trip restored Strength, XP, and punch-attempt statistics.
+- `OPENING_MAIN_SMOKE ... nav=True,True,True`: all three opening slavers reached NavMesh at their saved encounter positions after the opening root and navigation center were corrected.
+- `OPENING_CAPTURED_TITLE_RECOVERY_PASS`: the title route completed, blackout faded back, the player recovered, and the capture group resumed.
+- `OPENING_MAIN_POST_KO_CAPTURE_PASS state=Binding`: the Main-scene slavers reached the player and began the existing binding action after knockout/title handoff.
+
+## Checks still needed
+
+1. Exercise real unarmed and Bo Staff collisions in headset and record actual health/trauma damage, block/parry state, XP, and knockout count. The formula test does not replace physical strike testing.
+2. Confirm one punch attempt and one landed hit per swing, one staff hit per attack, bounded recent history, and a single knockout transition under headset motion.
+3. Confirm the stereo blackout and welcome title in both eyes. Batch mode compiled the instanced shader but has no headset display.
+4. Recheck surrender, escort, disarm, weapon physics, gore, replay, and recovery interactively after the latest changes.
 
 ## Manual headset checks
 

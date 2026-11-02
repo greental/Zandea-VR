@@ -649,12 +649,6 @@ MonoBehaviour:
   - {fileID: 137660114}
   - {fileID: 1080609762}
   - {fileID: 1448055382}
-  kaelProfile: {fileID: 11400000, guid: 13c428744c824b3f82efdf1cf69d4102, type: 2}
-  ordinarySlaverProfile: {fileID: 11400000, guid: e79f82e7257542a198613e4e5ff17716, type: 2}
-  leaderProfile: {fileID: 11400000, guid: 7db30de42297448db2f954b9e9f95dd9, type: 2}
-  persistPlayerProgress: 0
-  openingStaffBaseDamage: 11.5
-  slaverUnarmedTraumaMultiplier: 1.5
   director: {fileID: 1007923876}
 --- !u!114 &1007923876
 MonoBehaviour:
@@ -677,6 +671,12 @@ MonoBehaviour:
   - {fileID: 137660114}
   - {fileID: 1080609762}
   - {fileID: 1448055382}
+  kaelProfile: {fileID: 11400000, guid: 13c428744c824b3f82efdf1cf69d4102, type: 2}
+  ordinarySlaverProfile: {fileID: 11400000, guid: e79f82e7257542a198613e4e5ff17716, type: 2}
+  leaderProfile: {fileID: 11400000, guid: 7db30de42297448db2f954b9e9f95dd9, type: 2}
+  persistPlayerProgress: 0
+  openingStaffBaseDamage: 11.5
+  slaverUnarmedTraumaMultiplier: 1.5
   presentation: {fileID: 1007923877}
   encounterCenter: {fileID: 1007923883}
   awakeningSeconds: 2

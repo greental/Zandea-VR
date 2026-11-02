@@ -111,19 +111,24 @@ namespace Zandea.Opening
             var textObject = new GameObject("Opening title");
             textObject.transform.SetParent(viewCamera.transform, false);
             textObject.transform.localPosition = Vector3.forward * .45f;
+            textObject.transform.localScale = Vector3.one * .01f;
             titleText = textObject.AddComponent<TextMeshPro>();
             titleText.text = title;
             if (font) titleText.font = font;
             if (titleText.fontSharedMaterial)
             {
-                titleMaterial = new Material(titleText.fontSharedMaterial) { name = "Opening title foreground", renderQueue = 5001 };
+                titleMaterial = new Material(titleText.fontSharedMaterial) { name = "Opening title foreground", renderQueue = 5002 };
+                var overlayShader = Shader.Find("TextMeshPro/Distance Field Overlay");
+                if (overlayShader) titleMaterial.shader = overlayShader;
+                titleMaterial.renderQueue = 5002;
                 if (titleMaterial.HasProperty("_ZTestMode"))
                     titleMaterial.SetFloat("_ZTestMode", (float)UnityEngine.Rendering.CompareFunction.Always);
                 titleText.fontMaterial = titleMaterial;
             }
-            titleText.fontSize = 0.09f;
+            titleText.fontSize = 5f;
             titleText.alignment = TextAlignmentOptions.Center;
-            titleText.rectTransform.sizeDelta = new Vector2(1.2f, .2f);
+            titleText.enableWordWrapping = false;
+            titleText.rectTransform.sizeDelta = new Vector2(80f, 15f);
             titleText.enabled = false;
         }
 

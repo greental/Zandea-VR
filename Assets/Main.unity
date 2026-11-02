@@ -1211,15 +1211,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3841.449
+      value: -3668.769
       objectReference: {fileID: 0}
     - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3208.4849
+      value: -3213.1438
       objectReference: {fileID: 0}
     - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2686.9333
+      value: 2331.22
       objectReference: {fileID: 0}
     - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5251,15 +5251,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 763479120650093068, guid: 7cc9f9cb50ac7574994ccf49af5e4951, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3844.48
+      value: -3671.8
       objectReference: {fileID: 0}
     - target: {fileID: 763479120650093068, guid: 7cc9f9cb50ac7574994ccf49af5e4951, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3208.1912
+      value: -3212.85
       objectReference: {fileID: 0}
     - target: {fileID: 763479120650093068, guid: 7cc9f9cb50ac7574994ccf49af5e4951, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2688.6833
+      value: 2332.97
       objectReference: {fileID: 0}
     - target: {fileID: 763479120650093068, guid: 7cc9f9cb50ac7574994ccf49af5e4951, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5438,6 +5438,7 @@ MonoBehaviour:
   knockoutStartSeconds: 0.35
   defaultRecoverySeconds: 12
   recoverySeconds: 0.5
+  enduranceRecoveryScale: 0.2
   health: {fileID: 145904224}
 --- !u!1 &146122367
 GameObject:
@@ -11698,7 +11699,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &240271905
 Transform:
   m_ObjectHideFlags: 0
@@ -23227,12 +23228,6 @@ MonoBehaviour:
   - {fileID: 1360301562}
   - {fileID: 40760040}
   - {fileID: 888180442}
-  kaelProfile: {fileID: 11400000, guid: 13c428744c824b3f82efdf1cf69d4102, type: 2}
-  ordinarySlaverProfile: {fileID: 11400000, guid: e79f82e7257542a198613e4e5ff17716, type: 2}
-  leaderProfile: {fileID: 11400000, guid: 7db30de42297448db2f954b9e9f95dd9, type: 2}
-  persistPlayerProgress: 1
-  openingStaffBaseDamage: 11.5
-  slaverUnarmedTraumaMultiplier: 1.5
   navigationRadius: 32
   groundTolerance: 0.75
   readyTimeout: 10
@@ -23295,6 +23290,12 @@ MonoBehaviour:
   - {fileID: 1360301562}
   - {fileID: 40760040}
   - {fileID: 888180442}
+  kaelProfile: {fileID: 11400000, guid: 13c428744c824b3f82efdf1cf69d4102, type: 2}
+  ordinarySlaverProfile: {fileID: 11400000, guid: e79f82e7257542a198613e4e5ff17716, type: 2}
+  leaderProfile: {fileID: 11400000, guid: 7db30de42297448db2f954b9e9f95dd9, type: 2}
+  persistPlayerProgress: 1
+  openingStaffBaseDamage: 11.5
+  slaverUnarmedTraumaMultiplier: 1.5
   presentation: {fileID: 582436992}
   encounterCenter: {fileID: 582436998}
   awakeningSeconds: 2
@@ -23473,6 +23474,7 @@ MonoBehaviour:
   sightMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  surprisePunchMultiplier: 1.8
 --- !u!114 &582436997
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23530,7 +23532,7 @@ Transform:
   m_GameObject: {fileID: 582436987}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3844.48, y: -3208.1912, z: 2688.6833}
+  m_LocalPosition: {x: -3671.8, y: -3213.04, z: 2332.97}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -35422,15 +35424,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3847.511
+      value: -3674.831
       objectReference: {fileID: 0}
     - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3208.2205
+      value: -3212.8794
       objectReference: {fileID: 0}
     - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2686.9333
+      value: 2331.22
       objectReference: {fileID: 0}
     - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -49574,15 +49576,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3844.48
+      value: -3671.8
       objectReference: {fileID: 0}
     - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3208.4426
+      value: -3213.1016
       objectReference: {fileID: 0}
     - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2692.1833
+      value: 2336.47
       objectReference: {fileID: 0}
     - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -74429,7 +74431,7 @@ PrefabInstance:
       objectReference: {fileID: 1039644846}
     - target: {fileID: 8963684178784864307, guid: 18ba055ff0d019f4680d4a3d933a326b, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -74442,6 +74444,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8963684178784864307, guid: 18ba055ff0d019f4680d4a3d933a326b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1039644846}
+    - targetCorrespondingSourceObject: {fileID: 794810413872308755, guid: 18ba055ff0d019f4680d4a3d933a326b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
     - targetCorrespondingSourceObject: {fileID: 2524758978991110414, guid: 18ba055ff0d019f4680d4a3d933a326b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}

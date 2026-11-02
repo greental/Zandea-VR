@@ -57,10 +57,11 @@ namespace Zandea.Opening.Editor
         public static void RunCapturedTitleSmoke() => Run("captured-title");
         public static void RunAggressionSmoke() => Run("aggression");
         public static void RunMainSmoke() => Run("main");
+        public static void RunMainPostKnockoutSmoke() => Run("main-post-ko");
 
         static void Run(string mode)
         {
-            EditorSceneManager.OpenScene(mode == "main" ? OpeningMainInstaller.MainPath : OpeningHarnessBuilder.ScenePath);
+            EditorSceneManager.OpenScene(mode.StartsWith("main", StringComparison.Ordinal) ? OpeningMainInstaller.MainPath : OpeningHarnessBuilder.ScenePath);
             EditorPrefs.SetString(Mode, mode);
             initialized = false;
             EditorApplication.isPlaying = true;
@@ -75,7 +76,7 @@ namespace Zandea.Opening.Editor
                 if (!initialized)
                 {
                     initialized = true;
-                    var mainDirector = mode == "main" ? UnityEngine.Object.FindFirstObjectByType<OpeningDirector>() : null;
+                    var mainDirector = mode.StartsWith("main", StringComparison.Ordinal) ? UnityEngine.Object.FindFirstObjectByType<OpeningDirector>() : null;
                     body = mainDirector ? mainDirector.player : UnityEngine.Object.FindFirstObjectByType<VRBodyController>();
                     knockout = mainDirector ? mainDirector.knockout : UnityEngine.Object.FindFirstObjectByType<PlayerKnockout>();
                     if (!body || !knockout || !body.hmd || !body.leftController || !body.rightController)
@@ -91,7 +92,7 @@ namespace Zandea.Opening.Editor
                         var director = UnityEngine.Object.FindFirstObjectByType<OpeningDirector>();
                         if (director && mode != "escape-route" && mode != "victory-route" && mode != "captured-title") director.enabled = false;
                         var flow = UnityEngine.Object.FindFirstObjectByType<OpeningFlow>();
-                        if (flow) flow.enabled = false;
+                        if (flow && mode != "captured-title") flow.enabled = false;
                         var ultimatum = UnityEngine.Object.FindFirstObjectByType<SlaverUltimatum>();
                         if (ultimatum) ultimatum.enabled = false;
                     }
@@ -179,6 +180,19 @@ namespace Zandea.Opening.Editor
                     {
                         openingDirector = UnityEngine.Object.FindFirstObjectByType<OpeningDirector>();
                         if (!openingDirector) throw new InvalidOperationException("Main opening director missing");
+                        gameDeadline = Time.time + .5f;
+                        wallDeadline = EditorApplication.timeSinceStartup + 90d;
+                    }
+                    else if (mode == "main-post-ko")
+                    {
+                        openingDirector = UnityEngine.Object.FindFirstObjectByType<OpeningDirector>();
+                        capture = UnityEngine.Object.FindFirstObjectByType<OpeningCaptureGroup>();
+                        if (!openingDirector || !capture) throw new InvalidOperationException("Main capture references missing");
+                        openingDirector.presentation.fadeToBlackSeconds = .1f;
+                        openingDirector.presentation.titleHoldSeconds = .1f;
+                        openingDirector.presentation.fadeTitleSeconds = .1f;
+                        openingDirector.presentation.fadeBackSeconds = .1f;
+                        cycle = 0;
                         gameDeadline = Time.time + 5f;
                         wallDeadline = EditorApplication.timeSinceStartup + 45d;
                     }
@@ -205,6 +219,7 @@ namespace Zandea.Opening.Editor
                 else if (mode == "gesture") TickGesture();
                 else if (mode == "escape-route" || mode == "victory-route" || mode == "captured-title") TickRoute();
                 else if (mode == "main") TickMain();
+                else if (mode == "main-post-ko") TickMainPostKnockout();
                 else if (mode == "aggression") TickAggression();
                 else if (EditorApplication.timeSinceStartup >= next) FinishEncounter();
             }
@@ -392,6 +407,12 @@ namespace Zandea.Opening.Editor
                 throw new InvalidOperationException("Welcome title did not appear and fade back to the scene");
             if (captureMode && knockout.State != PlayerConsciousness.Conscious)
                 throw new InvalidOperationException("Captured player remained fainted after title: " + knockout.State);
+            if (captureMode)
+            {
+                var resumedCapture = UnityEngine.Object.FindFirstObjectByType<OpeningCaptureGroup>();
+                if (!resumedCapture || resumedCapture.State != CaptureGroupState.CaptorApproach || !resumedCapture.Captor)
+                    throw new InvalidOperationException("Slavers did not resume capture after the knockout title");
+            }
             Debug.Log(captureMode ? "OPENING_CAPTURED_TITLE_RECOVERY_PASS" :
                 victoryMode ? "OPENING_VICTORY_ROUTE_PASS" : "OPENING_ESCAPE_ROUTE_PASS");
             Finish(true);
@@ -446,6 +467,40 @@ namespace Zandea.Opening.Editor
             Debug.Log($"OPENING_MAIN_SMOKE phase={openingDirector.Phase} nav={nav} " +
                 "states=" + string.Join(",", slavers.Select(member => member.state.ToString())));
             Finish(slavers.All(member => member.agent && member.agent.isOnNavMesh));
+        }
+
+        static void TickMainPostKnockout()
+        {
+            if (cycle == 0)
+            {
+                if (Time.time < gameDeadline) return;
+                if (openingDirector.slavers.Any(member => !member || !member.agent || !member.agent.isOnNavMesh))
+                {
+                    if (EditorApplication.timeSinceStartup >= wallDeadline)
+                        throw new InvalidOperationException("Opening slavers never reached NavMesh before KO");
+                    return;
+                }
+                if (!knockout.RequestKnockout("post-knockout capture validation", true))
+                    throw new InvalidOperationException("Could not begin Main knockout");
+                cycle = 1;
+                gameDeadline = Time.time + 3f;
+                wallDeadline = EditorApplication.timeSinceStartup + 30d;
+                return;
+            }
+            if (Time.time < gameDeadline && EditorApplication.timeSinceStartup < wallDeadline) return;
+            if (openingDirector.Outcome != OpeningOutcome.CapturedUnconscious ||
+                openingDirector.Phase != OpeningPhase.Completed ||
+                capture.State != CaptureGroupState.CaptorApproach &&
+                capture.State != CaptureGroupState.Binding && capture.State != CaptureGroupState.Escort ||
+                !capture.Captor || !capture.Captor.agent || !capture.Captor.agent.isOnNavMesh ||
+                !capture.Captor.groupControlled || capture.Captor.groupEngaged)
+                throw new InvalidOperationException($"Post-KO capture did not resume: outcome={openingDirector.Outcome} " +
+                    $"phase={openingDirector.Phase} capture={capture.State} captor={capture.Captor} " +
+                    $"nav={(capture.Captor && capture.Captor.agent && capture.Captor.agent.isOnNavMesh)} " +
+                    $"controlled={(capture.Captor && capture.Captor.groupControlled)} " +
+                    $"engaged={(capture.Captor && capture.Captor.groupEngaged)}");
+            Debug.Log("OPENING_MAIN_POST_KO_CAPTURE_PASS state=" + capture.State);
+            Finish(true);
         }
 
         static void Finish(bool success)

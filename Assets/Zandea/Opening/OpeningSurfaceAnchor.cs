@@ -59,7 +59,12 @@ namespace Zandea.Opening
         {
             var first = slavers[0] ? slavers[0].agent : null;
             if (!first) return false;
-            Vector3 center = group.transform.position;
+            Vector3 center = Vector3.zero;
+            int count = 0;
+            foreach (var slaver in slavers)
+                if (slaver) { center += slaver.transform.position; count++; }
+            if (count == 0) return false;
+            center /= count;
             var bounds = new Bounds(center, new Vector3(navigationRadius * 2f, 80f, navigationRadius * 2f));
             var sources = new List<NavMeshBuildSource>();
             NavMeshBuilder.CollectSources(bounds, ~0, NavMeshCollectGeometry.PhysicsColliders, 0,
@@ -94,7 +99,7 @@ namespace Zandea.Opening
             navigation = NavMeshBuilder.BuildNavMeshData(settings, sources,
                 new Bounds(Vector3.zero, bounds.size), center, Quaternion.identity);
             if (!navigation) return false;
-            navigationInstance = NavMesh.AddNavMeshData(navigation, center, Quaternion.identity);
+            navigationInstance = NavMesh.AddNavMeshData(navigation);
             if (!navigationInstance.valid) return false;
             if (!NavMesh.SamplePosition(center, out _, groundTolerance, filter))
             {

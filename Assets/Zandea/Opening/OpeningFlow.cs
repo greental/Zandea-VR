@@ -42,6 +42,7 @@ namespace Zandea.Opening
             if (binder) { binder.Restrained += OnRestrained; binder.Interrupted += OnBindingInterrupted; }
             if (escort) { escort.DestinationReached += OnDestination; escort.PrisonerEscaped += OnEscape; escort.EscortInterrupted += OnEscortInterrupted; }
             if (director) director.Resolved += OnResolved;
+            if (director) director.onOpeningCompleted.AddListener(OnOpeningCompleted);
         }
 
         void OnDisable()
@@ -54,6 +55,7 @@ namespace Zandea.Opening
             if (binder) { binder.Restrained -= OnRestrained; binder.Interrupted -= OnBindingInterrupted; }
             if (escort) { escort.DestinationReached -= OnDestination; escort.PrisonerEscaped -= OnEscape; escort.EscortInterrupted -= OnEscortInterrupted; }
             if (director) director.Resolved -= OnResolved;
+            if (director) director.onOpeningCompleted.RemoveListener(OnOpeningCompleted);
         }
 
         void OnSurrender() => capture?.SetCompliance(true);
@@ -137,6 +139,13 @@ namespace Zandea.Opening
                         if (outcome == OpeningOutcome.Escaped) member.target = null;
                     }
             }
+        }
+
+        void OnOpeningCompleted()
+        {
+            if (!director || director.Outcome != OpeningOutcome.CapturedUnconscious || !capture) return;
+            if (!capture.BeginCaptureOfUnconsciousPrisoner())
+                Debug.LogWarning("Living slavers could not resume capture after the title.", this);
         }
     }
 }
