@@ -82,7 +82,12 @@ namespace Zandea.Opening.Editor
             group.banditPrefab = members[0];
             group.authoredMembers = members;
             group.groupSize = members.Length;
-            group.buildLocalNavMesh = false;
+            group.buildLocalNavMesh = !includeDiagnostics;
+            if (!includeDiagnostics)
+            {
+                group.localNavMeshRadius = 30f;
+                group.patrolRadius = 12f;
+            }
             group.sightRange = 20f;
             group.fieldOfView = 360f;
             var capture = root.AddComponent<OpeningCaptureGroup>();

@@ -3321,6 +3321,103 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5922997578264562839, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
   m_PrefabInstance: {fileID: 56648467}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &76124730
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2678758142090184725, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: target
+      value: 
+      objectReference: {fileID: 1618346320}
+    - target: {fileID: 2678758142090184725, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: initialAttackDelay
+      value: 2.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3957.031
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3174.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2532.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.8660254
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3638151384212234887, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_Name
+      value: Opening staff slaver 3
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3638151384212234887, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 76124733}
+  m_SourcePrefab: {fileID: 100100000, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+--- !u!114 &76124731 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2678758142090184725, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+  m_PrefabInstance: {fileID: 76124730}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76124732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
+--- !u!1 &76124732 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3638151384212234887, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+  m_PrefabInstance: {fileID: 76124730}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &76124733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76124732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f45a2b763c4746d79333e2877a5ba12b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.Combat.NonlethalAttackProfile
+  requireBluntStaff: 1
 --- !u!4 &76126942 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6568399931397485848, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
@@ -15840,6 +15937,335 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2065578633269693774, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
   m_PrefabInstance: {fileID: 169713700}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &396042997
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 396043006}
+  - component: {fileID: 396043005}
+  - component: {fileID: 396043004}
+  - component: {fileID: 396043003}
+  - component: {fileID: 396043002}
+  - component: {fileID: 396043001}
+  - component: {fileID: 396043000}
+  - component: {fileID: 396042999}
+  - component: {fileID: 396042998}
+  - component: {fileID: 396043007}
+  m_Layer: 0
+  m_Name: Zandea opening encounter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &396042998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396042997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96b4ff5879bc4a468c9c369e70ed918, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.OpeningFlow
+  surrender: {fileID: 1618346323}
+  ultimatum: {fileID: 396043001}
+  capture: {fileID: 396043004}
+  binder: {fileID: 396043003}
+  escort: {fileID: 396043002}
+  director: {fileID: 396042999}
+  bindingReachTimeout: 8
+--- !u!114 &396042999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396042997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56b5df685d2adbf4f98619d8d598a456, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.OpeningDirector
+  player: {fileID: 1618346321}
+  playerHealth: {fileID: 1618346318}
+  knockout: {fileID: 1618346324}
+  surrender: {fileID: 1618346323}
+  ultimatum: {fileID: 396043001}
+  slavers:
+  - {fileID: 1771092648}
+  - {fileID: 677651559}
+  - {fileID: 76124731}
+  presentation: {fileID: 396043000}
+  encounterCenter: {fileID: 396043006}
+  awakeningSeconds: 2
+  escapeDistance: 35
+  escapeUnseenSeconds: 6
+  escapeHoldSeconds: 3
+  visibilityMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  routes:
+  - outcome: 0
+    showTitle: 1
+    onResolved:
+      m_PersistentCalls:
+        m_Calls: []
+    onHandoff:
+      m_PersistentCalls:
+        m_Calls: []
+  - outcome: 1
+    showTitle: 1
+    onResolved:
+      m_PersistentCalls:
+        m_Calls: []
+    onHandoff:
+      m_PersistentCalls:
+        m_Calls: []
+  - outcome: 2
+    showTitle: 1
+    onResolved:
+      m_PersistentCalls:
+        m_Calls: []
+    onHandoff:
+      m_PersistentCalls:
+        m_Calls: []
+  - outcome: 3
+    showTitle: 1
+    onResolved:
+      m_PersistentCalls:
+        m_Calls: []
+    onHandoff:
+      m_PersistentCalls:
+        m_Calls: []
+  - outcome: 4
+    showTitle: 0
+    onResolved:
+      m_PersistentCalls:
+        m_Calls: []
+    onHandoff:
+      m_PersistentCalls:
+        m_Calls: []
+  onOpeningStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  onOpeningCompleted:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &396043000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396042997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62055137f847c9c42bae0860045d433f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.OpeningTitlePresentation
+  viewCamera: {fileID: 1618346319}
+  title: WELCOME TO ZANDEA
+  font: {fileID: 0}
+  titleSound: {fileID: 0}
+  fadeToBlackSeconds: 0.7
+  titleHoldSeconds: 2.5
+  fadeTitleSeconds: 0.5
+--- !u!114 &396043001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396042997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd276adcb24946d6bac45651436048d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.SlaverUltimatum
+  leader: {fileID: 1771092648}
+  guards:
+  - {fileID: 677651559}
+  - {fileID: 76124731}
+  player: {fileID: 1618346321}
+  surrender: {fileID: 1618346323}
+  demandClip: {fileID: 0}
+  warningClip: {fileID: 0}
+  subtitle: {fileID: 0}
+  demandText: Hands up. Come quietly, and you might live.
+  warningText: Last chance. Hands up.
+  responseSeconds: 8
+  warningExtensionSeconds: 3
+  flightDistance: 8
+  outwardSpeed: 0.4
+  flightHoldSeconds: 0.8
+  weaponStrikeSpeed: 2.5
+  weaponThreatDistance: 2.5
+  escalateAfterTimeout: 1
+--- !u!114 &396043002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396042997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a27dd0241614902a85582119679ade7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.Capture.OpeningPrisonerEscort
+  capture: {fileID: 396043004}
+  restraints: {fileID: 1618346326}
+  destination: {fileID: 1607170687}
+  moveLine: {fileID: 0}
+  waitLine: {fileID: 0}
+  warningLine: {fileID: 0}
+  leaderSpeed: 1.2
+  followRadius: 3
+  escapeDistance: 12
+  escapeDuration: 4
+  refusalSeconds: 12
+  destinationRadius: 1.5
+  pathFailureSeconds: 3
+--- !u!114 &396043003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396042997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dac9c690a6dd47ce99fca984c7f21bd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.Capture.OpeningBindingAction
+  capture: {fileID: 396043004}
+  restraints: {fileID: 1618346326}
+  prisoner: {fileID: 1618346321}
+  bindingClip: {fileID: 0}
+  bindingTrigger: Bind
+  bindSeconds: 2
+  maximumHandDistance: 1.1
+  ropeMaterial: {fileID: 0}
+--- !u!114 &396043004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396042997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 326cb35f4d1943858a9e416de4894c1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.Capture.OpeningCaptureGroup
+  group: {fileID: 396043005}
+  members:
+  - {fileID: 1771092648}
+  - {fileID: 677651559}
+  - {fileID: 76124731}
+  prisoner: {fileID: 1618346321}
+  bindDistance: 0.9
+  guardRadius: 2
+  reactionDelay: 0.55
+  suspicionDistance: 1.5
+  betrayalStepDistance: 1.5
+  sightMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &396043005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396042997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aef5f2ae81b48e743b32c0597948e893, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.BanditGroup
+  banditPrefab: {fileID: 1771092648}
+  weaponVariants: []
+  groupSize: 3
+  authoredMembers:
+  - {fileID: 1771092648}
+  - {fileID: 677651559}
+  - {fileID: 76124731}
+  authoredWeaponChoices: []
+  authoredWeaponProfiles: []
+  spawnRadius: 4
+  navMeshSampleRadius: 3
+  buildLocalNavMesh: 0
+  localNavMeshRadius: 40
+  appearanceOptions: []
+  headwearOptions: []
+  leaderHeadwearOptions: []
+  torsoOptions: []
+  legsOptions: []
+  outerArmorOptions: []
+  weaponOptions: []
+  patrolRadius: 80
+  patrolWalkSpeed: 1.5
+  followDistance: 2
+  waypointTolerance: 1.5
+  pauseBetweenWaypoints: {x: 1, y: 3}
+  patrolPoints: []
+  player: {fileID: 1618346320}
+  sightRange: 20
+  fieldOfView: 360
+  sightMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  forgetAfterSeconds: 8
+  surroundRadius: 2.1
+  surroundArcOffset: 25
+  attackSlotCooldown: 0.35
+--- !u!4 &396043006
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396042997}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3954, y: -3174.3, z: 2534}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1607170687}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &396043007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 396042997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4c6266e55bf486c8bcbedc19612f624, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.OpeningSurfaceAnchor
+  player: {fileID: 1618346321}
+  group: {fileID: 396043005}
+  slavers:
+  - {fileID: 1771092648}
+  - {fileID: 677651559}
+  - {fileID: 76124731}
+  escortDestination: {fileID: 1607170687}
+  playerGroundClearance: 0.08
+  navSnapRadius: 4
+  navReadyTimeout: 5
+  groundReadyTimeout: 10
 --- !u!4 &396660413 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1765046370327560627, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
@@ -26039,6 +26465,103 @@ LODGroup:
     renderers:
     - renderer: {fileID: 561234271}
   m_Enabled: 1
+--- !u!1001 &677651558
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2678758142090184725, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: target
+      value: 
+      objectReference: {fileID: 1618346320}
+    - target: {fileID: 2678758142090184725, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: initialAttackDelay
+      value: 2.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3950.969
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3174.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2532.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.8660254
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.49999997
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3638151384212234887, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_Name
+      value: Opening staff slaver 2
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3638151384212234887, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 677651561}
+  m_SourcePrefab: {fileID: 100100000, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+--- !u!114 &677651559 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2678758142090184725, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+  m_PrefabInstance: {fileID: 677651558}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 677651560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
+--- !u!1 &677651560 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3638151384212234887, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+  m_PrefabInstance: {fileID: 677651558}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &677651561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 677651560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f45a2b763c4746d79333e2877a5ba12b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.Combat.NonlethalAttackProfile
+  requireBluntStaff: 1
 --- !u!1 &679225528
 GameObject:
   m_ObjectHideFlags: 0
@@ -57514,6 +58037,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.CharacterCreator.AppearanceSpawnedItem
   slot: 3
   definition: {fileID: 11400000, guid: 3d167b69c2b3f234a9057d443dbcdd9d, type: 2}
+--- !u!1 &1607170686
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1607170687}
+  m_Layer: 0
+  m_Name: Opening escort destination
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1607170687
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1607170686}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 8}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 396043006}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1607178623
 GameObject:
   m_ObjectHideFlags: 0
@@ -57783,8 +58337,141 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2239238863097917274, guid: b2319fc7c46654543ab1ca3c6f6e9978, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1618346324}
+    - targetCorrespondingSourceObject: {fileID: 2239238863097917274, guid: b2319fc7c46654543ab1ca3c6f6e9978, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1618346323}
+    - targetCorrespondingSourceObject: {fileID: 2239238863097917274, guid: b2319fc7c46654543ab1ca3c6f6e9978, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1618346326}
+    - targetCorrespondingSourceObject: {fileID: 2239238863097917274, guid: b2319fc7c46654543ab1ca3c6f6e9978, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1618346325}
   m_SourcePrefab: {fileID: 100100000, guid: b2319fc7c46654543ab1ca3c6f6e9978, type: 3}
+--- !u!114 &1618346318 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4602407673303394426, guid: b2319fc7c46654543ab1ca3c6f6e9978, type: 3}
+  m_PrefabInstance: {fileID: 1618346317}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1618346322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4f7180aa669d0045af81c753b0da672, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScavengerNPC.ScavengerPlayerHealth
+--- !u!20 &1618346319 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 2639461920016977961, guid: b2319fc7c46654543ab1ca3c6f6e9978, type: 3}
+  m_PrefabInstance: {fileID: 1618346317}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1618346320 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5757973439413845328, guid: b2319fc7c46654543ab1ca3c6f6e9978, type: 3}
+  m_PrefabInstance: {fileID: 1618346317}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1618346321 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2557331084359188958, guid: b2319fc7c46654543ab1ca3c6f6e9978, type: 3}
+  m_PrefabInstance: {fileID: 1618346317}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce0d2222de93cec4f9ed0a1522eb9b16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JunkerBody.VRBodyController
+--- !u!1 &1618346322 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2239238863097917274, guid: b2319fc7c46654543ab1ca3c6f6e9978, type: 3}
+  m_PrefabInstance: {fileID: 1618346317}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1618346323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1618346322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9858eca06e1a40bb8110f2876b2e46ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.PlayerSurrenderGesture
+  body: {fileID: 1618346321}
+  leftGlove: {fileID: 0}
+  rightGlove: {fileID: 0}
+  leftInteractor: {fileID: 0}
+  rightInteractor: {fileID: 0}
+  leftMartial: {fileID: 0}
+  rightMartial: {fileID: 0}
+  knockout: {fileID: 1618346324}
+  shoulderDropBelowEyes: 0.31
+  riseAboveShoulders: 0.09
+  loweredHysteresis: 0.08
+  lateralHandSeparation: 0.13
+  maximumHorizontalReach: 0.65
+  maximumRaiseAboveEyes: 0.25
+  maximumOpenGrip: 0.28
+  maximumOpenTrigger: 0.3
+  confirmationSeconds: 0.8
+  cancellationGraceSeconds: 0.12
+  retryCooldownSeconds: 0.4
+  requireTrackedDevices: 1
+--- !u!114 &1618346324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1618346322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84d66ec553e54cf9b6643596a04deb42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.PlayerKnockout
+  knockoutStartSeconds: 0.35
+  defaultRecoverySeconds: 12
+  recoverySeconds: 0.5
+  health: {fileID: 1618346318}
+--- !u!114 &1618346325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1618346322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd883b3044074fccb170fe4ef3f4dbd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.KnockoutPresentation
+  knockout: {fileID: 1618346324}
+  viewCamera: {fileID: 1618346319}
+  impactClip: {fileID: 0}
+  ringingClip: {fileID: 0}
+  muffledCutoff: 850
+  blackoutOpacity: 1
+  fadeOutSeconds: 0.4
+  fadeInSeconds: 0.6
+--- !u!114 &1618346326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1618346322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f87c05c7dc3749fea971a3f88b881448, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.Capture.PlayerWristRestraints
+  body: {fileID: 1618346321}
+  ropeMaterial: {fileID: 0}
+  ropeWidth: 0.012
+  maximumVisualWristSeparation: 0.65
 --- !u!4 &1620130320 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 817653861826747483, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
@@ -63709,6 +64396,103 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3326424362054360470, guid: 4337b8c74395ed64a861ab88a4e2cb78, type: 3}
   m_PrefabInstance: {fileID: 1771028903}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1771092647
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2678758142090184725, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: target
+      value: 
+      objectReference: {fileID: 1618346320}
+    - target: {fileID: 2678758142090184725, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: initialAttackDelay
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3954
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3174.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2537.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336592664156435543, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3638151384212234887, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      propertyPath: m_Name
+      value: Opening staff slaver 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3638151384212234887, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1771092650}
+  m_SourcePrefab: {fileID: 100100000, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+--- !u!114 &1771092648 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2678758142090184725, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+  m_PrefabInstance: {fileID: 1771092647}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1771092649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
+--- !u!1 &1771092649 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3638151384212234887, guid: 275a494c85ca476d91e80a8a6fdbe75d, type: 3}
+  m_PrefabInstance: {fileID: 1771092647}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1771092650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1771092649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f45a2b763c4746d79333e2877a5ba12b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.Combat.NonlethalAttackProfile
+  requireBluntStaff: 1
 --- !u!4 &1771592873 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6869261579160339846, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
@@ -74967,3 +75751,7 @@ SceneRoots:
   - {fileID: 906517520}
   - {fileID: 240271905}
   - {fileID: 420969602}
+  - {fileID: 1771092647}
+  - {fileID: 677651558}
+  - {fileID: 76124730}
+  - {fileID: 396043006}

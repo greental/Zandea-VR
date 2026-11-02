@@ -25,6 +25,8 @@ namespace Zandea.Opening
         [Min(0f)] public float riseAboveShoulders = .09f;
         [Min(0f)] public float loweredHysteresis = .08f;
         [Min(0f)] public float lateralHandSeparation = .13f;
+        [Min(.1f)] public float maximumHorizontalReach = .65f;
+        [Min(0f)] public float maximumRaiseAboveEyes = .25f;
         [Header("Intent and timing")]
         [Range(0f, 1f)] public float maximumOpenGrip = .28f;
         [Range(0f, 1f)] public float maximumOpenTrigger = .3f;
@@ -110,6 +112,9 @@ namespace Zandea.Opening
             float requiredY = shoulderY + riseAboveShoulders -
                 (State == SurrenderState.Surrendering ? loweredHysteresis : 0f);
             if (controller.position.y < requiredY) return false;
+            if (controller.position.y > body.hmd.position.y + maximumRaiseAboveEyes) return false;
+            if (Vector3.ProjectOnPlane(controller.position - body.hmd.position, Vector3.up).magnitude > maximumHorizontalReach)
+                return false;
             float side = Vector3.Dot(controller.position - body.hmd.position, body.hmd.right);
             return left ? side <= -lateralHandSeparation : side >= lateralHandSeparation;
         }
