@@ -14,11 +14,14 @@ namespace KenshiVR.MeleeCombat
         [HideInInspector] public float cleanHitChance = .8f;
         int scoredAttack = -1;
         readonly RaycastHit[] sweepHits = new RaycastHit[24];
+        readonly Collider[] overlapHits = new Collider[24];
         Vector3 previousPositiveTip, previousNegativeTip;
         PhysicalMeleeWeapon previousWeapon;
         bool tipHistoryValid;
         public Vector3 LastContactPoint { get; private set; }
         public int ContactHits { get; private set; }
+        public int TipSweeps { get; private set; }
+        public int TipOverlaps { get; private set; }
 
         void Awake() { if (!brain) brain = GetComponent<StarvingBandit>(); }
 
@@ -65,7 +68,11 @@ namespace KenshiVR.MeleeCombat
         {
             Vector3 travel = to - from;
             float distance = travel.magnitude;
+            // SphereCast does not report a collider already containing its origin.
+            // Check actual tip overlap first, including a nearly stationary tip.
+            if (ScoreTipOverlap(weapon, from, distance / Mathf.Max(Time.deltaTime, .001f))) return;
             if (distance < .001f) return;
+            TipSweeps++;
             int count = Physics.SphereCastNonAlloc(from, .055f, travel / distance, sweepHits, distance,
                 ~0, QueryTriggerInteraction.Collide);
             float speed = distance / Mathf.Max(Time.deltaTime, .001f);
@@ -75,6 +82,21 @@ namespace KenshiVR.MeleeCombat
                 if (!hit.collider || hit.collider.transform.IsChildOf(brain.transform)) continue;
                 if (TryScoreContact(weapon, hit.collider, hit.point, hit.normal, speed)) return;
             }
+            ScoreTipOverlap(weapon, to, speed);
+        }
+
+        bool ScoreTipOverlap(PhysicalMeleeWeapon weapon, Vector3 tip, float speed)
+        {
+            int count = Physics.OverlapSphereNonAlloc(tip, .055f, overlapHits, ~0, QueryTriggerInteraction.Collide);
+            for (int i = 0; i < count; i++)
+            {
+                var other = overlapHits[i];
+                if (!other || other.transform.IsChildOf(brain.transform)) continue;
+                TipOverlaps++;
+                var point = other.ClosestPoint(tip);
+                if (TryScoreContact(weapon, other, point, (tip - point).normalized, speed)) return true;
+            }
+            return false;
         }
 
         public bool TryScoreContact(PhysicalMeleeWeapon weapon, Collider other, Vector3 point, Vector3 normal, float speed)

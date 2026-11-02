@@ -13,6 +13,7 @@ namespace Zandea.Opening
         public ScavengerPlayerHealth playerHealth;
         public BanditGroup group;
         public StarvingBandit[] bandits;
+        public PlayerKnockout knockout;
         [Min(1f)] public float logInterval = 10f;
         float nextLog;
 
@@ -20,13 +21,16 @@ namespace Zandea.Opening
         {
             var result = new StringBuilder("Opening harness | ");
             result.Append("player health=").Append(playerHealth ? playerHealth.Current.ToString("F0") : "missing");
-            result.Append(" | consciousness=unimplemented surrender=unimplemented restraint=unimplemented capture=unimplemented director=unimplemented");
+            result.Append(" | consciousness=").Append(knockout ? knockout.State.ToString() : "missing");
+            result.Append(" surrender=unimplemented restraint=unimplemented capture=unimplemented director=unimplemented");
             result.Append(" | tracking=").Append(player && player.hmd && player.leftController && player.rightController ? "wired" : "missing");
             result.Append(" | group=").Append(group ? "wired" : "missing");
             if (bandits != null)
                 foreach (var bandit in bandits)
                     result.Append(" | ").Append(bandit ? bandit.name : "missing bandit")
-                        .Append('=').Append(bandit ? bandit.state.ToString() : "missing");
+                        .Append('=').Append(bandit ? bandit.state.ToString() : "missing")
+                        .Append(" contacts=").Append(bandit ? bandit.GetComponent<BanditDuelStrikeDamage>()?.ContactHits ?? 0 : 0)
+                        .Append(" tipOverlaps=").Append(bandit ? bandit.GetComponent<BanditDuelStrikeDamage>()?.TipOverlaps ?? 0 : 0);
             return result.ToString();
         }
 

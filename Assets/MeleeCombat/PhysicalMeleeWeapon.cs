@@ -652,6 +652,11 @@ namespace KenshiVR.MeleeCombat
         {
             if (State == HoldState.HeldByPlayer && (!ownerRoot || !collision.collider.transform.IsChildOf(ownerRoot)))
                 externalContact = true;
+            if (State == HoldState.HeldByPlayer && ownerRoot)
+            {
+                var knockout = ownerRoot.GetComponentInChildren<Zandea.Opening.PlayerKnockout>();
+                if (knockout && knockout.State != Zandea.Opening.PlayerConsciousness.Conscious) return;
+            }
             if (equipmentItem && equipmentItem.currentSlot) return;
             if (droppedByNpc) return;
             if (collision.contactCount == 0) return;

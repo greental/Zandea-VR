@@ -13,7 +13,7 @@ namespace Zandea.Opening.Editor
         public const string ScenePath = "Assets/Scenes/Zandea/OpeningCaptureTest.unity";
         const string ArenaPath = "Assets/MeleeCombat/MocapTest/GeneratedVariants/ImportedCombatVRArena.unity";
         const string PlayerPath = "Assets/MeleeCombat/VRPlayerMainCombat.prefab";
-        const string BanditPath = "Assets/MeleeCombat/MocapTest/GeneratedVariants/StarvingBandit_BoStaff_Unified.prefab";
+        const string BanditPath = "Assets/Zandea/Opening/Prefabs/OpeningStaffBandit_V2.prefab";
 
         [MenuItem("Zandea/Opening/Build test scene")]
         public static void Build()
@@ -38,13 +38,18 @@ namespace Zandea.Opening.Editor
             var body = playerObject.GetComponentInChildren<VRBodyController>(true);
             var health = playerObject.GetComponentInChildren<ScavengerNPC.ScavengerPlayerHealth>(true);
             if (!body || !body.hmd || !health) throw new InvalidOperationException("Opening player is missing XR body, HMD or health.");
+            var knockout = playerObject.AddComponent<PlayerKnockout>();
+            knockout.health = health;
+            var presentation = playerObject.AddComponent<KnockoutPresentation>();
+            presentation.knockout = knockout;
+            presentation.viewCamera = body.hmd.GetComponent<Camera>();
             var members = new StarvingBandit[3];
             for (int i = 0; i < members.Length; i++)
             {
                 float angle = i * Mathf.PI * 2f / members.Length;
                 Vector3 radial = new Vector3(Mathf.Sin(angle), 0f, Mathf.Cos(angle));
                 var instance = (GameObject)PrefabUtility.InstantiatePrefab(banditPrefab, scene);
-                instance.name = "Opening staff bandit " + (i + 1);
+                instance.name = "Opening staff slaver " + (i + 1);
                 instance.transform.SetPositionAndRotation(radial * 3.5f, Quaternion.LookRotation(-radial));
                 var bandit = instance.GetComponent<StarvingBandit>();
                 if (!bandit) throw new InvalidOperationException("Staff bandit prefab has no StarvingBandit.");
@@ -67,6 +72,7 @@ namespace Zandea.Opening.Editor
             diagnostics.playerHealth = health;
             diagnostics.group = group;
             diagnostics.bandits = members;
+            diagnostics.knockout = knockout;
             EditorSceneManager.SaveScene(scene, ScenePath);
             AssetDatabase.SaveAssets();
             Debug.Log("Opening harness ready: " + ScenePath);
