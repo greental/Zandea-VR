@@ -12,8 +12,22 @@ namespace Zandea.Opening
         public OpeningBindingAction binder;
         public OpeningPrisonerEscort escort;
         public OpeningDirector director;
+        [Min(1f)] public float bindingReachTimeout = 8f;
         bool enteringCombat;
         bool subscribed;
+        float bindingReachSince = -1f;
+
+        void Update()
+        {
+            if (bindingReachSince < 0f || !capture || !binder || capture.State != CaptureGroupState.CaptorApproach ||
+                !capture.ComplianceHeld || director && director.Outcome.HasValue) return;
+            if (binder.Begin()) { bindingReachSince = -1f; return; }
+            if (Time.time - bindingReachSince >= bindingReachTimeout)
+            {
+                bindingReachSince = -1f;
+                capture.EnterCombat("binding reach timeout");
+            }
+        }
 
         void OnEnable() => Subscribe();
         void Start() => Subscribe();
@@ -46,6 +60,7 @@ namespace Zandea.Opening
 
         void OnCancellation(SurrenderCancelReason reason)
         {
+            bindingReachSince = -1f;
             capture?.SetCompliance(false);
             if (reason == SurrenderCancelReason.Attack)
             {
@@ -62,13 +77,15 @@ namespace Zandea.Opening
             if (!capture) { director?.ReportAbort(); return; }
             capture.SetCompliance(true);
             if (!capture.BeginCapture()) director?.ReportAbort();
+            bindingReachSince = -1f;
         }
 
-        void OnCombat() => capture?.EnterCombat("ultimatum refused");
-        void OnPursuit() => capture?.EnterCombat("prisoner fled ultimatum");
+        void OnCombat() { bindingReachSince = -1f; capture?.EnterCombat("ultimatum refused"); }
+        void OnPursuit() { bindingReachSince = -1f; capture?.EnterCombat("prisoner fled ultimatum"); }
         void OnCaptorInReach()
         {
-            if (!binder || !binder.Begin()) capture?.EnterCombat("binding unavailable");
+            if (!binder) { capture?.EnterCombat("binding unavailable"); return; }
+            if (!binder.Begin() && bindingReachSince < 0f) bindingReachSince = Time.time;
         }
         void OnRestrained()
         {
@@ -78,6 +95,7 @@ namespace Zandea.Opening
         {
             if (director && director.Outcome.HasValue) return;
             if (enteringCombat || !capture || capture.State == CaptureGroupState.Combat) return;
+            if (reason == "captor unavailable") { bindingReachSince = -1f; return; }
             if (reason.Contains("unavailable") || reason.Contains("failed"))
             {
                 enteringCombat = true;
@@ -101,6 +119,7 @@ namespace Zandea.Opening
 
         void OnResolved(OpeningOutcome outcome)
         {
+            bindingReachSince = -1f;
             if (binder && binder.IsBinding) binder.Interrupt("opening resolved");
             if (outcome == OpeningOutcome.Escaped || outcome == OpeningOutcome.SlaversDefeated ||
                 outcome == OpeningOutcome.CapturedUnconscious || outcome == OpeningOutcome.CapturedCompliant)
