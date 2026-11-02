@@ -3,6 +3,7 @@ using JunkerBody;
 using KenshiVR.MeleeCombat;
 using ScavengerNPC;
 using UnityEngine;
+using Zandea.Opening.Capture;
 
 namespace Zandea.Opening
 {
@@ -14,6 +15,11 @@ namespace Zandea.Opening
         public BanditGroup group;
         public StarvingBandit[] bandits;
         public PlayerKnockout knockout;
+        public PlayerSurrenderGesture surrender;
+        public PlayerWristRestraints restraints;
+        public OpeningCaptureGroup capture;
+        public OpeningPrisonerEscort escort;
+        public OpeningDirector director;
         [Min(1f)] public float logInterval = 10f;
         float nextLog;
 
@@ -22,7 +28,11 @@ namespace Zandea.Opening
             var result = new StringBuilder("Opening harness | ");
             result.Append("player health=").Append(playerHealth ? playerHealth.Current.ToString("F0") : "missing");
             result.Append(" | consciousness=").Append(knockout ? knockout.State.ToString() : "missing");
-            result.Append(" surrender=unimplemented restraint=unimplemented capture=unimplemented director=unimplemented");
+            result.Append(" surrender=").Append(surrender ? surrender.State.ToString() : "missing");
+            result.Append(" restraint=").Append(restraints ? restraints.IsRestrained.ToString() : "missing");
+            result.Append(" capture=").Append(capture ? capture.State.ToString() : "missing");
+            result.Append(" escort=").Append(escort ? escort.State.ToString() : "missing");
+            result.Append(" director=").Append(director ? director.Phase.ToString() : "missing");
             result.Append(" | tracking=").Append(player && player.hmd && player.leftController && player.rightController ? "wired" : "missing");
             result.Append(" | group=").Append(group ? "wired" : "missing");
             if (bandits != null)

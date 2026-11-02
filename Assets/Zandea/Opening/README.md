@@ -7,3 +7,13 @@ The builder references the existing `VRPlayerMainCombat.prefab`, a distinct `Ope
 The player scene instance receives reusable `PlayerKnockout` and `KnockoutPresentation` components. The **Zandea > Opening > Debug** menu can request an indefinite KO and recovery in Play mode. These controls do not affect headset or controller tracking. KO is not connected to staff damage yet; nonlethal damage routing belongs to Slice 05.
 
 Before headset work, verify that all three bandits hold Bo Staffs, the player has no practice sword, the NavMesh is valid, and restarting repeats the initial health and AI states. This harness is Editor/development diagnostics only; the overlay and logs are compiled out of release builds.
+
+## Full opening authoring (Slices 05–13)
+
+`Zandea > Opening > Install encounter in Main` is the one-time editor authoring command for the intended game scene. It preserves the existing Main player instance, adds three opening V2 slavers and the reusable player/encounter components, saves Main, and places Main first in build settings. It is idempotent when an opening root already exists. This command has not been run during the writing phase; run and inspect it in the deferred integration pass.
+
+The `OpeningFlow` component bridges gesture, ultimatum, capture, binder, escort and director events. The director owns only awakening, escape/win observation, branch resolution, title policy and handoff. Set voice clips, a binding animation, rope material, an escort waypoint and `OpeningRoute` UnityEvents in the authored scene when assets and next chapter destinations are available. Missing voice and animation use development placeholders; no next chapter is invented.
+
+The `OpeningTitlePresentation` draws a stationary camera-child black plane and TextMeshPro title for both eyes. `KnockoutPresentation` handles reusable KO blackout and audio. The encounter's staff attacks opt into `NonlethalAttackProfile`; other damage packets retain lethal intent. The player may still win or escape. `Zandea > Opening > Debug` contains KO/recover/replay commands for Editor use.
+
+See repository-root `Opening_Validation_Report.md` for the complete pending test matrix. No Unity or headset tests have been run for the full opening under the owner's deferred testing instruction.
