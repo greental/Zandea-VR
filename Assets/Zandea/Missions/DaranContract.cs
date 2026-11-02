@@ -20,19 +20,14 @@ namespace Zandea.Missions
              MerchantSessionState.Get(definition.giverId, 0).outstandingPayouts.ContainsKey(Session.payoutId));
         public int DebtAmount => definition ? Session.debt : 0;
         public bool CanHandshakeSettle => definition &&
-            (Session.state == MissionState.ReadyToTurnIn && Session.Terminal ||
-             Session.debt > 0 ||
-             Session.state == MissionState.Completed && !string.IsNullOrEmpty(Session.payoutId) &&
-             MerchantSessionState.Get(definition.giverId, 0).outstandingPayouts.ContainsKey(Session.payoutId));
+            (Session.state == MissionState.ReadyToTurnIn && Session.Terminal || Session.debt > 0);
         public string WorkNodeId => SelectWorkNode(false);
 
         public bool TryHandshakeSettle()
         {
             if (!CanHandshakeSettle || !counter) return false;
-            if (Session.state == MissionState.Completed)
-                return counter.TryPresentContractPayout(definition.missionId);
             Settle();
-            if (Session.debt > 0) return false; // Place the purse on the marked payment spot.
+            if (Session.debt > 0) return false;
             return Session.state == MissionState.Completed &&
                 (string.IsNullOrEmpty(Session.payoutId) ||
                  counter.TryPresentContractPayout(definition.missionId));

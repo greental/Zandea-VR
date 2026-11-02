@@ -52249,6 +52249,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8693581044028892402, guid: 146dd0c485dc0bb46af5b26ea3ec9cd3, type: 3}
+      propertyPath: handTargetLocal.z
+      value: 0.55
+      objectReference: {fileID: 0}
     - target: {fileID: 3084343881122295867, guid: 146dd0c485dc0bb46af5b26ea3ec9cd3, type: 3}
       propertyPath: counter
       value: 

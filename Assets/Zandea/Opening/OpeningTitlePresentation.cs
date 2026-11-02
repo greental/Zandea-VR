@@ -50,6 +50,11 @@ namespace Zandea.Opening
             if (titleShown) return false;
             titleShown = true;
             titleRunning = true;
+            if (titleText)
+            {
+                titleText.text = title;
+                titleText.ForceMeshUpdate(true);
+            }
             finished = onFinished;
             target = 1f;
             titleUntil = Time.unscaledTime + fadeToBlackSeconds + titleHoldSeconds + fadeTitleSeconds;
@@ -123,12 +128,15 @@ namespace Zandea.Opening
                 titleMaterial.renderQueue = 5002;
                 if (titleMaterial.HasProperty("_ZTestMode"))
                     titleMaterial.SetFloat("_ZTestMode", (float)UnityEngine.Rendering.CompareFunction.Always);
-                titleText.fontMaterial = titleMaterial;
+                titleText.fontSharedMaterial = titleMaterial;
+                titleText.renderer.sharedMaterial = titleMaterial;
             }
-            titleText.fontSize = 5f;
+            titleText.fontSize = 7f;
             titleText.alignment = TextAlignmentOptions.Center;
             titleText.enableWordWrapping = false;
             titleText.rectTransform.sizeDelta = new Vector2(80f, 15f);
+            titleText.sortingOrder = short.MaxValue;
+            titleText.ForceMeshUpdate(true);
             titleText.enabled = false;
         }
 

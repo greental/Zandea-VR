@@ -23,12 +23,12 @@ Every ID below is the basename of a source MP3 and a node in the existing Daran 
 | `daran_job_turnin`, `daran_job_incomplete` | Ready to turn in; unfinished turn-in attempt. |
 | `daran_job_perfect`, `daran_job_two_intact`, `daran_job_one_intact`, `daran_job_all_broken` | Terminal results 3/0, 2/1, 1/2, 0/3 intact/broken. Net Zeks: +30, +10, −10, −30. |
 | `daran_job_payout`, `daran_job_payment_complete` | Physical payout placed; zero balance or payout actually collected. |
-| `daran_job_debt_request`, `daran_job_insufficient_funds`, `daran_job_debt_reminder`, `daran_job_debt_paid` | Negative result; failed payment; return with debt; successful payment using personal purse on counter payment spot. |
+| `daran_job_debt_request`, `daran_job_insufficient_funds`, `daran_job_debt_reminder`, `daran_job_debt_paid` | Negative result; failed payment; return with debt; successful payment by releasing the personal purse at Daran's offered hand. |
 | `daran_job_abandon`, `daran_job_completed_return`, `daran_job_goodbye` | Abandonment, settled return, or mission farewell. |
 
 The outcome node completes before the payout or debt node starts. Audio completion and existing fallback timing drive dialogue advancement. A missing clip leaves subtitles and mission state functional. Spontaneous reactions require the player and event to be within 7–9 m of Daran and do not interrupt an active conversation or another spoken line. Missed reactions are represented by current mission state when the player returns; they are not queued as a backlog.
 
-Payout uses the existing vendor counter's unique `contract-<missionId>` pouch. Repeated settlement cannot create a second pouch. Debt payment requires the personal purse on the counter payment spot and clears debt only after `TryContractDebtPayment` succeeds. Abandonment retains the full penalty for barrels already broken and forfeits delivery earnings. Mission and merchant balances survive POI unload within one play session; no cross-launch save system exists yet.
+Payout uses the existing vendor counter's unique `contract-<missionId>` pouch, held at Daran's offered hand until the player grabs it. Repeated settlement cannot create a second pouch. Debt payment requires releasing the personal purse at Daran's hand and clears debt only after `TryContractDebtPayment` succeeds. Abandonment retains the full penalty for barrels already broken and forfeits delivery earnings. Mission and merchant balances survive POI unload within one play session; no cross-launch save system exists yet.
 
 ## Validation
 

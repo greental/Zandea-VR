@@ -322,12 +322,10 @@ namespace Zandea.Pueblo.Editor
                         merchantCounter.MerchantCats == merchantBeforeJob - 30 &&
                         contract.ResolveNodeId("work_settlement") == "daran_job_payout",
                         "job settlement releases exactly 30 Zeks in one physical pouch");
-                    var payoutTray = merchantCounter.transform.Find("Payout tray");
-                    Check(payoutTray && payoutTray.GetComponent<Collider>() &&
-                        merchantCounter.TryCommit() &&
-                        merchantCounter.transform.Find("Payout cue")
-                            ?.GetComponent<TMPro.TMP_Text>()?.text.Contains("COLLECT HERE") == true,
-                        "mission handshake presents the existing pouch on a marked tray");
+                    Check(jobPouch.transform.parent == merchantCounter.handshake.transform &&
+                        jobPouch.GetComponent<Rigidbody>().isKinematic &&
+                        !merchantCounter.MissionHandshakeAvailable,
+                        "Daran holds the physical payout until the player takes it");
                     contract.ResolveNodeId("work_result");
                     Check(merchantCounter.MerchantCats == merchantBeforeJob - 30 &&
                         !merchantCounter.TryContractPayout(contract.definition.missionId, 30),
@@ -346,14 +344,15 @@ namespace Zandea.Pueblo.Editor
                     Check(contract.ResolveNodeId("work_result") == "daran_job_one_intact" &&
                         mission.debt == 10 && mission.state == MissionState.ReadyToTurnIn,
                         "one delivered and two destroyed creates a 10-Zek debt");
-                    var paymentCue = merchantCounter.transform.Find("Payment cue")
+                    var paymentCue = merchantCounter.transform.Find("Payout cue")
                         ?.GetComponent<TMPro.TMP_Text>();
-                    Check(paymentCue && paymentCue.text.Contains("PAY HERE") &&
+                    Check(paymentCue && paymentCue.text.Contains("Release purse at his hand") &&
                         paymentCue.text.Contains("10 Zeks"),
-                        "the counter marks the physical purse payment spot and debt amount");
+                        "Daran offers his hand for the physical debt payment");
                     int beforeDebt = purse.Cats;
-                    purse.transform.position = merchantCounter.paymentSpot.transform.position;
+                    purse.transform.position = merchantCounter.handshake.transform.position;
                     Physics.SyncTransforms();
+                    merchantCounter.TryPresentPurse(purse);
                     Check(contract.ResolveNodeId("work_debt_result") == "daran_job_debt_paid" &&
                         purse.Cats == beforeDebt - 10 &&
                         purse.GetComponentInChildren<TMPro.TMP_Text>(true)?.text ==

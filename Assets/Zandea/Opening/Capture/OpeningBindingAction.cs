@@ -126,7 +126,11 @@ namespace Zandea.Opening.Capture
         bool WithinReach()
         {
             Vector3 hand = captor.transform.position + captor.transform.up * 1.25f + captor.transform.forward * .35f;
-            return Vector3.Distance(hand, WristMidpoint()) <= maximumHandDistance;
+            // Raised wrists can be well above the captor's chest. Use horizontal
+            // reach for a compliant player; height is covered by the rope pose.
+            Vector3 wrists = WristMidpoint();
+            return Vector3.ProjectOnPlane(hand - wrists, Vector3.up).magnitude <= maximumHandDistance &&
+                Mathf.Abs(hand.y - wrists.y) <= 1.5f;
         }
 
         Vector3 WristMidpoint()

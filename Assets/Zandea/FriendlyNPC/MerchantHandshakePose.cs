@@ -156,7 +156,7 @@ namespace Zandea.FriendlyNPC
 
         void LateUpdate()
         {
-            if (!merchant || !head) return;
+            if (!merchant) return;
             if (merchant.health && merchant.health.State != NpcConsciousness.Conscious)
             {
                 handshakeWeight = waveWeight = presentWeight = 0f;
@@ -250,7 +250,7 @@ namespace Zandea.FriendlyNPC
                 nod = Mathf.Sin(nodAge / .6f * Mathf.PI) * 3f;
             // BanditRigMotion can skip its pose reset in authoring/preview states.
             // Applying a delta to the current bone then accumulates every frame.
-            head.localRotation = restingHeadRotation * Quaternion.Euler(headPitch + nod, headYaw, 0f);
+            if (head) head.localRotation = restingHeadRotation * Quaternion.Euler(headPitch + nod, headYaw, 0f);
 
             // Daran's inherited bandit rest pose still grips an absent staff.
             // Cross both forearms at rest, then yield the right arm to gestures
@@ -272,7 +272,7 @@ namespace Zandea.FriendlyNPC
             Vector3 desired;
             if (handshakeWeight > .05f)
                 desired = transform.TransformPoint(new Vector3(handTargetLocal.x,
-                    handTargetLocal.y, Mathf.Max(.95f, handTargetLocal.z)));
+                    handTargetLocal.y, handTargetLocal.z));
             else if (presentWeight > waveWeight)
                 desired = transform.TransformPoint(new Vector3(.38f, 1.02f, .42f));
             else

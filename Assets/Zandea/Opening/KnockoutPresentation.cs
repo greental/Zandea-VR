@@ -84,7 +84,9 @@ namespace Zandea.Opening
             if (overlay || !viewCamera) return;
             var shader = Shader.Find("Zandea/Opening/BlackOverlay");
             if (!shader) { Debug.LogWarning("XR blackout shader unavailable", this); return; }
-            material = new Material(shader) { name = "XR knockout blackout", renderQueue = 5000 };
+            // The opening title must render over this blackout while the player
+            // is still unconscious. Equal queues made the opaque quad hide it.
+            material = new Material(shader) { name = "XR knockout blackout", renderQueue = 4998 };
             mesh = new Mesh { name = "XR blackout quad" };
             mesh.vertices = new[] { new Vector3(-1f,-1f), new Vector3(1f,-1f), new Vector3(1f,1f), new Vector3(-1f,1f) };
             mesh.uv = new[] { Vector2.zero, Vector2.right, Vector2.one, Vector2.up };
