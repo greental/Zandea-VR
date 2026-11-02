@@ -8,6 +8,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zandea.Opening.Capture;
 using Zandea.Opening.Combat;
+using KenshiVR.CharacterCreator;
+using Zandea.POI;
+using Zandea.Pueblo;
 
 namespace Zandea.Opening.Editor
 {
@@ -49,6 +52,14 @@ namespace Zandea.Opening.Editor
             Require(director.slavers.All(member =>
                 PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(member.gameObject) == OpeningHarnessBuilder.BanditPath),
                 path + ": all slavers use V2");
+            var target = rootObject.GetComponent<OpeningTargetBinding>();
+            Require(target && target.targetPlayer == director.player && group.player == director.player.hmd &&
+                director.slavers.All(member => member.target == director.player.hmd),
+                path + ": Inspector target binds group and all slavers");
+            var clothing = AssetDatabase.LoadAssetAtPath<GameObject>(OpeningHarnessBuilder.BanditPath)
+                .GetComponent<CharacterCosmeticsController>();
+            Require(clothing && clothing.torso && clothing.legs && clothing.feet,
+                path + ": V2 staff prefab has authored clothing");
             Require(group.authoredMembers != null && group.authoredMembers.SequenceEqual(director.slavers) &&
                 capture.members != null && capture.members.SequenceEqual(director.slavers),
                 path + ": group/capture member references");
@@ -58,6 +69,20 @@ namespace Zandea.Opening.Editor
             Require(director.routes != null && director.routes.Length == Enum.GetValues(typeof(OpeningOutcome)).Length &&
                 director.routes.Select(route => route.outcome).Distinct().Count() == director.routes.Length,
                 path + ": each outcome has one route");
+            if (path == OpeningMainInstaller.MainPath)
+            {
+                Require(director.player.gameObject.activeInHierarchy,
+                    "Main opening uses the active XR player");
+                Require(rootObject.GetComponent<OpeningSurfaceAnchor>() &&
+                    rootObject.GetComponent<OpeningDeferredWorldSystems>(),
+                    "Main has navigation and deferred world setup");
+                Require(UnityEngine.Object.FindObjectsByType<BanditOutpost>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                    .Where(poi => poi.gameObject.scene == scene).All(poi => !poi.gameObject.activeInHierarchy),
+                    "Main outpost streaming waits for opening completion");
+                Require(UnityEngine.Object.FindObjectsByType<PuebloMissionTestStart>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                    .Where(start => start.gameObject.scene == scene).All(start => !start.enableForTesting),
+                    "Main Pueblo test teleport is disabled");
+            }
             Debug.Log("OPENING_SCENE_WIRED " + path);
         }
 

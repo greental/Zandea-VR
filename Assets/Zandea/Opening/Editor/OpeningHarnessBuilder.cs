@@ -66,7 +66,9 @@ namespace Zandea.Opening.Editor
                 Vector3 radial = new Vector3(Mathf.Sin(angle), 0f, Mathf.Cos(angle));
                 var instance = (GameObject)PrefabUtility.InstantiatePrefab(banditPrefab, scene);
                 instance.name = "Opening staff slaver " + (i + 1);
-                instance.transform.SetPositionAndRotation(center + radial * 3.5f, Quaternion.LookRotation(-radial));
+                var spawn = center + radial * 3.5f;
+                if (!includeDiagnostics) spawn = OnSavedTerrain(spawn);
+                instance.transform.SetPositionAndRotation(spawn, Quaternion.LookRotation(-radial));
                 var bandit = instance.GetComponent<StarvingBandit>();
                 if (!bandit) throw new InvalidOperationException("Staff bandit prefab has no StarvingBandit.");
                 instance.AddComponent<Zandea.Opening.Combat.NonlethalAttackProfile>();
@@ -128,6 +130,12 @@ namespace Zandea.Opening.Editor
                 new OpeningRoute { outcome = OpeningOutcome.Escaped, showTitle = true },
                 new OpeningRoute { outcome = OpeningOutcome.Aborted, showTitle = false }
             };
+            var targetBinding = root.AddComponent<OpeningTargetBinding>();
+            targetBinding.targetPlayer = body;
+            targetBinding.group = group;
+            targetBinding.slavers = members;
+            targetBinding.director = director;
+            targetBinding.Apply();
             var flow = root.AddComponent<OpeningFlow>();
             flow.surrender = surrender;
             flow.ultimatum = ultimatum;
@@ -149,6 +157,21 @@ namespace Zandea.Opening.Editor
                 diagnostics.escort = escort;
                 diagnostics.director = director;
             }
+        }
+
+        static Vector3 OnSavedTerrain(Vector3 position)
+        {
+            foreach (var terrain in Terrain.activeTerrains)
+            {
+                if (!terrain || !terrain.enabled || !terrain.terrainData) continue;
+                var origin = terrain.transform.position;
+                var size = terrain.terrainData.size;
+                if (position.x < origin.x || position.x > origin.x + size.x ||
+                    position.z < origin.z || position.z > origin.z + size.z) continue;
+                position.y = terrain.SampleHeight(position) + origin.y + .05f;
+                return position;
+            }
+            throw new InvalidOperationException("Opening slaver position is outside the saved terrain: " + position);
         }
 
         [MenuItem("Zandea/Opening/Build and play test scene")]
