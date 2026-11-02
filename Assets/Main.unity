@@ -1720,6 +1720,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bandit 5 - Shades
       objectReference: {fileID: 0}
+    - target: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 411700529145096477, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
       propertyPath: 'm_BlendShapeWeights.Array.data[0]'
       value: 0
@@ -2217,12 +2221,17 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1761164650813247814, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
   m_PrefabInstance: {fileID: 56648467}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 56648470}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
+--- !u!1 &56648470 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+  m_PrefabInstance: {fileID: 56648467}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &57534546 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7863195023640601393, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
@@ -3789,7 +3798,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &86712170
 Transform:
   m_ObjectHideFlags: 0
@@ -5408,9 +5417,6 @@ MonoBehaviour:
   shoulderDropBelowEyes: 0.31
   riseAboveShoulders: 0.09
   loweredHysteresis: 0.08
-  lateralHandSeparation: 0.13
-  maximumHorizontalReach: 0.65
-  maximumRaiseAboveEyes: 0.25
   maximumOpenGrip: 0.28
   maximumOpenTrigger: 0.3
   confirmationSeconds: 0.8
@@ -6357,6 +6363,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bandit 2 - Gate
       objectReference: {fileID: 0}
+    - target: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 411700529145096477, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
       propertyPath: 'm_BlendShapeWeights.Array.data[0]'
       value: 0.49067563
@@ -6820,12 +6830,17 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1761164650813247814, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
   m_PrefabInstance: {fileID: 169713700}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 169713703}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
+--- !u!1 &169713703 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+  m_PrefabInstance: {fileID: 169713700}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &171718150 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 242198523571859676, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
@@ -6920,6 +6935,10 @@ PrefabInstance:
     - target: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
       propertyPath: m_Name
       value: Bandit 1 - Gate
+      objectReference: {fileID: 0}
+    - target: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 411700529145096477, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
       propertyPath: 'm_BlendShapeWeights.Array.data[0]'
@@ -7333,12 +7352,17 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1761164650813247814, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
   m_PrefabInstance: {fileID: 174400143}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 174400146}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
+--- !u!1 &174400146 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+  m_PrefabInstance: {fileID: 174400143}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &174772451 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 192930086035356492, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
@@ -10726,7 +10750,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5224310632701361337, guid: 5747c0e93b31b0240bb20d0111cdcac0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 5747c0e93b31b0240bb20d0111cdcac0, type: 3}
 --- !u!4 &220569230 stripped
 Transform:
@@ -17254,6 +17281,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bandit 6 - Tower
       objectReference: {fileID: 0}
+    - target: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 411700529145096477, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
       propertyPath: 'm_BlendShapeWeights.Array.data[0]'
       value: 0
@@ -17740,12 +17771,17 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1761164650813247814, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
   m_PrefabInstance: {fileID: 424614021}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 424614024}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
+--- !u!1 &424614024 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+  m_PrefabInstance: {fileID: 424614021}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &427694619 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3575666150689969760, guid: 0432af290038dd7498e9d0ffdacfe113, type: 3}
@@ -18274,12 +18310,12 @@ GameObject:
   - component: {fileID: 447564459}
   - component: {fileID: 447564462}
   m_Layer: 0
-  m_Name: Pueblo Settlement
+  m_Name: Kareth
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &447564459
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18314,6 +18350,7 @@ MonoBehaviour:
   siteSelected: 1
   drawGizmos: 1
   stream: 1
+  holdAuthoredPreviewAtStart: 1
   authoredLayoutVerticalOffset: -0.15
 --- !u!4 &447564461
 Transform:
@@ -18324,7 +18361,7 @@ Transform:
   m_GameObject: {fileID: 447564458}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7066.4, y: -3862.2, z: 2493.3}
+  m_LocalPosition: {x: -3836.4, y: -3208.8284, z: 2704.954}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -23327,6 +23364,7 @@ MonoBehaviour:
   fadeToBlackSeconds: 0.7
   titleHoldSeconds: 2.5
   fadeTitleSeconds: 0.5
+  fadeBackSeconds: 0.7
 --- !u!114 &582436993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23350,8 +23388,8 @@ MonoBehaviour:
   subtitle: {fileID: 0}
   demandText: Hands up. Come quietly, and you might live.
   warningText: Last chance. Hands up.
-  responseSeconds: 8
-  warningExtensionSeconds: 3
+  responseSeconds: 4
+  warningExtensionSeconds: 1.5
   flightDistance: 8
   outwardSpeed: 0.4
   flightHoldSeconds: 0.8
@@ -23507,7 +23545,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Zandea.Opening.OpeningDeferredWorldSystems
   activateAfterOpening:
   - {fileID: 2040502127}
-  - {fileID: 447564458}
+  kareth: {fileID: 447564460}
+  karethActors:
+  - {fileID: 174400146}
+  - {fileID: 169713703}
+  - {fileID: 1811355378}
+  - {fileID: 1872856273}
+  - {fileID: 56648470}
+  - {fileID: 424614024}
+  - {fileID: 1459789297}
+  - {fileID: 1039644831}
+  karethActorsWereActive: 0101010101010001
+  karethGroups:
+  - {fileID: 1985931367}
+  - {fileID: 996261668}
+  - {fileID: 1893642541}
+  - {fileID: 652149866}
+  - {fileID: 2117847256}
+  - {fileID: 982672218}
+  karethGroupsWereEnabled: 010101010101
 --- !u!4 &582792174 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7169696830569534911, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
@@ -25655,7 +25711,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 652149864}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aef5f2ae81b48e743b32c0597948e893, type: 3}
   m_Name: 
@@ -35724,15 +35780,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8809241686894232450, guid: 18ed7a31e43d04848b65d71f3473827d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3230
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8809241686894232450, guid: 18ed7a31e43d04848b65d71f3473827d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 653.37164
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8809241686894232450, guid: 18ed7a31e43d04848b65d71f3473827d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 211.65399
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8809241686894232450, guid: 18ed7a31e43d04848b65d71f3473827d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -37820,7 +37876,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 982672216}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aef5f2ae81b48e743b32c0597948e893, type: 3}
   m_Name: 
@@ -38202,7 +38258,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 996261666}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aef5f2ae81b48e743b32c0597948e893, type: 3}
   m_Name: 
@@ -65696,6 +65752,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bandit 3 - Courtyard
       objectReference: {fileID: 0}
+    - target: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 411700529145096477, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
       propertyPath: 'm_BlendShapeWeights.Array.data[0]'
       value: 0
@@ -66150,12 +66210,17 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1761164650813247814, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
   m_PrefabInstance: {fileID: 1811355375}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1811355378}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
+--- !u!1 &1811355378 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+  m_PrefabInstance: {fileID: 1811355375}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1811507306 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2351536968499591990, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
@@ -67497,6 +67562,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bandit 4 - Courtyard
       objectReference: {fileID: 0}
+    - target: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 411700529145096477, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
       propertyPath: 'm_BlendShapeWeights.Array.data[0]'
       value: 0.38167918
@@ -67918,12 +67987,17 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1761164650813247814, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
   m_PrefabInstance: {fileID: 1872856270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1872856273}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a01674460a349cd4291a7d7c3fdd30a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KenshiVR.MeleeCombat.StarvingBandit
+--- !u!1 &1872856273 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 321979791757616301, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
+  m_PrefabInstance: {fileID: 1872856270}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1879648109 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3878708570199825159, guid: d05f8ec5fa6384948bf47be22df22226, type: 3}
@@ -68118,7 +68192,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1893642539}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aef5f2ae81b48e743b32c0597948e893, type: 3}
   m_Name: 
@@ -70367,7 +70441,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1985931365}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aef5f2ae81b48e743b32c0597948e893, type: 3}
   m_Name: 
@@ -71458,6 +71532,7 @@ MonoBehaviour:
   siteSelected: 1
   drawGizmos: 1
   stream: 1
+  holdAuthoredPreviewAtStart: 0
   authoredLayoutVerticalOffset: 0
 --- !u!4 &2040502129
 Transform:
@@ -74346,6 +74421,10 @@ PrefabInstance:
       propertyPath: contract
       value: 
       objectReference: {fileID: 1039644846}
+    - target: {fileID: 8963684178784864307, guid: 18ba055ff0d019f4680d4a3d933a326b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 570886908544350814, guid: 18ba055ff0d019f4680d4a3d933a326b, type: 3}
@@ -74357,6 +74436,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8963684178784864307, guid: 18ba055ff0d019f4680d4a3d933a326b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1039644846}
+    - targetCorrespondingSourceObject: {fileID: 2524758978991110414, guid: 18ba055ff0d019f4680d4a3d933a326b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 18ba055ff0d019f4680d4a3d933a326b, type: 3}
 --- !u!1001 &2101748627
 PrefabInstance:
@@ -74616,7 +74698,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2117847254}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aef5f2ae81b48e743b32c0597948e893, type: 3}
   m_Name: 

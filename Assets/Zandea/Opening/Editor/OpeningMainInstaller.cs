@@ -52,8 +52,13 @@ namespace Zandea.Opening.Editor
                 if (testStart.gameObject.scene == scene) { testStart.enableForTesting = false; EditorUtility.SetDirty(testStart); }
             var deferred = opening.GetComponent<OpeningDeferredWorldSystems>();
             if (!deferred) deferred = opening.AddComponent<OpeningDeferredWorldSystems>();
-            deferred.activateAfterOpening = UnityEngine.Object.FindObjectsByType<BanditOutpost>(FindObjectsInactive.Include, FindObjectsSortMode.None)
-                .Where(poi => poi.gameObject.scene == scene).Select(poi => poi.gameObject).Distinct().ToArray();
+            var pois = UnityEngine.Object.FindObjectsByType<BanditOutpost>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Where(poi => poi.gameObject.scene == scene).ToArray();
+            var kareth = pois.SingleOrDefault(poi => poi.poiId.StartsWith("zandea.pueblo.", StringComparison.Ordinal));
+            if (!kareth) throw new InvalidOperationException("Main is missing the authored Kareth settlement.");
+            PrepareKareth(kareth, deferred);
+            deferred.kareth = kareth;
+            deferred.activateAfterOpening = pois.Where(poi => poi != kareth).Select(poi => poi.gameObject).Distinct().ToArray();
             foreach (var laterWorld in deferred.activateAfterOpening) laterWorld.SetActive(false);
             EditorUtility.SetDirty(deferred);
             EditorSceneManager.SaveScene(scene, MainPath);
@@ -90,6 +95,13 @@ namespace Zandea.Opening.Editor
             if (!director || !group || director.slavers == null || director.slavers.Length != 3)
                 throw new InvalidOperationException("Opening encounter references are incomplete.");
             var target = opening.GetComponent<OpeningTargetBinding>();
+            var ultimatum = opening.GetComponent<SlaverUltimatum>();
+            if (ultimatum)
+            {
+                ultimatum.responseSeconds = 4f;
+                ultimatum.warningExtensionSeconds = 1.5f;
+                EditorUtility.SetDirty(ultimatum);
+            }
             if (!target) target = opening.AddComponent<OpeningTargetBinding>();
             target.targetPlayer = body;
             target.group = group;
@@ -104,6 +116,42 @@ namespace Zandea.Opening.Editor
             EditorUtility.SetDirty(target);
             EditorUtility.SetDirty(navigation);
             EditorUtility.SetDirty(group);
+        }
+
+        static void PrepareKareth(BanditOutpost kareth, OpeningDeferredWorldSystems deferred)
+        {
+            var preview = kareth.transform.Find("Layout Preview");
+            if (!preview) throw new InvalidOperationException("Kareth has no authored Layout Preview.");
+            Vector3 savedCityPosition = preview.position;
+            bool onTerrain = Terrain.activeTerrains.Any(terrain => terrain && terrain.terrainData &&
+                savedCityPosition.x >= terrain.transform.position.x &&
+                savedCityPosition.x <= terrain.transform.position.x + terrain.terrainData.size.x &&
+                savedCityPosition.z >= terrain.transform.position.z &&
+                savedCityPosition.z <= terrain.transform.position.z + terrain.terrainData.size.z &&
+                Mathf.Abs(terrain.SampleHeight(savedCityPosition) + terrain.transform.position.y - savedCityPosition.y) < 1f);
+            if (!onTerrain) throw new InvalidOperationException("Kareth's saved city is not on the authored terrain.");
+            kareth.name = "Kareth";
+            kareth.transform.position = savedCityPosition;
+            preview.position = savedCityPosition;
+            var generated = kareth.transform.Find("Generated Layout Preview");
+            if (generated) generated.gameObject.SetActive(false);
+            preview.gameObject.SetActive(true);
+            if (deferred.karethGroups == null || deferred.karethGroups.Length == 0)
+            {
+                deferred.karethGroups = preview.GetComponentsInChildren<BanditGroup>(true);
+                deferred.karethGroupsWereEnabled = deferred.karethGroups.Select(group => group.enabled).ToArray();
+            }
+            if (deferred.karethActors == null || deferred.karethActors.Length == 0)
+            {
+                deferred.karethActors = preview.GetComponentsInChildren<StarvingBandit>(true)
+                    .Select(member => member.gameObject).Distinct().ToArray();
+                deferred.karethActorsWereActive = deferred.karethActors.Select(actor => actor.activeSelf).ToArray();
+            }
+            foreach (var group in deferred.karethGroups) if (group) group.enabled = false;
+            foreach (var actor in deferred.karethActors) if (actor) actor.SetActive(false);
+            kareth.holdAuthoredPreviewAtStart = true;
+            kareth.gameObject.SetActive(true);
+            EditorUtility.SetDirty(kareth);
         }
     }
 }

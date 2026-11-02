@@ -115,7 +115,7 @@ namespace Zandea.Opening
             if (route != null && route.showTitle && presentation)
             {
                 Phase = OpeningPhase.TitlePending;
-                presentation.ShowTitle(() => Handoff(route));
+                if (!presentation.ShowTitle(() => Handoff(route))) Handoff(route);
             }
             else Handoff(route);
             return true;
@@ -137,6 +137,11 @@ namespace Zandea.Opening
             route?.onHandoff.Invoke();
             Phase = OpeningPhase.Completed;
             onOpeningCompleted.Invoke();
+            // Until a next chapter is wired, never strand the player in an
+            // indefinite opening KO after the title has finished.
+            if (knockout && (knockout.State == PlayerConsciousness.Unconscious ||
+                             knockout.State == PlayerConsciousness.KnockoutStarting))
+                knockout.Recover();
             ReleaseTransitionActions();
         }
 

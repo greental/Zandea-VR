@@ -76,9 +76,15 @@ namespace Zandea.Opening.Editor
                 Require(rootObject.GetComponent<OpeningSurfaceAnchor>() &&
                     rootObject.GetComponent<OpeningDeferredWorldSystems>(),
                     "Main has navigation and deferred world setup");
-                Require(UnityEngine.Object.FindObjectsByType<BanditOutpost>(FindObjectsInactive.Include, FindObjectsSortMode.None)
-                    .Where(poi => poi.gameObject.scene == scene).All(poi => !poi.gameObject.activeInHierarchy),
-                    "Main outpost streaming waits for opening completion");
+                var pois = UnityEngine.Object.FindObjectsByType<BanditOutpost>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                    .Where(poi => poi.gameObject.scene == scene).ToArray();
+                var kareth = pois.SingleOrDefault(poi => poi.poiId.StartsWith("zandea.pueblo.", StringComparison.Ordinal));
+                Require(kareth && kareth.name == "Kareth" && kareth.gameObject.activeInHierarchy &&
+                    kareth.holdAuthoredPreviewAtStart && kareth.transform.Find("Layout Preview") &&
+                    kareth.transform.Find("Layout Preview").gameObject.activeInHierarchy,
+                    "Kareth's authored city is visible at its saved terrain position");
+                Require(pois.Where(poi => poi != kareth).All(poi => !poi.gameObject.activeInHierarchy),
+                    "Other outpost streaming is deferred");
                 Require(UnityEngine.Object.FindObjectsByType<PuebloMissionTestStart>(FindObjectsInactive.Include, FindObjectsSortMode.None)
                     .Where(start => start.gameObject.scene == scene).All(start => !start.enableForTesting),
                     "Main Pueblo test teleport is disabled");

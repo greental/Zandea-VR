@@ -112,6 +112,8 @@ namespace Zandea.Opening.Editor
             ultimatum.guards = new[] { members[1], members[2] };
             ultimatum.player = body;
             ultimatum.surrender = surrender;
+            ultimatum.responseSeconds = 4f;
+            ultimatum.warningExtensionSeconds = 1.5f;
             var title = root.AddComponent<OpeningTitlePresentation>();
             title.viewCamera = body.hmd.GetComponent<Camera>();
             var director = root.AddComponent<OpeningDirector>();

@@ -10,6 +10,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.AI;
 using VRKoombar.WeaponsStaging.Contracts;
 using Zandea.Opening.Capture;
+using Zandea.POI;
 
 namespace Zandea.Opening.Editor
 {
@@ -41,7 +42,7 @@ namespace Zandea.Opening.Editor
         static float gestureStageAt;
         static OpeningDirector openingDirector;
         static int resolutions, completions;
-        static bool victoryMode;
+        static bool victoryMode, captureMode, titleSeen;
 
         static OpeningPlayValidation() => EditorApplication.update += Tick;
 
@@ -53,6 +54,8 @@ namespace Zandea.Opening.Editor
         public static void RunGestureSmoke() => Run("gesture");
         public static void RunEscapeRouteSmoke() => Run("escape-route");
         public static void RunVictoryRouteSmoke() => Run("victory-route");
+        public static void RunCapturedTitleSmoke() => Run("captured-title");
+        public static void RunAggressionSmoke() => Run("aggression");
         public static void RunMainSmoke() => Run("main");
 
         static void Run(string mode)
@@ -83,17 +86,17 @@ namespace Zandea.Opening.Editor
                     if (!playerHealth) playerHealth = body.GetComponentInChildren<ScavengerNPC.ScavengerPlayerHealth>(true);
                     if (!playerHealth) throw new InvalidOperationException("Player health missing");
                     if (mode == "knockout" || mode == "nonlethal" || mode == "capture" || mode == "escort" || mode == "gesture" ||
-                        mode == "escape-route" || mode == "victory-route")
+                        mode == "escape-route" || mode == "victory-route" || mode == "captured-title")
                     {
                         var director = UnityEngine.Object.FindFirstObjectByType<OpeningDirector>();
-                        if (director && mode != "escape-route" && mode != "victory-route") director.enabled = false;
+                        if (director && mode != "escape-route" && mode != "victory-route" && mode != "captured-title") director.enabled = false;
                         var flow = UnityEngine.Object.FindFirstObjectByType<OpeningFlow>();
                         if (flow) flow.enabled = false;
                         var ultimatum = UnityEngine.Object.FindFirstObjectByType<SlaverUltimatum>();
                         if (ultimatum) ultimatum.enabled = false;
                     }
                     if (mode == "knockout" || mode == "nonlethal" || mode == "gesture" ||
-                        mode == "escape-route" || mode == "victory-route")
+                        mode == "escape-route" || mode == "victory-route" || mode == "captured-title")
                     {
                         var group = UnityEngine.Object.FindFirstObjectByType<BanditGroup>();
                         if (group) group.enabled = false;
@@ -152,15 +155,20 @@ namespace Zandea.Opening.Editor
                         gestureStageAt = Time.time;
                         cycle = 0;
                     }
-                    else if (mode == "escape-route" || mode == "victory-route")
+                    else if (mode == "escape-route" || mode == "victory-route" || mode == "captured-title")
                     {
                         victoryMode = mode == "victory-route";
+                        captureMode = mode == "captured-title";
+                        titleSeen = false;
                         openingDirector = UnityEngine.Object.FindFirstObjectByType<OpeningDirector>();
                         if (!openingDirector || !openingDirector.presentation)
                             throw new InvalidOperationException("Opening director or title missing");
                         openingDirector.presentation.fadeToBlackSeconds = .1f;
                         openingDirector.presentation.titleHoldSeconds = .1f;
                         openingDirector.presentation.fadeTitleSeconds = .1f;
+                        openingDirector.presentation.fadeBackSeconds = .1f;
+                        if (!openingDirector.presentation.TitleRendersInFront)
+                            throw new InvalidOperationException("Welcome title is behind its blackout panel");
                         openingDirector.Resolved += _ => resolutions++;
                         openingDirector.onOpeningCompleted.AddListener(() => completions++);
                         cycle = 0;
@@ -173,6 +181,14 @@ namespace Zandea.Opening.Editor
                         if (!openingDirector) throw new InvalidOperationException("Main opening director missing");
                         gameDeadline = Time.time + 5f;
                         wallDeadline = EditorApplication.timeSinceStartup + 45d;
+                    }
+                    else if (mode == "aggression")
+                    {
+                        openingDirector = UnityEngine.Object.FindFirstObjectByType<OpeningDirector>();
+                        if (!openingDirector || !openingDirector.ultimatum)
+                            throw new InvalidOperationException("Ultimatum missing");
+                        gameDeadline = Time.time + openingDirector.awakeningSeconds + .4f;
+                        wallDeadline = EditorApplication.timeSinceStartup + 20d;
                     }
                     else
                     {
@@ -187,8 +203,9 @@ namespace Zandea.Opening.Editor
                 else if (mode == "nonlethal") TickNonlethal();
                 else if (mode == "capture" || mode == "escort") TickCapture();
                 else if (mode == "gesture") TickGesture();
-                else if (mode == "escape-route" || mode == "victory-route") TickRoute();
+                else if (mode == "escape-route" || mode == "victory-route" || mode == "captured-title") TickRoute();
                 else if (mode == "main") TickMain();
+                else if (mode == "aggression") TickAggression();
                 else if (EditorApplication.timeSinceStartup >= next) FinishEncounter();
             }
             catch (Exception error)
@@ -316,9 +333,10 @@ namespace Zandea.Opening.Editor
         static void TickGesture()
         {
             var head = body.hmd;
-            body.leftController.position = head.position - head.right * .28f + Vector3.up * .02f;
+            body.leftController.position = head.position - head.right * .28f +
+                Vector3.up * (cycle == 1 ? .65f : .02f);
             body.rightController.position = head.position + head.right * .28f +
-                Vector3.up * (cycle == 0 || cycle == 2 ? -.5f : .02f);
+                Vector3.up * (cycle == 0 || cycle == 2 ? -.5f : .65f);
             if (Time.time - gestureStageAt < .6f) return;
             if (cycle == 0)
             {
@@ -329,41 +347,73 @@ namespace Zandea.Opening.Editor
             else if (cycle == 1)
             {
                 if (gesture.State != SurrenderState.Surrendering || confirms != 1)
-                    throw new InvalidOperationException("Two-hand raise did not confirm surrender: " + gesture.State);
+                    throw new InvalidOperationException("Fully raised two-hand pose did not confirm surrender: " + gesture.State);
                 cycle = 2; gestureStageAt = Time.time;
             }
             else
             {
                 if (gesture.State != SurrenderState.NotSurrendering || cancellations != 1)
                     throw new InvalidOperationException("Lowering hand did not cancel surrender");
-                Debug.Log("OPENING_GESTURE_PASS oneHand/twoHands/cancel");
+                Debug.Log("OPENING_GESTURE_PASS oneHand/overheadTwoHands/cancel");
                 Finish(true);
             }
         }
 
         static void TickRoute()
         {
+            titleSeen |= openingDirector.presentation.TitleVisible;
             if (Time.time < gameDeadline && EditorApplication.timeSinceStartup < wallDeadline) return;
             if (cycle == 0)
             {
                 if (openingDirector.Phase == OpeningPhase.Dormant)
                     throw new InvalidOperationException("Director never started");
-                if (victoryMode)
+                if (captureMode)
+                {
+                    if (!knockout.RequestKnockout("captured route validation", true))
+                        throw new InvalidOperationException("Captured route KO did not start");
+                }
+                else if (victoryMode)
                 {
                     foreach (var member in openingDirector.slavers) member.health.ForceKnockout();
                 }
                 else if (!openingDirector.Resolve(OpeningOutcome.Escaped) || openingDirector.Resolve(OpeningOutcome.Escaped))
                     throw new InvalidOperationException("Escape resolution was not idempotent");
                 cycle = 1;
-                gameDeadline = Time.time + (victoryMode ? 3f : 1f);
+                gameDeadline = Time.time + (victoryMode || captureMode ? 3f : 1.5f);
                 wallDeadline = EditorApplication.timeSinceStartup + 15d;
                 return;
             }
-            var expected = victoryMode ? OpeningOutcome.SlaversDefeated : OpeningOutcome.Escaped;
+            var expected = captureMode ? OpeningOutcome.CapturedUnconscious :
+                victoryMode ? OpeningOutcome.SlaversDefeated : OpeningOutcome.Escaped;
             if (openingDirector.Outcome != expected || openingDirector.Phase != OpeningPhase.Completed ||
                 resolutions != 1 || completions != 1)
                 throw new InvalidOperationException($"Route failed: outcome={openingDirector.Outcome} phase={openingDirector.Phase} events={resolutions}/{completions}");
-            Debug.Log(victoryMode ? "OPENING_VICTORY_ROUTE_PASS" : "OPENING_ESCAPE_ROUTE_PASS");
+            if (!titleSeen || openingDirector.presentation.BlackoutOpacity > .1f)
+                throw new InvalidOperationException("Welcome title did not appear and fade back to the scene");
+            if (captureMode && knockout.State != PlayerConsciousness.Conscious)
+                throw new InvalidOperationException("Captured player remained fainted after title: " + knockout.State);
+            Debug.Log(captureMode ? "OPENING_CAPTURED_TITLE_RECOVERY_PASS" :
+                victoryMode ? "OPENING_VICTORY_ROUTE_PASS" : "OPENING_ESCAPE_ROUTE_PASS");
+            Finish(true);
+        }
+
+        static void TickAggression()
+        {
+            if (Time.time < gameDeadline && EditorApplication.timeSinceStartup < wallDeadline) return;
+            var ultimatum = openingDirector.ultimatum;
+            if (!ultimatum.IsDemanding || !ultimatum.leader.defensiveOnly ||
+                ultimatum.guards.Any(guard => !guard.defensiveOnly))
+                throw new InvalidOperationException("Opening demand did not start");
+            var guardHealth = ultimatum.guards[0].health;
+            guardHealth.ApplyDamage(new DamagePacket {
+                BaseDamage = 1f, DamageType = DamageType.Kinetic,
+                PhysicalImpact = PhysicalImpactKind.Blunt, Intent = DamageIntent.Lethal,
+                HitPointWorld = guardHealth.transform.position + Vector3.up
+            });
+            if (ultimatum.Result != UltimatumResult.Combat || ultimatum.leader.defensiveOnly ||
+                ultimatum.guards.Any(guard => guard.defensiveOnly))
+                throw new InvalidOperationException("A hit did not release all slavers into combat");
+            Debug.Log("OPENING_AGGRESSION_COMBAT_PASS");
             Finish(true);
         }
 
@@ -374,6 +424,15 @@ namespace Zandea.Opening.Editor
             if (openingDirector.Phase == OpeningPhase.Dormant || !openingDirector.gameObject.activeInHierarchy ||
                 slavers == null || slavers.Length != 3 || slavers.Any(member => !member || !member.gameObject.activeInHierarchy))
                 throw new InvalidOperationException("Main opening failed to activate");
+            var kareth = UnityEngine.Object.FindObjectsByType<BanditOutpost>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .SingleOrDefault(poi => poi.poiId.StartsWith("zandea.pueblo.", StringComparison.Ordinal));
+            var city = kareth ? kareth.transform.Find("Layout Preview") : null;
+            int visibleCityRenderers = city ? city.GetComponentsInChildren<Renderer>(false)
+                .Count(renderer => renderer && renderer.enabled && renderer.gameObject.activeInHierarchy) : 0;
+            if (!kareth || kareth.name != "Kareth" || !kareth.holdAuthoredPreviewAtStart ||
+                !city || visibleCityRenderers < 50 || Vector3.Distance(kareth.transform.position, city.position) > .01f)
+                throw new InvalidOperationException("Kareth did not stay visible at its saved scene position");
+            Debug.Log($"OPENING_KARETH_STATIC_PASS renderers={visibleCityRenderers} position={city.position}");
             var nav = string.Join(",", slavers.Select(member => member.agent && member.agent.isOnNavMesh));
             var ground = Terrain.activeTerrains
                 .Where(t => t && t.terrainData)

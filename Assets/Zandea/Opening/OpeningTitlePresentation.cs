@@ -14,14 +14,19 @@ namespace Zandea.Opening
         [Min(0f)] public float fadeToBlackSeconds = .7f;
         [Min(0f)] public float titleHoldSeconds = 2.5f;
         [Min(0f)] public float fadeTitleSeconds = .5f;
+        [Min(0f)] public float fadeBackSeconds = .7f;
         MeshRenderer backdrop;
         Material material;
+        Material titleMaterial;
         Mesh mesh;
         TextMeshPro titleText;
         AudioSource sound;
         Action finished;
         float opacity, target, titleUntil, titleFadeStart;
         bool titleRunning, titleShown;
+        public bool TitleVisible => titleText && titleText.enabled;
+        public float BlackoutOpacity => opacity;
+        public bool TitleRendersInFront => titleMaterial && material && titleMaterial.renderQueue > material.renderQueue;
 
         void Awake()
         {
@@ -75,6 +80,8 @@ namespace Zandea.Opening
             {
                 titleRunning = false;
                 if (titleText) titleText.enabled = false;
+                awakeningFade = Mathf.Max(.01f, fadeBackSeconds);
+                target = 0f;
                 var callback = finished;
                 finished = null;
                 callback?.Invoke();
@@ -84,7 +91,7 @@ namespace Zandea.Opening
         void CreateVisuals()
         {
             if (!viewCamera || backdrop) return;
-            var shader = Shader.Find("Sprites/Default");
+            var shader = Shader.Find("Zandea/Opening/BlackOverlay");
             if (!shader) { Debug.LogError("Opening blackout shader missing", this); return; }
             material = new Material(shader) { name = "Opening black", renderQueue = 5000 };
             mesh = new Mesh { name = "Opening stereo backdrop" };
@@ -107,6 +114,13 @@ namespace Zandea.Opening
             titleText = textObject.AddComponent<TextMeshPro>();
             titleText.text = title;
             if (font) titleText.font = font;
+            if (titleText.fontSharedMaterial)
+            {
+                titleMaterial = new Material(titleText.fontSharedMaterial) { name = "Opening title foreground", renderQueue = 5001 };
+                if (titleMaterial.HasProperty("_ZTestMode"))
+                    titleMaterial.SetFloat("_ZTestMode", (float)UnityEngine.Rendering.CompareFunction.Always);
+                titleText.fontMaterial = titleMaterial;
+            }
             titleText.fontSize = 0.09f;
             titleText.alignment = TextAlignmentOptions.Center;
             titleText.rectTransform.sizeDelta = new Vector2(1.2f, .2f);
@@ -125,6 +139,7 @@ namespace Zandea.Opening
         void OnDestroy()
         {
             if (material) Destroy(material);
+            if (titleMaterial) Destroy(titleMaterial);
             if (mesh) Destroy(mesh);
         }
     }

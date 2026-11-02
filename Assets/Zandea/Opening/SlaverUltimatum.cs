@@ -19,8 +19,8 @@ namespace Zandea.Opening
         public TMP_Text subtitle;
         [TextArea] public string demandText = "Hands up. Come quietly, and you might live.";
         [TextArea] public string warningText = "Last chance. Hands up.";
-        [Min(1f)] public float responseSeconds = 8f;
-        [Min(0f)] public float warningExtensionSeconds = 3f;
+        [Min(1f)] public float responseSeconds = 4f;
+        [Min(0f)] public float warningExtensionSeconds = 1.5f;
         [Min(.5f)] public float flightDistance = 8f;
         [Min(.1f)] public float outwardSpeed = .4f;
         [Min(.1f)] public float flightHoldSeconds = .8f;
@@ -37,6 +37,7 @@ namespace Zandea.Opening
         bool[] priorDefensive;
         float responseAt, priorDistance, flightSince = -1f;
         bool warned;
+        bool ownsSubtitle;
 
         void Awake()
         {
@@ -46,6 +47,11 @@ namespace Zandea.Opening
 
         void OnEnable()
         {
+            if (leader && leader.health) leader.health.onDamaged.AddListener(RegisterAggression);
+            if (guards != null)
+                foreach (var guard in guards)
+                    if (guard && guard != leader && guard.health)
+                        guard.health.onDamaged.AddListener(RegisterAggression);
             if (surrender)
             {
                 surrender.SurrenderConfirmed += OnSurrender;
@@ -55,6 +61,11 @@ namespace Zandea.Opening
 
         void OnDisable()
         {
+            if (leader && leader.health) leader.health.onDamaged.RemoveListener(RegisterAggression);
+            if (guards != null)
+                foreach (var guard in guards)
+                    if (guard && guard != leader && guard.health)
+                        guard.health.onDamaged.RemoveListener(RegisterAggression);
             if (surrender)
             {
                 surrender.SurrenderConfirmed -= OnSurrender;
@@ -173,6 +184,7 @@ namespace Zandea.Opening
 
         void Speak(AudioClip clip, string text)
         {
+            EnsureSubtitle();
             if (!voice && leader)
             {
                 var source = new GameObject("Opening demand voice");
@@ -191,5 +203,25 @@ namespace Zandea.Opening
         }
 
         void HideSubtitle() { if (subtitle) subtitle.gameObject.SetActive(false); }
+
+        void OnDestroy()
+        {
+            if (ownsSubtitle && subtitle) Destroy(subtitle.gameObject);
+        }
+
+        void EnsureSubtitle()
+        {
+            if (subtitle || !player || !player.hmd) return;
+            var label = new GameObject("Opening ultimatum subtitle");
+            label.transform.SetParent(player.hmd, false);
+            label.transform.localPosition = new Vector3(0f, -.18f, .8f);
+            var text = label.AddComponent<TextMeshPro>();
+            text.fontSize = .09f;
+            text.alignment = TextAlignmentOptions.Center;
+            text.rectTransform.sizeDelta = new Vector2(1.4f, .3f);
+            subtitle = text;
+            ownsSubtitle = true;
+            label.SetActive(false);
+        }
     }
 }

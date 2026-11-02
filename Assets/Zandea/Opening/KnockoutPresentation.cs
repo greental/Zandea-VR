@@ -82,7 +82,7 @@ namespace Zandea.Opening
         void CreateOverlay()
         {
             if (overlay || !viewCamera) return;
-            var shader = Shader.Find("Sprites/Default");
+            var shader = Shader.Find("Zandea/Opening/BlackOverlay");
             if (!shader) { Debug.LogWarning("XR blackout shader unavailable", this); return; }
             material = new Material(shader) { name = "XR knockout blackout", renderQueue = 5000 };
             mesh = new Mesh { name = "XR blackout quad" };

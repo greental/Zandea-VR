@@ -23,6 +23,8 @@ namespace Zandea.POI
         public bool siteSelected;
         public bool drawGizmos = true;
         public bool stream = true;
+        [Tooltip("Keep the authored city at its saved scene position and leave terrain streaming dormant until BeginStreamingFromAuthoredPreview is called.")]
+        public bool holdAuthoredPreviewAtStart;
         [Tooltip("Moves authored structures relative to the stamped terrain without moving the site or terrain stamp.")]
         public float authoredLayoutVerticalOffset;
         public OutpostLayout Layout { get; private set; }
@@ -59,6 +61,19 @@ namespace Zandea.POI
         public void EnsureLayout() { if (Layout == null) Layout = OutpostLayout.Generate(definition, seed); }
         public void InvalidateLayout() { Layout = null; }
         void Awake()
+        {
+            if (holdAuthoredPreviewAtStart) return;
+            InitializeStreaming();
+        }
+
+        public void BeginStreamingFromAuthoredPreview()
+        {
+            if (!holdAuthoredPreviewAtStart) return;
+            holdAuthoredPreviewAtStart = false;
+            InitializeStreaming();
+        }
+
+        void InitializeStreaming()
         {
             var generatedPreview = transform.Find("Generated Layout Preview");
             if (generatedPreview)
@@ -175,6 +190,7 @@ namespace Zandea.POI
         }
         void Update()
         {
+            if (holdAuthoredPreviewAtStart) return;
             AlignStandaloneSurfaceToPlayer();
             FollowWalkingPlayer();
             if (failed || !treadmill || Time.time < nextCheck) return;

@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.XR.Hands;
+using UnityEngine.XR;
 
 namespace JunkerBody
 {
@@ -25,6 +26,8 @@ namespace JunkerBody
         public Renderer[] opticalHandVisuals = Array.Empty<Renderer>();
         bool[] previousOpticalVisibility;
         public Vector3 opticalWristRotationOffset = new Vector3(90f, 0f, 0f);
+        [Tooltip("When an XR controller is tracked, use its full reach instead of a simultaneous optical hand wrist pose.")]
+        public bool preferControllerTracking = true;
         [Header("Skeleton and independent targets")]
         public Transform avatarRoot, hips, chest, head, headTarget;
         public Limb leftArm = new Limb(), rightArm = new Limb(), leftLeg = new Limb(), rightLeg = new Limb();
@@ -189,7 +192,8 @@ namespace JunkerBody
             // adjustment before the next Animator evaluation, so lengths never accumulate.
             arm.lower.localPosition *= armLengthMultiplier;
             arm.tip.localPosition *= armLengthMultiplier;
-            bool useOptical = optical && optical.isActiveAndEnabled && optical.handIsTracked && wrist;
+            bool controllerTracked = preferControllerTracking && IsControllerTracked(arm == leftArm ? XRNode.LeftHand : XRNode.RightHand);
+            bool useOptical = !controllerTracked && optical && optical.isActiveAndEnabled && optical.handIsTracked && wrist;
             if (gripTarget) arm.target.SetPositionAndRotation(gripTarget.position,
                 (meleeGrip ? gripTarget.rotation : source.rotation) * palmRoll * Quaternion.Euler(arm.wristRotationOffset));
             else if (useOptical) arm.target.SetPositionAndRotation(wrist.position, wrist.rotation * Quaternion.Euler(opticalWristRotationOffset));
@@ -200,6 +204,11 @@ namespace JunkerBody
             arm.hint.position = chest.position + avatarRoot.rotation * arm.hintOffset;
             SolveTwoBone(arm.upper, arm.lower, arm.tip, arm.target.position, arm.hint.position);
             arm.tip.rotation = arm.target.rotation;
+        }
+        static bool IsControllerTracked(XRNode node)
+        {
+            var device = InputDevices.GetDeviceAtXRNode(node);
+            return device.isValid && (!device.TryGetFeatureValue(CommonUsages.isTracked, out bool tracked) || tracked);
         }
         // Analytic two-bone solve. Reach is clamped to physical limb lengths and the hint
         // determines the bend plane, including near-chest and overhead targets.
