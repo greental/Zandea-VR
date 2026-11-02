@@ -32,6 +32,10 @@ namespace Zandea.Opening
         public PlayerSurrenderGesture surrender;
         public SlaverUltimatum ultimatum;
         public StarvingBandit[] slavers;
+        [Header("Opening attribute profiles")]
+        public CharacterAttributeProfile kaelProfile;
+        public CharacterAttributeProfile ordinarySlaverProfile;
+        public CharacterAttributeProfile leaderProfile;
         public OpeningTitlePresentation presentation;
         public Transform encounterCenter;
         [Min(0f)] public float awakeningSeconds = 2f;
@@ -50,10 +54,30 @@ namespace Zandea.Opening
 
         void Awake()
         {
+            ApplyOpeningProfiles();
             if (!player || !player.hmd || !knockout || !presentation || slavers == null || slavers.Length != 3)
             {
                 Debug.LogError("Opening director requires player, knockout, presentation and exactly three slavers.", this);
                 enabled = false;
+            }
+        }
+
+        public void ApplyOpeningProfiles()
+        {
+            if (player && kaelProfile)
+            {
+                var attributes = player.GetComponent<CharacterAttributes>();
+                if (!attributes) attributes = player.gameObject.AddComponent<CharacterAttributes>();
+                attributes.ApplyProfile(kaelProfile);
+            }
+            if (slavers == null) return;
+            for (int i = 0; i < slavers.Length; i++)
+            {
+                var profile = i == 0 ? leaderProfile : ordinarySlaverProfile;
+                if (!slavers[i] || !profile) continue;
+                var attributes = slavers[i].GetComponent<CharacterAttributes>();
+                if (!attributes) attributes = slavers[i].gameObject.AddComponent<CharacterAttributes>();
+                attributes.ApplyProfile(profile);
             }
         }
 

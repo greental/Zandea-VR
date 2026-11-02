@@ -3,15 +3,16 @@ using UnityEngine;
 
 namespace KenshiVR.MeleeCombat
 {
-    public enum CharacterAttribute { Strength, Dexterity, MeleeAttack, MeleeDefense, Toughness, StaffProficiency, MartialArts }
+    public enum CharacterAttribute { Strength, Dexterity, MeleeAttack, MeleeDefense, Toughness, StaffProficiency, MartialArts, Endurance }
 
     [Serializable]
     public struct CharacterAttributeValues
     {
         [Range(1, 100)] public int strength, dexterity, meleeAttack, meleeDefense, toughness, staffProficiency, martialArts;
+        [Range(1, 100)] public int endurance;
         public static CharacterAttributeValues Average => new CharacterAttributeValues {
             strength = 50, dexterity = 50, meleeAttack = 50, meleeDefense = 50,
-            toughness = 50, staffProficiency = 50, martialArts = 50
+            toughness = 50, staffProficiency = 50, martialArts = 50, endurance = 50
         };
         public int Get(CharacterAttribute attribute) => attribute switch {
             CharacterAttribute.Strength => strength,
@@ -20,6 +21,7 @@ namespace KenshiVR.MeleeCombat
             CharacterAttribute.MeleeDefense => meleeDefense,
             CharacterAttribute.Toughness => toughness,
             CharacterAttribute.MartialArts => martialArts > 0 ? martialArts : meleeAttack,
+            CharacterAttribute.Endurance => endurance > 0 ? endurance : 50,
             _ => staffProficiency
         };
         public void Set(CharacterAttribute attribute, int value)
@@ -32,12 +34,13 @@ namespace KenshiVR.MeleeCombat
                 case CharacterAttribute.MeleeDefense: meleeDefense = value; break;
                 case CharacterAttribute.Toughness: toughness = value; break;
                 case CharacterAttribute.MartialArts: martialArts = value; break;
+                case CharacterAttribute.Endurance: endurance = value; break;
                 default: staffProficiency = value; break;
             }
         }
         public void Clamp(int maximum)
         {
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 8; i++)
                 Set((CharacterAttribute)i, Mathf.Clamp(Get((CharacterAttribute)i), 1, maximum));
         }
     }
@@ -67,7 +70,7 @@ namespace KenshiVR.MeleeCombat
         {
             profile = value;
             ResetToDefaults();
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 8; i++)
                 Changed?.Invoke((CharacterAttribute)i, runtimeValues.Get((CharacterAttribute)i));
         }
         public int Get(CharacterAttribute attribute) { EnsureInitialized(); return runtimeValues.Get(attribute); }

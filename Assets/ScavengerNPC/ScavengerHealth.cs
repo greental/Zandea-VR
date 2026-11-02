@@ -25,6 +25,8 @@ namespace ScavengerNPC
         [Min(0f)] public float bluntTraumaMultiplier = .85f;
         [Min(0f)] public float sharpTraumaMultiplier = .16f;
         [Min(.1f)] public float knockoutDuration = 12f;
+        [Range(0f, .5f)] public float enduranceTraumaScale = .25f;
+        [Range(0f, .5f)] public float enduranceRecoveryScale = .2f;
         [Range(0f, 1f)] public float recoveryHealthFraction = .12f;
         [Min(0f)] public float additionalDamageDelay = .4f;
 
@@ -113,6 +115,7 @@ namespace ScavengerNPC
 
         public void ApplyDamage(in DamagePacket packet)
         {
+            if (!attributes) attributes = GetComponent<CharacterAttributes>();
             LastDamageBlocked = false;
             LastDamageTaken = 0f;
             if (IsDead || packet.BaseDamage <= 0f || float.IsNaN(packet.BaseDamage) || float.IsInfinity(packet.BaseDamage)) return;
@@ -143,7 +146,7 @@ namespace ScavengerNPC
                         packet.PhysicalImpact == PhysicalImpactKind.Blunt ? bluntTraumaMultiplier : sharpTraumaMultiplier;
                     Trauma += taken * multiplier;
                 }
-                if (ragdoll && (Trauma >= knockoutTrauma || Current <= maxHealth * severeHealthFraction))
+                if (ragdoll && (Trauma >= knockoutTrauma * CharacterCombatMath.EnduranceTraumaCapacity(attributes, enduranceTraumaScale) || Current <= maxHealth * severeHealthFraction))
                     KnockOut(packet.HitPointWorld, ImpactDirection(packet));
                 else
                 {
@@ -183,7 +186,8 @@ namespace ScavengerNPC
         {
             if (State != NpcConsciousness.Conscious || !ragdoll) return;
             Transition(NpcConsciousness.Unconscious);
-            wakeTime = Time.time + (duration > 0f ? duration : knockoutDuration * (1f + 1f - Current / maxHealth));
+            wakeTime = Time.time + (duration > 0f ? duration : knockoutDuration * (1f + 1f - Current / maxHealth)) *
+                CharacterCombatMath.EnduranceRecoveryDuration(attributes, enduranceRecoveryScale);
             if (martial) martial.InterruptCombat();
             if (bandit) bandit.InterruptCombatForKnockout();
             weaponLostAtKnockout = generatedWeapon && generatedWeapon.Instance || bandit && bandit.staff;

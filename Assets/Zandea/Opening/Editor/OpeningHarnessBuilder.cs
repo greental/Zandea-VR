@@ -15,6 +15,9 @@ namespace Zandea.Opening.Editor
         const string ArenaPath = "Assets/MeleeCombat/MocapTest/GeneratedVariants/ImportedCombatVRArena.unity";
         const string PlayerPath = "Assets/MeleeCombat/VRPlayerMainCombat.prefab";
         public const string BanditPath = "Assets/Zandea/Opening/Prefabs/OpeningStaffBandit_V2.prefab";
+        const string KaelProfilePath = "Assets/MeleeCombat/Profiles/Opening Kael.asset";
+        const string OrdinaryProfilePath = "Assets/MeleeCombat/Profiles/Opening Ordinary Slaver.asset";
+        const string LeaderProfilePath = "Assets/MeleeCombat/Profiles/Opening Slaver Leader.asset";
 
         [MenuItem("Zandea/Opening/Build test scene")]
         public static void Build()
@@ -123,6 +126,12 @@ namespace Zandea.Opening.Editor
             director.surrender = surrender;
             director.ultimatum = ultimatum;
             director.slavers = members;
+            director.kaelProfile = AssetDatabase.LoadAssetAtPath<CharacterAttributeProfile>(KaelProfilePath);
+            director.ordinarySlaverProfile = AssetDatabase.LoadAssetAtPath<CharacterAttributeProfile>(OrdinaryProfilePath);
+            director.leaderProfile = AssetDatabase.LoadAssetAtPath<CharacterAttributeProfile>(LeaderProfilePath);
+            if (!director.kaelProfile || !director.ordinarySlaverProfile || !director.leaderProfile)
+                throw new InvalidOperationException("Opening character attribute profiles are missing.");
+            director.ApplyOpeningProfiles();
             director.presentation = title;
             director.encounterCenter = root.transform;
             director.routes = new[] {

@@ -94,6 +94,13 @@ namespace Zandea.Opening.Editor
             var group = opening.GetComponent<BanditGroup>();
             if (!director || !group || director.slavers == null || director.slavers.Length != 3)
                 throw new InvalidOperationException("Opening encounter references are incomplete.");
+            director.kaelProfile = AssetDatabase.LoadAssetAtPath<CharacterAttributeProfile>("Assets/MeleeCombat/Profiles/Opening Kael.asset");
+            director.ordinarySlaverProfile = AssetDatabase.LoadAssetAtPath<CharacterAttributeProfile>("Assets/MeleeCombat/Profiles/Opening Ordinary Slaver.asset");
+            director.leaderProfile = AssetDatabase.LoadAssetAtPath<CharacterAttributeProfile>("Assets/MeleeCombat/Profiles/Opening Slaver Leader.asset");
+            if (!director.kaelProfile || !director.ordinarySlaverProfile || !director.leaderProfile)
+                throw new InvalidOperationException("Opening character attribute profiles are missing.");
+            director.ApplyOpeningProfiles();
+            EditorUtility.SetDirty(director);
             var target = opening.GetComponent<OpeningTargetBinding>();
             var ultimatum = opening.GetComponent<SlaverUltimatum>();
             if (ultimatum)

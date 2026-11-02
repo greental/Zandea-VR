@@ -115,8 +115,7 @@ namespace KenshiVR.MeleeCombat
                 scored.Add(target);
                 target.ApplyDamage(new DamagePacket {
                     BaseDamage = Mathf.Clamp(8f + speed * 2f, 8f, 22f) *
-                        CharacterCombatMath.DamageDealt(body.GetComponent<CharacterAttributes>(),
-                            PhysicalMeleeWeapon.WeaponProficiencyClass.None),
+                        CharacterCombatMath.UnarmedDamage(body.GetComponent<CharacterAttributes>()),
                     DamageType = DamageType.Kinetic, PhysicalImpact = PhysicalImpactKind.Unarmed, HitPointWorld = point,
                     HitNormalWorld = (point - from).normalized, Source = body.gameObject,
                     WeaponId = activeClip.name, Timestamp = Time.time

@@ -36,6 +36,7 @@ namespace KenshiVR.MeleeCombat
     public sealed class NpcMartialArts : MonoBehaviour
     {
         public MartialArtsProfile profile;
+        [Range(0f, .25f)] public float martialArtsDamageScale = .08f;
         public StarvingBandit brain;
         public Animator animator;
         public bool IsUnarmed => brain && !brain.staff && (!brain.health || brain.health.State == NpcConsciousness.Conscious);
@@ -282,7 +283,7 @@ namespace KenshiVR.MeleeCombat
                     {
                         scored.Add(defendingPlayer);
                         defendingPlayer.ApplyDamage(new DamagePacket {
-                            BaseDamage = activeStrike.damage, DamageType = DamageType.Kinetic, PhysicalImpact = PhysicalImpactKind.Unarmed,
+                            BaseDamage = activeStrike.damage * CharacterCombatMath.UnarmedDamage(GetComponent<CharacterAttributes>(), martialArtsDamageScale), DamageType = DamageType.Kinetic, PhysicalImpact = PhysicalImpactKind.Unarmed,
                             HitPointWorld = impact, HitNormalWorld = (impact - from).normalized,
                             Source = gameObject, WeaponId = activeStrike.stateName, Timestamp = Time.time
                         });
@@ -304,7 +305,7 @@ namespace KenshiVR.MeleeCombat
                 if ((point - contact).sqrMagnitude > activeStrike.contactRadius * activeStrike.contactRadius) continue;
                 scored.Add(receiver);
                 receiver.ApplyDamage(new DamagePacket {
-                    BaseDamage = activeStrike.damage * CharacterCombatMath.DamageDealt(GetComponent<CharacterAttributes>(), PhysicalMeleeWeapon.WeaponProficiencyClass.None),
+                    BaseDamage = activeStrike.damage * CharacterCombatMath.UnarmedDamage(GetComponent<CharacterAttributes>(), martialArtsDamageScale),
                     DamageType = DamageType.Kinetic, PhysicalImpact = PhysicalImpactKind.Unarmed, HitPointWorld = point,
                     HitNormalWorld = (point - to).normalized, Source = gameObject,
                     WeaponId = activeStrike.stateName, Timestamp = Time.time

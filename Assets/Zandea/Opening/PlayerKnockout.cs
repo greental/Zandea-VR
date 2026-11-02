@@ -20,6 +20,7 @@ namespace Zandea.Opening
         [Min(0f)] public float knockoutStartSeconds = .35f;
         [Min(0f)] public float defaultRecoverySeconds = 12f;
         [Min(0f)] public float recoverySeconds = .5f;
+        [Range(0f, .5f)] public float enduranceRecoveryScale = .2f;
         public ScavengerPlayerHealth health;
         public PlayerConsciousness State { get; private set; } = PlayerConsciousness.Conscious;
         public event Action<PlayerConsciousness, PlayerConsciousness> StateChanged;
@@ -40,7 +41,10 @@ namespace Zandea.Opening
         {
             if (State != PlayerConsciousness.Conscious || health && health.IsDead) return false;
             indefinite = remainUnconscious;
-            wakeAt = remainUnconscious ? float.PositiveInfinity : Time.time + Mathf.Max(0f, delay < 0f ? defaultRecoverySeconds : delay);
+            var attributes = health ? health.GetComponent<CharacterAttributes>() : GetComponent<CharacterAttributes>();
+            if (!attributes) attributes = GetComponentInChildren<CharacterAttributes>(true);
+            wakeAt = remainUnconscious ? float.PositiveInfinity : Time.time + Mathf.Max(0f,
+                (delay < 0f ? defaultRecoverySeconds : delay) * CharacterCombatMath.EnduranceRecoveryDuration(attributes, enduranceRecoveryScale));
             GateActions();
             Transition(PlayerConsciousness.KnockoutStarting);
             KnockoutStarted?.Invoke(cause);

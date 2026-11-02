@@ -34,6 +34,7 @@ namespace ScavengerNPC
         [Min(1f)] public float knockoutTrauma = 45f;
         [Min(0f)] public float minimumSubdualHit = 1f;
         [Min(0f)] public float bluntSubdualMultiplier = 1f;
+        [Range(0f, .5f)] public float enduranceTraumaScale = .25f;
         public float Trauma { get; private set; }
         ContinuousMoveProvider moveProvider;
         JumpProvider jumpProvider;
@@ -80,15 +81,16 @@ namespace ScavengerNPC
                     break;
                 }
             float before = Current;
-            float taken = packet.BaseDamage * multiplier *
-                CharacterCombatMath.DamageTaken(GetComponent<CharacterAttributes>());
+            var attributes = GetComponent<CharacterAttributes>();
+            if (!attributes) attributes = GetComponentInChildren<CharacterAttributes>(true);
+            float taken = packet.BaseDamage * multiplier * CharacterCombatMath.DamageTaken(attributes);
             bool nonlethal = packet.Intent == DamageIntent.Nonlethal;
             Current = Mathf.Max(nonlethal ? 1f : 0f, Current - taken);
             if (nonlethal)
             {
                 if (taken >= minimumSubdualHit)
                     Trauma += taken * (packet.PhysicalImpact == PhysicalImpactKind.Blunt ? bluntSubdualMultiplier : 1f);
-                if (Trauma >= knockoutTrauma || Current <= 1f)
+                if (Trauma >= knockoutTrauma * CharacterCombatMath.EnduranceTraumaCapacity(attributes, enduranceTraumaScale) || Current <= 1f)
                 {
                     var knockout = GetComponentInParent<Zandea.Opening.PlayerKnockout>();
                     if (!knockout) knockout = GetComponentInChildren<Zandea.Opening.PlayerKnockout>(true);

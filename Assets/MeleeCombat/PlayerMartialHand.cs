@@ -23,6 +23,7 @@ namespace KenshiVR.MeleeCombat
         [Min(.05f)] public float minimumTravel = .19f;
         [Min(.1f)] public float minimumSpeed = 1.55f;
         [Min(.1f)] public float punchCooldown = .42f;
+        [Range(0f, .25f)] public float martialArtsDamageScale = .08f;
         public HandState State { get; private set; }
         public bool InStance => State == HandState.MartialStance || State == HandState.ActivePunch || State == HandState.Recovery;
         public Vector3 Velocity { get; private set; }
@@ -138,8 +139,7 @@ namespace KenshiVR.MeleeCombat
                 Vector3 contact = shape.ClosestPoint(center);
                 if (Vector3.Distance(contact, center) > fistRadius + .02f) continue;
                 float damage = Mathf.Clamp(4f + (speed - minimumSpeed) * 3.5f, 4f, 16f);
-                damage *= CharacterCombatMath.DamageDealt(body.GetComponent<CharacterAttributes>(),
-                    PhysicalMeleeWeapon.WeaponProficiencyClass.None);
+                damage *= CharacterCombatMath.UnarmedDamage(body.GetComponent<CharacterAttributes>(), martialArtsDamageScale);
                 target.ApplyDamage(new DamagePacket {
                     BaseDamage = damage, DamageType = DamageType.Kinetic, PhysicalImpact = PhysicalImpactKind.Unarmed, HitPointWorld = contact,
                     HitNormalWorld = (contact - from).normalized, Source = body.gameObject,

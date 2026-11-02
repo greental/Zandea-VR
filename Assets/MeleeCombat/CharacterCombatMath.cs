@@ -24,6 +24,16 @@ namespace KenshiVR.MeleeCombat
         public static float DamageTaken(CharacterAttributes stats) => Mathf.Clamp(
             1f - .25f * Offset(stats, CharacterAttribute.Toughness), .65f, 1.25f);
 
+        // Zero on a legacy serialized profile means the former neutral value of 50.
+        public static float EnduranceTraumaCapacity(CharacterAttributes stats, float scale = .25f) =>
+            Mathf.Clamp(1f + scale * Offset(stats, CharacterAttribute.Endurance), .7f, 1.5f);
+        public static float EnduranceRecoveryDuration(CharacterAttributes stats, float scale = .2f) =>
+            Mathf.Clamp(1f - scale * Offset(stats, CharacterAttribute.Endurance), .7f, 1.4f);
+
+        public static float UnarmedDamage(CharacterAttributes stats, float martialArtsScale = .08f) =>
+            Mathf.Clamp(DamageDealt(stats, PhysicalMeleeWeapon.WeaponProficiencyClass.None) *
+                (1f + martialArtsScale * Offset(stats, CharacterAttribute.MartialArts)), .7f, 1.4f);
+
         public static float DamageDealt(CharacterAttributes stats,
             PhysicalMeleeWeapon.WeaponProficiencyClass weaponClass) => Mathf.Clamp(
             1f + .12f * Offset(stats, CharacterAttribute.Strength) +
