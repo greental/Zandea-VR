@@ -167,7 +167,8 @@ namespace Zandea.FriendlyNPC
             float dt = Time.deltaTime;
             // The counter owns readiness. Dialogue can close before the player
             // reaches for the offered hand, so conversation state is not a gate.
-            bool offeringHand = handshake && handshake.IsArmed;
+            bool offeringHand = handshake && (handshake.IsArmed ||
+                handshake.counter && handshake.counter.ContractPayoutInHand);
             float targetStep = offeringHand ? handshakeStep : 0f;
             float nextStep = Mathf.MoveTowards(forwardStep, targetStep, dt * .55f);
             float stepDelta = nextStep - forwardStep;

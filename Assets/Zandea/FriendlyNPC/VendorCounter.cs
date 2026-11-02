@@ -133,6 +133,8 @@ namespace Zandea.FriendlyNPC
         public bool Trading => trading;
         public bool MissionHandshakeAvailable => merchant && merchant.contract &&
             merchant.contract.CanHandshakeSettle;
+        public bool ContractPayoutInHand => handshake &&
+            handshake.GetComponentInChildren<CurrencyPouch>() != null;
         public bool AcceptingContractPayment => merchant && merchant.contract && merchant.contract.HasDebt;
 
         void Awake()
